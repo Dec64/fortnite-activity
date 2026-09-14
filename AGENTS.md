@@ -30,3 +30,32 @@ Read `docs/fortnite-home-assistant-agent-handoff.md` completely before planning 
 5. Produce the one-time administrator installation instructions.
 6. Continue the Home Assistant integration against fixtures while broker installation is pending.
 7. After the broker health check passes, perform bounded live probes and implement verified capabilities.
+
+## Current phase: complete api-fortnite.com Pro investigation
+
+The current authorized phase is a complete investigation of the paid
+api-fortnite.com Pro API.
+
+Do not build the Home Assistant integration, dashboard card, database or
+Windows service yet.
+
+The required credentials are provided as Windows user environment variables:
+
+- API_FORTNITE_KEY
+- FORTNITE_PLAYER1_ACCOUNT_ID
+- FORTNITE_PLAYER1_DEVICE_ID
+- FORTNITE_PLAYER1_DEVICE_SECRET
+
+These variables may be used in HTTP headers and request bodies. Never print,
+echo, enumerate, serialize, log or include their values in an artifact,
+conversation, command output, error report, fixture or source file.
+
+Never run Get-ChildItem Env:, set, dir env:, gci env:, or commands intended to
+display environment variables.
+
+A temporary research probe may read the variables at runtime. It must contain
+no secret values and must redact authentication responses before producing
+output.
+
+Focus on api-fortnite.com. Other providers may only be investigated after a
+specific api-fortnite.com capability has been proven missing or broken.
