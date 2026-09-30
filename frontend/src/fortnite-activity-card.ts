@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.1.0";
+const CARD_VERSION = "1.1.1";
 
 declare global {
   interface Window {
@@ -242,7 +242,10 @@ export class FortniteActivityCard extends LitElement {
         window_id: windowId,
         player_id: this._player,
       });
-      this._leaderboards = { ...this._leaderboards, [key]: { data: result?.leaderboard } };
+      this._leaderboards = {
+        ...this._leaderboards,
+        [key]: result?.leaderboard ? { data: result.leaderboard } : { error: result?.unavailable || "Leaderboard unavailable" },
+      };
     } catch (err: any) {
       this._leaderboards = { ...this._leaderboards, [key]: { error: err?.message || "Leaderboard unavailable" } };
     }
@@ -867,9 +870,9 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="event-filters">
         ${select("region", [["all", "All regions"], ...regions.map((r) => [r, r] as [string, string])])}
-        ${select("mode", [["all", "All modes"], ["Battle Royale", "Battle Royale"], ["Zero Build", "Zero Build"], ["Reload", "Reload"], ["Ranked", "Ranked cups"]])}
-        ${select("team", [["all", "Any team"], ["Solo", "Solo"], ["Duos", "Duos"], ["Trios", "Trios"], ["Squads", "Squads"]])}
-        ${select("platform", [["all", "Any platform"], ["PC", "PC"], ["Console", "Console"], ["Mobile", "Mobile"]])}
+        ${select("mode", [["all", "Mode"], ["Battle Royale", "Battle Royale"], ["Zero Build", "Zero Build"], ["Reload", "Reload"], ["Ranked", "Ranked cups"]])}
+        ${select("team", [["all", "Team"], ["Solo", "Solo"], ["Duos", "Duos"], ["Trios", "Trios"], ["Squads", "Squads"]])}
+        ${select("platform", [["all", "Platform"], ["PC", "PC"], ["Console", "Console"], ["Mobile", "Mobile"]])}
       </div>
       <div class="match-feed-header">
         <span>Tournaments (${list.length})</span>

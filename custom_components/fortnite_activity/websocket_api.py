@@ -321,11 +321,25 @@ async def ws_get_leaderboard(
     if cached and time.monotonic() - cached[0] < LEADERBOARD_CACHE_SECONDS:
         connection.send_result(msg["id"], cached[1])
         return
-    try:
-        raw = await coordinator.api_client.get_event_leaderboard(msg["event_id"], msg["window_id"], account_id)
-    except FortniteApiError as err:
-        connection.send_error(msg["id"], "api_error", str(err))
-        return
-    result = {"leaderboard": parse_leaderboard(raw, account_id)}
+    # The account highlight can be refused upstream (403); fall back to the plain page, then the v2 route
+    client = coordinator.api_client
+    attempts = [
+        lambda: client.get_event_leaderboard(msg["event_id"], msg["window_id"], account_id),
+        lambda: client.get_event_leaderboard(msg["event_id"], msg["window_id"]),
+        lambda: client.get_event_window_leaderboard(msg["event_id"], msg["window_id"]),
+    ]
+    raw = None
+    last_error: FortniteApiError | None = None
+    for attempt in attempts if account_id else attempts[1:]:
+        try:
+            raw = await attempt()
+            break
+        except FortniteApiError as err:
+            last_error = err
+    if raw is None:
+        _LOGGER.debug("Leaderboard unavailable for %s/%s: %s", msg["event_id"], msg["window_id"], last_error)
+        result = {"leaderboard": None, "unavailable": "Epic has not published this leaderboard (yet)."}
+    else:
+        result = {"leaderboard": parse_leaderboard(raw, account_id)}
     _LEADERBOARD_CACHE[key] = (time.monotonic(), result)
     connection.send_result(msg["id"], result)

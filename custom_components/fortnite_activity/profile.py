@@ -305,7 +305,7 @@ def _window_label(window_id: str) -> str | None:
 
 
 def parse_tournaments(
-    raw: Any, now: datetime, horizon_days: int = 14, recent_hours: int = 12, limit: int = 120
+    raw: Any, now: datetime, horizon_days: int = 14, recent_hours: int = 12, per_region_limit: int = 40
 ) -> list[dict[str, Any]]:
     """Tournaments across all regions from /v1/events/global (GlobalEventDto).
 
@@ -367,7 +367,15 @@ def parse_tournaments(
     # Live first, then soonest upcoming, then most recently finished
     events.sort(key=lambda e: (0 if e["is_live"] else 1 if not e["finished"] else 2,
                                e["next"]["begin"] if not e["finished"] else "~" + e["next"]["end"]))
-    return events[:limit]
+    # Cap per region group so busy regions (NA has three server regions) cannot crowd out others
+    counts: dict[str, int] = {}
+    capped = []
+    for event in events:
+        group = event["region_group"]
+        counts[group] = counts.get(group, 0) + 1
+        if counts[group] <= per_region_limit:
+            capped.append(event)
+    return capped
 
 
 def parse_leaderboard(raw: Any, account_id: str | None = None, limit: int = 10) -> dict[str, Any] | None:

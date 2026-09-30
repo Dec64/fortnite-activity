@@ -10,7 +10,7 @@ try:
 except ImportError:
     aiohttp = None  # type: ignore
 
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 from ..const import (
     ACCOUNT_ENDPOINT,
@@ -144,6 +144,12 @@ class ApiFortniteClient:
         if account_id:
             params["accountId"] = account_id
         return await self._request(f"{LEADERBOARD_ENDPOINT}?{urlencode(params)}")
+
+    async def get_event_window_leaderboard(self, event_id: str, window_id: str, page: int = 0) -> Any:
+        """Fetch a leaderboard page via the v2 per-window route (fallback for the global route)."""
+        return await self._request(
+            f"/v2/events/{quote(event_id, safe='')}/windows/{quote(window_id, safe='')}/leaderboard?page={int(page)}"
+        )
 
     async def search_cosmetics(self, query: str, cosmetic_type: str | None = "outfit") -> Any:
         """Search the public cosmetic catalogue by name."""
