@@ -1,0 +1,69 @@
+{
+  "provider": "Epic Games Fortnite profile service",
+  "method": "POST",
+  "endpoint": "/fortnite/api/game/v2/profile/{accountId}/client/QueryProfile?profileId=athena&rvn=-1",
+  "requested_at_utc": "2026-09-16T08:55:17.9070223Z",
+  "response_at_utc": "2026-09-16T08:55:18.6989119Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:55:16.0000000Z",
+  "outcome": "identity_verified_full_profile",
+  "shape": {
+    "profile_id": "athena",
+    "identity_matches_expected": true,
+    "response_profile_changes": 1,
+    "profile_updated_at": null,
+    "facts": {
+      "shape": "full_profile",
+      "item_count": 4024,
+      "selected_category_counts": {
+        "Quest": 645,
+        "ChallengeBundle": 100,
+        "AthenaSeason": 4,
+        "AthenaCharacter": 278,
+        "AthenaBackpack": 337,
+        "AthenaPickaxe": 247,
+        "AthenaGlider": 203,
+        "AthenaDance": 808,
+        "AthenaItemWrap": 178,
+        "AthenaLoadingScreen": 413,
+        "AthenaSkyDiveContrail": 122,
+        "AthenaMusicPack": 63
+      },
+      "quest_states": {
+        "active": 493,
+        "claimed": 152,
+        "other": 0
+      },
+      "quest_records_with_counters": 202,
+      "quest_records_with_expiry_fields": 96,
+      "athena_records_with_variants": 475,
+      "season_record_count": 4,
+      "season_records": [
+        {
+          "purchased": true,
+          "level": 59,
+          "claimed_offer_count": 30,
+          "claimed_offer_field_present": true
+        },
+        {
+          "purchased": true,
+          "level": 59,
+          "claimed_offer_count": 30,
+          "claimed_offer_field_present": true
+        },
+        {
+          "purchased": true,
+          "level": 45,
+          "claimed_offer_count": 45,
+          "claimed_offer_field_present": true
+        },
+        {
+          "purchased": true,
+          "level": 200,
+          "claimed_offer_count": 147,
+          "claimed_offer_field_present": true
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/events/tracker/eligibility?accountId={accountId}&days=180&requiredTournaments=14",
+  "requested_at_utc": "2026-09-16T08:21:13.4763869Z",
+  "response_at_utc": "2026-09-16T08:21:13.9397156Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:21:12.0000000Z",
+  "auth": "provider key + player token",
+  "outcome": "http_success",
+  "shape": {
+    "type": "object",
+    "omitted_field_count": 0,
+    "field_count": 9,
+    "unknown_field_count": 0,
+    "fields": {
+      "eligible": {
+        "value": false,
+        "type": "boolean"
+      },
+      "tournaments_played": {
+        "value": 0,
+        "type": "number"
+      },
+      "tournaments_required": {
+        "value": 14,
+        "type": "number"
+      },
+      "tournaments_remaining": {
+        "value": 14,
+        "type": "number"
+      },
+      "calculation_period_days": {
+        "value": 180,
+        "type": "number"
+      },
+      "history": {
+        "type": "object",
+        "omitted_field_count": 0,
+        "field_count": 5,
+        "unknown_field_count": 0,
+        "fields": {
+          "complete": {
+            "value": true,
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "length": 8
+          },
+          "verified_from": {
+            "value": "2026-03-20T08:21:12.3874845Z",
+            "type": "timestamp"
+          },
+          "windows_resolved": {
+            "value": 4210,
+            "type": "number"
+          },
+          "windows_total": {
+            "value": 4210,
+            "type": "number"
+          }
+        }
+      },
+      "oldest_tournament_date": {
+        "type": "null"
+      },
+      "newest_tournament_date": {
+        "type": "null"
+      },
+      "recent_tournaments": {
+        "type": "array",
+        "count": 0,
+        "sample_limit": 3,
+        "sample": []
+      }
+    }
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T08:21:13.9802805Z"
+}

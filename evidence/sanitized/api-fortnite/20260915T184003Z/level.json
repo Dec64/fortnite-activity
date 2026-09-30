@@ -1,0 +1,62 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/profile/level?accountId={verifiedAccountId}",
+  "requested_at_utc": "2026-09-15T18:40:25.4562297Z",
+  "response_at_utc": "2026-09-15T18:40:26.0626899Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T18:40:24.0000000Z",
+  "auth": "provider key + identity-verified player token",
+  "outcome": "http_success",
+  "shape": {
+    "fields": {
+      "level": {
+        "value": 214,
+        "type": "number"
+      },
+      "xp": {
+        "value": 66601,
+        "type": "number"
+      },
+      "accountLevel": {
+        "value": 3256,
+        "type": "number"
+      },
+      "unnamed_field_1": {
+        "fields": {
+          "tier": {
+            "value": 214,
+            "type": "number"
+          },
+          "xp": {
+            "value": 66601,
+            "type": "number"
+          },
+          "purchased": {
+            "value": false,
+            "type": "boolean"
+          }
+        },
+        "omitted_field_count": 0,
+        "type": "object",
+        "field_count": 3,
+        "unknown_field_count": 0
+      }
+    },
+    "omitted_field_count": 1,
+    "type": "object",
+    "field_count": 5,
+    "unknown_field_count": 1
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "quest_template_strings_present": false,
+    "cosmetic_template_strings_present": false,
+    "completion_fields_present": false,
+    "reward_fields_present": false,
+    "expiry_fields_present": false,
+    "style_fields_present": false
+  },
+  "account_binding": "Exact OAuth-verified account; identifier suppressed.",
+  "completed_at_utc": "2026-09-15T18:40:26.0645828Z"
+}

@@ -1,0 +1,772 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/events/global/leaderboard?eventId=epicgames_S42_SoloVictoryCup_EU&eventWindowId=S42_SoloVictoryCup_Event2Round2_EU&page=0",
+  "requested_at_utc": "2026-09-16T08:08:53.5695642Z",
+  "response_at_utc": "2026-09-16T08:08:54.3502353Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:08:52.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "unknown_field_count": 0,
+    "fields": {
+      "gameId": {
+        "type": "string",
+        "length": 8
+      },
+      "eventId": {
+        "type": "string",
+        "length": 31
+      },
+      "eventWindowId": {
+        "type": "string",
+        "length": 34
+      },
+      "page": {
+        "type": "number",
+        "value": 0
+      },
+      "totalPages": {
+        "type": "number",
+        "value": 40
+      },
+      "updatedTime": {
+        "type": "timestamp",
+        "value": "2026-09-16T08:08:52.6050000Z"
+      },
+      "entries": {
+        "sample": [
+          {
+            "unknown_field_count": 0,
+            "fields": {
+              "gameId": {
+                "type": "string",
+                "length": 8
+              },
+              "eventId": {
+                "type": "string",
+                "length": 31
+              },
+              "eventWindowId": {
+                "type": "string",
+                "length": 34
+              },
+              "pointsEarned": {
+                "type": "number",
+                "value": 200
+              },
+              "score": {
+                "type": "number",
+                "value": 880185918784694
+              },
+              "rank": {
+                "type": "number",
+                "value": 1
+              },
+              "percentile": {
+                "type": "number",
+                "value": 0
+              },
+              "teamId": {
+                "type": "string",
+                "length": 32
+              },
+              "pointBreakdown": {
+                "unknown_field_count": 0,
+                "fields": {
+                  "PLACEMENT_STAT_INDEX:1": {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "timesAchieved": {
+                        "type": "number",
+                        "value": 2
+                      },
+                      "pointsEarned": {
+                        "type": "number",
+                        "value": 200
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 2
+                  }
+                },
+                "type": "object",
+                "omitted_field_count": 0,
+                "field_count": 1
+              },
+              "sessionHistory": {
+                "sample": [
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T20:23:34.4860000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 1354
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 12
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 99
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 1
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  },
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T20:40:47.9250000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 46
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 925
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 2
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 54
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 0
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  },
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T21:05:01.9820000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 1339
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 10
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 99
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 1
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  }
+                ],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 3
+              },
+              "unscoredSessions": {
+                "sample": [],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 0
+              },
+              "teamAccountDisplayNames": {
+                "sample": [
+                  {
+                    "type": "string",
+                    "length": 14
+                  }
+                ],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 1
+              }
+            },
+            "type": "object",
+            "omitted_field_count": 2,
+            "field_count": 14
+          },
+          {
+            "unknown_field_count": 0,
+            "fields": {
+              "gameId": {
+                "type": "string",
+                "length": 8
+              },
+              "eventId": {
+                "type": "string",
+                "length": 31
+              },
+              "eventWindowId": {
+                "type": "string",
+                "length": 34
+              },
+              "pointsEarned": {
+                "type": "number",
+                "value": 200
+              },
+              "score": {
+                "type": "number",
+                "value": 880181458365735
+              },
+              "rank": {
+                "type": "number",
+                "value": 2
+              },
+              "percentile": {
+                "type": "number",
+                "value": 0
+              },
+              "teamId": {
+                "type": "string",
+                "length": 32
+              },
+              "pointBreakdown": {
+                "unknown_field_count": 0,
+                "fields": {
+                  "PLACEMENT_STAT_INDEX:1": {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "timesAchieved": {
+                        "type": "number",
+                        "value": 2
+                      },
+                      "pointsEarned": {
+                        "type": "number",
+                        "value": 200
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 2
+                  }
+                },
+                "type": "object",
+                "omitted_field_count": 0,
+                "field_count": 1
+              },
+              "sessionHistory": {
+                "sample": [
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T20:24:26.8240000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 1370
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 8
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 99
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 1
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  },
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T20:46:17.8550000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 12
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 1236
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 4
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 88
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 0
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  },
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T21:10:25.7570000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 1350
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 8
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 99
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 1
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  }
+                ],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 3
+              },
+              "unscoredSessions": {
+                "sample": [],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 0
+              },
+              "teamAccountDisplayNames": {
+                "sample": [
+                  {
+                    "type": "string",
+                    "length": 8
+                  }
+                ],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 1
+              }
+            },
+            "type": "object",
+            "omitted_field_count": 2,
+            "field_count": 14
+          },
+          {
+            "unknown_field_count": 0,
+            "fields": {
+              "gameId": {
+                "type": "string",
+                "length": 8
+              },
+              "eventId": {
+                "type": "string",
+                "length": 31
+              },
+              "eventWindowId": {
+                "type": "string",
+                "length": 34
+              },
+              "pointsEarned": {
+                "type": "number",
+                "value": 200
+              },
+              "score": {
+                "type": "number",
+                "value": 880174747888958
+              },
+              "rank": {
+                "type": "number",
+                "value": 3
+              },
+              "percentile": {
+                "type": "number",
+                "value": 0
+              },
+              "teamId": {
+                "type": "string",
+                "length": 32
+              },
+              "pointBreakdown": {
+                "unknown_field_count": 0,
+                "fields": {
+                  "PLACEMENT_STAT_INDEX:1": {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "timesAchieved": {
+                        "type": "number",
+                        "value": 2
+                      },
+                      "pointsEarned": {
+                        "type": "number",
+                        "value": 200
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 2
+                  }
+                },
+                "type": "object",
+                "omitted_field_count": 0,
+                "field_count": 1
+              },
+              "sessionHistory": {
+                "sample": [
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T20:23:44.6110000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 6
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 1263
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 5
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 94
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 0
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  },
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T20:48:06.6200000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 1369
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 4
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 99
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 1
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  },
+                  {
+                    "unknown_field_count": 0,
+                    "fields": {
+                      "sessionId": {
+                        "type": "string",
+                        "length": 32
+                      },
+                      "endTime": {
+                        "type": "timestamp",
+                        "value": "2026-09-13T21:12:58.3680000Z"
+                      },
+                      "trackedStats": {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "PLACEMENT_STAT_INDEX": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "TIME_ALIVE_STAT": {
+                            "type": "number",
+                            "value": 1393
+                          },
+                          "TEAM_ELIMS_STAT_INDEX": {
+                            "type": "number",
+                            "value": 5
+                          },
+                          "MATCH_PLAYED_STAT": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "PLACEMENT_TIEBREAKER_STAT": {
+                            "type": "number",
+                            "value": 99
+                          },
+                          "VICTORY_ROYALE_STAT": {
+                            "type": "number",
+                            "value": 1
+                          }
+                        },
+                        "type": "object",
+                        "omitted_field_count": 0,
+                        "field_count": 6
+                      }
+                    },
+                    "type": "object",
+                    "omitted_field_count": 0,
+                    "field_count": 3
+                  }
+                ],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 3
+              },
+              "unscoredSessions": {
+                "sample": [],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 0
+              },
+              "teamAccountDisplayNames": {
+                "sample": [
+                  {
+                    "type": "string",
+                    "length": 15
+                  }
+                ],
+                "type": "array",
+                "sample_limit": 3,
+                "count": 1
+              }
+            },
+            "type": "object",
+            "omitted_field_count": 2,
+            "field_count": 14
+          }
+        ],
+        "type": "array",
+        "sample_limit": 3,
+        "count": 100
+      },
+      "liveSessions": {
+        "unknown_field_count": 0,
+        "fields": {},
+        "type": "object",
+        "omitted_field_count": 0,
+        "field_count": 0
+      }
+    },
+    "type": "object",
+    "omitted_field_count": 0,
+    "field_count": 8
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": true,
+    "rank_fields_present": true,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T08:08:54.7803612Z"
+}

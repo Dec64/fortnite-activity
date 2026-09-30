@@ -1,0 +1,61 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/sprites/versions",
+  "requested_at_utc": "2026-09-16T07:59:00.2570480Z",
+  "response_at_utc": "2026-09-16T07:59:00.6420078Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T07:58:59.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "type": "sprite_versions_summary",
+    "container_path": "root.data",
+    "version_count": 4,
+    "versions": [
+      {
+        "version": "42.10",
+        "generated": "2026-09-07T05:59:48.0917747Z",
+        "isCurrent": true,
+        "familyCount": 16
+      },
+      {
+        "version": "42.00",
+        "generated": "2026-08-21T18:08:30.8173981Z",
+        "isCurrent": false,
+        "familyCount": 12
+      },
+      {
+        "version": "41.30",
+        "generated": "2026-08-06T19:52:21.1348616Z",
+        "isCurrent": false,
+        "familyCount": 25
+      },
+      {
+        "version": "41.20",
+        "generated": "2026-07-30T09:54:25.4258173Z",
+        "isCurrent": false,
+        "familyCount": 21
+      }
+    ]
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": true,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T07:59:00.8347212Z"
+}

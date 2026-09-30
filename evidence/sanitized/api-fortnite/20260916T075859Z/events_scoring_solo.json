@@ -1,0 +1,163 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/events/scoring/S42_SoloVictoryCup_Event3Round1_EU",
+  "requested_at_utc": "2026-09-16T07:59:03.1164852Z",
+  "response_at_utc": "2026-09-16T07:59:03.2731581Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T07:59:01.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "sample_limit": 3,
+    "sample": [
+      {
+        "unknown_field_count": 0,
+        "fields": {
+          "trackedStat": {
+            "type": "string",
+            "length": 20
+          },
+          "matchRule": {
+            "type": "string",
+            "length": 3
+          },
+          "rewardTiers": {
+            "sample_limit": 3,
+            "sample": [
+              {
+                "unknown_field_count": 0,
+                "fields": {
+                  "keyValue": {
+                    "type": "number",
+                    "value": 1
+                  },
+                  "pointsEarned": {
+                    "type": "number",
+                    "value": 7
+                  },
+                  "multiplicative": {
+                    "type": "boolean",
+                    "value": false
+                  }
+                },
+                "omitted_field_count": 0,
+                "type": "object",
+                "field_count": 3
+              },
+              {
+                "unknown_field_count": 0,
+                "fields": {
+                  "keyValue": {
+                    "type": "number",
+                    "value": 2
+                  },
+                  "pointsEarned": {
+                    "type": "number",
+                    "value": 4
+                  },
+                  "multiplicative": {
+                    "type": "boolean",
+                    "value": false
+                  }
+                },
+                "omitted_field_count": 0,
+                "type": "object",
+                "field_count": 3
+              },
+              {
+                "unknown_field_count": 0,
+                "fields": {
+                  "keyValue": {
+                    "type": "number",
+                    "value": 3
+                  },
+                  "pointsEarned": {
+                    "type": "number",
+                    "value": 2
+                  },
+                  "multiplicative": {
+                    "type": "boolean",
+                    "value": false
+                  }
+                },
+                "omitted_field_count": 0,
+                "type": "object",
+                "field_count": 3
+              }
+            ],
+            "type": "array",
+            "count": 50
+          }
+        },
+        "omitted_field_count": 0,
+        "type": "object",
+        "field_count": 3
+      },
+      {
+        "unknown_field_count": 0,
+        "fields": {
+          "trackedStat": {
+            "type": "string",
+            "length": 21
+          },
+          "matchRule": {
+            "type": "string",
+            "length": 3
+          },
+          "rewardTiers": {
+            "sample_limit": 3,
+            "sample": [
+              {
+                "unknown_field_count": 0,
+                "fields": {
+                  "keyValue": {
+                    "type": "number",
+                    "value": 1
+                  },
+                  "pointsEarned": {
+                    "type": "number",
+                    "value": 2
+                  },
+                  "multiplicative": {
+                    "type": "boolean",
+                    "value": true
+                  }
+                },
+                "omitted_field_count": 0,
+                "type": "object",
+                "field_count": 3
+              }
+            ],
+            "type": "array",
+            "count": 1
+          }
+        },
+        "omitted_field_count": 0,
+        "type": "object",
+        "field_count": 3
+      }
+    ],
+    "type": "array",
+    "count": 2
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T07:59:03.3173282Z"
+}

@@ -1,0 +1,46 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/playlists/habanero_ropesmile_duos?lang=en",
+  "requested_at_utc": "2026-09-16T08:23:13.8917809Z",
+  "response_at_utc": "2026-09-16T08:23:13.9677295Z",
+  "http_status": 500,
+  "response_date_utc": "2026-09-16T08:23:12.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_error",
+  "shape": {
+    "omitted_field_count": 0,
+    "type": "object",
+    "unknown_field_count": 0,
+    "fields": {
+      "status": {
+        "type": "number",
+        "value": 500
+      },
+      "error": {
+        "type": "string",
+        "length": 28
+      }
+    },
+    "field_count": 2
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T08:23:13.9706131Z"
+}

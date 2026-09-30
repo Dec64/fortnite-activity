@@ -1,0 +1,66 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/playlists/Playlist_DefaultSolo?lang=en",
+  "requested_at_utc": "2026-09-16T08:23:52.1343534Z",
+  "response_at_utc": "2026-09-16T08:23:52.4579063Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:23:50.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "omitted_field_count": 0,
+    "type": "object",
+    "fields": {
+      "image": {
+        "type": "string",
+        "length": 93
+      },
+      "playlist_name": {
+        "type": "string",
+        "length": 20
+      },
+      "hidden": {
+        "type": "boolean",
+        "value": false
+      },
+      "special_border": {
+        "type": "string",
+        "length": 4
+      },
+      "unnamed_field_1": {
+        "type": "string",
+        "length": 16
+      },
+      "description": {
+        "type": "string",
+        "length": 57
+      },
+      "display_name": {
+        "type": "string",
+        "length": 4
+      }
+    },
+    "unknown_field_count": 1,
+    "field_count": 7
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T08:23:52.5975846Z"
+}

@@ -1,0 +1,162 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/events/cashprizes",
+  "requested_at_utc": "2026-09-15T19:28:02.6040041Z",
+  "response_at_utc": "2026-09-15T19:28:02.8805846Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T19:28:01.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "type": "event_rule_aggregate_summary",
+    "root_type": "object",
+    "top_level_count": 4420,
+    "samples": [
+      {
+        "key": "S42_RankedCupDuos_ZB_Event5_ASIA_1_unreal",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupReloadDuos_Event6_ME_1_Platinum",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupSolo_ZB_Event8_OCE_1_Bronze",
+        "child_type": "array",
+        "count": 2
+      },
+      {
+        "key": "S42_RankedCupDuos_ZB_Event3_BR_1_elite",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupReloadDuos_ZB_Event3_NAC_1_Diamond",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupReloadDuos_Event8_OCE_1_Elite",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupReloadDuos_ZB_Event2_OCE_1_Diamond",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupSolo_ZB_Event2_ASIA_1_elite",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupReloadDuos_Event5_NAC_1_Gold",
+        "child_type": "array",
+        "count": 3
+      },
+      {
+        "key": "S42_RankedCupDuos_ZB_Event6_EU_1_champion",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupSoloReload_Event8_BR_1_gold",
+        "child_type": "array",
+        "count": 3
+      },
+      {
+        "key": "S42_RankedCupReloadDuos_Event5_NAC_1_Elite",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupDuos_ZB_Event8_OCE_1_diamond",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupSoloReload_ZB_Event1_BR_1_platinum",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupDuos_ZB_Event6_NAW_1_unreal",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupSolo_Event4_OCE_1_unreal",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupDuos_Event7_NAC_1_unreal",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupSoloReload_ZB_Event8_NAC_1_unreal",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupReloadDuos_Event4_OCE_1_Bronze",
+        "child_type": "array",
+        "count": 2
+      },
+      {
+        "key": "S42_FNCSSoloQualifiers_Qual1Round2_ASIA",
+        "child_type": "array",
+        "count": 2
+      },
+      {
+        "key": "S42_RankedCupDuos_ZB_Event5_NAC_1_champion",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupSolo_ZB_Event1_NAC_1_elite",
+        "child_type": "array",
+        "count": 4
+      },
+      {
+        "key": "S42_RankedCupSolo_Event6_OCE_1_gold",
+        "child_type": "array",
+        "count": 3
+      },
+      {
+        "key": "S42_RankedCupDuos_ZB_Event3_ME_1_Bronze",
+        "child_type": "array",
+        "count": 2
+      },
+      {
+        "key": "S42_RankedCupReloadDuos_ZB_Event7_NAC_1_Bronze",
+        "child_type": "array",
+        "count": 2
+      }
+    ]
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": true,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": true,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-15T19:28:07.6788967Z"
+}

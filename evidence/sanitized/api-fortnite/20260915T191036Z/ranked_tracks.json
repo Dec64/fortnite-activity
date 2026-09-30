@@ -1,0 +1,141 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/profile/tracks",
+  "requested_at_utc": "2026-09-15T19:10:43.2698930Z",
+  "response_at_utc": "2026-09-15T19:10:43.4418226Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T19:10:41.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "sample_limit": 3,
+    "type": "array",
+    "count": 88,
+    "sample": [
+      {
+        "field_count": 7,
+        "unknown_field_count": 0,
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "gameId": {
+            "type": "string",
+            "length": 8
+          },
+          "trackguid": {
+            "type": "string",
+            "length": 6
+          },
+          "rankingType": {
+            "type": "string",
+            "length": 9
+          },
+          "beginTime": {
+            "type": "timestamp",
+            "value": "2023-04-01T00:00:00.0000000Z"
+          },
+          "endTime": {
+            "type": "timestamp",
+            "value": "2023-06-20T08:00:00.0000000Z"
+          },
+          "divisionCount": {
+            "type": "number",
+            "value": 18
+          },
+          "leaderboardTrackingEventId": {
+            "type": "string",
+            "length": 28
+          }
+        }
+      },
+      {
+        "field_count": 7,
+        "unknown_field_count": 0,
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "gameId": {
+            "type": "string",
+            "length": 8
+          },
+          "trackguid": {
+            "type": "string",
+            "length": 6
+          },
+          "rankingType": {
+            "type": "string",
+            "length": 9
+          },
+          "beginTime": {
+            "type": "timestamp",
+            "value": "2023-04-01T00:00:00.0000000Z"
+          },
+          "endTime": {
+            "type": "timestamp",
+            "value": "2023-06-20T08:00:00.0000000Z"
+          },
+          "divisionCount": {
+            "type": "number",
+            "value": 18
+          },
+          "leaderboardTrackingEventId": {
+            "type": "string",
+            "length": 28
+          }
+        }
+      },
+      {
+        "field_count": 7,
+        "unknown_field_count": 0,
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "gameId": {
+            "type": "string",
+            "length": 8
+          },
+          "trackguid": {
+            "type": "string",
+            "length": 6
+          },
+          "rankingType": {
+            "type": "string",
+            "length": 9
+          },
+          "beginTime": {
+            "type": "timestamp",
+            "value": "2023-06-20T13:00:00.0000000Z"
+          },
+          "endTime": {
+            "type": "timestamp",
+            "value": "2023-08-25T07:00:00.0000000Z"
+          },
+          "divisionCount": {
+            "type": "number",
+            "value": 18
+          },
+          "leaderboardTrackingEventId": {
+            "type": "string",
+            "length": 30
+          }
+        }
+      }
+    ]
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": [],
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-15T19:10:43.4611261Z"
+}

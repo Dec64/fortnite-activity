@@ -1,0 +1,487 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/assets/bundles/shop",
+  "requested_at_utc": "2026-09-16T08:19:47.8951678Z",
+  "response_at_utc": "2026-09-16T08:19:48.5064792Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:19:46.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "count": 21,
+    "sample_limit": 3,
+    "sample": [
+      {
+        "unknown_field_count": 1,
+        "field_count": 3,
+        "omitted_field_count": 0,
+        "fields": {
+          "materials": {
+            "count": 1,
+            "sample_limit": 3,
+            "sample": [
+              {
+                "unknown_field_count": 1,
+                "field_count": 2,
+                "omitted_field_count": 0,
+                "fields": {
+                  "unnamed_field_1": {
+                    "type": "string",
+                    "length": 23
+                  },
+                  "parameters": {
+                    "count": 3,
+                    "sample_limit": 3,
+                    "sample": [
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 4,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 2,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "w": {
+                                "value": 1,
+                                "type": "number"
+                              },
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 18
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 6
+                          }
+                        },
+                        "type": "object"
+                      },
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 4,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 2,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "w": {
+                                "value": 1,
+                                "type": "number"
+                              },
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 18
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 6
+                          }
+                        },
+                        "type": "object"
+                      },
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 5,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 1,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 10
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 7
+                          },
+                          "textureValue": {
+                            "type": "string",
+                            "length": 92
+                          }
+                        },
+                        "type": "object"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            ],
+            "type": "array"
+          },
+          "unnamed_field_1": {
+            "type": "string",
+            "length": 15
+          },
+          "visualID": {
+            "type": "string",
+            "length": 20
+          }
+        },
+        "type": "object"
+      },
+      {
+        "unknown_field_count": 1,
+        "field_count": 3,
+        "omitted_field_count": 0,
+        "fields": {
+          "materials": {
+            "count": 1,
+            "sample_limit": 3,
+            "sample": [
+              {
+                "unknown_field_count": 1,
+                "field_count": 2,
+                "omitted_field_count": 0,
+                "fields": {
+                  "unnamed_field_1": {
+                    "type": "string",
+                    "length": 23
+                  },
+                  "parameters": {
+                    "count": 3,
+                    "sample_limit": 3,
+                    "sample": [
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 4,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 2,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "w": {
+                                "value": 1,
+                                "type": "number"
+                              },
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 18
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 6
+                          }
+                        },
+                        "type": "object"
+                      },
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 4,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 2,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "w": {
+                                "value": 1,
+                                "type": "number"
+                              },
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 18
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 6
+                          }
+                        },
+                        "type": "object"
+                      },
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 5,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 1,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 10
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 7
+                          },
+                          "textureValue": {
+                            "type": "string",
+                            "length": 92
+                          }
+                        },
+                        "type": "object"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            ],
+            "type": "array"
+          },
+          "unnamed_field_1": {
+            "type": "string",
+            "length": 15
+          },
+          "visualID": {
+            "type": "string",
+            "length": 20
+          }
+        },
+        "type": "object"
+      },
+      {
+        "unknown_field_count": 1,
+        "field_count": 3,
+        "omitted_field_count": 0,
+        "fields": {
+          "materials": {
+            "count": 1,
+            "sample_limit": 3,
+            "sample": [
+              {
+                "unknown_field_count": 1,
+                "field_count": 2,
+                "omitted_field_count": 0,
+                "fields": {
+                  "unnamed_field_1": {
+                    "type": "string",
+                    "length": 23
+                  },
+                  "parameters": {
+                    "count": 3,
+                    "sample_limit": 3,
+                    "sample": [
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 4,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 2,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "w": {
+                                "value": 1,
+                                "type": "number"
+                              },
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 18
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 6
+                          }
+                        },
+                        "type": "object"
+                      },
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 4,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 2,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "w": {
+                                "value": 1,
+                                "type": "number"
+                              },
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 18
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 6
+                          }
+                        },
+                        "type": "object"
+                      },
+                      {
+                        "unknown_field_count": 1,
+                        "field_count": 5,
+                        "omitted_field_count": 0,
+                        "fields": {
+                          "vectorValue": {
+                            "unknown_field_count": 1,
+                            "field_count": 1,
+                            "omitted_field_count": 0,
+                            "fields": {
+                              "unnamed_field_1": {
+                                "type": "string",
+                                "length": 38
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "unnamed_field_1": {
+                            "type": "string",
+                            "length": 32
+                          },
+                          "name": {
+                            "type": "string",
+                            "length": 10
+                          },
+                          "type": {
+                            "type": "string",
+                            "length": 7
+                          },
+                          "textureValue": {
+                            "type": "string",
+                            "length": 92
+                          }
+                        },
+                        "type": "object"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            ],
+            "type": "array"
+          },
+          "unnamed_field_1": {
+            "type": "string",
+            "length": 15
+          },
+          "visualID": {
+            "type": "string",
+            "length": 20
+          }
+        },
+        "type": "object"
+      }
+    ],
+    "type": "array"
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T08:19:48.7512766Z"
+}

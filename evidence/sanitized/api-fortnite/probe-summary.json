@@ -1,0 +1,731 @@
+[
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/season",
+    "requested_at_utc": "2026-09-14T15:00:13.1831485Z",
+    "response_at_utc": "2026-09-14T15:00:13.662543Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-14T15:00:14.846749Z",
+    "response_at_utc": "2026-09-14T15:00:15.0170348Z",
+    "http_status": 400,
+    "outcome": "private_auth_gate_failed",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/crew/current",
+    "requested_at_utc": "2026-09-14T15:00:16.0513905Z",
+    "response_at_utc": "2026-09-14T15:00:16.1808064Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/cosmetics/all?page=1&pageSize=1&lang=en",
+    "requested_at_utc": "2026-09-14T15:00:17.275369Z",
+    "response_at_utc": "2026-09-14T15:00:18.5415745Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/battlepass",
+    "requested_at_utc": "2026-09-14T15:00:19.567382Z",
+    "response_at_utc": "2026-09-14T15:00:19.7186275Z",
+    "http_status": 404,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/battlepass/seasons",
+    "requested_at_utc": "2026-09-14T15:00:20.7352598Z",
+    "response_at_utc": "2026-09-14T15:00:20.7949764Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/shop/battlepass?lang=en",
+    "requested_at_utc": "2026-09-14T15:00:21.8000946Z",
+    "response_at_utc": "2026-09-14T15:00:22.1834023Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/crew/current",
+    "requested_at_utc": "2026-09-14T15:03:07.6932628Z",
+    "response_at_utc": "2026-09-14T15:03:07.9169572Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/battlepass?season=42",
+    "requested_at_utc": "2026-09-14T15:03:09.2151099Z",
+    "response_at_utc": "2026-09-14T15:03:09.2991274Z",
+    "http_status": 404,
+    "outcome": "http_error",
+    "note": "Resolved public season parameter from captured seasonNumber and fixed followup script; original report retains template."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/shop/battlepass?lang=en",
+    "requested_at_utc": "2026-09-14T15:03:10.3132615Z",
+    "response_at_utc": "2026-09-14T15:03:10.6752698Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-15T18:24:49.5263202Z",
+    "response_at_utc": "2026-09-15T18:24:50.1545336Z",
+    "http_status": 400,
+    "outcome": "private_auth_gate_failed",
+    "note": "Second and final approved stored-device authentication diagnostic; private identity gate closed."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/oauth/get-token",
+    "requested_at_utc": "2026-09-15T18:33:36.3311997Z",
+    "response_at_utc": "2026-09-15T18:33:37.0905606Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/complete",
+    "requested_at_utc": "2026-09-15T18:34:26.6896644Z",
+    "response_at_utc": "2026-09-15T18:34:27.4640397Z",
+    "http_status": 200,
+    "outcome": "identity_verified",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/profile/level?accountId={verifiedAccountId}",
+    "requested_at_utc": null,
+    "response_at_utc": null,
+    "http_status": null,
+    "outcome": "report_capture_failure_after_request",
+    "note": "Request was sent after verified interactive OAuth. Exact time, status and response shape were lost when endpoint redaction rejected the report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/oauth/get-token",
+    "requested_at_utc": "2026-09-15T18:40:03.3358983Z",
+    "response_at_utc": "2026-09-15T18:40:04.0361778Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/complete",
+    "requested_at_utc": "2026-09-15T18:40:24.6440637Z",
+    "response_at_utc": "2026-09-15T18:40:25.4308508Z",
+    "http_status": 200,
+    "outcome": "identity_verified",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/profile/level?accountId={verifiedAccountId}",
+    "requested_at_utc": "2026-09-15T18:40:25.4562297Z",
+    "response_at_utc": "2026-09-15T18:40:26.0626899Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/quests/{verifiedAccountId}",
+    "requested_at_utc": "2026-09-15T18:40:26.0695771Z",
+    "response_at_utc": "2026-09-15T18:40:26.6934228Z",
+    "http_status": 401,
+    "outcome": "http_error",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/fn/br-inventory/{verifiedAccountId}",
+    "requested_at_utc": "2026-09-15T18:40:26.7108652Z",
+    "response_at_utc": "2026-09-15T18:40:27.2225713Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/fn/entitlement",
+    "requested_at_utc": "2026-09-15T18:40:27.2274804Z",
+    "response_at_utc": "2026-09-15T18:40:27.8350686Z",
+    "http_status": 404,
+    "outcome": "http_error",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/oauth/get-token",
+    "requested_at_utc": "2026-09-15T18:50:35.7619248Z",
+    "response_at_utc": "2026-09-15T18:50:36.6032694Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/complete",
+    "requested_at_utc": "2026-09-15T18:51:05.5033553Z",
+    "response_at_utc": "2026-09-15T18:51:06.3073948Z",
+    "http_status": 200,
+    "outcome": "identity_verified",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-15T18:51:06.33412Z",
+    "response_at_utc": "2026-09-15T18:51:06.8201813Z",
+    "http_status": 200,
+    "outcome": "new_device_credentials_validated",
+    "note": "Interactive OAuth/private probe; see per-call sanitized report."
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-15T19:10:38.0486376Z",
+    "response_at_utc": "2026-09-15T19:10:38.9806272Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/stats/{accountId}",
+    "requested_at_utc": "2026-09-15T19:10:40.1102221Z",
+    "response_at_utc": "2026-09-15T19:10:40.4389957Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/profile/ranked?accountId={accountId}",
+    "requested_at_utc": "2026-09-15T19:10:41.801192Z",
+    "response_at_utc": "2026-09-15T19:10:42.1520325Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/profile/tracks",
+    "requested_at_utc": "2026-09-15T19:10:43.269893Z",
+    "response_at_utc": "2026-09-15T19:10:43.4418226Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/profile/progress?accountId={accountId}",
+    "requested_at_utc": "2026-09-15T19:10:44.4691026Z",
+    "response_at_utc": "2026-09-15T19:10:44.8331423Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites/collection",
+    "requested_at_utc": "2026-09-15T19:10:45.8674856Z",
+    "response_at_utc": "2026-09-15T19:10:47.4244229Z",
+    "http_status": 200,
+    "outcome": "transport_or_processing_failure",
+    "note": "HTTP response received; local sanitized shape capture failed."
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-15T19:12:39.9270207Z",
+    "response_at_utc": "2026-09-15T19:12:40.7519205Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/profile/ranked?accountId={accountId}",
+    "requested_at_utc": "2026-09-15T19:12:41.9019341Z",
+    "response_at_utc": "2026-09-15T19:12:41.9620979Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites/collection",
+    "requested_at_utc": "2026-09-15T19:12:43.3487Z",
+    "response_at_utc": "2026-09-15T19:12:45.013413Z",
+    "http_status": 200,
+    "outcome": "transport_or_processing_failure",
+    "note": "HTTP response received; local sanitized shape capture failed."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/playlists?lang=en",
+    "requested_at_utc": "2026-09-15T19:14:42.9742342Z",
+    "response_at_utc": "2026-09-15T19:14:43.5289212Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/playlists?lang=en",
+    "requested_at_utc": "2026-09-15T19:15:27.7075026Z",
+    "response_at_utc": "2026-09-15T19:15:27.9505728Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": "Coverage probe; see per-call sanitized report."
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/global?lang=en",
+    "requested_at_utc": "2026-09-15T19:24:39.6042552Z",
+    "response_at_utc": "2026-09-15T19:24:39.6764013Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites",
+    "requested_at_utc": "2026-09-15T19:24:38.2688712Z",
+    "response_at_utc": "2026-09-15T19:24:38.3292299Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites/versions",
+    "requested_at_utc": "2026-09-15T19:24:36.8909479Z",
+    "response_at_utc": "2026-09-15T19:24:37.1338Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/cashprizes",
+    "requested_at_utc": null,
+    "response_at_utc": null,
+    "http_status": null,
+    "outcome": "capture_interrupted",
+    "note": "Dispatched after events_global in run 20260915T192435Z. The local process was stopped while CPU-bound in sanitization; exact response status and timestamps were not retained. No response artifact exists."
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-15T19:28:17.2005976Z",
+    "response_at_utc": "2026-09-15T19:28:17.8702875Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/cashprizes",
+    "requested_at_utc": "2026-09-15T19:28:02.6040041Z",
+    "response_at_utc": "2026-09-15T19:28:02.8805846Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/player/{accountId}/session",
+    "requested_at_utc": "2026-09-15T19:28:31.1666094Z",
+    "response_at_utc": "2026-09-15T19:28:31.2311686Z",
+    "http_status": 403,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/player?region=EU&accountId={accountId}",
+    "requested_at_utc": "2026-09-15T19:28:25.7428413Z",
+    "response_at_utc": "2026-09-15T19:28:26.3307459Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/scoring",
+    "requested_at_utc": "2026-09-15T19:28:08.719581Z",
+    "response_at_utc": "2026-09-15T19:28:08.8871333Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/tokens?teamAccountIds={accountId}",
+    "requested_at_utc": "2026-09-15T19:28:32.2402243Z",
+    "response_at_utc": "2026-09-15T19:28:32.4436572Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/tracker?accountId={accountId}&validOnly=true",
+    "requested_at_utc": "2026-09-15T19:28:24.1560567Z",
+    "response_at_utc": "2026-09-15T19:28:24.7266185Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/friends/{accountId}/friends",
+    "requested_at_utc": "2026-09-15T19:28:22.9580642Z",
+    "response_at_utc": "2026-09-15T19:28:23.1424871Z",
+    "http_status": 403,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/friends/{accountId}/summary",
+    "requested_at_utc": "2026-09-15T19:28:21.5325677Z",
+    "response_at_utc": "2026-09-15T19:28:21.9340497Z",
+    "http_status": 403,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/powerrankings/player/{accountId}",
+    "requested_at_utc": "2026-09-15T19:28:33.467616Z",
+    "response_at_utc": "2026-09-15T19:28:33.6532791Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites/collection/all",
+    "requested_at_utc": "2026-09-15T19:28:18.9064669Z",
+    "response_at_utc": "2026-09-15T19:28:20.4182153Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-16T07:59:05.4789491Z",
+    "response_at_utc": "2026-09-16T07:59:05.9471935Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/cashprize/S42_SoloVictoryCup_Event3Round1_EU",
+    "requested_at_utc": "2026-09-16T07:59:04.3251121Z",
+    "response_at_utc": "2026-09-16T07:59:04.468329Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/tracker/eligibility/{accountId}/epicgames_S42_SoloVictoryCup_EU?eventWindowId=S42_SoloVictoryCup_Event3Round1_EU",
+    "requested_at_utc": "2026-09-16T07:59:09.5197185Z",
+    "response_at_utc": "2026-09-16T07:59:10.3086233Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/scoring/S42_SoloVictoryCup_Event3Round1_EU",
+    "requested_at_utc": "2026-09-16T07:59:03.1164852Z",
+    "response_at_utc": "2026-09-16T07:59:03.2731581Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites",
+    "requested_at_utc": "2026-09-16T07:59:01.8871592Z",
+    "response_at_utc": "2026-09-16T07:59:01.9578566Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites/collection/all",
+    "requested_at_utc": "2026-09-16T07:59:06.9707658Z",
+    "response_at_utc": "2026-09-16T07:59:08.3635545Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites/versions",
+    "requested_at_utc": "2026-09-16T07:59:00.257048Z",
+    "response_at_utc": "2026-09-16T07:59:00.6420078Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-16T08:01:00.1883708Z",
+    "response_at_utc": "2026-09-16T08:01:00.6660041Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/cashprize/S42_SoloVictoryCup_Event3Round1_EU",
+    "requested_at_utc": "2026-09-16T08:00:59.0507366Z",
+    "response_at_utc": "2026-09-16T08:00:59.1646085Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/scoring/S42_SoloVictoryCup_Event3Round1_EU",
+    "requested_at_utc": "2026-09-16T08:00:57.5054295Z",
+    "response_at_utc": "2026-09-16T08:00:57.8717055Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/sprites/collection?version=42.10",
+    "requested_at_utc": "2026-09-16T08:01:01.7138014Z",
+    "response_at_utc": "2026-09-16T08:01:03.3484751Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-16T08:02:10.1794831Z",
+    "response_at_utc": "2026-09-16T08:02:11.1912771Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/cashprize/S42_SoloVictoryCup_Event3Round2_EU",
+    "requested_at_utc": "2026-09-16T08:02:09.0220568Z",
+    "response_at_utc": "2026-09-16T08:02:09.1506374Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/player/{accountId}/session",
+    "requested_at_utc": "2026-09-16T08:02:13.9985389Z",
+    "response_at_utc": "2026-09-16T08:02:14.082189Z",
+    "http_status": 403,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/scoring/S42_SoloVictoryCup_Event3Round2_EU",
+    "requested_at_utc": "2026-09-16T08:02:07.5489821Z",
+    "response_at_utc": "2026-09-16T08:02:07.8434837Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/friends/{accountId}/summary",
+    "requested_at_utc": "2026-09-16T08:02:12.2280666Z",
+    "response_at_utc": "2026-09-16T08:02:12.9684333Z",
+    "http_status": 403,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/cashprize/S42_SoloVictoryCup_Event3Round2_EU",
+    "requested_at_utc": "2026-09-16T08:03:25.7789747Z",
+    "response_at_utc": "2026-09-16T08:03:26.0483282Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-16T08:08:55.8238655Z",
+    "response_at_utc": "2026-09-16T08:08:56.5387582Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/events/players/{accountId}/history",
+    "requested_at_utc": "2026-09-16T08:08:57.5721024Z",
+    "response_at_utc": "2026-09-16T08:08:57.7511472Z",
+    "http_status": 404,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/global/leaderboard?eventId=epicgames_S42_SoloVictoryCup_EU&eventWindowId=S42_SoloVictoryCup_Event2Round2_EU&page=0",
+    "requested_at_utc": "2026-09-16T08:08:53.5695642Z",
+    "response_at_utc": "2026-09-16T08:08:54.3502353Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/player/{accountId}/matches?region=EU&platform=Windows",
+    "requested_at_utc": "2026-09-16T08:08:58.7592134Z",
+    "response_at_utc": "2026-09-16T08:09:00.3923532Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/shop?lang=en",
+    "requested_at_utc": "2026-09-16T08:13:06.1453389Z",
+    "response_at_utc": "2026-09-16T08:13:06.4593394Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-16T08:18:44.083617Z",
+    "response_at_utc": "2026-09-16T08:18:44.9849405Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/tracker/eligibility?accountId={accountId}&days=180&requiredTournaments=14",
+    "requested_at_utc": "2026-09-16T08:18:46.1580596Z",
+    "response_at_utc": "2026-09-16T08:18:46.75367Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/assets/bundles/shop",
+    "requested_at_utc": "2026-09-16T08:19:47.8951678Z",
+    "response_at_utc": "2026-09-16T08:19:48.5064792Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/assets/bundles/tournaments",
+    "requested_at_utc": "2026-09-16T08:19:49.7908767Z",
+    "response_at_utc": "2026-09-16T08:19:49.8595691Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v1/oauth/refresh-device",
+    "requested_at_utc": "2026-09-16T08:21:11.4586142Z",
+    "response_at_utc": "2026-09-16T08:21:12.3074211Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v1/events/tracker/eligibility?accountId={accountId}&days=180&requiredTournaments=14",
+    "requested_at_utc": "2026-09-16T08:21:13.4763869Z",
+    "response_at_utc": "2026-09-16T08:21:13.9397156Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/playlists/habanero_ropesmile_duos?lang=en",
+    "requested_at_utc": "2026-09-16T08:23:13.8917809Z",
+    "response_at_utc": "2026-09-16T08:23:13.9677295Z",
+    "http_status": 500,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/playlists/ropesmileduo?lang=en",
+    "requested_at_utc": "2026-09-16T08:23:11.8710446Z",
+    "response_at_utc": "2026-09-16T08:23:12.6847795Z",
+    "http_status": 500,
+    "outcome": "http_error",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/playlists/Playlist_DefaultSolo?lang=en",
+    "requested_at_utc": "2026-09-16T08:23:52.1343534Z",
+    "response_at_utc": "2026-09-16T08:23:52.4579063Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/playlists/active?lang=en",
+    "requested_at_utc": "2026-09-16T08:27:32.1435582Z",
+    "response_at_utc": "2026-09-16T08:27:32.3597206Z",
+    "http_status": 200,
+    "outcome": "http_success",
+    "note": null
+  }
+]

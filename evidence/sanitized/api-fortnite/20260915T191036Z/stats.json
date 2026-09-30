@@ -1,0 +1,3866 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/stats/{accountId}",
+  "requested_at_utc": "2026-09-15T19:10:40.1102221Z",
+  "response_at_utc": "2026-09-15T19:10:40.4389957Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T19:10:38.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "field_count": 4,
+    "unknown_field_count": 0,
+    "type": "object",
+    "omitted_field_count": 1,
+    "fields": {
+      "startTime": {
+        "type": "number",
+        "value": 0
+      },
+      "endTime": {
+        "type": "number",
+        "value": 9223372036854775807
+      },
+      "stats": {
+        "field_count": 954,
+        "unknown_field_count": 0,
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "br_kills_gamepad_m0_playlist_deimos_duoshow": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_gamepad_m0_playlist_nobuildbr_habanero_solo": {
+            "type": "number",
+            "value": 4
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_deimos_duo_winter": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 6
+          },
+          "br_placetop12_gamepad_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 9
+          },
+          "br_kills_keyboardmouse_m0_playlist_paradise_squads": {
+            "type": "number",
+            "value": 17
+          },
+          "br_score_keyboardmouse_m0_playlist_creative_mms_2playerstandard": {
+            "type": "number",
+            "value": 3048
+          },
+          "br_score_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 11891
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_creative_mms_1playerstandard": {
+            "type": "number",
+            "value": 22
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdowntournament_cobaltht_duos": {
+            "type": "number",
+            "value": 1605116565
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 46
+          },
+          "br_placetop6_gamepad_m0_playlist_mash_squads_legacy": {
+            "type": "number",
+            "value": 10
+          },
+          "br_score_keyboardmouse_m0_playlist_vamp_duo": {
+            "type": "number",
+            "value": 1245
+          },
+          "br_kills_keyboardmouse_m0_playlist_hover_64": {
+            "type": "number",
+            "value": 7
+          },
+          "br_kills_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 154
+          },
+          "br_kills_keyboardmouse_m0_playlist_vamp_duo": {
+            "type": "number",
+            "value": 7
+          },
+          "br_kills_gamepad_m0_playlist_disco_32": {
+            "type": "number",
+            "value": 81
+          },
+          "br_kills_gamepad_m0_playlist_showdown_solo": {
+            "type": "number",
+            "value": 20
+          },
+          "br_matchesplayed_gamepad_m0_playlist_showdown_squads": {
+            "type": "number",
+            "value": 7
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 18
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 50159
+          },
+          "br_placetop25_gamepad_m0_playlist_bling_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop25_gamepad_m0_playlist_deimos_solo": {
+            "type": "number",
+            "value": 21
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_respawn_squads": {
+            "type": "number",
+            "value": 45
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_unvaulted_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_50v50": {
+            "type": "number",
+            "value": 42
+          },
+          "br_score_gamepad_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 36903
+          },
+          "br_minutesplayed_gamepad_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 74
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 12
+          },
+          "br_score_keyboardmouse_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 1072
+          },
+          "br_kills_gamepad_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 8
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 421
+          },
+          "br_placetop10_keyboardmouse_m0_playlist_deimos_solo_winter": {
+            "type": "number",
+            "value": 14
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_vamp_duo": {
+            "type": "number",
+            "value": 397
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 55
+          },
+          "br_kills_gamepad_m0_playlist_trios": {
+            "type": "number",
+            "value": 4
+          },
+          "br_matchesplayed_gamepad_m0_playlist_blitz_solo": {
+            "type": "number",
+            "value": 115
+          },
+          "br_kills_keyboardmouse_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 38
+          },
+          "br_kills_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 13
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_battlelab_fortnitemares_maxfog": {
+            "type": "number",
+            "value": 4
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 4
+          },
+          "br_placetop5_gamepad_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop12_gamepad_m0_playlist_deimos_duo": {
+            "type": "number",
+            "value": 20
+          },
+          "br_playersoutlived_gamepad_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 1448
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_cobalt_ht_duos": {
+            "type": "number",
+            "value": 1599850201
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_unvaulted_squads": {
+            "type": "number",
+            "value": 46
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 3136
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 75036
+          },
+          "br_score_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 19072
+          },
+          "br_playersoutlived_gamepad_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 19
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 39
+          },
+          "br_minutesplayed_gamepad_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 4241
+          },
+          "br_placetop6_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 4
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 98
+          },
+          "br_score_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 6579
+          },
+          "br_kills_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 16
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 8
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 130
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_low_squads": {
+            "type": "number",
+            "value": 22
+          },
+          "br_kills_keyboardmouse_m0_playlist_wax_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_hover_64": {
+            "type": "number",
+            "value": 70
+          },
+          "br_matchesplayed_gamepad_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 81
+          },
+          "s41_social_bp_level": {
+            "type": "number",
+            "value": 17606
+          },
+          "br_playersoutlived_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 81
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdowntournament_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 15
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_argon_hightower_duos_16": {
+            "type": "number",
+            "value": 15
+          },
+          "br_kills_gamepad_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 87
+          },
+          "br_kills_gamepad_m0_playlist_soaring_solo": {
+            "type": "number",
+            "value": 9
+          },
+          "br_kills_keyboardmouse_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 45
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 97
+          },
+          "br_kills_keyboardmouse_m0_playlist_titanium_squads": {
+            "type": "number",
+            "value": 52
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 300
+          },
+          "br_placetop1_gamepad_m0_playlist_steady_squads": {
+            "type": "number",
+            "value": 6
+          },
+          "br_kills_gamepad_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 4
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 205
+          },
+          "br_playersoutlived_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 351
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 195
+          },
+          "br_lastmodified_gamepad_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 1700074896
+          },
+          "br_placetop1_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 144
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_creative_mms_2playerstandard": {
+            "type": "number",
+            "value": 95
+          },
+          "br_score_keyboardmouse_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 2047
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop10_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 295
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 466
+          },
+          "br_score_keyboardmouse_m0_playlist_mash_squads": {
+            "type": "number",
+            "value": 1275
+          },
+          "br_score_keyboardmouse_m0_playlist_creative_mms_1playerstandard": {
+            "type": "number",
+            "value": 711
+          },
+          "br_matchesplayed_gamepad_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 12
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 1701880108
+          },
+          "br_minutesplayed_gamepad_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 11
+          },
+          "br_score_keyboardmouse_m0_playlist_wax_duos": {
+            "type": "number",
+            "value": 140
+          },
+          "br_score_keyboardmouse_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 964
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 3739
+          },
+          "br_kills_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 1997
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 1260
+          },
+          "br_score_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 278560
+          },
+          "br_kills_gamepad_m0_playlist_blitz_squad": {
+            "type": "number",
+            "value": 217
+          },
+          "br_kills_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 57
+          },
+          "br_minutesplayed_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 52
+          },
+          "br_kills_gamepad_m0_playlist_blitz_duos": {
+            "type": "number",
+            "value": 58
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_figmentduo": {
+            "type": "number",
+            "value": 1786570224
+          },
+          "br_matchesplayed_gamepad_m0_playlist_creativeroyale_mms_100_player_no_mms": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop10_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 25
+          },
+          "s26_social_bp_level": {
+            "type": "number",
+            "value": 11457
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_habanero_punchberry_duos": {
+            "type": "number",
+            "value": 14
+          },
+          "s11_social_bp_level": {
+            "type": "number",
+            "value": 3722
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 5
+          },
+          "s20_social_bp_level": {
+            "type": "number",
+            "value": 537
+          },
+          "br_score_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 1300109
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 5
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_vamp_duo": {
+            "type": "number",
+            "value": 1
+          },
+          "s17_social_bp_level": {
+            "type": "number",
+            "value": 11528
+          },
+          "s14_social_bp_level": {
+            "type": "number",
+            "value": 18647
+          },
+          "br_score_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 2036
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_argon_hightower_duos_16": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_dadbro_squads_12": {
+            "type": "number",
+            "value": 35
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 4
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 1556742045
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 468
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 1622143058
+          },
+          "br_arena_lastmodified_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 1789078112
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_creative_mms_1playerstandard": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_ropesmilesolo": {
+            "type": "number",
+            "value": 3
+          },
+          "br_score_keyboardmouse_m0_playlist_figmentduo": {
+            "type": "number",
+            "value": 13124
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 5
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 1566592062
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_dadbro_squads_12": {
+            "type": "number",
+            "value": 3
+          },
+          "br_matchesplayed_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 2152
+          },
+          "br_score_keyboardmouse_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 136629
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_music_high": {
+            "type": "number",
+            "value": 3
+          },
+          "br_kills_keyboardmouse_m0_playlist_fill_squads": {
+            "type": "number",
+            "value": 5
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 24
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_unvaulted_squads": {
+            "type": "number",
+            "value": 6
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_minutesplayed_gamepad_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 574
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_deimos_duo_winter": {
+            "type": "number",
+            "value": 5
+          },
+          "br_kills_gamepad_m0_playlist_soaring_50s": {
+            "type": "number",
+            "value": 38
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_gamepad_m0_playlist_soaring_50s": {
+            "type": "number",
+            "value": 9
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_music_low": {
+            "type": "number",
+            "value": 117
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_battlelab_fortnitemares_maxfog": {
+            "type": "number",
+            "value": 35
+          },
+          "br_placetop5_gamepad_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 1616871953
+          },
+          "br_matchesplayed_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 1808
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 49
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 26947
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_titanium_squads": {
+            "type": "number",
+            "value": 3
+          },
+          "br_score_keyboardmouse_m0_playlist_creative_mms_4playerstandard": {
+            "type": "number",
+            "value": 1900
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdowntournament_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 1636204123
+          },
+          "br_placetop1_gamepad_m0_playlist_deimos_soloshow": {
+            "type": "number",
+            "value": 1
+          },
+          "br_score_keyboardmouse_m0_playlist_fill_squads": {
+            "type": "number",
+            "value": 672
+          },
+          "br_kills_gamepad_m0_playlist_bounty_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 12
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 148
+          },
+          "br_kills_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 55
+          },
+          "br_placetop1_gamepad_m0_playlist_playground": {
+            "type": "number",
+            "value": 23
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_low_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_gamepad_m0_playlist_blitz_squad": {
+            "type": "number",
+            "value": 13
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_cobalt_ht_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 22
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 1627939215
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 30
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_creative_mms_2playerstandard": {
+            "type": "number",
+            "value": 8
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_arseniccore_squads_maxfog": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 12
+          },
+          "br_kills_keyboardmouse_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 32
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_creative_play_v2": {
+            "type": "number",
+            "value": 1701016800
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_dadbro_squads_12": {
+            "type": "number",
+            "value": 1572635085
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 251
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 7
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_playground": {
+            "type": "number",
+            "value": 67
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 29
+          },
+          "br_score_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 12397
+          },
+          "br_score_keyboardmouse_m0_playlist_low_squads": {
+            "type": "number",
+            "value": 731
+          },
+          "br_kills_gamepad_m0_playlist_steady_solo": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 25
+          },
+          "br_score_gamepad_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 179
+          },
+          "br_kills_keyboardmouse_m0_playlist_ropesmilesolo": {
+            "type": "number",
+            "value": 13
+          },
+          "br_kills_keyboardmouse_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 11
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 3094
+          },
+          "br_kills_keyboardmouse_m0_playlist_playground": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop12_gamepad_m0_playlist_blitz_duos": {
+            "type": "number",
+            "value": 14
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 4667
+          },
+          "br_placetop6_gamepad_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 140
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_score_keyboardmouse_m0_playlist_hover_64": {
+            "type": "number",
+            "value": 1654
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 17703
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_music_high": {
+            "type": "number",
+            "value": 32
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 1563903605
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_music_low": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop1_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_fill_squads": {
+            "type": "number",
+            "value": 1557270150
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 1615387706
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 190
+          },
+          "br_score_keyboardmouse_m0_playlist_respawn_24_solidgold": {
+            "type": "number",
+            "value": 264
+          },
+          "br_minutesplayed_gamepad_m0_playlist_creativeroyale_mms_100_player_no_mms": {
+            "type": "number",
+            "value": 27
+          },
+          "br_score_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 2967
+          },
+          "br_lastmodified_gamepad_m0_playlist_forbiddenfruitnobuildbrsolo": {
+            "type": "number",
+            "value": 1751742838
+          },
+          "br_score_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 1737
+          },
+          "br_lastmodified_gamepad_m0_playlist_bounty_squads": {
+            "type": "number",
+            "value": 1576008910
+          },
+          "br_minutesplayed_gamepad_m0_playlist_bounty_squads": {
+            "type": "number",
+            "value": 10
+          },
+          "br_placetop10_keyboardmouse_m0_playlist_ropesmilesolo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_score_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 12699
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 608
+          },
+          "br_placetop1_gamepad_m0_playlist_50v50he": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 1603638486
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 1789492092
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 1558213715
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 220
+          },
+          "br_score_gamepad_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 20961
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 41
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 5
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 259
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 1627509525
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 60
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_unvaulted_squads": {
+            "type": "number",
+            "value": 1621969325
+          },
+          "br_score_gamepad_m0_playlist_creative_play_v2": {
+            "type": "number",
+            "value": 12607
+          },
+          "br_placetop12_gamepad_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_kills_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 100
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdowntournament_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 9
+          },
+          "br_score_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 70584
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 1548107259
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 321
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 945
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 15
+          },
+          "br_matchesplayed_gamepad_m0_playlist_highexplosives_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 1073
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_cobalt_ht_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 612
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_deimos_solo_winter": {
+            "type": "number",
+            "value": 388
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_habanero_punchberry_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_intro_apollo_currentplayer": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop6_gamepad_m0_playlist_blitz_squad": {
+            "type": "number",
+            "value": 35
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 1785450062
+          },
+          "br_score_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 6295
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 2
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_slide_solo": {
+            "type": "number",
+            "value": 17
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 18906
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 3
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_respawn_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 86
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_habanero_punchberry_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 1701900324
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 1637076639
+          },
+          "br_playersoutlived_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 566
+          },
+          "br_kills_keyboardmouse_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 114
+          },
+          "br_lastmodified_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 1760028415
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_music_high": {
+            "type": "number",
+            "value": 38
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_deimos_duo_winter": {
+            "type": "number",
+            "value": 161
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 1789422622
+          },
+          "br_kills_gamepad_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 139
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_deliver_squads_zb": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_gamepad_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 31
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_paradise_squads": {
+            "type": "number",
+            "value": 12
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_ropesmilesolo": {
+            "type": "number",
+            "value": 21
+          },
+          "br_kills_gamepad_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 145
+          },
+          "br_matchesplayed_gamepad_m0_playlist_bling_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 1165
+          },
+          "br_playersoutlived_gamepad_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 89
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 343
+          },
+          "br_score_keyboardmouse_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 510
+          },
+          "br_placetop10_gamepad_m0_playlist_deimos_soloshow": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop1_gamepad_m0_playlist_bling_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_mash_squads": {
+            "type": "number",
+            "value": 1560599701
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 254
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 156
+          },
+          "br_matchesplayed_gamepad_m0_playlist_forbiddenfruitnobuildbrsolo": {
+            "type": "number",
+            "value": 5
+          },
+          "br_matchesplayed_gamepad_m0_playlist_showdown_solo": {
+            "type": "number",
+            "value": 5
+          },
+          "br_kills_keyboardmouse_m0_playlist_50v50": {
+            "type": "number",
+            "value": 13
+          },
+          "br_placetop6_gamepad_m0_playlist_showdown_squads": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_showdowntournament_cobaltht_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_kills_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 44
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 69
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_respawn_squads": {
+            "type": "number",
+            "value": 14
+          },
+          "br_placetop12_gamepad_m0_playlist_showdown_duos": {
+            "type": "number",
+            "value": 6
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 1789404897
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdowntournament_titanium_solo": {
+            "type": "number",
+            "value": 37
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_music_low": {
+            "type": "number",
+            "value": 43
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_deimos_duo_winter": {
+            "type": "number",
+            "value": 1548702535
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 85
+          },
+          "br_kills_gamepad_m0_playlist_deimos_duo": {
+            "type": "number",
+            "value": 82
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 55
+          },
+          "br_minutesplayed_gamepad_m0_playlist_creative_play_v2": {
+            "type": "number",
+            "value": 461
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 25
+          },
+          "br_kills_keyboardmouse_m0_playlist_arseniccore_squads_maxfog": {
+            "type": "number",
+            "value": 13
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 139
+          },
+          "br_placetop5_gamepad_m0_playlist_blitz_duos": {
+            "type": "number",
+            "value": 4
+          },
+          "br_placetop25_gamepad_m0_playlist_blitz_solo": {
+            "type": "number",
+            "value": 43
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 1158
+          },
+          "br_matchesplayed_gamepad_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 32
+          },
+          "br_lastmodified_gamepad_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 1550770590
+          },
+          "br_matchesplayed_gamepad_m0_playlist_mash_squads_legacy": {
+            "type": "number",
+            "value": 10
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_figmentduo": {
+            "type": "number",
+            "value": 13
+          },
+          "br_kills_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 185
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 1567970654
+          },
+          "br_matchesplayed_gamepad_m0_playlist_50v50he": {
+            "type": "number",
+            "value": 7
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 341
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_playground": {
+            "type": "number",
+            "value": 8
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 3
+          },
+          "br_matchesplayed_gamepad_m0_playlist_deimos_soloshow": {
+            "type": "number",
+            "value": 13
+          },
+          "br_kills_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 327
+          },
+          "br_playersoutlived_gamepad_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 70
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_creative_mms_4playerstandard": {
+            "type": "number",
+            "value": 1632256118
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 237
+          },
+          "br_matchesplayed_gamepad_m0_playlist_barrier_16": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_mash_squads": {
+            "type": "number",
+            "value": 5
+          },
+          "br_placetop25_gamepad_m0_playlist_forbiddenfruitnobuildbrsolo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 595
+          },
+          "br_kills_keyboardmouse_m0_playlist_creative_mms_4playerstandard": {
+            "type": "number",
+            "value": 10
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_daybreak_pp_squads": {
+            "type": "number",
+            "value": 1621544137
+          },
+          "br_matchesplayed_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 24
+          },
+          "br_matchesplayed_gamepad_m0_playlist_snipers_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 6
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 364
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_intro_apollo_currentplayer": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 3673
+          },
+          "br_kills_gamepad_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 9
+          },
+          "br_kills_keyboardmouse_m0_playlist_daybreak_pp_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop25_gamepad_m0_playlist_snipers_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 1204
+          },
+          "br_placetop5_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 468
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 1701800401
+          },
+          "br_placetop10_gamepad_m0_playlist_showdown_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop3_gamepad_m0_playlist_showdown_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_creative_mms_2playerstandard": {
+            "type": "number",
+            "value": 1630171829
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_arseniccore_squads_maxfog": {
+            "type": "number",
+            "value": 12
+          },
+          "br_kills_keyboardmouse_m0_playlist_cobalt_ht_duos": {
+            "type": "number",
+            "value": 11
+          },
+          "br_score_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 4359
+          },
+          "br_matchesplayed_gamepad_m0_playlist_trios": {
+            "type": "number",
+            "value": 5
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_respawn_24_solidgold": {
+            "type": "number",
+            "value": 1615394474
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_habanero_punchberry_duos": {
+            "type": "number",
+            "value": 65
+          },
+          "br_lastmodified_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 1634572608
+          },
+          "br_kills_keyboardmouse_m0_playlist_unvaulted_squads": {
+            "type": "number",
+            "value": 13
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdowntournament_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 24
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 3
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_vamp_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 1829
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_titanium_squads": {
+            "type": "number",
+            "value": 1612911021
+          },
+          "br_matchesplayed_gamepad_m0_playlist_blitz_squad": {
+            "type": "number",
+            "value": 110
+          },
+          "br_lastmodified_gamepad_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 1734367416
+          },
+          "br_placetop6_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 621
+          },
+          "mash_bestscore_s26_gamepad_m0_playlist_mash_squads_legacy": {
+            "type": "number",
+            "value": 7160
+          },
+          "br_score_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 63156
+          },
+          "br_placetop3_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop1_gamepad_m0_playlist_deimos_solo": {
+            "type": "number",
+            "value": 4
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 390
+          },
+          "mash_bestscore_gamepad_m0_playlist_mash_squads": {
+            "type": "number",
+            "value": 60680
+          },
+          "br_kills_keyboardmouse_m0_playlist_figmentduo": {
+            "type": "number",
+            "value": 75
+          },
+          "br_placetop25_gamepad_m0_playlist_soaring_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 270
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 26
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_showdowntournament_titanium_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 290
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 790
+          },
+          "br_minutesplayed_gamepad_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 9
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 31
+          },
+          "br_placetop25_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 15
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_50v50": {
+            "type": "number",
+            "value": 1563127601
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 1634917807
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 141
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 1391
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 441
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_slide_solo": {
+            "type": "number",
+            "value": 3
+          },
+          "br_kills_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 88
+          },
+          "br_kills_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 4050
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 36
+          },
+          "br_kills_gamepad_m0_playlist_showdown_squads": {
+            "type": "number",
+            "value": 9
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_habanero_punchberry_duos": {
+            "type": "number",
+            "value": 1787435530
+          },
+          "br_placetop5_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 34
+          },
+          "br_kills_gamepad_m0_playlist_bling_solo": {
+            "type": "number",
+            "value": 8
+          },
+          "br_kills_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 10761
+          },
+          "br_score_gamepad_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 10183
+          },
+          "br_kills_gamepad_m0_playlist_deimos_soloshow": {
+            "type": "number",
+            "value": 16
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_mash_squads": {
+            "type": "number",
+            "value": 5
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_vamp_squad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 416
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 120848
+          },
+          "br_score_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 1322
+          },
+          "br_placetop6_gamepad_m0_playlist_bling_squads": {
+            "type": "number",
+            "value": 3
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_paradise_squads": {
+            "type": "number",
+            "value": 1561726639
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 1576699825
+          },
+          "br_kills_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 28
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 18
+          },
+          "br_kills_keyboardmouse_m0_playlist_habanero_punchberry_duos": {
+            "type": "number",
+            "value": 10
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 251
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_ropesmilesolo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop10_gamepad_m0_playlist_bling_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 319
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 19
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_score_keyboardmouse_m0_playlist_50v50": {
+            "type": "number",
+            "value": 870
+          },
+          "br_kills_keyboardmouse_m0_playlist_creative_mms_2playerstandard": {
+            "type": "number",
+            "value": 33
+          },
+          "br_minutesplayed_gamepad_m0_playlist_forbiddenfruitnobuildbrsolo": {
+            "type": "number",
+            "value": 11
+          },
+          "br_matchesplayed_gamepad_m0_playlist_highexplosives_solo": {
+            "type": "number",
+            "value": 8
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_vamp_squad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_gamepad_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 1706211465
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_vamp_squad": {
+            "type": "number",
+            "value": 1577307164
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 6
+          },
+          "br_matchesplayed_gamepad_m0_playlist_deimos_solo": {
+            "type": "number",
+            "value": 43
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 7
+          },
+          "br_score_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 12098
+          },
+          "s27_social_bp_level": {
+            "type": "number",
+            "value": 8867
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_paradise_squads": {
+            "type": "number",
+            "value": 61
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_50v50": {
+            "type": "number",
+            "value": 127
+          },
+          "br_minutesplayed_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 268
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_vamp_squads": {
+            "type": "number",
+            "value": 1605384931
+          },
+          "br_score_keyboardmouse_m0_playlist_vamp_squads": {
+            "type": "number",
+            "value": 40
+          },
+          "br_kills_gamepad_m0_playlist_deimos_squad": {
+            "type": "number",
+            "value": 12
+          },
+          "br_kills_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 12
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 299
+          },
+          "br_placetop3_gamepad_m0_playlist_steady_squads": {
+            "type": "number",
+            "value": 7
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 25
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_music_low": {
+            "type": "number",
+            "value": 1587738471
+          },
+          "br_placetop10_gamepad_m0_playlist_highexplosives_solo": {
+            "type": "number",
+            "value": 5
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 21
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 7
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 14
+          },
+          "br_placetop1_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_playground": {
+            "type": "number",
+            "value": 1544045619
+          },
+          "br_matchesplayed_gamepad_m0_playlist_soaring_solo": {
+            "type": "number",
+            "value": 3
+          },
+          "s18_social_bp_level": {
+            "type": "number",
+            "value": 15974
+          },
+          "s36_social_bp_level": {
+            "type": "number",
+            "value": 3224
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 115
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_hover_64": {
+            "type": "number",
+            "value": 1550860196
+          },
+          "br_kills_keyboardmouse_m0_playlist_creative_mms_32playerstandard": {
+            "type": "number",
+            "value": 7
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_behind_duos": {
+            "type": "number",
+            "value": 36
+          },
+          "br_minutesplayed_gamepad_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 44
+          },
+          "br_score_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 1916
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 6423
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 1561325946
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_cobalt_ht_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 24
+          },
+          "br_score_gamepad_m0_playlist_mash_squads_legacy": {
+            "type": "number",
+            "value": 901
+          },
+          "br_score_keyboardmouse_m0_playlist_showdowntournament_titanium_solo": {
+            "type": "number",
+            "value": 780
+          },
+          "br_lastmodified_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 1556402333
+          },
+          "br_kills_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 16
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 20
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 1621273938
+          },
+          "br_score_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 918
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_hover_64": {
+            "type": "number",
+            "value": 26
+          },
+          "br_kills_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 115
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 306
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 4
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 1638203731
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_fill_squads": {
+            "type": "number",
+            "value": 232
+          },
+          "br_score_keyboardmouse_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 54296
+          },
+          "br_kills_gamepad_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 10
+          },
+          "br_minutesplayed_gamepad_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 29
+          },
+          "br_arena_matchesplayed_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 7
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 3210
+          },
+          "br_lastmodified_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 1637181385
+          },
+          "br_score_keyboardmouse_m0_playlist_slide_solo": {
+            "type": "number",
+            "value": 370
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 4
+          },
+          "br_placetop3_gamepad_m0_playlist_deimos_squad": {
+            "type": "number",
+            "value": 2
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 349434
+          },
+          "br_kills_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 3861
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 91
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 5561
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 125
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 12170
+          },
+          "br_kills_gamepad_m0_playlist_50v50": {
+            "type": "number",
+            "value": 90
+          },
+          "br_kills_gamepad_m0_playlist_highexplosives_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_kills_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 12
+          },
+          "br_lastmodified_gamepad_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 1633624031
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_vamp_duo": {
+            "type": "number",
+            "value": 5
+          },
+          "br_placetop3_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 390
+          },
+          "br_placetop5_gamepad_m0_playlist_score_duos": {
+            "type": "number",
+            "value": 8
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 148
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_deimos_solo_winter": {
+            "type": "number",
+            "value": 2761
+          },
+          "br_score_keyboardmouse_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 3674
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_showdowntournament_cobaltht_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_score_keyboardmouse_m0_playlist_showdowntournament_cobaltht_duos": {
+            "type": "number",
+            "value": 982
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_deimos_duo_winter": {
+            "type": "number",
+            "value": 22
+          },
+          "br_matchesplayed_gamepad_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop1_gamepad_m0_playlist_disco_32": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_gamepad_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 6
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_wax_duos": {
+            "type": "number",
+            "value": 1561755059
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 11
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 1700678397
+          },
+          "br_score_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 1638
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 22
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_fill_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_deliver_squads_zb": {
+            "type": "number",
+            "value": 1702919024
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 293
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_vamp_duo": {
+            "type": "number",
+            "value": 4
+          },
+          "br_lastmodified_gamepad_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 1576007861
+          },
+          "br_score_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 20803
+          },
+          "br_kills_keyboardmouse_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 6
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_titanium_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_playersoutlived_gamepad_m0_playlist_trios": {
+            "type": "number",
+            "value": 193
+          },
+          "br_kills_keyboardmouse_m0_playlist_deimos_duo_winter": {
+            "type": "number",
+            "value": 42
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 8
+          },
+          "br_kills_gamepad_m0_playlist_deimos_50": {
+            "type": "number",
+            "value": 30
+          },
+          "br_score_keyboardmouse_m0_playlist_music_low": {
+            "type": "number",
+            "value": 1085
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_deimos_solo_winter": {
+            "type": "number",
+            "value": 45
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 49
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 48
+          },
+          "br_score_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 8488
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_playground": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 15
+          },
+          "br_matchesplayed_gamepad_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_gamepad_m0_playlist_deimos_duoshow": {
+            "type": "number",
+            "value": 3
+          },
+          "br_minutesplayed_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 17
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 57
+          },
+          "br_score_gamepad_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 1432
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_intro_apollo_currentplayer": {
+            "type": "number",
+            "value": 1571162280
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_behind_duos": {
+            "type": "number",
+            "value": 4
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 38934
+          },
+          "br_kills_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 3126
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 6
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 56
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 354
+          },
+          "br_kills_gamepad_m0_playlist_bling_squads": {
+            "type": "number",
+            "value": 25
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 39
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_titanium_squads": {
+            "type": "number",
+            "value": 831
+          },
+          "br_placetop1_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 2524
+          },
+          "br_score_gamepad_m0_playlist_habanerosolo": {
+            "type": "number",
+            "value": 112
+          },
+          "br_kills_gamepad_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 208
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 528
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 321
+          },
+          "br_score_keyboardmouse_m0_playlist_vamp_squad": {
+            "type": "number",
+            "value": 289
+          },
+          "br_kills_gamepad_m0_playlist_steady_squads": {
+            "type": "number",
+            "value": 71
+          },
+          "br_matchesplayed_gamepad_m0_playlist_deimos_squad": {
+            "type": "number",
+            "value": 7
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 1322
+          },
+          "br_kills_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 396
+          },
+          "br_score_keyboardmouse_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 3462
+          },
+          "br_score_keyboardmouse_m0_playlist_cobalt_ht_duos": {
+            "type": "number",
+            "value": 805
+          },
+          "br_score_keyboardmouse_m0_playlist_deimos_duo_winter": {
+            "type": "number",
+            "value": 3721
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_low_squads": {
+            "type": "number",
+            "value": 1551118072
+          },
+          "br_kills_keyboardmouse_m0_playlist_solidgold_squads": {
+            "type": "number",
+            "value": 22
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_gamepad_m0_playlist_creative_play_v2": {
+            "type": "number",
+            "value": 39
+          },
+          "br_score_gamepad_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 258
+          },
+          "br_matchesplayed_gamepad_m0_playlist_5x20": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop1_gamepad_m0_playlist_50v50": {
+            "type": "number",
+            "value": 17
+          },
+          "br_lastmodified_gamepad_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 1633010500
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 546
+          },
+          "br_score_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 4843
+          },
+          "br_kills_gamepad_m0_playlist_creative_play_v2": {
+            "type": "number",
+            "value": 10
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 7
+          },
+          "br_arena_lastmodified_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 1785450062
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdowntournament_cobaltht_duos": {
+            "type": "number",
+            "value": 25
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdowntournament_titanium_solo": {
+            "type": "number",
+            "value": 4
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_hover_64": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 6
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_wax_duos": {
+            "type": "number",
+            "value": 6
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 226
+          },
+          "br_score_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 1812
+          },
+          "br_lastmodified_gamepad_m0_playlist_mash_squads_legacy": {
+            "type": "number",
+            "value": 1697105372
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 6
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_ropesmilesolo": {
+            "type": "number",
+            "value": 81
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 134
+          },
+          "br_score_keyboardmouse_m0_playlist_habanero_punchberry_duos": {
+            "type": "number",
+            "value": 646
+          },
+          "br_minutesplayed_gamepad_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 13
+          },
+          "br_lastmodified_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 1634839494
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_paradise_squads": {
+            "type": "number",
+            "value": 547
+          },
+          "br_kills_keyboardmouse_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 12
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 1642531398
+          },
+          "br_placetop1_gamepad_m0_playlist_showdown_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_gamepad_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 1489
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 26
+          },
+          "br_lastmodified_gamepad_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 1707659708
+          },
+          "br_score_keyboardmouse_m0_playlist_intro_apollo_currentplayer": {
+            "type": "number",
+            "value": 342
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 17
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 1638053354
+          },
+          "br_placetop10_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 15
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_titanium_squads": {
+            "type": "number",
+            "value": 94
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 8
+          },
+          "br_score_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 79609
+          },
+          "br_playersoutlived_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 550
+          },
+          "br_score_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 9551
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 7
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 7
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_deimos_duo_winter": {
+            "type": "number",
+            "value": 1193
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 435
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_creative_play_v2": {
+            "type": "number",
+            "value": 3
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 62
+          },
+          "br_matchesplayed_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 1140
+          },
+          "br_score_keyboardmouse_m0_playlist_respawn_squads": {
+            "type": "number",
+            "value": 337
+          },
+          "br_score_keyboardmouse_m0_playlist_arseniccore_squads_maxfog": {
+            "type": "number",
+            "value": 659
+          },
+          "br_placetop1_gamepad_m0_playlist_highexplosives_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 4
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 397
+          },
+          "br_kills_gamepad_m0_playlist_creativeroyale_mms_100_player_no_mms": {
+            "type": "number",
+            "value": 8
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 41
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 120
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 18724
+          },
+          "br_minutesplayed_gamepad_m0_playlist_mash_squads_legacy": {
+            "type": "number",
+            "value": 56
+          },
+          "br_kills_gamepad_m0_playlist_comp_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_slide_solo": {
+            "type": "number",
+            "value": 1545497863
+          },
+          "br_matchesplayed_gamepad_m0_playlist_deimos_duo": {
+            "type": "number",
+            "value": 48
+          },
+          "br_kills_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 17
+          },
+          "br_placetop5_gamepad_m0_playlist_showdown_duos": {
+            "type": "number",
+            "value": 4
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_kills_keyboardmouse_m0_playlist_respawn_squads": {
+            "type": "number",
+            "value": 16
+          },
+          "br_kills_gamepad_m0_playlist_blitz_solo": {
+            "type": "number",
+            "value": 155
+          },
+          "br_kills_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 583
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 1789315697
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_fill_squads": {
+            "type": "number",
+            "value": 31
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 13
+          },
+          "br_matchesplayed_gamepad_m0_playlist_showdown_duos": {
+            "type": "number",
+            "value": 10
+          },
+          "br_score_keyboardmouse_m0_playlist_music_high": {
+            "type": "number",
+            "value": 857
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 5635
+          },
+          "br_placetop25_gamepad_m0_playlist_highexplosives_solo": {
+            "type": "number",
+            "value": 5
+          },
+          "br_placetop12_gamepad_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_score_keyboardmouse_m0_playlist_deliver_squads_zb": {
+            "type": "number",
+            "value": 83
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_mash_squads": {
+            "type": "number",
+            "value": 5
+          },
+          "br_matchesplayed_gamepad_m0_playlist_soaring_50s": {
+            "type": "number",
+            "value": 35
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_low_squads": {
+            "type": "number",
+            "value": 159
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 4782
+          },
+          "s28_social_bp_level": {
+            "type": "number",
+            "value": 5954
+          },
+          "br_placetop1_gamepad_m0_playlist_score_duos": {
+            "type": "number",
+            "value": 7
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 92
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 85
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 1023
+          },
+          "br_placetop1_gamepad_m0_playlist_showdown_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_gamepad_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 80
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 1701129381
+          },
+          "s19_social_bp_level": {
+            "type": "number",
+            "value": 6884
+          },
+          "br_score_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 40599
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_vamp_squads": {
+            "type": "number",
+            "value": 56
+          },
+          "br_score_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 14647
+          },
+          "br_score_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 10368
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 28
+          },
+          "br_playersoutlived_gamepad_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 295
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_argon_hightower_duos_16": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_fill_squads": {
+            "type": "number",
+            "value": 4
+          },
+          "br_kills_gamepad_m0_playlist_snipers_solo": {
+            "type": "number",
+            "value": 3
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 17
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 139
+          },
+          "br_score_gamepad_m0_playlist_forbiddenfruitnobuildbrsolo": {
+            "type": "number",
+            "value": 349
+          },
+          "br_score_keyboardmouse_m0_playlist_playground": {
+            "type": "number",
+            "value": 921
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 158
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 1789078112
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_vamp_duo": {
+            "type": "number",
+            "value": 1575571848
+          },
+          "br_kills_keyboardmouse_m0_playlist_deliver_squads_zb": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 11
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_mash_squads": {
+            "type": "number",
+            "value": 5
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_deliver_squads_zb": {
+            "type": "number",
+            "value": 2
+          },
+          "br_kills_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 113
+          },
+          "br_score_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 68330
+          },
+          "br_placetop12_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 871
+          },
+          "br_kills_keyboardmouse_m0_playlist_argon_hightower_duos_16": {
+            "type": "number",
+            "value": 6
+          },
+          "br_placetop3_gamepad_m0_playlist_blitz_squad": {
+            "type": "number",
+            "value": 18
+          },
+          "br_score_gamepad_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 510
+          },
+          "br_matchesplayed_gamepad_m0_playlist_comp_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "s16_social_bp_level": {
+            "type": "number",
+            "value": 17855
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 80
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_daybreak_pp_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_gamepad_m0_playlist_habanerosolo": {
+            "type": "number",
+            "value": 7
+          },
+          "br_kills_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 49
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_low_squads": {
+            "type": "number",
+            "value": 3
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_cobalt_ht_duos": {
+            "type": "number",
+            "value": 20
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_daybreak_pp_squads": {
+            "type": "number",
+            "value": 25
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 51
+          },
+          "br_placetop10_gamepad_m0_playlist_forbiddenfruitnobuildbrsolo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_score_keyboardmouse_m0_playlist_unvaulted_squads": {
+            "type": "number",
+            "value": 1052
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_wax_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_creative_mms_32playerstandard": {
+            "type": "number",
+            "value": 33
+          },
+          "br_kills_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 5
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 96
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 49
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 548
+          },
+          "br_kills_keyboardmouse_m0_playlist_music_low": {
+            "type": "number",
+            "value": 26
+          },
+          "br_matchesplayed_gamepad_m0_playlist_classic_duos": {
+            "type": "number",
+            "value": 18
+          },
+          "br_score_keyboardmouse_m0_playlist_creative_play_v2": {
+            "type": "number",
+            "value": 651
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_figmentduo": {
+            "type": "number",
+            "value": 26
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_respawn_24_solidgold": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 215
+          },
+          "br_placetop3_gamepad_m0_playlist_mash_squads_legacy": {
+            "type": "number",
+            "value": 10
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 1789420081
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 243
+          },
+          "br_matchesplayed_gamepad_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 115
+          },
+          "br_placetop25_gamepad_m0_playlist_deimos_soloshow": {
+            "type": "number",
+            "value": 5
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_titanium_squads": {
+            "type": "number",
+            "value": 13
+          },
+          "br_matchesplayed_gamepad_m0_playlist_blitz_duos": {
+            "type": "number",
+            "value": 39
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 3
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_creative_mms_32playerstandard": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_behind_duos": {
+            "type": "number",
+            "value": 210
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_behind_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 21
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_vamp_squad": {
+            "type": "number",
+            "value": 15
+          },
+          "br_score_keyboardmouse_m0_playlist_deimos_solo_winter": {
+            "type": "number",
+            "value": 9359
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_vamp_duo": {
+            "type": "number",
+            "value": 48
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_figmentduo": {
+            "type": "number",
+            "value": 58
+          },
+          "br_minutesplayed_gamepad_m0_playlist_trios": {
+            "type": "number",
+            "value": 28
+          },
+          "br_score_keyboardmouse_m0_playlist_ropesmilesolo": {
+            "type": "number",
+            "value": 847
+          },
+          "br_score_gamepad_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 765
+          },
+          "br_score_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 347
+          },
+          "br_score_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 111406
+          },
+          "br_score_keyboardmouse_m0_playlist_daybreak_pp_squads": {
+            "type": "number",
+            "value": 405
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 5
+          },
+          "br_score_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 22629
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 3
+          },
+          "br_kills_gamepad_m0_playlist_50v50he": {
+            "type": "number",
+            "value": 3
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 1563826768
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 1699365342
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 1556047061
+          },
+          "br_placetop1_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 166
+          },
+          "br_placetop12_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 59
+          },
+          "br_score_keyboardmouse_m0_playlist_showdowntournament_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 861
+          },
+          "br_kills_keyboardmouse_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 6
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_figmentduo": {
+            "type": "number",
+            "value": 566
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_arseniccore_squads_maxfog": {
+            "type": "number",
+            "value": 1
+          },
+          "br_score_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 8886
+          },
+          "br_playersoutlived_gamepad_m0_playlist_bounty_squads": {
+            "type": "number",
+            "value": 46
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_figmentduo": {
+            "type": "number",
+            "value": 3842
+          },
+          "br_placetop25_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 542
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 1622844253
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_fill_duos": {
+            "type": "number",
+            "value": 150
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_behind_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "s42_social_bp_level": {
+            "type": "number",
+            "value": 21473
+          },
+          "br_kills_keyboardmouse_m0_playlist_behind_duos": {
+            "type": "number",
+            "value": 15
+          },
+          "br_placetop10_gamepad_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 5
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 14258
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 185
+          },
+          "br_kills_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 145
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_slide_solo": {
+            "type": "number",
+            "value": 184
+          },
+          "br_score_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 1419
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 3143
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 27
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 947
+          },
+          "br_matchesplayed_gamepad_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 26
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_deimos_solo_winter": {
+            "type": "number",
+            "value": 19
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 14
+          },
+          "br_score_keyboardmouse_m0_playlist_habanerotrio": {
+            "type": "number",
+            "value": 2485
+          },
+          "br_matchesplayed_gamepad_m0_playlist_disco_32": {
+            "type": "number",
+            "value": 6
+          },
+          "br_score_keyboardmouse_m0_playlist_argon_hightower_duos_16": {
+            "type": "number",
+            "value": 645
+          },
+          "br_score_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 472074
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 445
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_habanero_punchberry_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_gamepad_m0_playlist_nobuildbr_habanero_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_creative_mms_4playerstandard": {
+            "type": "number",
+            "value": 6
+          },
+          "br_minutesplayed_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 103
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 13553
+          },
+          "br_kills_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 7
+          },
+          "br_score_gamepad_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 1020
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_habanero_dashberry_duos": {
+            "type": "number",
+            "value": 276
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 1788195012
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 187
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_gamepad_m0_playlist_habanerosolo": {
+            "type": "number",
+            "value": 1705402210
+          },
+          "br_score_keyboardmouse_m0_playlist_behind_duos": {
+            "type": "number",
+            "value": 849
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_slide_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 190
+          },
+          "br_matchesplayed_gamepad_m0_playlist_steady_solo": {
+            "type": "number",
+            "value": 3
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_50v50": {
+            "type": "number",
+            "value": 7
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 492
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_mash_squads": {
+            "type": "number",
+            "value": 102
+          },
+          "br_score_gamepad_m0_playlist_trios": {
+            "type": "number",
+            "value": 867
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdowntournament_titanium_solo": {
+            "type": "number",
+            "value": 503
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 27
+          },
+          "br_matchesplayed_gamepad_m0_playlist_steady_squads": {
+            "type": "number",
+            "value": 38
+          },
+          "br_score_gamepad_m0_playlist_nobuildbr_habanero_solo": {
+            "type": "number",
+            "value": 59
+          },
+          "br_playersoutlived_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 1730
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 1615891951
+          },
+          "br_score_gamepad_m0_playlist_bounty_squads": {
+            "type": "number",
+            "value": 213
+          },
+          "br_matchesplayed_gamepad_m0_playlist_bounty_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_gamepad_m0_playlist_nobuildbr_habanero_solo": {
+            "type": "number",
+            "value": 54
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 4
+          },
+          "br_kills_keyboardmouse_m0_playlist_intro_apollo_currentplayer": {
+            "type": "number",
+            "value": 3
+          },
+          "br_lastmodified_gamepad_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 1556737469
+          },
+          "br_kills_keyboardmouse_m0_playlist_low_squads": {
+            "type": "number",
+            "value": 12
+          },
+          "br_kills_keyboardmouse_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 1531
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop1_gamepad_m0_playlist_blitz_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_score_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 5840
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 1916
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_ropesmilesolo": {
+            "type": "number",
+            "value": 1788282325
+          },
+          "br_score_keyboardmouse_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 2385
+          },
+          "br_kills_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 1799
+          },
+          "br_matchesplayed_gamepad_m0_playlist_comp_meta_solo": {
+            "type": "number",
+            "value": 4
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 16901
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_arseniccore_squads_maxfog": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop10_gamepad_m0_playlist_deimos_solo": {
+            "type": "number",
+            "value": 11
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 1623766922
+          },
+          "br_score_keyboardmouse_m0_playlist_dadbro_squads_12": {
+            "type": "number",
+            "value": 589
+          },
+          "br_placetop10_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 70
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 6
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 3
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 115
+          },
+          "br_kills_gamepad_m0_playlist_ww_duos": {
+            "type": "number",
+            "value": 56
+          },
+          "br_kills_keyboardmouse_m0_playlist_deimos_solo_winter": {
+            "type": "number",
+            "value": 98
+          },
+          "br_score_keyboardmouse_m0_playlist_titanium_squads": {
+            "type": "number",
+            "value": 2324
+          },
+          "br_kills_gamepad_m0_playlist_classic_duos": {
+            "type": "number",
+            "value": 40
+          },
+          "br_kills_gamepad_m0_playlist_playground": {
+            "type": "number",
+            "value": 179
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_creative_mms_32playerstandard": {
+            "type": "number",
+            "value": 1632521123
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_arseniccore_squads_maxfog": {
+            "type": "number",
+            "value": 1603996057
+          },
+          "br_matchesplayed_gamepad_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 4
+          },
+          "br_score_gamepad_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 234
+          },
+          "br_kills_gamepad_m0_playlist_score_duos": {
+            "type": "number",
+            "value": 67
+          },
+          "br_matchesplayed_gamepad_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdownalt_squads": {
+            "type": "number",
+            "value": 265
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 562
+          },
+          "br_kills_gamepad_m0_playlist_vamp_squad": {
+            "type": "number",
+            "value": 13
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdowntournament_trios": {
+            "type": "number",
+            "value": 80
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_deimos_solo_winter": {
+            "type": "number",
+            "value": 1548710476
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_creativeroyale_mms": {
+            "type": "number",
+            "value": 7
+          },
+          "br_kills_gamepad_m0_playlist_showdownalt_trios": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop10_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 86
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 18
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 14
+          },
+          "br_score_keyboardmouse_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 556
+          },
+          "br_placetop25_keyboardmouse_m0_playlist_showdowntournament_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 4
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_deliver_squads_zb": {
+            "type": "number",
+            "value": 17
+          },
+          "br_kills_keyboardmouse_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 647
+          },
+          "br_placetop25_gamepad_m0_playlist_showdown_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 983
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_unvaulted_squads": {
+            "type": "number",
+            "value": 357
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 29
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_music_high": {
+            "type": "number",
+            "value": 1570990039
+          },
+          "br_minutesplayed_gamepad_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 79
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 16
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_creative_mms_1playerstandard": {
+            "type": "number",
+            "value": 1616290300
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_respawn_24_solidgold": {
+            "type": "number",
+            "value": 12
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_defaultsquad": {
+            "type": "number",
+            "value": 755
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdowntournament_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 257
+          },
+          "br_placetop10_gamepad_m0_playlist_blitz_solo": {
+            "type": "number",
+            "value": 26
+          },
+          "br_score_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 85735
+          },
+          "br_matchesplayed_touch_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_nobuildbr_squad": {
+            "type": "number",
+            "value": 9
+          },
+          "br_kills_keyboardmouse_m0_playlist_slide_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_beagles_duos": {
+            "type": "number",
+            "value": 1562010744
+          },
+          "br_score_gamepad_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 1245
+          },
+          "br_kills_keyboardmouse_m0_playlist_music_high": {
+            "type": "number",
+            "value": 24
+          },
+          "br_playersoutlived_gamepad_m0_playlist_forbiddenfruitnobuildbrsolo": {
+            "type": "number",
+            "value": 59
+          },
+          "br_kills_gamepad_m0_playlist_final_20": {
+            "type": "number",
+            "value": 14
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 41
+          },
+          "br_placetop6_gamepad_m0_playlist_steady_squads": {
+            "type": "number",
+            "value": 15
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 8
+          },
+          "br_score_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 178159
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_ropesmileduo": {
+            "type": "number",
+            "value": 2002
+          },
+          "br_matchesplayed_gamepad_m0_playlist_bling_squads": {
+            "type": "number",
+            "value": 14
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_nobuildbr_duo": {
+            "type": "number",
+            "value": 1711
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_showdownalt_solo": {
+            "type": "number",
+            "value": 19918
+          },
+          "br_matchesplayed_gamepad_m0_playlist_score_duos": {
+            "type": "number",
+            "value": 18
+          },
+          "s15_social_bp_level": {
+            "type": "number",
+            "value": 15840
+          },
+          "br_kills_gamepad_m0_playlist_deimos_solo": {
+            "type": "number",
+            "value": 87
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_respawn_squads": {
+            "type": "number",
+            "value": 1562433721
+          },
+          "br_matchesplayed_gamepad_m0_playlist_50v50": {
+            "type": "number",
+            "value": 92
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdowntournament_cobaltht_duos": {
+            "type": "number",
+            "value": 18
+          },
+          "br_matchesplayed_gamepad_m0_playlist_playground": {
+            "type": "number",
+            "value": 135
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_low_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 2
+          },
+          "br_kills_keyboardmouse_m0_playlist_goose_duos_24": {
+            "type": "number",
+            "value": 104
+          },
+          "br_placetop1_gamepad_m0_playlist_deimos_50": {
+            "type": "number",
+            "value": 7
+          },
+          "br_kills_gamepad_m0_playlist_comp_meta_solo": {
+            "type": "number",
+            "value": 11
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdowntournament_cobaltht_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_arena_matchesplayed_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 431
+          },
+          "br_minutesplayed_gamepad_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 11
+          },
+          "br_score_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 2389
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_argon_hightower_duos_16": {
+            "type": "number",
+            "value": 1603122630
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_habanero_jumpbear_duos": {
+            "type": "number",
+            "value": 39
+          },
+          "br_lastmodified_gamepad_m0_playlist_creativeroyale_mms_100_player_no_mms": {
+            "type": "number",
+            "value": 1698000136
+          },
+          "br_score_keyboardmouse_m0_playlist_battlelab_fortnitemares_maxfog": {
+            "type": "number",
+            "value": 526
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_cobalt_ht_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop1_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 47
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_respawn_24_alt": {
+            "type": "number",
+            "value": 11
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_nobuildbr_trio": {
+            "type": "number",
+            "value": 2544
+          },
+          "br_lastmodified_gamepad_m0_playlist_battlelab": {
+            "type": "number",
+            "value": 1582237364
+          },
+          "br_placetop6_keyboardmouse_m0_playlist_showdownalt_bluecheese_trios": {
+            "type": "number",
+            "value": 45
+          },
+          "br_kills_gamepad_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_gamepad_m0_playlist_creative_playonly": {
+            "type": "number",
+            "value": 4
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_habaneroduo": {
+            "type": "number",
+            "value": 25058
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_creative_mms_4playerstandard": {
+            "type": "number",
+            "value": 44
+          },
+          "br_playersoutlived_gamepad_m0_playlist_habanerosolo": {
+            "type": "number",
+            "value": 100
+          },
+          "br_placetop10_gamepad_m0_playlist_soaring_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 1789493333
+          },
+          "br_matchesplayed_gamepad_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 9
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_vamp_squad": {
+            "type": "number",
+            "value": 86
+          },
+          "br_matchesplayed_gamepad_m0_playlist_nobuildbr_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_gamepad_m0_playlist_nobuildbr_habanero_solo": {
+            "type": "number",
+            "value": 1699465895
+          },
+          "br_placetop5_keyboardmouse_m0_playlist_argon_hightower_duos_16": {
+            "type": "number",
+            "value": 1
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_bodyguard_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_gamepad_m0_playlist_final_20": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 1562615353
+          },
+          "br_placetop1_gamepad_m0_playlist_showdown_duos": {
+            "type": "number",
+            "value": 1
+          },
+          "br_playersoutlived_gamepad_m0_playlist_ashton_sm": {
+            "type": "number",
+            "value": 13
+          },
+          "br_kills_gamepad_m0_playlist_showdown_duos": {
+            "type": "number",
+            "value": 16
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_vamp_squads": {
+            "type": "number",
+            "value": 3
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdowntournament_titanium_solo": {
+            "type": "number",
+            "value": 9
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_figmentsquad": {
+            "type": "number",
+            "value": 1786902214
+          },
+          "br_lastmodified_gamepad_m0_playlist_trios": {
+            "type": "number",
+            "value": 1622660198
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_classic_squads": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_gamepad_m0_playlist_habanerosolo": {
+            "type": "number",
+            "value": 3
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 1633628817
+          },
+          "br_score_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 565
+          },
+          "br_score_keyboardmouse_m0_playlist_paradise_squads": {
+            "type": "number",
+            "value": 1256
+          },
+          "br_score_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 765
+          },
+          "br_placetop12_keyboardmouse_m0_playlist_unvaulted_duos": {
+            "type": "number",
+            "value": 3
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 1458
+          },
+          "s33_social_bp_level": {
+            "type": "number",
+            "value": 1489
+          },
+          "br_lastmodified_gamepad_m0_playlist_creative_play_v2": {
+            "type": "number",
+            "value": 1730148050
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_ropesmilesquad": {
+            "type": "number",
+            "value": 6
+          },
+          "br_lastmodified_gamepad_m0_playlist_defaultduo": {
+            "type": "number",
+            "value": 1760028034
+          },
+          "br_minutesplayed_gamepad_m0_playlist_showdowntournament_duos": {
+            "type": "number",
+            "value": 62
+          },
+          "br_placetop6_gamepad_m0_playlist_deimos_squad": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_bots_defaultsquad": {
+            "type": "number",
+            "value": 1605816485
+          },
+          "s24_social_bp_level": {
+            "type": "number",
+            "value": 2998
+          },
+          "br_kills_gamepad_m0_playlist_highexplosives_solo": {
+            "type": "number",
+            "value": 17
+          },
+          "br_placetop5_gamepad_m0_playlist_deimos_duo": {
+            "type": "number",
+            "value": 7
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 452
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_deimos_duo_wintershow": {
+            "type": "number",
+            "value": 758
+          },
+          "br_matchesplayed_keyboardmouse_m0_playlist_showdowntournament_solo": {
+            "type": "number",
+            "value": 92
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_battlelab_fortnitemares_maxfog": {
+            "type": "number",
+            "value": 1604343182
+          },
+          "br_placetop1_gamepad_m0_playlist_deimos_duo": {
+            "type": "number",
+            "value": 1
+          },
+          "br_minutesplayed_gamepad_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 40
+          },
+          "br_playersoutlived_keyboardmouse_m0_playlist_arseniccore_duos_maxfog": {
+            "type": "number",
+            "value": 1445
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 1785355123
+          },
+          "br_placetop1_gamepad_m0_playlist_respawn_24": {
+            "type": "number",
+            "value": 8
+          },
+          "br_score_gamepad_m0_playlist_creativeroyale_mms_100_player_no_mms": {
+            "type": "number",
+            "value": 586
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_solo": {
+            "type": "number",
+            "value": 2
+          },
+          "br_placetop3_gamepad_m0_playlist_bling_squads": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_gamepad_m0_playlist_snipers_duos": {
+            "type": "number",
+            "value": 2
+          },
+          "br_matchesplayed_gamepad_m0_playlist_showdownalt_duos": {
+            "type": "number",
+            "value": 138
+          },
+          "br_matchesplayed_gamepad_m0_playlist_vamp_squad": {
+            "type": "number",
+            "value": 8
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_behind_duos": {
+            "type": "number",
+            "value": 1562418338
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_habanero_ropesmile_duos": {
+            "type": "number",
+            "value": 1789420881
+          },
+          "br_kills_keyboardmouse_m0_playlist_showdownalt_bluecheese_regular_trios": {
+            "type": "number",
+            "value": 741
+          },
+          "br_kills_keyboardmouse_m0_playlist_defaultsolo": {
+            "type": "number",
+            "value": 781
+          },
+          "br_lastmodified_gamepad_m0_playlist_playgroundv2": {
+            "type": "number",
+            "value": 1694626866
+          },
+          "br_lastmodified_keyboardmouse_m0_playlist_showdowntournament_titanium_solo": {
+            "type": "number",
+            "value": 1613322663
+          },
+          "br_kills_keyboardmouse_m0_playlist_tank_squads": {
+            "type": "number",
+            "value": 3
+          },
+          "br_placetop12_gamepad_m0_playlist_score_duos": {
+            "type": "number",
+            "value": 8
+          },
+          "br_score_keyboardmouse_m0_playlist_wax_squads": {
+            "type": "number",
+            "value": 1795
+          },
+          "br_score_keyboardmouse_m0_playlist_creative_mms_32playerstandard": {
+            "type": "number",
+            "value": 330
+          },
+          "br_placetop3_keyboardmouse_m0_playlist_trios": {
+            "type": "number",
+            "value": 169
+          },
+          "br_minutesplayed_keyboardmouse_m0_playlist_intro_apollo_currentplayer": {
+            "type": "number",
+            "value": 14
+          },
+          "br_placetop1_keyboardmouse_m0_playlist_arseniccore_squads_maxfog": {
+            "type": "number",
+            "value": 1
+          },
+          "br_matchesplayed_gamepad_m0_playlist_deimos_50": {
+            "type": "number",
+            "value": 23
+          }
+        }
+      }
+    }
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": [],
+    "stats_counter_fields_present": true,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-15T19:10:40.7893054Z"
+}

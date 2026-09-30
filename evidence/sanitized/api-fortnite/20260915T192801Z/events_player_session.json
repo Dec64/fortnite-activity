@@ -1,0 +1,60 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/events/player/{accountId}/session",
+  "requested_at_utc": "2026-09-15T19:28:31.1666094Z",
+  "response_at_utc": "2026-09-15T19:28:31.2311686Z",
+  "http_status": 403,
+  "response_date_utc": "2026-09-15T19:28:29.0000000Z",
+  "auth": "provider key + player token",
+  "outcome": "http_error",
+  "shape": {
+    "field_count": 3,
+    "unknown_field_count": 0,
+    "type": "object",
+    "fields": {
+      "error": {
+        "length": 17,
+        "type": "string"
+      },
+      "required": {
+        "sample_limit": 3,
+        "count": 1,
+        "type": "array",
+        "sample": [
+          {
+            "length": 6,
+            "type": "string"
+          }
+        ]
+      },
+      "current": {
+        "length": 3,
+        "type": "string"
+      }
+    },
+    "omitted_field_count": 0
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {
+      "field_names": [],
+      "safe_values": []
+    },
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-15T19:28:31.2337175Z"
+}

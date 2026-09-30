@@ -1,0 +1,216 @@
+"""Sensor platform for Fortnite Family Tracker."""
+
+from __future__ import annotations
+
+from typing import Any
+
+try:
+    from homeassistant.components.sensor import SensorEntity
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+except ImportError:
+    class SensorEntity:  # type: ignore
+        pass
+    ConfigEntry = Any  # type: ignore
+    HomeAssistant = Any  # type: ignore
+    AddEntitiesCallback = Any  # type: ignore
+
+from .const import CONF_PLAYERS, CONF_PLAYER_ID, CONF_PLAYER_NAME, DOMAIN
+from .coordinator import FortniteDataUpdateCoordinator
+from .entity import FortniteEntity
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Fortnite Family sensors based on a config entry."""
+    coordinator: FortniteDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    players = entry.data.get(CONF_PLAYERS, [])
+
+    entities: list[SensorEntity] = []
+    for p in players:
+        p_id = p[CONF_PLAYER_ID]
+        p_name = p.get(CONF_PLAYER_NAME, p_id.capitalize())
+
+        entities.extend(
+            [
+                FortniteOverallStatsSensor(coordinator, p_id, p_name),
+                FortniteCurrentSessionSensor(coordinator, p_id, p_name),
+                FortniteRankBattleRoyaleSensor(coordinator, p_id, p_name),
+                FortniteRankReloadSensor(coordinator, p_id, p_name),
+                FortniteLevelSensor(coordinator, p_id, p_name),
+            ]
+        )
+
+    async_add_entities(entities)
+
+
+class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
+    """Sensor displaying overall matches and career statistics."""
+
+    _attr_icon = "mdi:trophy-outline"
+
+    def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, player_id, player_name, "overall_stats")
+        self._attr_name = f"{player_name} Overall Stats"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return total career matches played."""
+        stats = self.player_data.get("stats", {})
+        return stats.get("overall", {}).get("matches")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return career statistics breakdown."""
+        stats = self.player_data.get("stats", {})
+        overall = stats.get("overall", {})
+        return {
+            "total_matches": overall.get("matches", 0),
+            "total_kills": overall.get("kills", 0),
+            "total_wins": overall.get("wins", 0),
+            "kd_ratio": overall.get("kd", 0.0),
+            "win_rate_pct": overall.get("win_rate", 0.0),
+            "minutes_played": overall.get("minutes", 0),
+            "score": overall.get("score", 0),
+            "players_outlived": overall.get("players_outlived", 0),
+            "modes": stats.get("modes", {}),
+        }
+
+
+class FortniteCurrentSessionSensor(FortniteEntity, SensorEntity):
+    """Sensor displaying active or latest session information."""
+
+    _attr_icon = "mdi:gamepad-variant"
+
+    def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, player_id, player_name, "current_session")
+        self._attr_name = f"{player_name} Session"
+
+    @property
+    def native_value(self) -> str:
+        """Return active or idle."""
+        return "active" if self.player_data.get("is_playing", False) else "idle"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return detailed session KPIs and recent match feed."""
+        session = self.player_data.get("session") or self.player_data.get("last_session")
+        if not session:
+            return {"status": "no_session_recorded"}
+
+        summary = session.get("summary", {})
+        matches = session.get("matches", [])
+        last_match = matches[0] if matches else None
+
+        return {
+            "session_id": session.get("session_id"),
+            "is_active": self.player_data.get("is_playing", False),
+            "start_time": session.get("start_time"),
+            "end_time": session.get("end_time"),
+            "duration_minutes": session.get("duration_minutes", 0),
+            "matches_played": summary.get("matches_played", 0),
+            "wins": summary.get("wins", 0),
+            "kills": summary.get("kills", 0),
+            "kd_ratio": summary.get("kd_ratio", 0.0),
+            "win_rate_pct": summary.get("win_rate_pct", 0.0),
+            "net_rank_delta_pct": summary.get("net_rank_delta_pct", 0.0),
+            "last_match": last_match,
+            "recent_matches": matches[:10],
+        }
+
+
+class FortniteRankBattleRoyaleSensor(FortniteEntity, SensorEntity):
+    """Sensor for Battle Royale ranked track."""
+
+    _attr_icon = "mdi:shield-star"
+
+    def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, player_id, player_name, "rank_battle_royale")
+        self._attr_name = f"{player_name} Battle Royale Rank"
+
+    @property
+    def native_value(self) -> str:
+        """Return current rank name."""
+        ranked = self.player_data.get("ranked", {})
+        br = ranked.get("battle_royale") or {}
+        return br.get("current_rank", "Unranked")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return division and progress percentage."""
+        ranked = self.player_data.get("ranked", {})
+        br = ranked.get("battle_royale") or {}
+        return {
+            "division": br.get("current_division", 0),
+            "progress_pct": br.get("progress_pct", 0.0),
+            "highest_rank": br.get("highest_rank", "Unranked"),
+            "highest_division": br.get("highest_division", 0),
+            "game_mode": br.get("game_mode", "Battle Royale"),
+            "season_end": br.get("season_end"),
+        }
+
+
+class FortniteRankReloadSensor(FortniteEntity, SensorEntity):
+    """Sensor for Reload Build ranked track."""
+
+    _attr_icon = "mdi:reload"
+
+    def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, player_id, player_name, "rank_reload")
+        self._attr_name = f"{player_name} Reload Rank"
+
+    @property
+    def native_value(self) -> str:
+        """Return current rank name."""
+        ranked = self.player_data.get("ranked", {})
+        reload_track = ranked.get("reload_build") or {}
+        return reload_track.get("current_rank", "Unranked")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return division and progress percentage."""
+        ranked = self.player_data.get("ranked", {})
+        reload_track = ranked.get("reload_build") or {}
+        return {
+            "division": reload_track.get("current_division", 0),
+            "progress_pct": reload_track.get("progress_pct", 0.0),
+            "highest_rank": reload_track.get("highest_rank", "Unranked"),
+            "highest_division": reload_track.get("highest_division", 0),
+            "game_mode": reload_track.get("game_mode", "Reload Build"),
+            "season_end": reload_track.get("season_end"),
+        }
+
+
+class FortniteLevelSensor(FortniteEntity, SensorEntity):
+    """Sensor for Season Level and Battle Pass tier."""
+
+    _attr_icon = "mdi:star-circle"
+
+    def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, player_id, player_name, "level")
+        self._attr_name = f"{player_name} Level"
+
+    @property
+    def native_value(self) -> int:
+        """Return season level."""
+        level = self.player_data.get("level", {})
+        return level.get("level", 0)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return tier, XP, and account level."""
+        level = self.player_data.get("level", {})
+        return {
+            "tier": level.get("tier", 0),
+            "xp": level.get("xp", 0),
+            "account_level": level.get("account_level", 0),
+        }

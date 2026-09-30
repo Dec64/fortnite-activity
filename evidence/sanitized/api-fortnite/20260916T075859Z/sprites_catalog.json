@@ -1,0 +1,42 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/sprites",
+  "requested_at_utc": "2026-09-16T07:59:01.8871592Z",
+  "response_at_utc": "2026-09-16T07:59:01.9578566Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T07:59:00.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "type": "sprite_catalog_summary",
+    "container_path": "root.data",
+    "gameVersion": "42.10",
+    "generated": "2026-09-07T05:59:48.0917747Z",
+    "hotfixApplied": true,
+    "isCurrent": true,
+    "spritesCount": 16,
+    "levelUpCurveCount": 10,
+    "eventsCount": 1,
+    "spawnListsCount": 11
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": true,
+    "sprite_collection_fields_present": true
+  },
+  "completed_at_utc": "2026-09-16T07:59:02.1089671Z"
+}

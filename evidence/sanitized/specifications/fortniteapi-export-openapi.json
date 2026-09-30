@@ -1,0 +1,689 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Export Service",
+    "description": "This export service is powered by [CUE4Parse](https://github.com/FabianFG/CUE4Parse), an open-source Unreal Engine asset parser. It automatically updates to the latest version of the game whenever a new manifest is released, ensuring the data is always up to date.\r\nThe service also holds a few older versions of the game, so you can get \"back in time\". We try to preserve the latest version of every major.\r\n\r\n**Note:** This service is currently in **beta** and may be subject to **breaking changes** as development continues.\r\n\r\n\r\n**Disclaimer:** This project is **not affiliated with, endorsed, sponsored, or approved by Epic Games** in any way. It is intended solely for educational and informational purposes. **Using this service to exploit, abuse, or modify game files is strictly prohibited.**",
+    "contact": {
+      "name": "FortniteAPI.com Discord",
+      "url": "https://discord.com/invite/xsgAFhS"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/v1/aes": {
+      "get": {
+        "tags": [
+          "Aes"
+        ],
+        "summary": "Returns all the AES keys that are currently in the system.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/aes/{pakId}": {
+      "get": {
+        "tags": [
+          "Aes"
+        ],
+        "summary": "Lists the files of a PAK.",
+        "description": "Returns a list with all matching AES keys, including all the file paths that are in this pak.",
+        "parameters": [
+          {
+            "name": "pakId",
+            "in": "path",
+            "description": "Either the Pak ID as int (eg 1012 of 1020) or the Pak ID as string.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/aes/{pakId}/cosmetics": {
+      "get": {
+        "tags": [
+          "Aes"
+        ],
+        "summary": "Lists the parsed cosmetics and bundles of a PAK.",
+        "description": "This endpoint lists the cosmetics and bundles inside the requested pak. The cosmetics and bundles are parsed via our export parse endpoint (/v1/export/parsed).",
+        "parameters": [
+          {
+            "name": "pakId",
+            "in": "path",
+            "description": "Either the Pak ID as int (eg 1012 of 1020) or the Pak ID as string.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/backups": {
+      "get": {
+        "tags": [
+          "Backup"
+        ],
+        "summary": "Lists the automatically generated F-Model backups.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/cloudstorage/hotfixes": {
+      "get": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Latest hotfixes from Cloud Storage.",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/versions": {
+      "get": {
+        "tags": [
+          "Common"
+        ],
+        "summary": "Returns all the loaded versions of the game.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/cosmetics": {
+      "get": {
+        "tags": [
+          "Cosmetic"
+        ],
+        "summary": "ALPHA: a cached version of all cosmetics. Saved in the database.",
+        "parameters": [
+          {
+            "name": "Type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/cosmetics/new": {
+      "get": {
+        "tags": [
+          "Cosmetic"
+        ],
+        "summary": "ALPHA: newly added cosmetics since the last version.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/cosmetics/bundles": {
+      "get": {
+        "tags": [
+          "Cosmetic"
+        ],
+        "summary": "ALPHA: a cached version of all bundles. Saved in the database.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/cosmetics/bundles/{fromDate}": {
+      "get": {
+        "tags": [
+          "Cosmetic"
+        ],
+        "summary": "ALPHA: a cached version of all bundles. Saved in the database.",
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Exports an object from the game files.",
+        "description": "Exports a raw UObject in a read-able JSON structure, or an image.\r\n\r\nEndpoint currently allows 30 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Path",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Raw",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/ini": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Exports an .ini file from the game files.",
+        "parameters": [
+          {
+            "name": "Path",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/parsed": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Parses an object to a read-able Json output. Only supports cosmetics, such as skins, emotes, etc.",
+        "description": "Parses an UObject to a read-able Json structure. Only supports cosmetics, such as skins, emotes, backblings, emotes, shoes, and for example the lego stuff.\r\n\r\nEndpoint currently allows 10 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Path",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/download": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Downloads an object from the game files.",
+        "parameters": [
+          {
+            "name": "Path",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/seasons": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Lists all seasons straight from the game files.",
+        "description": "Endpoint currently allows 60 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/cosmetics": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns all cosmetic items in the game, based on the provided type.",
+        "description": "Endpoint currently allows 60 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/cosmetics/new": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns new cosmetic items in the game.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/cosmetics/all": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns all the available cosmetics, such as Battle Royale, Festival, Rocket Racking, etc.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/cosmetics/series": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns all available cosmetic series in the game.",
+        "description": "Endpoint currently allows 60 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/cosmetics/sets": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns all available cosmetic sets in the game.",
+        "description": "Endpoint currently allows 60 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/offerpopups": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns the shop offer popups.",
+        "description": "Endpoint currently allows 60 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/displayassets": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns the NEW display assets paths.",
+        "description": "Endpoint currently allows 30 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/displayassets/parsed": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns the parsed NEW display assets.",
+        "description": "Endpoint currently allows 10 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/bundles": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Returns the available bundles in the game.",
+        "description": "Endpoint currently allows 20 requests per 60 seconds.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/export/search": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "BETA: search in the game files. Note: currently only ini files are loaded in to memory.",
+        "description": "Endpoint currently allows 20 requests per 60 seconds.\r\nNote that this endpoint is new and in beta. Breaking future changes are certain. Doesn't support versioning, defaults to the latest version.",
+        "parameters": [
+          {
+            "name": "Query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "New",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/manifests": {
+      "get": {
+        "tags": [
+          "Manifest"
+        ],
+        "summary": "List the most recent manifests.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/manifests/{manifestId}": {
+      "get": {
+        "tags": [
+          "Manifest"
+        ],
+        "summary": "Get a specific manifest by its ID.",
+        "parameters": [
+          {
+            "name": "manifestId",
+            "in": "path",
+            "description": "The manifest ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/mappings/legacy": {
+      "get": {
+        "tags": [
+          "Mapping"
+        ],
+        "summary": "Lists the mappings and their metadata.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/mappings": {
+      "get": {
+        "tags": [
+          "Mapping"
+        ],
+        "summary": "Lists the mappings and their metadata.",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": { }
+}

@@ -1,0 +1,33 @@
+{
+  "startTime": 0,
+  "endTime": 9223372036854775807,
+  "stats": {
+    "br_matchesplayed_keyboardmouse_m0_playlist_nobuildbr_duo": 101,
+    "br_kills_keyboardmouse_m0_playlist_nobuildbr_duo": 407,
+    "br_placetop1_keyboardmouse_m0_playlist_nobuildbr_duo": 16,
+    "br_placetop5_keyboardmouse_m0_playlist_nobuildbr_duo": 36,
+    "br_placetop10_keyboardmouse_m0_playlist_nobuildbr_duo": 51,
+    "br_placetop25_keyboardmouse_m0_playlist_nobuildbr_duo": 81,
+    "br_minutesplayed_keyboardmouse_m0_playlist_nobuildbr_duo": 1518,
+    "br_score_keyboardmouse_m0_playlist_nobuildbr_duo": 35450,
+    "br_playersoutlived_keyboardmouse_m0_playlist_nobuildbr_duo": 5098,
+    "br_lastmodified_keyboardmouse_m0_playlist_nobuildbr_duo": 1695001200,
+
+    "br_matchesplayed_keyboardmouse_m0_playlist_defaultsolo": 50,
+    "br_kills_keyboardmouse_m0_playlist_defaultsolo": 150,
+    "br_placetop1_keyboardmouse_m0_playlist_defaultsolo": 5,
+    "br_placetop10_keyboardmouse_m0_playlist_defaultsolo": 20,
+    "br_minutesplayed_keyboardmouse_m0_playlist_defaultsolo": 700,
+    "br_score_keyboardmouse_m0_playlist_defaultsolo": 18000,
+    "br_playersoutlived_keyboardmouse_m0_playlist_defaultsolo": 2500,
+    "br_lastmodified_keyboardmouse_m0_playlist_defaultsolo": 1694900000,
+
+    "br_matchesplayed_keyboardmouse_m0_playlist_ropesmileduo": 30,
+    "br_kills_keyboardmouse_m0_playlist_ropesmileduo": 90,
+    "br_placetop1_keyboardmouse_m0_playlist_ropesmileduo": 3,
+    "br_minutesplayed_keyboardmouse_m0_playlist_ropesmileduo": 400,
+    "br_score_keyboardmouse_m0_playlist_ropesmileduo": 9000,
+    "br_playersoutlived_keyboardmouse_m0_playlist_ropesmileduo": 1200,
+    "br_lastmodified_keyboardmouse_m0_playlist_ropesmileduo": 1694800000
+  }
+}

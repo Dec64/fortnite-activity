@@ -1,0 +1,39 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/battlepass?season={currentSeason}",
+  "requested_at_utc": "2026-09-14T15:03:09.2151099Z",
+  "response_at_utc": "2026-09-14T15:03:09.2991274Z",
+  "http_status": 404,
+  "response_date_utc": "2026-09-14T15:03:09.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_error",
+  "shape": {
+    "field_count": 2,
+    "unknown_field_count": 0,
+    "omitted_field_count": 0,
+    "type": "object",
+    "fields": {
+      "status": {
+        "value": 404,
+        "type": "number"
+      },
+      "message": {
+        "battlepass_term_present": true,
+        "length": 37,
+        "type": "string"
+      }
+    }
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false
+  },
+  "completed_at_utc": "2026-09-14T15:03:09.3011994Z"
+}

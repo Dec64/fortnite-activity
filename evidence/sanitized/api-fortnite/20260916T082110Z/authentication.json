@@ -1,0 +1,54 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "POST",
+  "endpoint": "/api/v1/oauth/refresh-device",
+  "requested_at_utc": "2026-09-16T08:21:11.4586142Z",
+  "response_at_utc": "2026-09-16T08:21:12.3074211Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:21:10.0000000Z",
+  "auth": "provider key + device credentials",
+  "outcome": "http_success",
+  "shape": {
+    "type": "authentication_response_suppressed",
+    "identity_matches_expected": true,
+    "access_token_present": true,
+    "refresh_token_present": true,
+    "safe_structure": {
+      "type": "object",
+      "omitted_field_count": 3,
+      "field_count": 5,
+      "unknown_field_count": 0,
+      "fields": {
+        "success": {
+          "value": true,
+          "type": "boolean"
+        },
+        "expiresIn": {
+          "value": 7200,
+          "type": "number"
+        }
+      }
+    },
+    "changed_device_credentials_detected": false
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false,
+    "auth_error_category": "none"
+  },
+  "completed_at_utc": "2026-09-16T08:21:12.4351073Z"
+}

@@ -1,0 +1,122 @@
+{
+  "provider": "Epic Games Fortnite profile service",
+  "method": "POST",
+  "endpoint": "/fortnite/api/game/v2/profile/{accountId}/client/QueryProfile?profileId=athena&rvn=-1",
+  "requested_at_utc": "2026-09-16T16:52:21.3225873Z",
+  "response_at_utc": "2026-09-16T16:52:22.0688953Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T16:52:21.0000000Z",
+  "outcome": "identity_verified_full_profile",
+  "shape": {
+    "profile_id": "athena",
+    "identity_matches_expected": true,
+    "response_profile_changes": 1,
+    "profile_updated_at": "2026-09-15T21:58:43.8750000Z",
+    "facts": {
+      "shape": "athena_structure_summary",
+      "profile_version_shape": null,
+      "quest": {
+        "record_count": 645,
+        "identifier_pattern_counts": {
+          "daily": 72,
+          "weekly": 141,
+          "event": 3,
+          "other": 429
+        },
+        "records_with_completion_fields": 202,
+        "records_with_definition_like_fields": 4,
+        "sample_limit": 4,
+        "samples": [
+          {
+            "identifier_pattern": "weekly",
+            "template_id": "Quest:quest_weeklycreative_v1_fs_category_ro_granter_04",
+            "state": "Active",
+            "counter_field_names": [],
+            "expiry_field_present": false
+          },
+          {
+            "identifier_pattern": "other",
+            "template_id": "Quest:quest_s42_blockstackcosmetics_ghoul_q01",
+            "state": "Claimed",
+            "counter_field_names": [
+              "completion_quest_s42_blockstackcosmetics_ghoul_q01_obj0"
+            ],
+            "expiry_field_present": false
+          },
+          {
+            "identifier_pattern": "daily",
+            "template_id": "Quest:sparksquest_dailylead_playperfectnotes",
+            "state": "Active",
+            "counter_field_names": [],
+            "expiry_field_present": true
+          },
+          {
+            "identifier_pattern": "event",
+            "template_id": "Quest:quest_sparksspotlight_s15_event02_q01",
+            "state": "Active",
+            "counter_field_names": [],
+            "expiry_field_present": false
+          }
+        ]
+      },
+      "season42": {
+        "season42_record_present": true,
+        "claimed_offer_count": 147,
+        "entry_type": "object",
+        "entry_field_names": [
+          "bIsFreePassReward",
+          "currencyType",
+          "purchaseDate",
+          "offerId",
+          "totalCurrencyPaid",
+          "lootResult",
+          "seasonTemplateId"
+        ],
+        "season_attribute_rule_field_names": [
+          "purchased_offers",
+          "tier_one_rewards_given"
+        ]
+      },
+      "variants": {
+        "item_records_with_variant_entries": 475,
+        "variant_entry_count": 639,
+        "entries_with_owned_array": 639,
+        "entries_with_active_value": 639,
+        "entry_field_counts": {
+          "channel": 639,
+          "active": 639,
+          "owned": 639
+        },
+        "channel_counts": {
+          "Particle": 162,
+          "Progressive": 159,
+          "FigureDetailsLevel": 34,
+          "Parts": 49,
+          "Material": 126,
+          "TagDriven": 3,
+          "Pattern": 6,
+          "ClothingColor": 11,
+          "Numeric": 7,
+          "Emissive": 10,
+          "JerseyColor": 11,
+          "Mesh": 17,
+          "Hair": 4,
+          "Ranked": 1,
+          "MaterialParamSets": 2,
+          "RichColor": 5,
+          "MaterialParamSets2": 1,
+          "MaterialParamSets3": 1,
+          "Outfit": 1,
+          "RichColor5": 2,
+          "RichColor4": 6,
+          "RichColor2": 2,
+          "ProfileLoadout": 1,
+          "RichColor3": 5,
+          "PetTemperament": 2,
+          "ProfileBanner": 2,
+          "RichColor6": 1
+        }
+      }
+    }
+  }
+}

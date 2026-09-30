@@ -1,0 +1,2188 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/crew/current",
+  "requested_at_utc": "2026-09-14T15:03:07.6932628Z",
+  "response_at_utc": "2026-09-14T15:03:07.9169572Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-14T15:03:07.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "field_count": 15,
+    "unknown_field_count": 14,
+    "omitted_field_count": 0,
+    "type": "object",
+    "fields": {
+      "unnamed_field_1": {
+        "field_count": 4,
+        "unknown_field_count": 3,
+        "omitted_field_count": 0,
+        "type": "object",
+        "fields": {
+          "unnamed_field_1": {
+            "sample": [
+              {
+                "field_count": 3,
+                "unknown_field_count": 2,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 11,
+                    "type": "string"
+                  },
+                  "name": {
+                    "length": 11,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 6,
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "field_count": 3,
+                "unknown_field_count": 2,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 11,
+                    "type": "string"
+                  },
+                  "name": {
+                    "length": 16,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 6,
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "field_count": 3,
+                "unknown_field_count": 2,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 11,
+                    "type": "string"
+                  },
+                  "name": {
+                    "length": 24,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            ],
+            "count": 5,
+            "type": "array",
+            "sample_limit": 3
+          },
+          "imageUrl": {
+            "length": 87,
+            "type": "string"
+          },
+          "unnamed_field_2": {
+            "length": 45,
+            "type": "string"
+          },
+          "unnamed_field_3": {
+            "sample": [
+              {
+                "field_count": 3,
+                "unknown_field_count": 2,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "sample": [
+                      {
+                        "field_count": 4,
+                        "unknown_field_count": 2,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "imageUrl": {
+                            "length": 92,
+                            "type": "string"
+                          },
+                          "unnamed_field_1": {
+                            "length": 38,
+                            "type": "string"
+                          },
+                          "label": {
+                            "length": 11,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 0,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 3,
+                        "unknown_field_count": 1,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "imageUrl": {
+                            "length": 89,
+                            "type": "string"
+                          },
+                          "unnamed_field_1": {
+                            "length": 38,
+                            "type": "string"
+                          },
+                          "label": {
+                            "length": 20,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 3,
+                        "unknown_field_count": 1,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "imageUrl": {
+                            "length": 103,
+                            "type": "string"
+                          },
+                          "unnamed_field_1": {
+                            "length": 38,
+                            "type": "string"
+                          },
+                          "label": {
+                            "length": 30,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ],
+                    "count": 3,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_2": {
+                    "length": 44,
+                    "type": "string"
+                  },
+                  "label": {
+                    "length": 16,
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "field_count": 3,
+                "unknown_field_count": 2,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "sample": [
+                      {
+                        "field_count": 4,
+                        "unknown_field_count": 2,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "imageUrl": {
+                            "length": 93,
+                            "type": "string"
+                          },
+                          "unnamed_field_1": {
+                            "length": 38,
+                            "type": "string"
+                          },
+                          "label": {
+                            "length": 11,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 25,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 4,
+                        "unknown_field_count": 2,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "imageUrl": {
+                            "length": 78,
+                            "type": "string"
+                          },
+                          "unnamed_field_1": {
+                            "length": 38,
+                            "type": "string"
+                          },
+                          "label": {
+                            "length": 10,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 25,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 4,
+                        "unknown_field_count": 2,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "imageUrl": {
+                            "length": 68,
+                            "type": "string"
+                          },
+                          "unnamed_field_1": {
+                            "length": 38,
+                            "type": "string"
+                          },
+                          "label": {
+                            "length": 5,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 8,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ],
+                    "count": 4,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_2": {
+                    "length": 44,
+                    "type": "string"
+                  },
+                  "label": {
+                    "length": 11,
+                    "type": "string"
+                  }
+                }
+              }
+            ],
+            "count": 2,
+            "type": "array",
+            "sample_limit": 3
+          }
+        }
+      },
+      "unnamed_field_2": {
+        "field_count": 3,
+        "unknown_field_count": 3,
+        "omitted_field_count": 0,
+        "type": "object",
+        "fields": {
+          "unnamed_field_1": {
+            "sample": [
+              {
+                "field_count": 3,
+                "unknown_field_count": 2,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "sample": [
+                      {
+                        "field_count": 7,
+                        "unknown_field_count": 7,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 5,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 11,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "field_count": 1,
+                            "unknown_field_count": 1,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 22,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_4": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_5": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_6": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_7": {
+                            "field_count": 10,
+                            "unknown_field_count": 7,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 74,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "description": {
+                                "length": 51,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 8,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              },
+                              "title": {
+                                "length": 11,
+                                "type": "string"
+                              },
+                              "unnamed_field_5": {
+                                "length": 8,
+                                "type": "string"
+                              },
+                              "unnamed_field_6": {
+                                "length": 8,
+                                "type": "string"
+                              },
+                              "unnamed_field_7": {
+                                "length": 73,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 9,
+                        "unknown_field_count": 8,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "battlepass_term_present": true,
+                            "length": 10,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "battlepass_term_present": true,
+                            "length": 11,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "field_count": 1,
+                            "unknown_field_count": 1,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 22,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_4": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_5": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_6": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_7": {
+                            "length": 0,
+                            "type": "string"
+                          },
+                          "unnamed_field_8": {
+                            "field_count": 11,
+                            "unknown_field_count": 8,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 84,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "battlepass_term_present": true,
+                                "length": 86,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 7,
+                                "type": "string"
+                              },
+                              "unnamed_field_5": {
+                                "length": 7,
+                                "type": "string"
+                              },
+                              "description": {
+                                "battlepass_term_present": true,
+                                "length": 173,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 19,
+                                "type": "string"
+                              },
+                              "title": {
+                                "battlepass_term_present": true,
+                                "length": 11,
+                                "type": "string"
+                              },
+                              "unnamed_field_6": {
+                                "length": 7,
+                                "type": "string"
+                              },
+                              "unnamed_field_7": {
+                                "length": 7,
+                                "type": "string"
+                              },
+                              "unnamed_field_8": {
+                                "length": 84,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "templateId": {
+                            "battlepass_term_present": true,
+                            "length": 14,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 9,
+                        "unknown_field_count": 8,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "battlepass_term_present": true,
+                            "length": 10,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 7,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "field_count": 2,
+                            "unknown_field_count": 1,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_4": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_5": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_6": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_7": {
+                            "length": 0,
+                            "type": "string"
+                          },
+                          "unnamed_field_8": {
+                            "field_count": 10,
+                            "unknown_field_count": 7,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 85,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 82,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "description": {
+                                "length": 90,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 19,
+                                "type": "string"
+                              },
+                              "title": {
+                                "length": 7,
+                                "type": "string"
+                              },
+                              "unnamed_field_5": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_6": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_7": {
+                                "length": 94,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "templateId": {
+                            "length": 15,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ],
+                    "count": 6,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_2": {
+                    "length": 19,
+                    "type": "string"
+                  },
+                  "title": {
+                    "length": 16,
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "field_count": 3,
+                "unknown_field_count": 2,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "sample": [
+                      {
+                        "field_count": 7,
+                        "unknown_field_count": 7,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 5,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 11,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "field_count": 2,
+                            "unknown_field_count": 1,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_4": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_5": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_6": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_7": {
+                            "field_count": 9,
+                            "unknown_field_count": 6,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 78,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "description": {
+                                "length": 138,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 16,
+                                "type": "string"
+                              },
+                              "title": {
+                                "length": 19,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_5": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_6": {
+                                "length": 88,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 7,
+                        "unknown_field_count": 7,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 19,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 11,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "field_count": 9,
+                            "unknown_field_count": 8,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 114,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 114,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 0,
+                                "type": "string"
+                              },
+                              "unnamed_field_5": {
+                                "length": 0,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              },
+                              "unnamed_field_6": {
+                                "length": 0,
+                                "type": "string"
+                              },
+                              "unnamed_field_7": {
+                                "length": 0,
+                                "type": "string"
+                              },
+                              "unnamed_field_8": {
+                                "length": 118,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_4": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_5": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_6": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_7": {
+                            "field_count": 10,
+                            "unknown_field_count": 7,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 121,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 121,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "description": {
+                                "length": 116,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 21,
+                                "type": "string"
+                              },
+                              "title": {
+                                "length": 11,
+                                "type": "string"
+                              },
+                              "unnamed_field_5": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_6": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_7": {
+                                "length": 125,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "count": 2,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_2": {
+                    "length": 19,
+                    "type": "string"
+                  },
+                  "title": {
+                    "length": 21,
+                    "type": "string"
+                  }
+                }
+              }
+            ],
+            "count": 2,
+            "type": "array",
+            "sample_limit": 3
+          },
+          "unnamed_field_2": {
+            "sample": [
+              {
+                "field_count": 3,
+                "unknown_field_count": 2,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "sample": [
+                      {
+                        "field_count": 11,
+                        "unknown_field_count": 11,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "value": 1,
+                            "type": "number"
+                          },
+                          "unnamed_field_2": {
+                            "value": 1,
+                            "type": "number"
+                          },
+                          "unnamed_field_3": {
+                            "length": 5,
+                            "type": "string"
+                          },
+                          "unnamed_field_4": {
+                            "length": 19,
+                            "type": "string"
+                          },
+                          "unnamed_field_5": {
+                            "field_count": 2,
+                            "unknown_field_count": 1,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_6": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_7": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_8": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_9": {
+                            "value": 5,
+                            "type": "number"
+                          },
+                          "unnamed_field_10": {
+                            "field_count": 7,
+                            "unknown_field_count": 4,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 86,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "description": {
+                                "length": 64,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              },
+                              "title": {
+                                "length": 19,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 6,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_11": {
+                            "value": 1,
+                            "type": "number"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 11,
+                        "unknown_field_count": 11,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "value": 1,
+                            "type": "number"
+                          },
+                          "unnamed_field_2": {
+                            "value": 1,
+                            "type": "number"
+                          },
+                          "unnamed_field_3": {
+                            "length": 5,
+                            "type": "string"
+                          },
+                          "unnamed_field_4": {
+                            "length": 11,
+                            "type": "string"
+                          },
+                          "unnamed_field_5": {
+                            "field_count": 4,
+                            "unknown_field_count": 3,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 6,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_6": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_7": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_8": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_9": {
+                            "value": 4,
+                            "type": "number"
+                          },
+                          "unnamed_field_10": {
+                            "field_count": 7,
+                            "unknown_field_count": 4,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 98,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "description": {
+                                "length": 73,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              },
+                              "title": {
+                                "length": 11,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 6,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_11": {
+                            "value": 1,
+                            "type": "number"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 11,
+                        "unknown_field_count": 11,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "value": 1,
+                            "type": "number"
+                          },
+                          "unnamed_field_2": {
+                            "value": 2,
+                            "type": "number"
+                          },
+                          "unnamed_field_3": {
+                            "length": 5,
+                            "type": "string"
+                          },
+                          "unnamed_field_4": {
+                            "length": 11,
+                            "type": "string"
+                          },
+                          "unnamed_field_5": {
+                            "field_count": 2,
+                            "unknown_field_count": 1,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_6": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_7": {
+                            "value": false,
+                            "type": "boolean"
+                          },
+                          "unnamed_field_8": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_9": {
+                            "value": 1,
+                            "type": "number"
+                          },
+                          "unnamed_field_10": {
+                            "field_count": 8,
+                            "unknown_field_count": 5,
+                            "omitted_field_count": 0,
+                            "type": "object",
+                            "fields": {
+                              "unnamed_field_1": {
+                                "length": 103,
+                                "type": "string"
+                              },
+                              "unnamed_field_2": {
+                                "length": 22,
+                                "type": "string"
+                              },
+                              "description": {
+                                "length": 51,
+                                "type": "string"
+                              },
+                              "tag": {
+                                "length": 4,
+                                "type": "string"
+                              },
+                              "title": {
+                                "length": 11,
+                                "type": "string"
+                              },
+                              "unnamed_field_3": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_4": {
+                                "length": 6,
+                                "type": "string"
+                              },
+                              "unnamed_field_5": {
+                                "length": 96,
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unnamed_field_11": {
+                            "value": 1,
+                            "type": "number"
+                          }
+                        }
+                      }
+                    ],
+                    "count": 8,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_2": {
+                    "length": 19,
+                    "type": "string"
+                  },
+                  "title": {
+                    "length": 16,
+                    "type": "string"
+                  }
+                }
+              }
+            ],
+            "count": 1,
+            "type": "array",
+            "sample_limit": 3
+          },
+          "unnamed_field_3": {
+            "length": 13,
+            "type": "string"
+          }
+        }
+      },
+      "unnamed_field_3": {
+        "length": 224,
+        "type": "string"
+      },
+      "unnamed_field_4": {
+        "field_count": 14,
+        "unknown_field_count": 11,
+        "omitted_field_count": 0,
+        "type": "object",
+        "fields": {
+          "unnamed_field_1": {
+            "length": 80,
+            "type": "string"
+          },
+          "unnamed_field_2": {
+            "value": false,
+            "type": "boolean"
+          },
+          "unnamed_field_3": {
+            "length": 17,
+            "type": "string"
+          },
+          "unnamed_field_4": {
+            "length": 0,
+            "type": "string"
+          },
+          "unnamed_field_5": {
+            "value": true,
+            "type": "boolean"
+          },
+          "unnamed_field_6": {
+            "value": true,
+            "type": "boolean"
+          },
+          "description": {
+            "battlepass_term_present": true,
+            "length": 79,
+            "type": "string"
+          },
+          "shortDescription": {
+            "battlepass_term_present": true,
+            "length": 88,
+            "type": "string"
+          },
+          "unnamed_field_7": {
+            "value": true,
+            "type": "boolean"
+          },
+          "title": {
+            "length": 1,
+            "type": "string"
+          },
+          "unnamed_field_8": {
+            "value": false,
+            "type": "boolean"
+          },
+          "unnamed_field_9": {
+            "value": true,
+            "type": "boolean"
+          },
+          "unnamed_field_10": {
+            "value": false,
+            "type": "boolean"
+          },
+          "unnamed_field_11": {
+            "length": 95,
+            "type": "string"
+          }
+        }
+      },
+      "unnamed_field_5": {
+        "field_count": 4,
+        "unknown_field_count": 4,
+        "omitted_field_count": 0,
+        "type": "object",
+        "fields": {
+          "unnamed_field_1": {
+            "field_count": 5,
+            "unknown_field_count": 5,
+            "omitted_field_count": 0,
+            "type": "object",
+            "fields": {
+              "unnamed_field_1": {
+                "length": 18,
+                "type": "string"
+              },
+              "unnamed_field_2": {
+                "length": 10,
+                "type": "string"
+              },
+              "unnamed_field_3": {
+                "length": 23,
+                "type": "string"
+              },
+              "unnamed_field_4": {
+                "value": true,
+                "type": "boolean"
+              },
+              "unnamed_field_5": {
+                "value": true,
+                "type": "boolean"
+              }
+            }
+          },
+          "unnamed_field_2": {
+            "length": 130,
+            "type": "string"
+          },
+          "unnamed_field_3": {
+            "length": 27,
+            "type": "string"
+          },
+          "unnamed_field_4": {
+            "sample": [
+              {
+                "length": 130,
+                "type": "string"
+              }
+            ],
+            "count": 1,
+            "type": "array",
+            "sample_limit": 3
+          }
+        }
+      },
+      "unnamed_field_6": {
+        "length": 14,
+        "type": "string"
+      },
+      "unnamed_field_7": {
+        "field_count": 3,
+        "unknown_field_count": 3,
+        "omitted_field_count": 0,
+        "type": "object",
+        "fields": {
+          "unnamed_field_1": {
+            "sample": [
+              {
+                "field_count": 18,
+                "unknown_field_count": 17,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 473,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 34,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "length": 418,
+                    "type": "string"
+                  },
+                  "unnamed_field_4": {
+                    "length": 56,
+                    "type": "string"
+                  },
+                  "unnamed_field_5": {
+                    "length": 57,
+                    "type": "string"
+                  },
+                  "unnamed_field_6": {
+                    "sample": [
+                      {
+                        "field_count": 3,
+                        "unknown_field_count": 3,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 17,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 13,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "length": 42,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 3,
+                        "unknown_field_count": 3,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 17,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "length": 42,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 3,
+                        "unknown_field_count": 3,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 17,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "length": 42,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ],
+                    "count": 6,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_7": {
+                    "value": "2022-06-30T04:00:00.0000000Z",
+                    "type": "timestamp"
+                  },
+                  "unnamed_field_8": {
+                    "length": 4,
+                    "type": "string"
+                  },
+                  "title": {
+                    "length": 31,
+                    "type": "string"
+                  },
+                  "unnamed_field_9": {
+                    "value": "2022-04-30T00:00:00.0000000Z",
+                    "type": "timestamp"
+                  },
+                  "unnamed_field_10": {
+                    "length": 359,
+                    "type": "string"
+                  },
+                  "unnamed_field_11": {
+                    "length": 136,
+                    "type": "string"
+                  },
+                  "unnamed_field_12": {
+                    "sample": [
+                      {
+                        "field_count": 3,
+                        "unknown_field_count": 3,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 10,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 29,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "sample": [
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              },
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              },
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              }
+                            ],
+                            "count": 13,
+                            "type": "array",
+                            "sample_limit": 3
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 3,
+                        "unknown_field_count": 3,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 14,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 29,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "sample": [
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              },
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              },
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              }
+                            ],
+                            "count": 9,
+                            "type": "array",
+                            "sample_limit": 3
+                          }
+                        }
+                      },
+                      {
+                        "field_count": 3,
+                        "unknown_field_count": 3,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 13,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 29,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "sample": [
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              },
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              },
+                              {
+                                "field_count": 3,
+                                "unknown_field_count": 2,
+                                "omitted_field_count": 1,
+                                "type": "object",
+                                "fields": {
+                                  "unnamed_field_1": {
+                                    "length": 24,
+                                    "type": "string"
+                                  },
+                                  "unnamed_field_2": {
+                                    "sample": [
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      },
+                                      {
+                                        "type": "depth_limited"
+                                      }
+                                    ],
+                                    "count": 3,
+                                    "type": "array",
+                                    "sample_limit": 3
+                                  }
+                                }
+                              }
+                            ],
+                            "count": 7,
+                            "type": "array",
+                            "sample_limit": 3
+                          }
+                        }
+                      }
+                    ],
+                    "count": 6,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_13": {
+                    "length": 670,
+                    "type": "string"
+                  },
+                  "unnamed_field_14": {
+                    "news_or_motd_term_present": true,
+                    "length": 63,
+                    "type": "string"
+                  },
+                  "unnamed_field_15": {
+                    "length": 34,
+                    "type": "string"
+                  },
+                  "unnamed_field_16": {
+                    "value": "2022-04-30T00:00:00.0000000Z",
+                    "type": "timestamp"
+                  },
+                  "unnamed_field_17": {
+                    "length": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            ],
+            "count": 1,
+            "type": "array",
+            "sample_limit": 3
+          },
+          "unnamed_field_2": {
+            "length": 26,
+            "type": "string"
+          },
+          "unnamed_field_3": {
+            "sample": [
+              {
+                "field_count": 3,
+                "unknown_field_count": 3,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 39,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "sample": [
+                      {
+                        "length": 127,
+                        "type": "string"
+                      },
+                      {
+                        "length": 141,
+                        "type": "string"
+                      },
+                      {
+                        "length": 108,
+                        "type": "string"
+                      }
+                    ],
+                    "count": 5,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_3": {
+                    "length": 17,
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "field_count": 3,
+                "unknown_field_count": 3,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 39,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "sample": [
+                      {
+                        "length": 216,
+                        "type": "string"
+                      },
+                      {
+                        "length": 141,
+                        "type": "string"
+                      },
+                      {
+                        "length": 108,
+                        "type": "string"
+                      }
+                    ],
+                    "count": 5,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_3": {
+                    "length": 14,
+                    "type": "string"
+                  }
+                }
+              }
+            ],
+            "count": 2,
+            "type": "array",
+            "sample_limit": 3
+          }
+        }
+      },
+      "unnamed_field_8": {
+        "field_count": 2,
+        "unknown_field_count": 2,
+        "omitted_field_count": 0,
+        "type": "object",
+        "fields": {
+          "unnamed_field_1": {
+            "sample": [
+              {
+                "field_count": 3,
+                "unknown_field_count": 3,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 12,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 25,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "field_count": 4,
+                    "unknown_field_count": 4,
+                    "omitted_field_count": 0,
+                    "type": "object",
+                    "fields": {
+                      "unnamed_field_1": {
+                        "length": 4,
+                        "type": "string"
+                      },
+                      "unnamed_field_2": {
+                        "field_count": 3,
+                        "unknown_field_count": 3,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 88,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 80,
+                            "type": "string"
+                          },
+                          "unnamed_field_3": {
+                            "length": 17,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "unnamed_field_3": {
+                        "length": 4,
+                        "type": "string"
+                      },
+                      "unnamed_field_4": {
+                        "length": 24,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "field_count": 3,
+                "unknown_field_count": 3,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 19,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 25,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "field_count": 4,
+                    "unknown_field_count": 4,
+                    "omitted_field_count": 0,
+                    "type": "object",
+                    "fields": {
+                      "unnamed_field_1": {
+                        "length": 4,
+                        "type": "string"
+                      },
+                      "unnamed_field_2": {
+                        "field_count": 2,
+                        "unknown_field_count": 2,
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "fields": {
+                          "unnamed_field_1": {
+                            "length": 114,
+                            "type": "string"
+                          },
+                          "unnamed_field_2": {
+                            "length": 17,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "unnamed_field_3": {
+                        "length": 4,
+                        "type": "string"
+                      },
+                      "unnamed_field_4": {
+                        "length": 24,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "count": 2,
+            "type": "array",
+            "sample_limit": 3
+          },
+          "unnamed_field_2": {
+            "length": 19,
+            "type": "string"
+          }
+        }
+      },
+      "unnamed_field_9": {
+        "value": false,
+        "type": "boolean"
+      },
+      "unnamed_field_10": {
+        "field_count": 1,
+        "unknown_field_count": 1,
+        "omitted_field_count": 0,
+        "type": "object",
+        "fields": {
+          "unnamed_field_1": {
+            "length": 30,
+            "type": "string"
+          }
+        }
+      },
+      "unnamed_field_11": {
+        "field_count": 2,
+        "unknown_field_count": 2,
+        "omitted_field_count": 0,
+        "type": "object",
+        "fields": {
+          "unnamed_field_1": {
+            "length": 18,
+            "type": "string"
+          },
+          "unnamed_field_2": {
+            "sample": [
+              {
+                "field_count": 4,
+                "unknown_field_count": 3,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "entries": {
+                    "sample": [
+                      {
+                        "length": 18,
+                        "type": "string"
+                      },
+                      {
+                        "length": 14,
+                        "type": "string"
+                      },
+                      {
+                        "length": 13,
+                        "type": "string"
+                      }
+                    ],
+                    "count": 7,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_1": {
+                    "length": 21,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 12,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "length": 8,
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "field_count": 4,
+                "unknown_field_count": 3,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "entries": {
+                    "sample": [
+                      {
+                        "length": 18,
+                        "type": "string"
+                      },
+                      {
+                        "length": 14,
+                        "type": "string"
+                      },
+                      {
+                        "length": 13,
+                        "type": "string"
+                      }
+                    ],
+                    "count": 6,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_1": {
+                    "length": 21,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 6,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "length": 8,
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "field_count": 4,
+                "unknown_field_count": 3,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "entries": {
+                    "sample": [
+                      {
+                        "length": 18,
+                        "type": "string"
+                      },
+                      {
+                        "length": 14,
+                        "type": "string"
+                      },
+                      {
+                        "length": 13,
+                        "type": "string"
+                      }
+                    ],
+                    "count": 7,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "unnamed_field_1": {
+                    "length": 21,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "length": 13,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "length": 8,
+                    "type": "string"
+                  }
+                }
+              }
+            ],
+            "count": 21,
+            "type": "array",
+            "sample_limit": 3
+          }
+        }
+      },
+      "unnamed_field_12": {
+        "value": "2026-09-03T08:00:00.0000000Z",
+        "type": "timestamp"
+      },
+      "lastModified": {
+        "value": "2026-09-03T02:26:18.1040000Z",
+        "type": "timestamp"
+      },
+      "unnamed_field_13": {
+        "length": 5,
+        "type": "string"
+      },
+      "unnamed_field_14": {
+        "length": 26,
+        "type": "string"
+      }
+    }
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": true,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false
+  },
+  "completed_at_utc": "2026-09-14T15:03:08.1635177Z"
+}

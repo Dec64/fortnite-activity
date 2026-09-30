@@ -1,0 +1,33 @@
+{
+  "provider": "Epic Games Fortnite profile service",
+  "method": "POST",
+  "endpoint": "/fortnite/api/game/v2/profile/{accountId}/client/QueryProfile?profileId=common_core&rvn=-1",
+  "requested_at_utc": "2026-09-16T08:56:07.2473427Z",
+  "response_at_utc": "2026-09-16T08:56:07.4164052Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:56:05.0000000Z",
+  "outcome": "identity_verified_full_profile",
+  "shape": {
+    "profile_id": "common_core",
+    "identity_matches_expected": true,
+    "response_profile_changes": 1,
+    "profile_updated_at": "2026-09-15T19:57:09.6260000Z",
+    "facts": {
+      "shape": "full_profile",
+      "subscription_count": 1,
+      "subscriptions": [
+        {
+          "subscriptionStartDate": "2026-08-22T15:51:59.0950000Z",
+          "subscriptionEndDate": "2026-09-22T15:51:59.0950000Z",
+          "nextRewardDate": "2026-09-22T15:51:59.0950000Z",
+          "nextRenewalRewardDate": "2026-09-22T15:51:59.0950000Z",
+          "lastStatusRefresh": "2026-09-15T19:57:09.3350000Z",
+          "autoRenewState": "AutoRenewEnabled",
+          "claimRewardState": "ClaimingThisRenewal",
+          "isRetryingRenewal": false
+        }
+      ],
+      "subscription_projection_limit": 5
+    }
+  }
+}

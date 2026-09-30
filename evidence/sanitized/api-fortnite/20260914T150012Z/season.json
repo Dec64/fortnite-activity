@@ -1,0 +1,46 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/season",
+  "requested_at_utc": "2026-09-14T15:00:13.1831485Z",
+  "response_at_utc": "2026-09-14T15:00:13.6625430Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-14T15:00:13.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "fields": {
+      "seasonDateBegin": {
+        "value": "2026-08-13T13:00:00.0000000Z",
+        "type": "timestamp"
+      },
+      "seasonDateEnd": {
+        "value": "2026-11-08T14:00:00.0000000Z",
+        "type": "timestamp"
+      },
+      "seasonNumber": {
+        "value": 42,
+        "type": "number"
+      },
+      "exTime": {
+        "value": 4748386,
+        "type": "number"
+      }
+    },
+    "unknown_field_count": 0,
+    "omitted_field_count": 0,
+    "type": "object",
+    "field_count": 4
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false
+  },
+  "completed_at_utc": "2026-09-14T15:00:13.7432947Z"
+}

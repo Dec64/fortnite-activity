@@ -1,0 +1,20 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "POST",
+  "endpoint": "/api/v1/oauth/refresh-device",
+  "requested_at_utc": "2026-09-14T15:00:14.8467490Z",
+  "response_at_utc": "2026-09-14T15:00:15.0170348Z",
+  "http_status": 400,
+  "response_date_utc": "2026-09-14T15:00:14.0000000Z",
+  "auth": "provider key + device credentials",
+  "outcome": "private_auth_gate_failed",
+  "shape": {
+    "access_token_present": false,
+    "changed_device_credentials_detected": false,
+    "refresh_token_present": false,
+    "type": "authentication_response_suppressed",
+    "identity_matches_expected": false
+  },
+  "observations": null,
+  "completed_at_utc": "2026-09-14T15:00:15.0363884Z"
+}

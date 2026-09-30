@@ -1,0 +1,166 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/cosmetics/all?page=1&pageSize=1&lang=en",
+  "requested_at_utc": "2026-09-14T15:00:17.2753690Z",
+  "response_at_utc": "2026-09-14T15:00:18.5415745Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-14T15:00:18.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "fields": {
+      "status": {
+        "value": 200,
+        "type": "number"
+      },
+      "data": {
+        "fields": {
+          "page": {
+            "value": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "value": 1,
+            "type": "number"
+          },
+          "total": {
+            "value": 21926,
+            "type": "number"
+          },
+          "totalPages": {
+            "value": 21926,
+            "type": "number"
+          },
+          "data": {
+            "sample": [
+              {
+                "fields": {
+                  "id": {
+                    "length": 14,
+                    "type": "string"
+                  },
+                  "type": {
+                    "length": 8,
+                    "type": "string"
+                  },
+                  "name": {
+                    "length": 6,
+                    "type": "string"
+                  },
+                  "description": {
+                    "length": 19,
+                    "type": "string"
+                  },
+                  "rarity": {
+                    "length": 4,
+                    "type": "string"
+                  },
+                  "series": {
+                    "type": "null"
+                  },
+                  "set": {
+                    "length": 9,
+                    "type": "string"
+                  },
+                  "icon": {
+                    "length": 67,
+                    "type": "string"
+                  },
+                  "introduction": {
+                    "fields": {
+                      "chapter": {
+                        "value": 2,
+                        "type": "number"
+                      },
+                      "season": {
+                        "value": 4,
+                        "type": "number"
+                      },
+                      "absoluteSeason": {
+                        "value": 14,
+                        "type": "number"
+                      }
+                    },
+                    "unknown_field_count": 0,
+                    "omitted_field_count": 0,
+                    "type": "object",
+                    "field_count": 3
+                  },
+                  "images": {
+                    "fields": {
+                      "smallIcon": {
+                        "length": 67,
+                        "type": "string"
+                      },
+                      "icon": {
+                        "length": 67,
+                        "type": "string"
+                      },
+                      "largeIcon": {
+                        "length": 69,
+                        "type": "string"
+                      }
+                    },
+                    "unknown_field_count": 0,
+                    "omitted_field_count": 0,
+                    "type": "object",
+                    "field_count": 3
+                  },
+                  "tags": {
+                    "sample": [
+                      {
+                        "length": 25,
+                        "type": "string"
+                      },
+                      {
+                        "length": 26,
+                        "type": "string"
+                      },
+                      {
+                        "length": 23,
+                        "type": "string"
+                      }
+                    ],
+                    "count": 3,
+                    "type": "array",
+                    "sample_limit": 3
+                  },
+                  "weaponActorClass": {
+                    "type": "null"
+                  }
+                },
+                "unknown_field_count": 0,
+                "omitted_field_count": 0,
+                "type": "object",
+                "field_count": 12
+              }
+            ],
+            "count": 1,
+            "type": "array",
+            "sample_limit": 3
+          }
+        },
+        "unknown_field_count": 0,
+        "omitted_field_count": 0,
+        "type": "object",
+        "field_count": 5
+      }
+    },
+    "unknown_field_count": 0,
+    "omitted_field_count": 0,
+    "type": "object",
+    "field_count": 2
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false
+  },
+  "completed_at_utc": "2026-09-14T15:00:18.5579624Z"
+}

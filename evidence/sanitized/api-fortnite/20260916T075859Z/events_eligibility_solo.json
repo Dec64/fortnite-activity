@@ -1,0 +1,85 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/events/tracker/eligibility/{accountId}/epicgames_S42_SoloVictoryCup_EU?eventWindowId=S42_SoloVictoryCup_Event3Round1_EU",
+  "requested_at_utc": "2026-09-16T07:59:09.5197185Z",
+  "response_at_utc": "2026-09-16T07:59:10.3086233Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T07:59:08.0000000Z",
+  "auth": "provider key + player token",
+  "outcome": "http_success",
+  "shape": {
+    "type": "event_eligibility_summary",
+    "eventId": "epicgames_S42_SoloVictoryCup_EU",
+    "eventWindowId": "S42_SoloVictoryCup_Event3Round1_EU",
+    "isEligible": true,
+    "verifiedRequirementsCount": 2,
+    "verifiedRequirements": [
+      {
+        "label": "EpicAccountPrizingRestriction v2",
+        "type": "mustNotHave",
+        "met": true
+      },
+      {
+        "label": "Permanent Tournament Ban",
+        "type": "mustNotHave",
+        "met": true
+      }
+    ],
+    "unverifiedRequirementsCount": 6,
+    "unverifiedRequirements": [
+      {
+        "label": "Account Level 350+",
+        "type": "accountLevel",
+        "description": "Your Epic account must be at least level 350. Check your account level in-game.",
+        "threshold": 350,
+        "estimatedCurrentLevel": 164197,
+        "estimatedMet": true
+      },
+      {
+        "label": "Secure Boot",
+        "type": "systemFeature",
+        "description": "Secure Boot must be enabled in your PC's UEFI/BIOS. Blocks bootloader-level cheats."
+      },
+      {
+        "label": "TPM 2.0",
+        "type": "systemFeature",
+        "description": "A TPM 2.0 chip is required. Used by Epic's anti-cheat to verify system integrity."
+      },
+      {
+        "label": "IOMMU / VT-d",
+        "type": "systemFeature",
+        "description": "IOMMU must be enabled (Intel VT-d or AMD-Vi). Prevents direct-memory-access exploits."
+      },
+      {
+        "label": "Minimum iOS Version",
+        "type": "systemFeature",
+        "description": "Your iOS device must meet the minimum OS version required for security compliance."
+      },
+      {
+        "label": "Two-Factor Authentication (2FA)",
+        "type": "mfa",
+        "description": "2FA must be enabled on your Epic account before entering this tournament."
+      }
+    ]
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T07:59:10.3176216Z"
+}

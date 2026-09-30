@@ -1,0 +1,35 @@
+start_session:
+  name: Start Session
+  description: Manually start an active gaming session for a player.
+  fields:
+    player_id:
+      name: Player Identifier
+      description: Identifier of the player (e.g. player1).
+      required: true
+      example: "player1"
+      selector:
+        text:
+
+end_session:
+  name: End Session
+  description: Manually end the active gaming session for a player and archive it to history.
+  fields:
+    player_id:
+      name: Player Identifier
+      description: Identifier of the player (e.g. player1).
+      required: true
+      example: "player1"
+      selector:
+        text:
+
+refresh_player:
+  name: Refresh Stats
+  description: Immediately poll api-fortnite.com for fresh stats and match updates.
+  fields:
+    player_id:
+      name: Player Identifier
+      description: Identifier of the player (e.g. player1). If omitted, refreshes all players.
+      required: false
+      example: "player1"
+      selector:
+        text:

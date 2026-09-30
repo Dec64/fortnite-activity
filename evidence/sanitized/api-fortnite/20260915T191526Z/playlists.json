@@ -1,0 +1,280 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/playlists?lang=en",
+  "requested_at_utc": "2026-09-15T19:15:27.7075026Z",
+  "response_at_utc": "2026-09-15T19:15:27.9505728Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T19:15:26.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "fields": {
+      "unnamed_field_1": {
+        "type": "string",
+        "length": 20
+      },
+      "playlists": {
+        "type": "array",
+        "sample_limit": 3,
+        "count": 390,
+        "sample": [
+          {
+            "fields": {
+              "image": {
+                "type": "string",
+                "length": 99
+              },
+              "playlist_name": {
+                "type": "string",
+                "length": 18
+              },
+              "hidden": {
+                "type": "boolean",
+                "value": false
+              },
+              "unnamed_field_1": {
+                "type": "string",
+                "length": 16
+              },
+              "description": {
+                "type": "string",
+                "length": 95
+              },
+              "display_name": {
+                "type": "string",
+                "length": 9
+              }
+            },
+            "type": "object",
+            "omitted_field_count": 0,
+            "field_count": 6,
+            "unknown_field_count": 1
+          },
+          {
+            "fields": {
+              "image": {
+                "type": "string",
+                "length": 88
+              },
+              "playlist_name": {
+                "type": "string",
+                "length": 24
+              },
+              "hidden": {
+                "type": "boolean",
+                "value": false
+              },
+              "unnamed_field_1": {
+                "type": "string",
+                "length": 16
+              },
+              "description": {
+                "type": "string",
+                "length": 127
+              },
+              "display_name": {
+                "type": "string",
+                "length": 19
+              }
+            },
+            "type": "object",
+            "omitted_field_count": 0,
+            "field_count": 6,
+            "unknown_field_count": 1
+          },
+          {
+            "fields": {
+              "image": {
+                "type": "string",
+                "length": 88
+              },
+              "playlist_name": {
+                "type": "string",
+                "length": 23
+              },
+              "hidden": {
+                "type": "boolean",
+                "value": false
+              },
+              "unnamed_field_1": {
+                "type": "string",
+                "length": 16
+              },
+              "description": {
+                "type": "string",
+                "length": 127
+              },
+              "display_name": {
+                "type": "string",
+                "length": 18
+              }
+            },
+            "type": "object",
+            "omitted_field_count": 0,
+            "field_count": 6,
+            "unknown_field_count": 1
+          }
+        ]
+      }
+    },
+    "type": "object",
+    "omitted_field_count": 0,
+    "field_count": 2,
+    "unknown_field_count": 1
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": [],
+    "rank_records": [],
+    "playlist_records": [
+      {
+        "playlist_name": "Playlist_NoBuildBR_Squad",
+        "display_name": "Zero Build - Squads",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_NoBuildBR_Trio",
+        "display_name": "Zero Build - Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_NoBuildBR_Duo",
+        "display_name": "Zero Build - Duos",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_NoBuildBR_Solo",
+        "display_name": "Zero Build - Solo",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Papaya",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Madman_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Vendetta_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_PhosphorusWipeout_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_MeltDisarmed_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Melt_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Toss_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Bodyguard_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Creative_LTM_JDuth100",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Creative_LTM_200LevelRun",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Creative_LTM_VertigoDR",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Creative_LTM_SimpleTriosZoneWars",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Creative_LTM_InfiniteDefaultDeathRun",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Creative_LTM_222DeathRun",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Cobalt_HT_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Nitrogen12_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Mira_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_SolidGold_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Unvaulted_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Bling_Squads",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Bling_Duos",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Bling_Solo",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_Close_Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_DefaultSolo",
+        "display_name": "Solo",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_DefaultDuo",
+        "display_name": "Duos",
+        "hidden": false
+      },
+      {
+        "playlist_name": "playlist_trios",
+        "display_name": "Trios",
+        "hidden": false
+      },
+      {
+        "playlist_name": "playlist_arseniccore_trios_maxfog",
+        "hidden": false
+      },
+      {
+        "playlist_name": "Playlist_DefaultSquad",
+        "display_name": "Squads",
+        "hidden": false
+      }
+    ],
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-15T19:15:28.5558814Z"
+}

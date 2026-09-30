@@ -1,0 +1,1882 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/profile/ranked?accountId={accountId}",
+  "requested_at_utc": "2026-09-15T19:12:41.9019341Z",
+  "response_at_utc": "2026-09-15T19:12:41.9620979Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T19:12:40.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "sample": [
+      {
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "trackguid": {
+            "length": 6,
+            "type": "string"
+          },
+          "rankingType": {
+            "length": 17,
+            "type": "string"
+          },
+          "gameMode": {
+            "length": 15,
+            "type": "string"
+          },
+          "seasonId": {
+            "type": "null"
+          },
+          "seasonBegin": {
+            "value": "2026-07-16T08:00:01.0000000Z",
+            "type": "timestamp"
+          },
+          "seasonEnd": {
+            "value": "2026-12-13T23:59:00.0000000Z",
+            "type": "timestamp"
+          },
+          "isCurrent": {
+            "value": true,
+            "type": "boolean"
+          },
+          "currentDivision": {
+            "value": 9,
+            "type": "number"
+          },
+          "currentRank": {
+            "length": 8,
+            "type": "string"
+          },
+          "highestDivision": {
+            "value": 9,
+            "type": "number"
+          },
+          "highestRank": {
+            "length": 8,
+            "type": "string"
+          },
+          "rankProgress": {
+            "value": 0.75,
+            "type": "number"
+          },
+          "unrealRank": {
+            "type": "null"
+          }
+        },
+        "field_count": 13,
+        "unknown_field_count": 0
+      },
+      {
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "trackguid": {
+            "length": 6,
+            "type": "string"
+          },
+          "rankingType": {
+            "length": 18,
+            "type": "string"
+          },
+          "gameMode": {
+            "length": 13,
+            "type": "string"
+          },
+          "seasonId": {
+            "type": "null"
+          },
+          "seasonBegin": {
+            "value": "2026-08-20T06:01:01.0000000Z",
+            "type": "timestamp"
+          },
+          "seasonEnd": {
+            "value": "2026-12-07T00:00:00.0000000Z",
+            "type": "timestamp"
+          },
+          "isCurrent": {
+            "value": true,
+            "type": "boolean"
+          },
+          "currentDivision": {
+            "value": 19,
+            "type": "number"
+          },
+          "currentRank": {
+            "length": 10,
+            "type": "string"
+          },
+          "highestDivision": {
+            "value": 20,
+            "type": "number"
+          },
+          "highestRank": {
+            "length": 11,
+            "type": "string"
+          },
+          "rankProgress": {
+            "value": 0.08,
+            "type": "number"
+          },
+          "unrealRank": {
+            "type": "null"
+          }
+        },
+        "field_count": 13,
+        "unknown_field_count": 0
+      },
+      {
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "trackguid": {
+            "length": 6,
+            "type": "string"
+          },
+          "rankingType": {
+            "length": 28,
+            "type": "string"
+          },
+          "gameMode": {
+            "length": 28,
+            "type": "string"
+          },
+          "seasonId": {
+            "type": "null"
+          },
+          "seasonBegin": {
+            "value": "2026-06-01T00:00:00.0000000Z",
+            "type": "timestamp"
+          },
+          "seasonEnd": {
+            "value": "2026-10-01T23:59:00.0000000Z",
+            "type": "timestamp"
+          },
+          "isCurrent": {
+            "value": true,
+            "type": "boolean"
+          },
+          "currentDivision": {
+            "value": 0,
+            "type": "number"
+          },
+          "currentRank": {
+            "length": 8,
+            "type": "string"
+          },
+          "highestDivision": {
+            "value": 0,
+            "type": "number"
+          },
+          "highestRank": {
+            "length": 8,
+            "type": "string"
+          },
+          "rankProgress": {
+            "value": 0,
+            "type": "number"
+          },
+          "unrealRank": {
+            "type": "null"
+          }
+        },
+        "field_count": 13,
+        "unknown_field_count": 0
+      }
+    ],
+    "type": "array",
+    "count": 88,
+    "sample_limit": 3
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": [
+      {
+        "field": "currentRank",
+        "value": "Champion I"
+      },
+      {
+        "field": "currentRank",
+        "value": "Diamond III"
+      },
+      {
+        "field": "currentRank",
+        "value": "Elite III"
+      },
+      {
+        "field": "currentRank",
+        "value": "Gold I"
+      },
+      {
+        "field": "currentRank",
+        "value": "Gold III"
+      },
+      {
+        "field": "currentRank",
+        "value": "Silver III"
+      },
+      {
+        "field": "currentRank",
+        "value": "Unranked"
+      },
+      {
+        "field": "gameMode",
+        "value": "Arena Boxfights"
+      },
+      {
+        "field": "gameMode",
+        "value": "Ballistic"
+      },
+      {
+        "field": "gameMode",
+        "value": "Battle Royale"
+      },
+      {
+        "field": "gameMode",
+        "value": "Battle Royale Zero Build"
+      },
+      {
+        "field": "gameMode",
+        "value": "RadiantToothpick-duos-ranked"
+      },
+      {
+        "field": "gameMode",
+        "value": "RadiantToothpick-solo-ranked"
+      },
+      {
+        "field": "gameMode",
+        "value": "RadiantToothpick-trios-ranked"
+      },
+      {
+        "field": "gameMode",
+        "value": "ranked-bling"
+      },
+      {
+        "field": "gameMode",
+        "value": "ranked-bling-nobuild"
+      },
+      {
+        "field": "gameMode",
+        "value": "Reload Build"
+      },
+      {
+        "field": "gameMode",
+        "value": "Rocket Racing"
+      },
+      {
+        "field": "highestRank",
+        "value": "Champion I"
+      },
+      {
+        "field": "highestRank",
+        "value": "Champion II"
+      },
+      {
+        "field": "highestRank",
+        "value": "Diamond III"
+      },
+      {
+        "field": "highestRank",
+        "value": "Elite III"
+      },
+      {
+        "field": "highestRank",
+        "value": "Gold I"
+      },
+      {
+        "field": "highestRank",
+        "value": "Gold III"
+      },
+      {
+        "field": "highestRank",
+        "value": "Silver III"
+      },
+      {
+        "field": "highestRank",
+        "value": "Unranked"
+      },
+      {
+        "field": "rankingType",
+        "value": "delmar-competitive"
+      },
+      {
+        "field": "rankingType",
+        "value": "RadiantToothpick-duos-ranked"
+      },
+      {
+        "field": "rankingType",
+        "value": "RadiantToothpick-solo-ranked"
+      },
+      {
+        "field": "rankingType",
+        "value": "RadiantToothpick-trios-ranked"
+      },
+      {
+        "field": "rankingType",
+        "value": "ranked-blastberry-combined"
+      },
+      {
+        "field": "rankingType",
+        "value": "ranked-bling"
+      },
+      {
+        "field": "rankingType",
+        "value": "ranked-bling-nobuild"
+      },
+      {
+        "field": "rankingType",
+        "value": "ranked-br"
+      },
+      {
+        "field": "rankingType",
+        "value": "ranked-br-combined"
+      },
+      {
+        "field": "rankingType",
+        "value": "ranked-feral"
+      },
+      {
+        "field": "rankingType",
+        "value": "ranked-squareclub"
+      },
+      {
+        "field": "rankingType",
+        "value": "ranked-zb"
+      },
+      {
+        "field": "trackguid",
+        "value": "0r4nge"
+      },
+      {
+        "field": "trackguid",
+        "value": "2776dc"
+      },
+      {
+        "field": "trackguid",
+        "value": "8R1GHT"
+      },
+      {
+        "field": "trackguid",
+        "value": "8UFF3D"
+      },
+      {
+        "field": "trackguid",
+        "value": "9d7ebd"
+      },
+      {
+        "field": "trackguid",
+        "value": "a1m0n3"
+      },
+      {
+        "field": "trackguid",
+        "value": "AjRdrb"
+      },
+      {
+        "field": "trackguid",
+        "value": "b3atle"
+      },
+      {
+        "field": "trackguid",
+        "value": "c0off3"
+      },
+      {
+        "field": "trackguid",
+        "value": "c1ty17"
+      },
+      {
+        "field": "trackguid",
+        "value": "C4m1s4"
+      },
+      {
+        "field": "trackguid",
+        "value": "ch3353"
+      },
+      {
+        "field": "trackguid",
+        "value": "d0gg1e"
+      },
+      {
+        "field": "trackguid",
+        "value": "d0zEcd"
+      },
+      {
+        "field": "trackguid",
+        "value": "d13nt3"
+      },
+      {
+        "field": "trackguid",
+        "value": "D13tDw"
+      },
+      {
+        "field": "trackguid",
+        "value": "dut13s"
+      },
+      {
+        "field": "trackguid",
+        "value": "EYpme7"
+      },
+      {
+        "field": "trackguid",
+        "value": "F0RC3D"
+      },
+      {
+        "field": "trackguid",
+        "value": "Fr3SkA"
+      },
+      {
+        "field": "trackguid",
+        "value": "FRUT4L"
+      },
+      {
+        "field": "trackguid",
+        "value": "G14DI0"
+      },
+      {
+        "field": "trackguid",
+        "value": "G4RL1C"
+      },
+      {
+        "field": "trackguid",
+        "value": "ggOwuK"
+      },
+      {
+        "field": "trackguid",
+        "value": "GL055Y"
+      },
+      {
+        "field": "trackguid",
+        "value": "Gl4ss1"
+      },
+      {
+        "field": "trackguid",
+        "value": "gXffl"
+      },
+      {
+        "field": "trackguid",
+        "value": "H4B1T5"
+      },
+      {
+        "field": "trackguid",
+        "value": "H4CK3D"
+      },
+      {
+        "field": "trackguid",
+        "value": "hEKWqj"
+      },
+      {
+        "field": "trackguid",
+        "value": "k1tt3n"
+      },
+      {
+        "field": "trackguid",
+        "value": "L1GHT5"
+      },
+      {
+        "field": "trackguid",
+        "value": "L3AGUE"
+      },
+      {
+        "field": "trackguid",
+        "value": "m0rt4l"
+      },
+      {
+        "field": "trackguid",
+        "value": "M0SA1C"
+      },
+      {
+        "field": "trackguid",
+        "value": "M3DK1T"
+      },
+      {
+        "field": "trackguid",
+        "value": "N4PK1N"
+      },
+      {
+        "field": "trackguid",
+        "value": "OiK9k9"
+      },
+      {
+        "field": "trackguid",
+        "value": "P0T4T0"
+      },
+      {
+        "field": "trackguid",
+        "value": "Pr1c3s"
+      },
+      {
+        "field": "trackguid",
+        "value": "RT1S01"
+      },
+      {
+        "field": "trackguid",
+        "value": "RT2S01"
+      },
+      {
+        "field": "trackguid",
+        "value": "RT3S01"
+      },
+      {
+        "field": "trackguid",
+        "value": "S0UR3D"
+      },
+      {
+        "field": "trackguid",
+        "value": "S4LT3D"
+      },
+      {
+        "field": "trackguid",
+        "value": "S4ngu1"
+      },
+      {
+        "field": "trackguid",
+        "value": "SP1D3R"
+      },
+      {
+        "field": "trackguid",
+        "value": "sw0rd2"
+      },
+      {
+        "field": "trackguid",
+        "value": "vidr1o"
+      },
+      {
+        "field": "trackguid",
+        "value": "yHNFu"
+      }
+    ],
+    "rank_records": [
+      {
+        "trackguid": "G14DI0",
+        "rankingType": "ranked-squareclub",
+        "gameMode": "Arena Boxfights",
+        "seasonId": null,
+        "seasonBegin": "2026-07-16T09:00:01+01:00",
+        "seasonEnd": "2026-12-13T23:59:00+00:00",
+        "isCurrent": true,
+        "currentDivision": 9,
+        "currentRank": "Gold III",
+        "highestDivision": 9,
+        "highestRank": "Gold III",
+        "rankProgress": 0.75,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "M0SA1C",
+        "rankingType": "ranked-br-combined",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2026-08-20T07:01:01+01:00",
+        "seasonEnd": "2026-12-07T00:00:00+00:00",
+        "isCurrent": true,
+        "currentDivision": 19,
+        "currentRank": "Champion I",
+        "highestDivision": 20,
+        "highestRank": "Champion II",
+        "rankProgress": 0.08,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "RT2S01",
+        "rankingType": "RadiantToothpick-duos-ranked",
+        "gameMode": "RadiantToothpick-duos-ranked",
+        "seasonId": null,
+        "seasonBegin": "2026-06-01T01:00:00+01:00",
+        "seasonEnd": "2026-10-02T00:59:00+01:00",
+        "isCurrent": true,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "RT1S01",
+        "rankingType": "RadiantToothpick-solo-ranked",
+        "gameMode": "RadiantToothpick-solo-ranked",
+        "seasonId": null,
+        "seasonBegin": "2026-06-01T01:00:00+01:00",
+        "seasonEnd": "2026-10-02T00:59:00+01:00",
+        "isCurrent": true,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "RT3S01",
+        "rankingType": "RadiantToothpick-trios-ranked",
+        "gameMode": "RadiantToothpick-trios-ranked",
+        "seasonId": null,
+        "seasonBegin": "2026-06-01T01:00:00+01:00",
+        "seasonEnd": "2026-10-02T00:59:00+01:00",
+        "isCurrent": true,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "M3DK1T",
+        "rankingType": "ranked-blastberry-combined",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2026-07-30T09:10:01+01:00",
+        "seasonEnd": "2026-11-01T23:59:00+00:00",
+        "isCurrent": true,
+        "currentDivision": 18,
+        "currentRank": "Elite III",
+        "highestDivision": 18,
+        "highestRank": "Elite III",
+        "rankProgress": 0.71,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "0r4nge",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2026-06-06T02:00:01+01:00",
+        "seasonEnd": "2026-11-01T00:00:00+00:00",
+        "isCurrent": true,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "S0UR3D",
+        "rankingType": "ranked-squareclub",
+        "gameMode": "Arena Boxfights",
+        "seasonId": null,
+        "seasonBegin": "2026-04-09T01:00:00+01:00",
+        "seasonEnd": "2026-07-16T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "G4RL1C",
+        "rankingType": "ranked-feral",
+        "gameMode": "Ballistic",
+        "seasonId": null,
+        "seasonBegin": "2024-12-11T14:00:00+00:00",
+        "seasonEnd": "2025-04-08T09:00:01+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "H4B1T5",
+        "rankingType": "ranked-feral",
+        "gameMode": "Ballistic",
+        "seasonId": null,
+        "seasonBegin": "2025-04-08T09:00:02+01:00",
+        "seasonEnd": "2025-06-18T10:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "8UFF3D",
+        "rankingType": "ranked-feral",
+        "gameMode": "Ballistic",
+        "seasonId": null,
+        "seasonBegin": "2025-06-18T10:01:00+01:00",
+        "seasonEnd": "2025-09-10T09:10:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "H4CK3D",
+        "rankingType": "ranked-feral",
+        "gameMode": "Ballistic",
+        "seasonId": null,
+        "seasonBegin": "2025-09-10T09:10:01+01:00",
+        "seasonEnd": "2025-11-29T19:30:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "F0RC3D",
+        "rankingType": "ranked-feral",
+        "gameMode": "Ballistic",
+        "seasonId": null,
+        "seasonBegin": "2025-11-29T19:30:01+00:00",
+        "seasonEnd": "2026-03-19T06:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "c1ty17",
+        "rankingType": "ranked-feral",
+        "gameMode": "Ballistic",
+        "seasonId": null,
+        "seasonBegin": "2026-03-19T06:00:01+00:00",
+        "seasonEnd": "2026-07-02T00:59:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "2776dc",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2023-04-01T01:00:00+01:00",
+        "seasonEnd": "2023-06-20T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "ggOwuK",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2023-06-20T14:00:00+01:00",
+        "seasonEnd": "2023-08-25T08:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "gXffl",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2023-08-25T08:00:00+01:00",
+        "seasonEnd": "2023-11-02T07:00:17+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "OiK9k9",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2023-11-02T07:00:18+00:00",
+        "seasonEnd": "2023-12-03T08:00:17+00:00",
+        "isCurrent": false,
+        "currentDivision": 15,
+        "currentRank": "Diamond III",
+        "highestDivision": 15,
+        "highestRank": "Diamond III",
+        "rankProgress": 0.72,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "EYpme7",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2023-12-03T08:00:18+00:00",
+        "seasonEnd": "2024-03-08T08:00:17+00:00",
+        "isCurrent": false,
+        "currentDivision": 7,
+        "currentRank": "Gold I",
+        "highestDivision": 7,
+        "highestRank": "Gold I",
+        "rankProgress": 0.25,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "ch3353",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2024-03-08T10:30:00+00:00",
+        "seasonEnd": "2024-05-24T11:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "N4PK1N",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2024-05-24T11:00:01+01:00",
+        "seasonEnd": "2024-08-16T05:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "S4LT3D",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2024-08-16T05:00:01+01:00",
+        "seasonEnd": "2024-11-02T06:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "Fr3SkA",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2024-11-02T06:00:01+00:00",
+        "seasonEnd": "2024-12-01T06:00:05+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "Gl4ss1",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2024-12-01T06:00:06+00:00",
+        "seasonEnd": "2025-02-21T08:59:59+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "S4ngu1",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2025-02-21T09:00:00+00:00",
+        "seasonEnd": "2025-05-02T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "Pr1c3s",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2025-05-02T09:00:01+01:00",
+        "seasonEnd": "2025-06-07T19:30:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "c0off3",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2025-06-07T19:30:01+01:00",
+        "seasonEnd": "2025-08-07T08:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "k1tt3n",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2025-08-07T08:00:01+01:00",
+        "seasonEnd": "2025-11-01T16:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "m0rt4l",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2025-11-01T16:00:01+00:00",
+        "seasonEnd": "2025-11-29T19:30:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "sw0rd2",
+        "rankingType": "ranked-br",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2025-11-29T19:30:01+00:00",
+        "seasonEnd": "2026-03-19T06:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "L3AGUE",
+        "rankingType": "ranked-br-combined",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2026-03-19T06:00:01+00:00",
+        "seasonEnd": "2026-06-06T02:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "FRUT4L",
+        "rankingType": "ranked-br-combined",
+        "gameMode": "Battle Royale",
+        "seasonId": null,
+        "seasonBegin": "2026-06-06T02:00:00+01:00",
+        "seasonEnd": "2026-08-20T07:01:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 19,
+        "currentRank": "Champion I",
+        "highestDivision": 19,
+        "highestRank": "Champion I",
+        "rankProgress": 0.07,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "9d7ebd",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2023-04-01T01:00:00+01:00",
+        "seasonEnd": "2023-06-20T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "AjRdrb",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2023-06-20T14:00:00+01:00",
+        "seasonEnd": "2023-08-25T08:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "yHNFu",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2023-08-25T08:00:00+01:00",
+        "seasonEnd": "2023-11-02T07:00:17+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "hEKWqj",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2023-11-02T07:00:18+00:00",
+        "seasonEnd": "2023-12-03T08:00:17+00:00",
+        "isCurrent": false,
+        "currentDivision": 6,
+        "currentRank": "Silver III",
+        "highestDivision": 6,
+        "highestRank": "Silver III",
+        "rankProgress": 0.28,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "d0zEcd",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2023-12-03T08:00:18+00:00",
+        "seasonEnd": "2024-03-08T08:00:17+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "a1m0n3",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2024-03-08T10:30:00+00:00",
+        "seasonEnd": "2024-05-24T11:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "L1GHT5",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2024-05-24T11:00:01+01:00",
+        "seasonEnd": "2024-08-16T05:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "P0T4T0",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2024-08-16T05:00:01+01:00",
+        "seasonEnd": "2024-11-02T06:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "D13tDw",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2024-11-02T06:00:01+00:00",
+        "seasonEnd": "2024-12-01T06:00:05+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "SP1D3R",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2024-12-01T06:00:06+00:00",
+        "seasonEnd": "2025-02-21T08:59:59+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "vidr1o",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-02-21T09:00:00+00:00",
+        "seasonEnd": "2025-05-02T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "C4m1s4",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-05-02T09:00:01+01:00",
+        "seasonEnd": "2025-06-07T19:30:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "b3atle",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-06-07T19:30:01+01:00",
+        "seasonEnd": "2025-08-07T08:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "d0gg1e",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-08-07T08:00:01+01:00",
+        "seasonEnd": "2025-11-01T16:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "d13nt3",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-11-01T16:00:01+00:00",
+        "seasonEnd": "2025-11-29T19:30:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "dut13s",
+        "rankingType": "ranked-zb",
+        "gameMode": "Battle Royale Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-11-29T19:30:01+00:00",
+        "seasonEnd": "2026-03-19T06:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "8R1GHT",
+        "rankingType": "ranked-bling",
+        "gameMode": "ranked-bling",
+        "seasonId": null,
+        "seasonBegin": "2025-03-11T08:00:00+00:00",
+        "seasonEnd": "2025-04-01T09:01:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "GL055Y",
+        "rankingType": "ranked-bling-nobuild",
+        "gameMode": "ranked-bling-nobuild",
+        "seasonId": null,
+        "seasonBegin": "2025-03-11T08:00:00+00:00",
+        "seasonEnd": "2025-04-01T09:01:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "M3M0RY",
+        "rankingType": "ranked-figment-build",
+        "gameMode": "ranked-figment-build",
+        "seasonId": null,
+        "seasonBegin": "2024-12-16T14:00:00+00:00",
+        "seasonEnd": "2025-01-31T10:29:59+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "RU5T3D",
+        "rankingType": "ranked-figment-build",
+        "gameMode": "ranked-figment-build",
+        "seasonId": null,
+        "seasonBegin": "2025-01-31T10:30:00+00:00",
+        "seasonEnd": "2025-03-25T08:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "D3F3AT",
+        "rankingType": "ranked-figment-build",
+        "gameMode": "ranked-figment-build",
+        "seasonId": null,
+        "seasonBegin": "2025-03-25T08:00:01+00:00",
+        "seasonEnd": "2025-06-07T19:30:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "DR3AM5",
+        "rankingType": "ranked-figment-nobuild",
+        "gameMode": "ranked-figment-nobuild",
+        "seasonId": null,
+        "seasonBegin": "2024-12-16T14:00:00+00:00",
+        "seasonEnd": "2025-01-31T10:29:59+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "G0LD3N",
+        "rankingType": "ranked-figment-nobuild",
+        "gameMode": "ranked-figment-nobuild",
+        "seasonId": null,
+        "seasonBegin": "2025-01-31T10:30:00+00:00",
+        "seasonEnd": "2025-03-25T08:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "D3F3ND",
+        "rankingType": "ranked-figment-nobuild",
+        "gameMode": "ranked-figment-nobuild",
+        "seasonId": null,
+        "seasonBegin": "2025-03-25T08:00:01+00:00",
+        "seasonEnd": "2025-06-07T19:30:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "8R1DG3",
+        "rankingType": "ranked-pimlico",
+        "gameMode": "ranked-pimlico",
+        "seasonId": null,
+        "seasonBegin": "2026-01-23T14:30:00+00:00",
+        "seasonEnd": "2026-02-09T14:30:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "M4rC4S",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2024-09-24T14:00:00+01:00",
+        "seasonEnd": "2024-11-02T06:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "P3PP3R",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2024-11-02T06:00:01+00:00",
+        "seasonEnd": "2025-02-11T13:59:59+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "SUG4R",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2025-02-11T14:00:00+00:00",
+        "seasonEnd": "2025-04-15T11:59:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "QU3ST",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2025-04-15T12:00:00+01:00",
+        "seasonEnd": "2025-06-27T12:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "3Nd1nG",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2025-06-27T12:00:01+01:00",
+        "seasonEnd": "2025-08-26T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "7H0m4S",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2025-08-26T09:00:01+01:00",
+        "seasonEnd": "2025-10-09T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "Dr4g0N",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2025-10-09T09:00:01+01:00",
+        "seasonEnd": "2025-11-29T19:30:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "S4B3R5",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2025-11-29T19:30:01+00:00",
+        "seasonEnd": "2026-02-19T09:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "ST33L5",
+        "rankingType": "ranked_blastberry_build",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2026-02-19T09:00:01+00:00",
+        "seasonEnd": "2026-04-20T11:40:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "B07G3D",
+        "rankingType": "ranked-blastberry-combined",
+        "gameMode": "Reload Build",
+        "seasonId": null,
+        "seasonBegin": "2026-04-20T11:59:01+01:00",
+        "seasonEnd": "2026-07-30T09:10:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "L4nC3r",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2024-09-24T14:00:00+01:00",
+        "seasonEnd": "2024-11-02T06:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "W4FFL3",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2024-11-02T06:00:01+00:00",
+        "seasonEnd": "2025-02-11T13:59:59+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "SP1C3",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-02-11T14:00:00+00:00",
+        "seasonEnd": "2025-04-15T11:59:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "L3GND",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-04-15T12:00:00+01:00",
+        "seasonEnd": "2025-06-27T12:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "T1cK3t",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-06-27T12:00:01+01:00",
+        "seasonEnd": "2025-08-26T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "5oL4R3",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-08-26T09:00:01+01:00",
+        "seasonEnd": "2025-10-09T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "g0Tc5A",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-10-09T09:00:01+01:00",
+        "seasonEnd": "2025-11-29T19:30:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "T4BL3D",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2025-11-29T19:30:01+00:00",
+        "seasonEnd": "2026-02-19T09:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "ST0RM5",
+        "rankingType": "ranked_blastberry_nobuild",
+        "gameMode": "Reload Zero Build",
+        "seasonId": null,
+        "seasonBegin": "2026-02-19T09:00:01+00:00",
+        "seasonEnd": "2026-04-20T11:40:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "dmd372",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2023-12-07T00:00:18+00:00",
+        "seasonEnd": "2024-04-09T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0.33,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "rrwpwg",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2024-04-09T09:00:01+01:00",
+        "seasonEnd": "2024-07-23T07:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "rrzuel",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2024-07-23T07:00:00+01:00",
+        "seasonEnd": "2024-10-11T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "rr9qlw",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2024-10-11T09:00:00+01:00",
+        "seasonEnd": "2024-12-01T05:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "rrhr6d",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2024-12-01T05:00:00+00:00",
+        "seasonEnd": "2025-02-21T08:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "rr36y9",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2025-02-21T08:00:00+00:00",
+        "seasonEnd": "2025-05-02T09:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "rrg9wp",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2025-05-02T09:00:01+01:00",
+        "seasonEnd": "2025-06-07T19:30:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "0r4ng3",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2025-06-07T19:30:01+01:00",
+        "seasonEnd": "2025-08-07T08:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "t3ab4g",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2025-08-07T08:00:01+01:00",
+        "seasonEnd": "2025-11-01T16:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "th3wh0",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2025-11-01T16:00:01+00:00",
+        "seasonEnd": "2025-11-29T19:30:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "tupp3r",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2025-11-29T19:30:01+00:00",
+        "seasonEnd": "2026-03-19T06:00:00+00:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      },
+      {
+        "trackguid": "gr4p3s",
+        "rankingType": "delmar-competitive",
+        "gameMode": "Rocket Racing",
+        "seasonId": null,
+        "seasonBegin": "2026-03-19T06:00:01+00:00",
+        "seasonEnd": "2026-06-06T02:00:00+01:00",
+        "isCurrent": false,
+        "currentDivision": 0,
+        "currentRank": "Unranked",
+        "highestDivision": 0,
+        "highestRank": "Unranked",
+        "rankProgress": 0,
+        "unrealRank": null
+      }
+    ],
+    "stats_counter_fields_present": false,
+    "rank_fields_present": true,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-15T19:12:42.3415850Z"
+}

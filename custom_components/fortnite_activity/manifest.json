@@ -1,0 +1,12 @@
+{
+  "domain": "fortnite_activity",
+  "name": "Fortnite Activity Tracker",
+  "codeowners": ["@Dec64"],
+  "config_flow": true,
+  "documentation": "https://github.com/Dec64/fortnite-activity",
+  "issue_tracker": "https://github.com/Dec64/fortnite-activity/issues",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "requirements": ["aiohttp>=3.9.0"],
+  "version": "1.0.0"
+}

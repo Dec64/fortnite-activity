@@ -1,0 +1,349 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/shop/battlepass?lang=en",
+  "requested_at_utc": "2026-09-14T15:03:10.3132615Z",
+  "response_at_utc": "2026-09-14T15:03:10.6752698Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-14T15:03:10.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "field_count": 3,
+    "unknown_field_count": 3,
+    "omitted_field_count": 0,
+    "type": "object",
+    "fields": {
+      "unnamed_field_1": {
+        "news_or_motd_term_present": true,
+        "length": 18,
+        "type": "string"
+      },
+      "unnamed_field_2": {
+        "sample": [
+          {
+            "field_count": 7,
+            "unknown_field_count": 4,
+            "omitted_field_count": 0,
+            "type": "object",
+            "fields": {
+              "image": {
+                "length": 144,
+                "type": "string"
+              },
+              "unnamed_field_1": {
+                "value": false,
+                "type": "boolean"
+              },
+              "unnamed_field_2": {
+                "length": 6,
+                "type": "string"
+              },
+              "unnamed_field_3": {
+                "length": 28,
+                "type": "string"
+              },
+              "title": {
+                "length": 24,
+                "type": "string"
+              },
+              "body": {
+                "length": 132,
+                "type": "string"
+              },
+              "unnamed_field_4": {
+                "value": false,
+                "type": "boolean"
+              }
+            }
+          }
+        ],
+        "count": 1,
+        "type": "array",
+        "sample_limit": 3
+      },
+      "unnamed_field_3": {
+        "sample": [
+          {
+            "field_count": 4,
+            "unknown_field_count": 3,
+            "omitted_field_count": 0,
+            "type": "object",
+            "fields": {
+              "unnamed_field_1": {
+                "value": false,
+                "type": "boolean"
+              },
+              "unnamed_field_2": {
+                "news_or_motd_term_present": true,
+                "length": 37,
+                "type": "string"
+              },
+              "message": {
+                "field_count": 14,
+                "unknown_field_count": 10,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 4,
+                    "type": "string"
+                  },
+                  "image": {
+                    "news_or_motd_term_present": true,
+                    "length": 86,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "news_or_motd_term_present": true,
+                    "length": 84,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "value": true,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_4": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_5": {
+                    "news_or_motd_term_present": true,
+                    "length": 28,
+                    "type": "string"
+                  },
+                  "title": {
+                    "length": 27,
+                    "type": "string"
+                  },
+                  "body": {
+                    "length": 0,
+                    "type": "string"
+                  },
+                  "unnamed_field_6": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_7": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "length": 23,
+                    "type": "string"
+                  },
+                  "unnamed_field_8": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_9": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_10": {
+                    "value": false,
+                    "type": "boolean"
+                  }
+                }
+              },
+              "unnamed_field_3": {
+                "length": 3,
+                "type": "string"
+              }
+            }
+          },
+          {
+            "field_count": 4,
+            "unknown_field_count": 3,
+            "omitted_field_count": 0,
+            "type": "object",
+            "fields": {
+              "unnamed_field_1": {
+                "value": false,
+                "type": "boolean"
+              },
+              "unnamed_field_2": {
+                "news_or_motd_term_present": true,
+                "length": 37,
+                "type": "string"
+              },
+              "message": {
+                "field_count": 14,
+                "unknown_field_count": 10,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 4,
+                    "type": "string"
+                  },
+                  "image": {
+                    "news_or_motd_term_present": true,
+                    "length": 86,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "news_or_motd_term_present": true,
+                    "length": 84,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "value": true,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_4": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_5": {
+                    "news_or_motd_term_present": true,
+                    "length": 28,
+                    "type": "string"
+                  },
+                  "title": {
+                    "length": 27,
+                    "type": "string"
+                  },
+                  "body": {
+                    "length": 151,
+                    "type": "string"
+                  },
+                  "unnamed_field_6": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_7": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "length": 24,
+                    "type": "string"
+                  },
+                  "unnamed_field_8": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_9": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_10": {
+                    "value": false,
+                    "type": "boolean"
+                  }
+                }
+              },
+              "unnamed_field_3": {
+                "length": 9,
+                "type": "string"
+              }
+            }
+          },
+          {
+            "field_count": 4,
+            "unknown_field_count": 3,
+            "omitted_field_count": 0,
+            "type": "object",
+            "fields": {
+              "unnamed_field_1": {
+                "value": false,
+                "type": "boolean"
+              },
+              "unnamed_field_2": {
+                "news_or_motd_term_present": true,
+                "length": 37,
+                "type": "string"
+              },
+              "message": {
+                "field_count": 14,
+                "unknown_field_count": 10,
+                "omitted_field_count": 0,
+                "type": "object",
+                "fields": {
+                  "unnamed_field_1": {
+                    "length": 4,
+                    "type": "string"
+                  },
+                  "image": {
+                    "news_or_motd_term_present": true,
+                    "length": 86,
+                    "type": "string"
+                  },
+                  "unnamed_field_2": {
+                    "news_or_motd_term_present": true,
+                    "length": 84,
+                    "type": "string"
+                  },
+                  "unnamed_field_3": {
+                    "value": true,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_4": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_5": {
+                    "news_or_motd_term_present": true,
+                    "length": 28,
+                    "type": "string"
+                  },
+                  "title": {
+                    "length": 27,
+                    "type": "string"
+                  },
+                  "body": {
+                    "length": 0,
+                    "type": "string"
+                  },
+                  "unnamed_field_6": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_7": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "length": 23,
+                    "type": "string"
+                  },
+                  "unnamed_field_8": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_9": {
+                    "value": false,
+                    "type": "boolean"
+                  },
+                  "unnamed_field_10": {
+                    "value": false,
+                    "type": "boolean"
+                  }
+                }
+              },
+              "unnamed_field_3": {
+                "length": 3,
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "count": 3,
+        "type": "array",
+        "sample_limit": 3
+      }
+    }
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false
+  },
+  "completed_at_utc": "2026-09-14T15:03:10.6811061Z"
+}

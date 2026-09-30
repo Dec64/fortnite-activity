@@ -1,0 +1,15 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "POST",
+  "endpoint": "/api/v1/oauth/refresh-device",
+  "requested_at_utc": "2026-09-16T08:55:15.7908050Z",
+  "response_at_utc": "2026-09-16T08:55:16.8262608Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:55:15.0000000Z",
+  "outcome": "identity_verified",
+  "shape": {
+    "type": "authentication_response_suppressed",
+    "identity_matches_expected": true,
+    "access_token_present": true
+  }
+}

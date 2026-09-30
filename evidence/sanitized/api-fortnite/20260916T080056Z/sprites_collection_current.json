@@ -1,0 +1,877 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/sprites/collection?version=42.10",
+  "requested_at_utc": "2026-09-16T08:01:01.7138014Z",
+  "response_at_utc": "2026-09-16T08:01:03.3484751Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T08:01:01.0000000Z",
+  "auth": "provider key + player token",
+  "outcome": "http_success",
+  "shape": {
+    "type": "sprite_collection_current_summary",
+    "container_path": "root.data",
+    "gameVersion": "42.10",
+    "generated": "2026-09-03T15:45:05.1029051Z",
+    "isCurrent": true,
+    "ownedVariants": 23,
+    "totalVariants": 61,
+    "ownedFamilies": 15,
+    "totalFamilies": 16,
+    "completionPercent": 37.7,
+    "spritesCount": 16,
+    "currencyCount": 4,
+    "families": [
+      {
+        "id": "JonesySprite",
+        "name": "Jonesy Sprite",
+        "rarity": "Rare",
+        "dexNumber": 27,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "JonesySprite_Variant_A",
+            "variant": "Base",
+            "name": "Jonesy Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 3550,
+            "mastered": false
+          },
+          {
+            "id": "JonesySprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Jonesy Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 5,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "JonesySprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Jonesy Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "JonesySprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Jonesy Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "DwarfSprite",
+        "name": "Adventure Sprite",
+        "rarity": "Rare",
+        "dexNumber": 28,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "DwarfSprite_Variant_A",
+            "variant": "Base",
+            "name": "Adventure Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 0,
+            "mastered": true
+          },
+          {
+            "id": "DwarfSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Adventure Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 5,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "DwarfSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Adventure Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "DwarfSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Adventure Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "BushRangerSprite",
+        "name": "Bush Sprite",
+        "rarity": "Rare",
+        "dexNumber": 29,
+        "owned": true,
+        "ownedVariants": 3,
+        "variants": [
+          {
+            "id": "BushRangerSprite_Variant_A",
+            "variant": "Base",
+            "name": "Bush Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 1520,
+            "mastered": false
+          },
+          {
+            "id": "BushRangerSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Bush Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 5,
+            "owned": true,
+            "count": 2,
+            "xp": 3475,
+            "mastered": false
+          },
+          {
+            "id": "BushRangerSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Bush Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "BushRangerSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Bushranger Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": true,
+            "count": 2,
+            "xp": 2870,
+            "mastered": false
+          }
+        ]
+      },
+      {
+        "id": "NarrowFleaSprite",
+        "name": "Sonic Sprite",
+        "rarity": "Epic",
+        "dexNumber": 30,
+        "owned": true,
+        "ownedVariants": 2,
+        "variants": [
+          {
+            "id": "NarrowFleaSprite_Variant_A",
+            "variant": "Base",
+            "name": "Sonic Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 1875,
+            "mastered": true
+          },
+          {
+            "id": "NarrowFleaSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Sonic Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 5,
+            "owned": true,
+            "count": 2,
+            "xp": 750,
+            "mastered": false
+          },
+          {
+            "id": "NarrowFleaSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Sonic Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "NarrowFleaSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Sonic Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "NarrowFleaMonkeySprite",
+        "name": "Tails Sprite",
+        "rarity": "Epic",
+        "dexNumber": 31,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "NarrowFleaMonkeySprite_Variant_A",
+            "variant": "Base",
+            "name": "Tails Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 770,
+            "mastered": false
+          },
+          {
+            "id": "NarrowFleaMonkeySprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Tails Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 5,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "NarrowFleaMonkeySprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Tails Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "NarrowFleaMonkeySprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Tails Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "ReloadOverTimeSprite",
+        "name": "Shadow Sprite",
+        "rarity": "Epic",
+        "dexNumber": 32,
+        "owned": true,
+        "ownedVariants": 2,
+        "variants": [
+          {
+            "id": "ReloadOverTimeSprite_Variant_A",
+            "variant": "Base",
+            "name": "Shadow Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 1,
+            "xp": 0,
+            "mastered": true
+          },
+          {
+            "id": "ReloadOverTimeSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Shadow Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 5,
+            "owned": true,
+            "count": 2,
+            "xp": 1475,
+            "mastered": false
+          },
+          {
+            "id": "ReloadOverTimeSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Shadow Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "ReloadOverTimeSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Shadow Sprite",
+            "rarity": "Epic",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "8BitBlasterSprite",
+        "name": "8-Bit Sprite",
+        "rarity": "Rare",
+        "dexNumber": 33,
+        "owned": true,
+        "ownedVariants": 2,
+        "variants": [
+          {
+            "id": "8BitBlasterSprite_Variant_A",
+            "variant": "Base",
+            "name": "8-Bit Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 1920,
+            "mastered": false
+          },
+          {
+            "id": "8BitBlasterSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold 8-Bit Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 5,
+            "owned": true,
+            "count": 1,
+            "xp": 0,
+            "mastered": true
+          },
+          {
+            "id": "8BitBlasterSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master 8-Bit Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "8BitBlasterSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker 8-Bit Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "CosmicThunderDoubleJumpSprite",
+        "name": "Jackrabbit Sprite",
+        "rarity": "Legendary",
+        "dexNumber": 34,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "CosmicThunderDoubleJumpSprite_Variant_A",
+            "variant": "Base",
+            "name": "Jackrabbit Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 2690,
+            "mastered": false
+          },
+          {
+            "id": "CosmicThunderDoubleJumpSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Jackrabbit Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": 5,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "CosmicThunderDoubleJumpSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Jackrabbit Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "CosmicThunderDoubleJumpSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Jackrabbit Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "CrownSprite",
+        "name": "Crown Sprite",
+        "rarity": "Mythic",
+        "dexNumber": 35,
+        "owned": true,
+        "ownedVariants": 3,
+        "variants": [
+          {
+            "id": "CrownSprite_Variant_A",
+            "variant": "Base",
+            "name": "Crown Sprite",
+            "rarity": "Mythic",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 4000,
+            "mastered": true
+          },
+          {
+            "id": "CrownSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Crown Sprite",
+            "rarity": "Mythic",
+            "dropChancePercent": 5,
+            "owned": true,
+            "count": 2,
+            "xp": 0,
+            "mastered": false
+          },
+          {
+            "id": "CrownSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Crown Sprite",
+            "rarity": "Mythic",
+            "dropChancePercent": 0,
+            "owned": true,
+            "count": 2,
+            "xp": 0,
+            "mastered": false
+          },
+          {
+            "id": "CrownSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Crown Sprite",
+            "rarity": "Mythic",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "KillswitchSprite",
+        "name": "Killswitch Sprite",
+        "rarity": "Legendary",
+        "dexNumber": 36,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "KillswitchSprite_Variant_A",
+            "variant": "Base",
+            "name": "Killswitch Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 200,
+            "mastered": false
+          },
+          {
+            "id": "KillswitchSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Killswitch Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": 5,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "KillswitchSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Killswitch Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "KillswitchSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Killswitch Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "KlomboSprite",
+        "name": "Klombo Sprite",
+        "rarity": "Mythic",
+        "dexNumber": 37,
+        "owned": false,
+        "ownedVariants": 0,
+        "variants": [
+          {
+            "id": "KlomboSprite_Variant_A",
+            "variant": "Base",
+            "name": "Klombo Sprite",
+            "rarity": "Mythic",
+            "dropChancePercent": 95,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "KlomboSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Klombo Sprite",
+            "rarity": "Mythic",
+            "dropChancePercent": 5,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "KlomboSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Klombo Sprite",
+            "rarity": "Mythic",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "KlomboSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Klombo Sprite",
+            "rarity": "Mythic",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "ImprovedSlide",
+        "name": "Mega Man Sprite",
+        "rarity": "Rare",
+        "dexNumber": 38,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "ImprovedSlide_Variant_A",
+            "variant": "Base",
+            "name": "Mega Man Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": true,
+            "count": 2,
+            "xp": 0,
+            "mastered": false
+          }
+        ]
+      },
+      {
+        "id": "OvershieldSprite",
+        "name": "Overshield Sprite",
+        "rarity": "Rare",
+        "dexNumber": 39,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "OvershieldSprite_Variant_A",
+            "variant": "Base",
+            "name": "Overshield Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": true,
+            "count": 2,
+            "xp": 1370,
+            "mastered": false
+          },
+          {
+            "id": "OvershieldSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Overshield Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "OvershieldSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Overshield Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "OvershieldSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Overshield Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "WinnerBSprite",
+        "name": "X-Ray Sprite",
+        "rarity": "Legendary",
+        "dexNumber": 41,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "WinnerBSprite_Variant_A",
+            "variant": "Base",
+            "name": "X-Ray Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": null,
+            "owned": true,
+            "count": 1,
+            "xp": 0,
+            "mastered": true
+          },
+          {
+            "id": "WinnerBSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheatmaster X-Ray Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "WinnerBSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold X-Ray Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "WinnerBSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker X-Ray Sprite",
+            "rarity": "Legendary",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "WinnerCSprite",
+        "name": "Onigiri Sprite",
+        "rarity": "Rare",
+        "dexNumber": 42,
+        "owned": true,
+        "ownedVariants": 2,
+        "variants": [
+          {
+            "id": "WinnerCSprite_Variant_A",
+            "variant": "Base",
+            "name": "Onigiri Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": true,
+            "count": 2,
+            "xp": 970,
+            "mastered": false
+          },
+          {
+            "id": "WinnerCSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheatmaster Onigiri Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "WinnerCSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Onigiri Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": true,
+            "count": 2,
+            "xp": 0,
+            "mastered": false
+          },
+          {
+            "id": "WinnerCSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Onigiri Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      },
+      {
+        "id": "StormScoutSprite",
+        "name": "Storm Scout Sprite",
+        "rarity": "Rare",
+        "dexNumber": 43,
+        "owned": true,
+        "ownedVariants": 1,
+        "variants": [
+          {
+            "id": "StormScoutSprite_Variant_A",
+            "variant": "Base",
+            "name": "Storm Scout Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 95,
+            "owned": true,
+            "count": 2,
+            "xp": 4400,
+            "mastered": true
+          },
+          {
+            "id": "StormScoutSprite_Variant_Gold",
+            "variant": "Gold",
+            "name": "Gold Storm Scout Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 5,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "StormScoutSprite_Variant_CheatMaster",
+            "variant": "CheatMaster",
+            "name": "Cheat Master Storm Scout Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": 0,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          },
+          {
+            "id": "StormScoutSprite_Variant_LootHacker",
+            "variant": "LootHacker",
+            "name": "Loot Hacker Storm Scout Sprite",
+            "rarity": "Rare",
+            "dropChancePercent": null,
+            "owned": false,
+            "count": 0,
+            "xp": null,
+            "mastered": null
+          }
+        ]
+      }
+    ]
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": true,
+    "sprite_collection_fields_present": true
+  },
+  "completed_at_utc": "2026-09-16T08:01:03.4359386Z"
+}

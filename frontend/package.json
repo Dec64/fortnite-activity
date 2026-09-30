@@ -1,0 +1,18 @@
+{
+  "name": "fortnite-activity-card",
+  "version": "1.0.0",
+  "description": "Lovelace Custom Card for Fortnite Activity Tracker with Bubble Card styling and Visual Editor support",
+  "main": "dist/fortnite-activity-card.js",
+  "scripts": {
+    "build": "esbuild src/fortnite-activity-card.ts --bundle --minify --format=esm --outfile=dist/fortnite-activity-card.js",
+    "build:dev": "esbuild src/fortnite-activity-card.ts --bundle --sourcemap --format=esm --outfile=dist/fortnite-activity-card.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "lit": "^3.2.1",
+    "typescript": "^5.8.0"
+  },
+  "dependencies": {
+    "lit": "^3.2.1"
+  }
+}

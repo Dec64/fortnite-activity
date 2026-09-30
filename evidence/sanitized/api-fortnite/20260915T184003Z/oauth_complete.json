@@ -1,0 +1,44 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "POST",
+  "endpoint": "/api/v1/oauth/complete",
+  "requested_at_utc": "2026-09-15T18:40:24.6440637Z",
+  "response_at_utc": "2026-09-15T18:40:25.4308508Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T18:40:23.0000000Z",
+  "auth": "provider key + in-memory flow identifier",
+  "outcome": "identity_verified",
+  "shape": {
+    "type": "oauth_completion_suppressed",
+    "safe_structure": {
+      "fields": {
+        "success": {
+          "value": true,
+          "type": "boolean"
+        },
+        "unnamed_field_1": {
+          "value": 7200,
+          "type": "number"
+        }
+      },
+      "omitted_field_count": 4,
+      "type": "object",
+      "field_count": 6,
+      "unknown_field_count": 1
+    },
+    "identity_matches_expected": true,
+    "access_token_present": true,
+    "refresh_token_present": true,
+    "device_credentials_present": true
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "quest_template_strings_present": false,
+    "cosmetic_template_strings_present": false,
+    "completion_fields_present": false,
+    "reward_fields_present": false,
+    "expiry_fields_present": false,
+    "style_fields_present": false
+  },
+  "completed_at_utc": "2026-09-15T18:40:25.4334299Z"
+}

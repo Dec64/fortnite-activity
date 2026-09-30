@@ -1,0 +1,40 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/quests/{verifiedAccountId}",
+  "requested_at_utc": "2026-09-15T18:40:26.0695771Z",
+  "response_at_utc": "2026-09-15T18:40:26.6934228Z",
+  "http_status": 401,
+  "response_date_utc": "2026-09-15T18:40:24.0000000Z",
+  "auth": "provider key + identity-verified player token",
+  "outcome": "http_error",
+  "shape": {
+    "fields": {
+      "status": {
+        "value": 401,
+        "type": "number"
+      },
+      "error": {
+        "length": 87,
+        "type": "string"
+      }
+    },
+    "omitted_field_count": 0,
+    "type": "object",
+    "field_count": 2,
+    "unknown_field_count": 0
+  },
+  "observations": {
+    "reported_http_error_codes": [
+      401
+    ],
+    "quest_template_strings_present": false,
+    "cosmetic_template_strings_present": false,
+    "completion_fields_present": false,
+    "reward_fields_present": false,
+    "expiry_fields_present": false,
+    "style_fields_present": false
+  },
+  "account_binding": "Exact OAuth-verified account; identifier suppressed.",
+  "completed_at_utc": "2026-09-15T18:40:26.7060028Z"
+}

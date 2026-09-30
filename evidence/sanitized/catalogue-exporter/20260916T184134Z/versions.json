@@ -1,0 +1,21 @@
+{
+  "provider": "FortniteAPI.com export service",
+  "method": "GET",
+  "endpoint": "/v1/versions",
+  "requested_at_utc": "2026-09-16T18:41:34.0936025Z",
+  "response_at_utc": "2026-09-16T18:41:34.5639268Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T18:41:34.0000000Z",
+  "outcome": "http_success",
+  "shape": {
+    "root_type": "array",
+    "root_field_names": [],
+    "root_array_count": 2,
+    "version_strings": [],
+    "season_numbers": [],
+    "relevant_field_names": [],
+    "relevant_field_occurrences": 0,
+    "visited_nodes": 9,
+    "scan_limit": 20000
+  }
+}

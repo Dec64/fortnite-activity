@@ -1,0 +1,28 @@
+[
+  {
+    "trackguid": "br_ranked",
+    "rankingType": "ranked-br-combined",
+    "gameMode": "Battle Royale",
+    "seasonBegin": "2026-08-20T08:00:00.000Z",
+    "seasonEnd": "2026-12-07T08:00:00.000Z",
+    "isCurrent": true,
+    "currentDivision": 9,
+    "currentRank": "Champion I",
+    "highestDivision": 10,
+    "highestRank": "Champion II",
+    "promotionProgress": 0.08
+  },
+  {
+    "trackguid": "reload_ranked",
+    "rankingType": "ranked-reload",
+    "gameMode": "Reload Build",
+    "seasonBegin": "2026-07-30T08:00:00.000Z",
+    "seasonEnd": "2026-11-01T08:00:00.000Z",
+    "isCurrent": true,
+    "currentDivision": 8,
+    "currentRank": "Elite III",
+    "highestDivision": 8,
+    "highestRank": "Elite III",
+    "promotionProgress": 0.71
+  }
+]

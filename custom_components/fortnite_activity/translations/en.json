@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Fortnite Activity Tracker",
+        "description": "Enter your api-fortnite.com API key and the first tracked player.",
+        "data": {
+          "api_key": "api-fortnite.com API Key",
+          "player_id": "Player Identifier (e.g. player1)",
+          "player_name": "Player Display Name (e.g. Player One)",
+          "account_id": "Epic Games Account ID"
+        }
+      },
+      "add_player": {
+        "title": "Add Tracked Player",
+        "description": "Add an additional player to track.",
+        "data": {
+          "player_id": "Player Identifier (e.g. player2)",
+          "player_name": "Player Display Name (e.g. Player Two)",
+          "account_id": "Epic Games Account ID"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to api-fortnite.com. Check network and API status.",
+      "invalid_auth": "Invalid api-fortnite.com API key.",
+      "player_not_found": "No stats found for this Epic Games Account ID.",
+      "already_configured": "This player is already configured."
+    },
+    "abort": {
+      "already_configured": "Fortnite Family Tracker is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Fortnite Tracker Options",
+        "data": {
+          "active_interval": "Polling interval while actively playing (seconds)",
+          "idle_interval": "Polling interval when idle (seconds)",
+          "inactivity_timeout": "Inactivity grace period before ending session (minutes)"
+        }
+      }
+    }
+  }
+}

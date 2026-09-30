@@ -1,0 +1,14 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v2/sprites/collection",
+  "requested_at_utc": "2026-09-15T19:12:43.3487000Z",
+  "response_at_utc": "2026-09-15T19:12:45.0134130Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T19:12:43.0000000Z",
+  "auth": "provider key + player token",
+  "outcome": "transport_or_processing_failure",
+  "shape": null,
+  "observations": null,
+  "completed_at_utc": "2026-09-15T19:12:45.0469757Z"
+}

@@ -1,0 +1,103 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/events/cashprize/S42_SoloVictoryCup_Event3Round1_EU",
+  "requested_at_utc": "2026-09-16T07:59:04.3251121Z",
+  "response_at_utc": "2026-09-16T07:59:04.4683290Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-16T07:59:02.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "sample_limit": 3,
+    "sample": [
+      {
+        "unknown_field_count": 0,
+        "fields": {
+          "scoringType": {
+            "type": "string",
+            "length": 4
+          },
+          "ranks": {
+            "sample_limit": 3,
+            "sample": [
+              {
+                "unknown_field_count": 0,
+                "fields": {
+                  "threshold": {
+                    "type": "number",
+                    "value": 4000
+                  },
+                  "payouts": {
+                    "sample_limit": 3,
+                    "sample": [
+                      {
+                        "unknown_field_count": 0,
+                        "fields": {
+                          "rewardType": {
+                            "type": "string",
+                            "length": 5
+                          },
+                          "rewardMode": {
+                            "type": "string",
+                            "length": 8
+                          },
+                          "value": {
+                            "type": "string",
+                            "length": 34
+                          },
+                          "quantity": {
+                            "type": "number",
+                            "value": 1
+                          },
+                          "notifiesPlayer": {
+                            "type": "boolean",
+                            "value": false
+                          }
+                        },
+                        "omitted_field_count": 0,
+                        "type": "object",
+                        "field_count": 5
+                      }
+                    ],
+                    "type": "array",
+                    "count": 1
+                  }
+                },
+                "omitted_field_count": 0,
+                "type": "object",
+                "field_count": 2
+              }
+            ],
+            "type": "array",
+            "count": 1
+          }
+        },
+        "omitted_field_count": 0,
+        "type": "object",
+        "field_count": 2
+      }
+    ],
+    "type": "array",
+    "count": 1
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": null,
+    "rank_records": [],
+    "playlist_records": [],
+    "event_records": [],
+    "relationship_and_session_facts": {},
+    "stats_counter_fields_present": false,
+    "rank_fields_present": false,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-16T07:59:04.4713763Z"
+}

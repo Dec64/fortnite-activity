@@ -1,0 +1,268 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "GET",
+  "endpoint": "/api/v1/profile/ranked?accountId={accountId}",
+  "requested_at_utc": "2026-09-15T19:10:41.8011920Z",
+  "response_at_utc": "2026-09-15T19:10:42.1520325Z",
+  "http_status": 200,
+  "response_date_utc": "2026-09-15T19:10:40.0000000Z",
+  "auth": "provider key only",
+  "outcome": "http_success",
+  "shape": {
+    "sample_limit": 3,
+    "type": "array",
+    "count": 88,
+    "sample": [
+      {
+        "field_count": 13,
+        "unknown_field_count": 0,
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "trackguid": {
+            "type": "string",
+            "length": 6
+          },
+          "rankingType": {
+            "type": "string",
+            "length": 17
+          },
+          "gameMode": {
+            "type": "string",
+            "length": 15
+          },
+          "seasonId": {
+            "type": "null"
+          },
+          "seasonBegin": {
+            "type": "timestamp",
+            "value": "2026-07-16T08:00:01.0000000Z"
+          },
+          "seasonEnd": {
+            "type": "timestamp",
+            "value": "2026-12-13T23:59:00.0000000Z"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "value": true
+          },
+          "currentDivision": {
+            "type": "number",
+            "value": 9
+          },
+          "currentRank": {
+            "type": "string",
+            "length": 8
+          },
+          "highestDivision": {
+            "type": "number",
+            "value": 9
+          },
+          "highestRank": {
+            "type": "string",
+            "length": 8
+          },
+          "rankProgress": {
+            "type": "number",
+            "value": 0.75
+          },
+          "unrealRank": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "field_count": 13,
+        "unknown_field_count": 0,
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "trackguid": {
+            "type": "string",
+            "length": 6
+          },
+          "rankingType": {
+            "type": "string",
+            "length": 18
+          },
+          "gameMode": {
+            "type": "string",
+            "length": 13
+          },
+          "seasonId": {
+            "type": "null"
+          },
+          "seasonBegin": {
+            "type": "timestamp",
+            "value": "2026-08-20T06:01:01.0000000Z"
+          },
+          "seasonEnd": {
+            "type": "timestamp",
+            "value": "2026-12-07T00:00:00.0000000Z"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "value": true
+          },
+          "currentDivision": {
+            "type": "number",
+            "value": 19
+          },
+          "currentRank": {
+            "type": "string",
+            "length": 10
+          },
+          "highestDivision": {
+            "type": "number",
+            "value": 20
+          },
+          "highestRank": {
+            "type": "string",
+            "length": 11
+          },
+          "rankProgress": {
+            "type": "number",
+            "value": 0.08
+          },
+          "unrealRank": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "field_count": 13,
+        "unknown_field_count": 0,
+        "type": "object",
+        "omitted_field_count": 0,
+        "fields": {
+          "trackguid": {
+            "type": "string",
+            "length": 6
+          },
+          "rankingType": {
+            "type": "string",
+            "length": 28
+          },
+          "gameMode": {
+            "type": "string",
+            "length": 28
+          },
+          "seasonId": {
+            "type": "null"
+          },
+          "seasonBegin": {
+            "type": "timestamp",
+            "value": "2026-06-01T00:00:00.0000000Z"
+          },
+          "seasonEnd": {
+            "type": "timestamp",
+            "value": "2026-10-01T23:59:00.0000000Z"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "value": true
+          },
+          "currentDivision": {
+            "type": "number",
+            "value": 0
+          },
+          "currentRank": {
+            "type": "string",
+            "length": 8
+          },
+          "highestDivision": {
+            "type": "number",
+            "value": 0
+          },
+          "highestRank": {
+            "type": "string",
+            "length": 8
+          },
+          "rankProgress": {
+            "type": "number",
+            "value": 0
+          },
+          "unrealRank": {
+            "type": "null"
+          }
+        }
+      }
+    ]
+  },
+  "observations": {
+    "reported_http_error_codes": [],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "semantic_facts": [
+      {
+        "field": "gameMode",
+        "value": "Arena Boxfights"
+      },
+      {
+        "field": "gameMode",
+        "value": "Ballistic"
+      },
+      {
+        "field": "gameMode",
+        "value": "Battle Royale"
+      },
+      {
+        "field": "gameMode",
+        "value": "Battle Royale Zero Build"
+      },
+      {
+        "field": "gameMode",
+        "value": "RadiantToothpick-duos-ranked"
+      },
+      {
+        "field": "gameMode",
+        "value": "RadiantToothpick-solo-ranked"
+      },
+      {
+        "field": "gameMode",
+        "value": "RadiantToothpick-trios-ranked"
+      },
+      {
+        "field": "gameMode",
+        "value": "ranked-bling"
+      },
+      {
+        "field": "gameMode",
+        "value": "ranked-bling-nobuild"
+      },
+      {
+        "field": "gameMode",
+        "value": "ranked-figment-build"
+      },
+      {
+        "field": "gameMode",
+        "value": "ranked-figment-nobuild"
+      },
+      {
+        "field": "gameMode",
+        "value": "ranked-pimlico"
+      },
+      {
+        "field": "gameMode",
+        "value": "Reload Build"
+      },
+      {
+        "field": "gameMode",
+        "value": "Reload Zero Build"
+      },
+      {
+        "field": "gameMode",
+        "value": "Rocket Racing"
+      }
+    ],
+    "stats_counter_fields_present": false,
+    "rank_fields_present": true,
+    "sprite_collection_fields_present": false
+  },
+  "completed_at_utc": "2026-09-15T19:10:42.2533436Z"
+}

@@ -1,0 +1,48 @@
+{
+  "provider": "api-fortnite.com",
+  "method": "POST",
+  "endpoint": "/api/v1/oauth/refresh-device",
+  "requested_at_utc": "2026-09-15T18:24:49.5263202Z",
+  "response_at_utc": "2026-09-15T18:24:50.1545336Z",
+  "http_status": 400,
+  "response_date_utc": "2026-09-15T18:24:48.0000000Z",
+  "auth": "provider key + device credentials",
+  "outcome": "private_auth_gate_failed",
+  "shape": {
+    "type": "authentication_response_suppressed",
+    "safe_structure": {
+      "omitted_field_count": 0,
+      "field_count": 2,
+      "fields": {
+        "status": {
+          "type": "number",
+          "value": 400
+        },
+        "error": {
+          "type": "string",
+          "length": 86
+        }
+      },
+      "unknown_field_count": 0,
+      "type": "object"
+    },
+    "changed_device_credentials_detected": false,
+    "refresh_token_present": false,
+    "access_token_present": false,
+    "identity_matches_expected": false
+  },
+  "observations": {
+    "reported_http_error_codes": [
+      400
+    ],
+    "reported_http_error_basis": "Recognized response-text pattern only; not an independently observed upstream HTTP exchange.",
+    "no_battle_pass_extracted_message": false,
+    "news_or_motd_fields_present": false,
+    "cosmetic_template_strings_present": false,
+    "quest_template_strings_present": false,
+    "offer_guid_field_present": false,
+    "explicit_unlock_or_release_fields_present": false,
+    "auth_error_category": "unclassified_error"
+  },
+  "completed_at_utc": "2026-09-15T18:24:50.2351251Z"
+}
