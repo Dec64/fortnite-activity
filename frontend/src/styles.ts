@@ -1158,4 +1158,6 @@ export const cardStyles = css`
   .variant-status { font-size: 10px; opacity: 0.85; }
   .boon-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
   .rarity-tag { background: color-mix(in srgb, var(--rarity) 35%, transparent); color: #fff; }
+  .perk-list { margin-top: 8px; }
+  .perk-desc { font-size: 11px; opacity: 0.75; margin: -2px 0 6px 8px; }
 `;

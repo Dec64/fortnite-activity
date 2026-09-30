@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.4.0";
+const CARD_VERSION = "1.4.1";
 
 declare global {
   interface Window {
@@ -970,6 +970,22 @@ export class FortniteActivityCard extends LitElement {
     `;
   }
 
+  /** Extra perk each variant adds (the family's own ability is listed as a boon too, so skip it). */
+  private _variantPerks(f: any) {
+    const seen = new Set<string>();
+    const perks = (f.variants || []).flatMap((v: any) =>
+      (v.boons || [])
+        .filter((b: any) => b.name && b.name !== f.name && !seen.has(b.name) && seen.add(b.name))
+        .map((b: any) => ({ variant: v.label, ...b })),
+    );
+    if (!perks.length) return nothing;
+    return html`<div class="perk-list">
+      <div class="section-title">Variant perks</div>
+      ${perks.map((b: any) => html`<div class="detail-line"><span>${b.variant}</span><b title=${b.description || ""}>${b.name}</b></div>
+        ${b.description ? html`<div class="perk-desc">${b.description}</div>` : nothing}`)}
+    </div>`;
+  }
+
   private _renderSpriteDetail(f: any) {
     return html`
       <div class="sprite-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
@@ -979,11 +995,10 @@ export class FortniteActivityCard extends LitElement {
             <b>${f.name}</b> <span class="tag rarity-tag">${f.rarity || ""}</span>
             ${f.description ? html`<p class="detail-desc">${f.description}</p>` : nothing}
             ${f.hint ? html`<p class="detail-desc hint">📍 ${f.hint}</p>` : nothing}
-            ${f.boons?.length
-              ? html`<div class="boon-list">${f.boons.map((b: any) => html`<span class="tag" title=${b.description || ""}>${b.name}${b.chance != null ? ` · ${b.chance}%` : ""}</span>`)}</div>`
-              : nothing}
+
           </div>
         </div>
+        ${this._variantPerks(f)}
         <div class="variant-tiles">
           ${(f.variants || []).map((v: any) => html`
             <div class="variant-tile ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""}" title=${v.name}>
