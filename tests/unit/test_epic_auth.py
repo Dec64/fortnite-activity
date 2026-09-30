@@ -21,9 +21,11 @@ from custom_components.fortnite_activity.epic_auth import (
 )
 from custom_components.fortnite_activity.profile import (
     parse_power_ranking,
+    parse_sprite_catalogue,
     parse_sprite_collection,
     parse_sprite_collection_all,
     parse_sprite_versions,
+    sprite_level,
 )
 
 ACCOUNT = "a" * 32
@@ -62,43 +64,56 @@ class TestIdentityAndParsing(unittest.TestCase):
         self.assertEqual(level, {"level": 214, "tier": 200, "xp": 66601, "account_level": 3256})
         self.assertIsNone(ApiFortniteClient.parse_level({}))
 
-    def test_sprites_current_cumulative_and_versions(self) -> None:
+    def test_sprites_follow_openapi_dtos(self) -> None:
+        """Field names from SpriteCollectionResponseDto / SpritesResponseDto (not the sanitized summary labels)."""
+        catalogue = parse_sprite_catalogue({"data": {
+            "gameVersion": "42.20",
+            "sprites": [{"id": "JonesySprite", "acquisitionHint": "Found near camps", "description": "d",
+                         "images": {"icon": "https://example.invalid/i.png", "iconLarge": "https://example.invalid/l.png"}}],
+            "levelUpCurve": [{"level": 1, "xp": 0}, {"level": 2, "xp": 1000}, {"level": 3, "xp": 3000}],
+        }})
         current = parse_sprite_collection({"data": {
-            "gameVersion": "42.10", "isCurrent": True, "ownedVariants": 23, "totalVariants": 61,
-            "ownedFamilies": 15, "totalFamilies": 16, "completionPercent": 37.7,
-            "families": [{
+            "gameVersion": "42.20", "isCurrent": True, "equippedVariant": "A",
+            "ownedVariants": 46, "totalVariants": 101, "ownedFamilies": 20, "totalFamilies": 21, "completionPercent": 45.54,
+            "currency": [{"item": "SpriteCoin", "count": 12}],
+            "sprites": [{
                 "id": "JonesySprite", "name": "Jonesy Sprite", "rarity": "Rare", "dexNumber": 27, "owned": True,
-                "ownedVariants": 1, "iconUrl": "https://example.invalid/jonesy.png",
+                "images": {"icon": "https://example.invalid/fam.png"},
                 "variants": [
-                    {"id": "A", "variant": "Base", "name": "Jonesy Sprite", "owned": True, "count": 2,
-                     "xp": 3550, "mastered": True, "dropChancePercent": 95},
-                    {"id": "G", "variant": "Gold", "name": "Gold Jonesy Sprite", "owned": False, "count": 0,
-                     "xp": None, "mastered": None, "dropChancePercent": 5},
+                    {"id": "A", "variant": "Base", "name": "Jonesy Sprite", "owned": True, "count": 2, "xp": 3550,
+                     "mastered": True, "images": {"icon": "https://example.invalid/a.png"}},
+                    {"id": "G", "variant": "Gold", "name": "Gold Jonesy Sprite", "owned": False, "count": 0, "xp": None,
+                     "mastered": None},
                 ],
             }],
-        }})
-        self.assertEqual((current["owned_variants"], current["total_variants"], current["completion_pct"]), (23, 61, 37.7))
+        }}, catalogue)
+        self.assertEqual(current["mastered_variants"], 1)
         fam = current["families"][0]
-        self.assertEqual((fam["owned_variants"], fam["total_variants"], fam["mastered"]), (1, 2, 1))
-        self.assertEqual(fam["image"], "https://example.invalid/jonesy.png")
+        self.assertEqual(fam["icon"], "https://example.invalid/fam.png")
+        self.assertEqual(fam["hint"], "Found near camps")
+        self.assertEqual(fam["variants"][0]["level"], 3)       # 3550 XP passes the 3000 threshold
+        self.assertIsNone(fam["variants"][1]["level"])          # not owned -> no level
+        self.assertEqual(fam["variants"][1]["icon"], "https://example.invalid/fam.png")  # falls back to family art
+        self.assertEqual(current["equipped"]["variant"], "Jonesy Sprite")
+        self.assertEqual(current["currency"], [{"item": "SpriteCoin", "count": 12}])
         cumulative = parse_sprite_collection_all({"data": {
-            "ownedVariants": 26, "totalVariants": 179, "ownedFamilies": 18, "totalFamilies": 41,
-            "completionPercent": 14.53,
-            "versionSummaries": [{"gameVersion": "42.10", "isCurrent": True, "ownedVariants": 23,
-                                  "totalVariants": 61, "completionPercent": 37.7}],
+            "ownedVariants": 49, "totalVariants": 219, "ownedFamilies": 23, "totalFamilies": 46, "completionPercent": 22.37,
+            "versions": [{"gameVersion": "42.20", "isCurrent": True, "ownedVariants": 46, "totalVariants": 101, "completionPercent": 45.54}],
         }})
-        self.assertEqual(cumulative["owned_variants"], 26)  # deduplicated by the provider, not a sum
+        self.assertEqual(cumulative["owned_variants"], 49)
+        self.assertEqual(cumulative["versions"][0]["version"], "42.20")
         self.assertEqual(
-            parse_sprite_versions({"data": [{"version": "42.00", "isCurrent": False}, {"version": "42.10", "isCurrent": True}]}),
-            "42.10",
+            parse_sprite_versions({"data": [{"version": "42.10", "isCurrent": False}, {"version": "42.20", "isCurrent": True}]}),
+            "42.20",
         )
         self.assertIsNone(parse_sprite_collection({"data": {"unexpected": 1}}))
+        self.assertEqual(sprite_level(500, []), None)
 
     def test_power_ranking(self) -> None:
-        self.assertEqual(
-            parse_power_ranking({"displayName": "x", "rank": 11061894, "pointsEarned": 1025, "eventId": "e"}),
-            {"rank": 11061894, "points": 1025, "event_id": "e"},
-        )
+        pr = parse_power_ranking({"displayName": "x", "rank": 8789409, "pointsEarned": 1600, "eventId": "e",
+                                  "trackedStats": {"PR": 1600, "peakPR": 2100, "deltaPR": -50, "countingEvents": 7, "peakPerf": 3}})
+        self.assertEqual((pr["rank"], pr["points"], pr["pr"], pr["peak_pr"], pr["delta_pr"], pr["counting_events"]),
+                         (8789409, 1600, 1600, 2100, -50, 7))
         self.assertIsNone(parse_power_ranking({"data": []}))
 
 

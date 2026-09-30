@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.3.0";
+const CARD_VERSION = "1.3.1";
 
 declare global {
   interface Window {
@@ -125,6 +125,7 @@ export class FortniteActivityCard extends LitElement {
   @state() private _now = Date.now();
   @state() private _matchLists: Record<string, { loading?: boolean; matches?: MatchRecord[]; tracked?: number; error?: string }> = {};
   @state() private _showAllMatches: Record<string, boolean> = {};
+  @state() private _expandedSprite: string | null = null;
 
   private _entityCache = new Map<string, string>();
   private _avatarTimer?: number;
@@ -851,7 +852,8 @@ export class FortniteActivityCard extends LitElement {
               <span class="rank-title"><ha-icon icon="mdi:podium"></ha-icon><span>Power Ranking</span></span>
               <span class="unreal-number">#${this._num(powerSensor.state)}</span>
             </div>
-            <div class="rank-meta"><span>${this._num(powerSensor.attributes?.points)} points</span><span>Competitive (tournaments)</span></div>
+            <div class="rank-meta"><span>${this._num(powerSensor.attributes?.points)} points${powerSensor.attributes?.counting_events != null ? ` · ${powerSensor.attributes.counting_events} counting events` : ""}</span>
+              <span>${powerSensor.attributes?.peak_pr != null ? `Peak PR ${this._num(powerSensor.attributes.peak_pr)}` : "Competitive (tournaments)"}${powerSensor.attributes?.delta_pr ? ` · ${powerSensor.attributes.delta_pr > 0 ? "▲" : "▼"} ${this._num(Math.abs(powerSensor.attributes.delta_pr))}` : ""}</span></div>
           </div>`
         : nothing}
       ${profileAttrs.epic_link === "relink_required"
@@ -868,34 +870,70 @@ export class FortniteActivityCard extends LitElement {
     const families: any[] = a.families || [];
     const cumulative = a.cumulative;
     const pct = Number(sensor?.state || 0);
+    const equipped = a.equipped;
     return html`
-      <div class="rank-section">
-        <div class="rank-header">
-          <span class="rank-title"><ha-icon icon="mdi:ghost-outline"></ha-icon><span>Sprites · v${a.version || "?"}</span></span>
-          <span class="rank-name">${pct}%</span>
-        </div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, pct)}%"></div></div>
-        <div class="rank-meta">
-          <span>${a.owned_variants}/${a.total_variants} variants · ${a.owned_families}/${a.total_families} families</span>
-          <span>${a.mastered_variants || 0} mastered</span>
+      <div class="rank-section sprite-summary">
+        ${equipped?.icon ? html`<img class="equipped-icon" src=${equipped.icon} alt="" title="Equipped: ${equipped.variant}" @error=${hideBroken} />` : nothing}
+        <div class="sprite-summary-main">
+          <div class="rank-header">
+            <span class="rank-title"><span>Sprites · Season v${a.version || "?"}</span></span>
+            <span class="rank-name">${pct}%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, pct)}%"></div></div>
+          <div class="rank-meta">
+            <span>${a.owned_variants}/${a.total_variants} variants · ${a.owned_families}/${a.total_families} families</span>
+            <span>${a.mastered_variants || 0} mastered</span>
+          </div>
+          ${equipped ? html`<div class="rank-meta"><span>Equipped: <b>${equipped.variant}</b></span></div>` : nothing}
         </div>
       </div>
       ${cumulative
         ? html`<div class="detail-line"><span>All seasons (deduplicated)</span>
             <b>${cumulative.owned_variants}/${cumulative.total_variants} · ${cumulative.completion_pct}%</b></div>`
         : nothing}
+      ${(a.currency || []).length
+        ? html`<div class="tag-row currency">${a.currency.map((c: any) => html`<span class="tag">${c.item}: ${this._num(c.count)}</span>`)}</div>`
+        : nothing}
       <div class="sprite-grid">
-        ${families.map((f) => html`
-          <div class="sprite-card ${f.owned ? "" : "missing"}" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}"
-            title=${f.variants?.map((v: any) => `${v.variant || v.name}: ${v.owned ? `owned ×${v.count}` : "missing"}${v.mastered ? " (mastered)" : ""}`).join("\n") || f.name}>
-            ${f.image
-              ? html`<img src=${f.image} alt="" loading="lazy" @error=${hideBroken} />`
-              : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
-            <span class="sprite-name">${f.name}</span>
-            <span class="sprite-dots">
-              ${(f.variants || []).map((v: any) => html`<i class="dot ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""}"></i>`)}
-            </span>
-          </div>`)}
+        ${families.map((f) => {
+          const open = this._expandedSprite === f.id;
+          return html`
+            <div class="sprite-card ${f.owned ? "" : "missing"} ${open ? "open" : ""}" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}"
+              @click=${() => (this._expandedSprite = open ? null : f.id)}>
+              ${f.icon ? html`<img src=${f.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+              <span class="sprite-name">${f.name}</span>
+              <span class="sprite-dots">
+                ${(f.variants || []).map((v: any) => html`<i class="dot ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""}" title=${v.variant || v.name}></i>`)}
+              </span>
+            </div>
+            ${open ? this._renderSpriteDetail(f) : nothing}
+          `;
+        })}
+      </div>
+    `;
+  }
+
+  private _renderSpriteDetail(f: any) {
+    return html`
+      <div class="sprite-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
+        <div class="sprite-detail-head">
+          ${f.icon_large || f.icon ? html`<img src=${f.icon_large || f.icon} alt="" @error=${hideBroken} />` : nothing}
+          <div>
+            <b>${f.name}</b> <span class="tag">${f.rarity || ""}</span>
+            ${f.description ? html`<p class="detail-desc">${f.description}</p>` : nothing}
+            ${!f.owned && f.hint ? html`<p class="detail-desc hint">Where to find: ${f.hint}</p>` : nothing}
+          </div>
+        </div>
+        <div class="variant-list">
+          ${(f.variants || []).map((v: any) => html`
+            <div class="variant-row ${v.owned ? "" : "missing"}">
+              ${v.icon ? html`<img src=${v.icon} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+              <span class="variant-name">${v.variant || v.name}</span>
+              <span>${v.owned ? `×${v.count}` : "Missing"}</span>
+              <span>${v.level ? `Lv ${v.level}` : v.owned && v.xp ? `${this._num(v.xp)} XP` : ""}</span>
+              <span>${v.mastered ? "★ Mastered" : v.drop_chance_pct != null && !v.owned ? `${v.drop_chance_pct}% drop` : ""}</span>
+            </div>`)}
+        </div>
       </div>
     `;
   }

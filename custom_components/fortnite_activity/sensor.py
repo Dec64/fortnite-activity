@@ -329,6 +329,8 @@ class FortniteSpritesSensor(FortniteEntity, SensorEntity):
             "owned_families": current.get("owned_families"),
             "total_families": current.get("total_families"),
             "mastered_variants": current.get("mastered_variants"),
+            "equipped": current.get("equipped"),
+            "currency": current.get("currency", []),
             "families": current.get("families", []),
             # Deduplicated across versions by the provider; never a sum of per-version totals
             "cumulative": {k: v for k, v in cumulative.items() if k != "versions"} or None,
@@ -357,4 +359,12 @@ class FortnitePowerRankingSensor(FortniteEntity, SensorEntity):
     @property
     def _extra_attributes(self) -> dict[str, Any]:
         ranking = self.player_data.get("power_ranking") or {}
-        return {"points": ranking.get("points"), "event_id": ranking.get("event_id")}
+        return {
+            "points": ranking.get("points"),
+            "pr": ranking.get("pr"),
+            "peak_pr": ranking.get("peak_pr"),
+            "delta_pr": ranking.get("delta_pr"),
+            "peak_performance": ranking.get("peak_performance"),
+            "counting_events": ranking.get("counting_events"),
+            "event_id": ranking.get("event_id"),
+        }

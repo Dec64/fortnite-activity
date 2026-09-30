@@ -1,0 +1,92 @@
+"""Diagnostics for Fortnite Activity Tracker (Settings > Devices & services > Download diagnostics).
+
+Contains parsed data with identifiers redacted plus the *key structure* (names and
+types, never values) of each upstream response, so field-name mismatches can be
+diagnosed without exposing personal data or credentials.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+try:
+    from homeassistant.components.diagnostics import async_redact_data
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+except ImportError:  # pragma: no cover - test environment
+    ConfigEntry = Any  # type: ignore
+    HomeAssistant = Any  # type: ignore
+
+    def async_redact_data(data: Any, keys: set[str]) -> Any:  # type: ignore
+        return data
+
+from .const import CONF_API_KEY, CONF_EPIC_DEVICE, DOMAIN
+
+TO_REDACT = {
+    CONF_API_KEY,
+    CONF_EPIC_DEVICE,
+    "account_id",
+    "accountId",
+    "device_id",
+    "secret",
+    "display_name",
+    "names",
+    "platforms",
+    "event_id",
+}
+
+
+def shape_of(value: Any, depth: int = 0) -> Any:
+    """Key/type skeleton of a JSON value (first list element only, no values)."""
+    if depth > 6:
+        return "…"
+    if isinstance(value, dict):
+        return {str(k): shape_of(v, depth + 1) for k, v in list(value.items())[:60]}
+    if isinstance(value, list):
+        return [shape_of(value[0], depth + 1)] if value else []
+    return type(value).__name__
+
+
+async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
+    """Return redacted diagnostics for a config entry."""
+    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    profile = getattr(coordinator, "profile", None)
+    players = {}
+    for player_id, data in ((coordinator.data or {}) if coordinator else {}).items():
+        players[player_id] = {
+            "is_playing": data.get("is_playing"),
+            "overall": (data.get("stats") or {}).get("overall"),
+            "ranked": data.get("ranked"),
+            "metrics": data.get("metrics"),
+            "session_matches": len(((data.get("session") or {}).get("matches")) or []),
+        }
+    profile_players = {}
+    for player_id, data in ((profile.data or {}) if profile else {}).items():
+        sprites = data.get("sprites") or {}
+        current = sprites.get("current") or {}
+        profile_players[player_id] = {
+            "epic": data.get("epic"),
+            "level": data.get("level"),
+            "power_ranking": data.get("power_ranking"),
+            "windows": {k: (v or {}).get("matches") if v else None for k, v in (data.get("windows") or {}).items()},
+            "sprites_current": {k: v for k, v in current.items() if k != "families"},
+            "sprite_families": len(current.get("families") or []),
+            "sprites_with_icons": sum(1 for f in current.get("families") or [] if f.get("icon")),
+        }
+    return async_redact_data(
+        {
+            "entry": {"options": dict(entry.options), "player_count": len(entry.data.get("players", []))},
+            "players": players,
+            "profile": {
+                "season": getattr(profile, "season", None),
+                "sprite_version": getattr(profile, "sprite_version", None),
+                "sprite_curve_levels": len(((getattr(profile, "sprite_catalogue", None) or {}).get("level_curve")) or []),
+                "playlist_count": len(getattr(profile, "playlists", {}) or {}),
+                "tournament_count": len(getattr(profile, "tournaments", None) or []),
+                "failing": sorted(getattr(profile, "_failing", set())),
+                "players": profile_players,
+                "response_shapes": getattr(profile, "raw_shapes", {}),
+            },
+        },
+        TO_REDACT,
+    )

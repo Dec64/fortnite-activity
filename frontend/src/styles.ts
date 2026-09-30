@@ -1026,4 +1026,39 @@ export const cardStyles = css`
     border: 1px solid rgba(245, 158, 11, 0.4);
     margin-bottom: 12px;
   }
+
+  .sprite-summary { display: flex; gap: 12px; align-items: center; }
+  .sprite-summary-main { flex: 1; min-width: 0; }
+  .equipped-icon { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)); }
+  .currency { margin: 6px 0 4px; }
+  .sprite-card { cursor: pointer; }
+  .sprite-card.open { outline: 2px solid var(--rarity); }
+
+  .sprite-detail {
+    grid-column: 1 / -1;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid color-mix(in srgb, var(--rarity) 45%, transparent);
+  }
+
+  .sprite-detail-head { display: flex; gap: 12px; align-items: flex-start; }
+  .sprite-detail-head img { width: 72px; height: 72px; object-fit: contain; flex-shrink: 0; }
+  .hint { color: var(--accent); }
+  .variant-list { display: grid; gap: 4px; margin-top: 8px; }
+
+  .variant-row {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .variant-row img { width: 32px; height: 32px; object-fit: contain; }
+  .variant-row.missing { opacity: 0.5; }
+  .variant-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 `;

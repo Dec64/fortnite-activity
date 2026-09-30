@@ -906,3 +906,11 @@ Following the user's `/plan` request and interactive alignment interview, design
 - Rejected refresh (400/401/403) or identity mismatch stops the credential and raises a Repair issue; no retries. Unlink is local only (no `revoke-device`, an account-changing call).
 - Token routes wired: level (nested `tier`), power rankings, sprites (current version via `/v2/sprites/versions`, plus deduplicated `/collection/all`). Level polling moved from the 90 s match poll to the 30 min profile poll.
 - Unverified until the user links: exact `complete` response nesting, sprite image field names, power-ranking response wrapper.
+
+### 2026-09-30 v1.3.1 sprite field names from the OpenAPI DTOs
+
+- **Root cause (observed live after the user linked Epic)**: the sprite collection had 46/101 variants but zero families, so no images and 0 mastered. The parser used the sanitized evidence's summary labels (`families`, `versionSummaries`) instead of the provider's real fields. Per `SpriteCollectionResponseDto`: families are `sprites[]`, images are `images.icon` / `images.iconLarge`, cumulative per-version data is `versions[]`; the collection also has `equippedVariant` and `currency[]`.
+- **Lesson**: sanitized evidence projections are not wire formats; parsers must be written from the OpenAPI DTOs. Added `diagnostics.py`, which records the key/type skeleton (no values) of every profile response for future checks.
+- **New derived data**: sprite level per owned variant from the public `/v2/sprites` `levelUpCurve` (used only if thresholds are monotonic); acquisition hints for missing families; Power Ranking `trackedStats` (PR, peak PR, delta PR, counting events).
+- **Session history**: sessions ending with zero detected matches are no longer archived (six empty Start/End test sessions had hidden the real last session).
+- Epic's matchmaking skill rating is not exposed by any provider route; the closest skill measures are ranked division/Unreal placement and Power Ranking PR.

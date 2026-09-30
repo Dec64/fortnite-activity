@@ -77,7 +77,24 @@ class TestFortniteSessionManager(unittest.TestCase):
         self.assertEqual(len(matches), 0)
         self.assertFalse(manager.is_active)
         self.assertIsNone(manager.active_session)
+        # No match was played, so the empty session is discarded rather than archived
+        self.assertEqual(len(manager.history), 0)
+
+    def test_session_with_matches_is_archived(self) -> None:
+        """Sessions containing at least one detected match are kept in history."""
+        manager = FortniteSessionManager(player_id="player1", player_name="Player One")
+        manager.start_session(self.stats_baseline, self.ranked)
+        manager.update_and_detect_matches(self.stats_after_win, self.ranked)
+        manager.end_session()
         self.assertEqual(len(manager.history), 1)
+        self.assertEqual(manager.get_latest_session_summary()["summary"]["matches_played"], 1)
+
+    def test_empty_sessions_dropped_from_loaded_history(self) -> None:
+        manager = FortniteSessionManager(
+            player_id="player1", player_name="Player One",
+            history=[{"session_id": "empty", "matches": []}, {"session_id": "real", "matches": [{"kills": 1}]}],
+        )
+        self.assertEqual([h["session_id"] for h in manager.history], ["real"])
 
 
 if __name__ == "__main__":

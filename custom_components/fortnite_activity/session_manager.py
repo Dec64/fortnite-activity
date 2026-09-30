@@ -54,7 +54,8 @@ class FortniteSessionManager:
         self.active_session: dict[str, Any] | None = None
         self.last_activity_time: datetime | None = None
         self.previous_snapshot: dict[str, Any] | None = None
-        self.history: list[dict[str, Any]] = history or []
+        # Sessions without any detected match (e.g. Start/End pressed with no game) are not history
+        self.history: list[dict[str, Any]] = [h for h in (history or []) if h.get("matches")]
 
     def start_session(self, initial_stats: dict[str, Any], initial_ranked: dict[str, Any]) -> dict[str, Any]:
         """Explicitly or automatically start a new gaming session."""
@@ -113,10 +114,11 @@ class FortniteSessionManager:
         start = datetime.fromisoformat(self.active_session["start_time"])
         self.active_session["duration_minutes"] = max(1, int((now - start).total_seconds() / 60))
 
-        # Archive to history (keep newest 50 sessions)
-        self.history.insert(0, dict(self.active_session))
-        if len(self.history) > 50:
-            self.history = self.history[:50]
+        # Archive to history (keep newest 50 sessions); empty sessions are discarded
+        if self.active_session.get("matches"):
+            self.history.insert(0, dict(self.active_session))
+            if len(self.history) > 50:
+                self.history = self.history[:50]
 
         ended = dict(self.active_session)
         self.is_active = False

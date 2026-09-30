@@ -40,6 +40,7 @@ from .profile import (
     parse_playlists,
     parse_power_ranking,
     parse_season,
+    parse_sprite_catalogue,
     parse_sprite_collection,
     parse_sprite_collection_all,
     parse_sprite_versions,
@@ -81,6 +82,9 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._failing: set[str] = set()
         self._players: dict[str, dict[str, Any]] = {}
         self.sprite_version: str | None = None
+        self.sprite_catalogue: dict[str, Any] | None = None
+        # Key/type skeletons of the latest responses, for diagnostics (never values)
+        self.raw_shapes: dict[str, Any] = {}
 
         # Epic player tokens for players who linked their account (device auth)
         self.token_managers: dict[str, EpicTokenManager] = {}
@@ -126,6 +130,9 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if key in self._failing:
             _LOGGER.info("Fortnite profile data '%s' available again", key)
             self._failing.discard(key)
+        from .diagnostics import shape_of
+
+        self.raw_shapes[key.split(":")[0]] = shape_of(value)
         return True, value
 
     @staticmethod
@@ -185,6 +192,9 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if ok:
                 self.sprite_version = parse_sprite_versions(raw) or self.sprite_version
                 self._fetched_at["sprite_version"] = now
+            ok, raw = await self._guarded("sprite_catalogue", self.api_client.get_sprite_catalogue)
+            if ok:
+                self.sprite_catalogue = parse_sprite_catalogue(raw) or self.sprite_catalogue
 
         starts = self._window_starts(now)
         for p in self.players_config:
@@ -268,7 +278,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             f"sprites:{player_id}", lambda: self.api_client.get_sprite_collection(token, self.sprite_version)
         )
         if ok:
-            current = parse_sprite_collection(raw)
+            current = parse_sprite_collection(raw, self.sprite_catalogue)
             if current:
                 info["sprites"] = {**(info.get("sprites") or {}), "current": current}
 
