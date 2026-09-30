@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.2.0";
+const CARD_VERSION = "1.2.1";
 
 declare global {
   interface Window {
@@ -163,6 +163,20 @@ export class FortniteActivityCard extends LitElement {
 
   private get _eventsEnabled(): boolean {
     return this._config.show_tournaments !== false || this._config.layout === "events_only";
+  }
+
+  /**
+   * HA replaces `hass` on every state change in the house; only re-render when one of
+   * this card's own entities (or anything besides hass) changed.
+   */
+  protected shouldUpdate(changed: PropertyValues): boolean {
+    if (changed.size !== 1 || !changed.has("hass")) return true;
+    const oldHass = changed.get("hass") as any;
+    if (!oldHass || !this._entityCache.size) return true;
+    for (const entityId of this._entityCache.values()) {
+      if (oldHass.states[entityId] !== this.hass.states[entityId]) return true;
+    }
+    return false;
   }
 
   // ---- data loading --------------------------------------------------------
