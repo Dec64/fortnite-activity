@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.6.0";
+const CARD_VERSION = "1.6.1";
 
 declare global {
   interface Window {
@@ -52,6 +52,17 @@ const RARITY_COLORS: Record<string, string> = {
   Epic: "#A855F7",
   Legendary: "#F59E0B",
   Mythic: "#FACC15",
+};
+
+const CURRENCY_LABELS: Record<string, string> = {
+  AthenaBattleStar: "Battle Star",
+  AthenaCategoryStar: "Character Star",
+  MtxCurrency: "V-Bucks",
+};
+
+const currencyLabel = (code?: string, n?: number) => {
+  const label = (code && CURRENCY_LABELS[code]) || code || "";
+  return n === 1 || !label ? label : `${label}s`;
 };
 
 const TOURNAMENT_TYPES: Record<string, string> = {
@@ -1059,18 +1070,18 @@ export class FortniteActivityCard extends LitElement {
         </div>
         <div class="sprite-stats">
           <span><b>${bp.reward_count}</b> rewards</span><span><b>${bp.pages.length}</b> pages</span>
-          ${bp.prices.map((pr: any) => html`<span>${pr.name}: <b>${this._num(pr.cost)}</b> ${pr.currency === "MtxCurrency" ? "V-Bucks" : pr.currency || ""}</span>`)}
+          ${bp.prices.filter((pr: any) => pr.cost).map((pr: any) => html`<span>${pr.name}: <b>${this._num(pr.cost)}</b> ${currencyLabel(pr.currency, pr.cost)}</span>`)}
         </div>
         <div class="perk-desc">Which rewards you have claimed is not available from this data source.</div>
       </div>
       ${pages.map((pg: any) => html`
-        <div class="section-title">Page ${pg.page}${pg.track ? ` · ${pg.track}` : ""}</div>
+        <div class="section-title">${/Bonus$/.test(pg.track || "") ? "Bonus page" : "Page"} ${pg.page}</div>
         <div class="variant-tiles">
           ${pg.rewards.map((r: any) => html`
             <div class="variant-tile" style="--rarity:${RARITY_COLORS[r.rarity] || "#9CA3AF"}" title="${r.name}${r.type ? ` (${r.type})` : ""}">
               ${r.icon ? html`<img src=${r.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
               <span class="variant-name">${r.name}</span>
-              <span class="variant-status">${r.price_row === "Included" || r.cost === 0 ? "Included" : r.cost != null ? `${r.cost} ${r.currency || ""}` : r.type || ""}</span>
+              <span class="variant-status">${r.price_row === "Included" || r.cost === 0 ? "Included" : r.cost != null ? `${r.cost} ${currencyLabel(r.currency, r.cost)}` : r.type || ""}</span>
             </div>`)}
         </div>`)}
       ${bp.pages.length > 3
