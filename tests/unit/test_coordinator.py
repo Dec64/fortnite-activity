@@ -8,7 +8,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import AsyncMock, MagicMock
 
-from custom_components.fortnite_activity.api.api_fortnite import ApiFortniteClient
+from custom_components.fortnite_activity.api.api_fortnite import ApiFortniteClient, FortniteAuthError
 from custom_components.fortnite_activity.const import (
     CONF_ACCOUNT_ID,
     CONF_ACTIVE_INTERVAL,
@@ -18,7 +18,7 @@ from custom_components.fortnite_activity.const import (
     CONF_PLAYER_ID,
     CONF_PLAYER_NAME,
 )
-from custom_components.fortnite_activity.coordinator import FortniteDataUpdateCoordinator
+from custom_components.fortnite_activity.coordinator import FortniteDataUpdateCoordinator, UpdateFailed
 from custom_components.fortnite_activity.storage import FortniteStorage
 
 FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures" / "synthetic"
@@ -101,6 +101,37 @@ class TestFortniteDataUpdateCoordinator(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(data["player1"]["session"])
         self.assertEqual(data["player1"]["session"]["summary"]["matches_played"], 1)
         self.assertEqual(coordinator.update_interval, timedelta(seconds=90))
+
+    async def test_coordinator_handles_level_401_gracefully(self) -> None:
+        """Test coordinator does not fail if get_raw_level raises FortniteAuthError or returns empty."""
+        self.mock_client.get_raw_level = AsyncMock(side_effect=FortniteAuthError("401 Unauthorized"))
+        coordinator = FortniteDataUpdateCoordinator(
+            hass=self.mock_hass,
+            api_client=self.mock_client,
+            entry_data=self.entry_data,
+            entry_options=self.entry_options,
+            storage=self.mock_storage,
+        )
+
+        data = await coordinator._async_update_data()
+        self.assertIn("player1", data)
+        self.assertEqual(data["player1"]["level"]["level"], 0)
+        self.assertEqual(data["player1"]["stats"]["overall"]["matches"], 180)
+
+    async def test_coordinator_first_fetch_failure_raises_update_failed(self) -> None:
+        """Test coordinator raises UpdateFailed on first fetch error without throwing TypeError on None self.data."""
+        self.mock_client.get_raw_stats = AsyncMock(side_effect=FortniteAuthError("Invalid API key"))
+        coordinator = FortniteDataUpdateCoordinator(
+            hass=self.mock_hass,
+            api_client=self.mock_client,
+            entry_data=self.entry_data,
+            entry_options=self.entry_options,
+            storage=self.mock_storage,
+        )
+        self.assertIsNone(coordinator.data)
+
+        with self.assertRaises(UpdateFailed):
+            await coordinator._async_update_data()
 
 
 if __name__ == "__main__":

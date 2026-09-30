@@ -109,8 +109,12 @@ class ApiFortniteClient:
     async def get_raw_level(self, account_id: str) -> dict[str, Any]:
         """Fetch raw level & tier data for account."""
         endpoint = LEVEL_ENDPOINT.format(account_id=account_id)
-        res = await self._request(endpoint)
-        return res if isinstance(res, dict) else {}
+        try:
+            res = await self._request(endpoint)
+            return res if isinstance(res, dict) else {}
+        except FortniteApiError as err:
+            _LOGGER.debug("Could not fetch level for %s (endpoint requires player token): %s", account_id, err)
+            return {}
 
     async def validate_credentials(self, account_id: str) -> bool:
         """Validate API key and player account ID."""

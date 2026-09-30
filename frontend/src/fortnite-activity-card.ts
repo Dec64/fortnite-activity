@@ -181,8 +181,9 @@ export class FortniteActivityCard extends LitElement {
             <div class="player-info">
               <h2>${playerName}</h2>
               <div class="player-meta">
-                <span class="level-badge">Lvl ${seasonLevel}</span>
-                <span>• Account: ${accountLevel.toLocaleString()}</span>
+                ${Number(seasonLevel) > 0 ? html`<span class="level-badge">Lvl ${seasonLevel}</span>` : ""}
+                ${Number(accountLevel) > 0 ? html`<span>• Account: ${accountLevel.toLocaleString()}</span>` : ""}
+                ${Number(seasonLevel) === 0 && Number(accountLevel) === 0 ? html`<span>Fortnite Player</span>` : ""}
               </div>
             </div>
           </div>

@@ -18,7 +18,7 @@ except ImportError:
             self.logger = logger
             self.name = name
             self.update_interval = update_interval
-            self.data: Any = {}
+            self.data: Any = None
 
         def __class_getitem__(cls, item: Any) -> Any:
             return cls
@@ -100,7 +100,11 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 raw_stats = await self.api_client.get_raw_stats(account_id)
                 raw_ranked = await self.api_client.get_raw_ranked(account_id)
-                raw_level = await self.api_client.get_raw_level(account_id)
+                try:
+                    raw_level = await self.api_client.get_raw_level(account_id)
+                except FortniteApiError as level_err:
+                    _LOGGER.debug("Level data unavailable for %s: %s", p_id, level_err)
+                    raw_level = {}
 
                 parsed_stats = ApiFortniteClient.parse_stats(raw_stats)
                 parsed_ranked = ApiFortniteClient.parse_ranked(raw_ranked)
@@ -134,7 +138,7 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             except FortniteApiError as err:
                 _LOGGER.error("Error fetching data for %s (%s): %s", p_id, account_id, err)
-                if p_id in self.data:
+                if self.data and p_id in self.data:
                     # Keep previous data on transient errors
                     results[p_id] = self.data[p_id]
                 else:
@@ -156,7 +160,7 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def start_player_session(self, player_id: str) -> dict[str, Any] | None:
         """Manually trigger session start for a player."""
-        if player_id not in self.session_managers or player_id not in self.data:
+        if player_id not in self.session_managers or not self.data or player_id not in self.data:
             return None
         manager = self.session_managers[player_id]
         p_data = self.data[player_id]
