@@ -10,7 +10,20 @@ try:
     from homeassistant.components import websocket_api
     from homeassistant.core import HomeAssistant
 except ImportError:
-    vol = None  # type: ignore
+    class _MockVol:
+        @staticmethod
+        def Required(*args: Any, **kwargs: Any) -> Any:
+            return args[0]
+
+        @staticmethod
+        def Optional(*args: Any, **kwargs: Any) -> Any:
+            return args[0]
+
+        @staticmethod
+        def Schema(*args: Any, **kwargs: Any) -> Any:
+            return args[0]
+
+    vol = _MockVol()  # type: ignore
     HomeAssistant = Any  # type: ignore
 
     class _MockWS:
@@ -19,12 +32,14 @@ except ImportError:
             return func
 
         @staticmethod
-        def async_register_command(*args: Any, **kwargs: Any) -> None:
-            pass
+        def websocket_command(schema: Any) -> Any:
+            def decorator(func: Any) -> Any:
+                return func
+            return decorator
 
         @staticmethod
-        def make_command(*args: Any, **kwargs: Any) -> Any:
-            return None
+        def async_register_command(*args: Any, **kwargs: Any) -> None:
+            pass
 
         class ActiveConnection:
             pass
@@ -42,48 +57,9 @@ def async_setup_websocket_api(hass: HomeAssistant) -> None:
     if not websocket_api or not vol:
         return
 
-    websocket_api.async_register_command(
-        hass,
-        websocket_api.make_command(
-            "fortnite_activity/session",
-            ws_get_player_session,
-            vol.Schema(
-                {
-                    vol.Required("type"): "fortnite_activity/session",
-                    vol.Required("player_id"): str,
-                }
-            ),
-        ),
-    )
-
-    websocket_api.async_register_command(
-        hass,
-        websocket_api.make_command(
-            "fortnite_activity/history",
-            ws_get_player_history,
-            vol.Schema(
-                {
-                    vol.Required("type"): "fortnite_activity/history",
-                    vol.Required("player_id"): str,
-                    vol.Optional("limit", default=10): int,
-                }
-            ),
-        ),
-    )
-
-    websocket_api.async_register_command(
-        hass,
-        websocket_api.make_command(
-            "fortnite_activity/playlists",
-            ws_get_player_playlists,
-            vol.Schema(
-                {
-                    vol.Required("type"): "fortnite_activity/playlists",
-                    vol.Required("player_id"): str,
-                }
-            ),
-        ),
-    )
+    websocket_api.async_register_command(hass, ws_get_player_session)
+    websocket_api.async_register_command(hass, ws_get_player_history)
+    websocket_api.async_register_command(hass, ws_get_player_playlists)
 
 
 def _get_coordinator(hass: HomeAssistant) -> FortniteDataUpdateCoordinator | None:
@@ -95,6 +71,12 @@ def _get_coordinator(hass: HomeAssistant) -> FortniteDataUpdateCoordinator | Non
     return None
 
 
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/session",
+        vol.Required("player_id"): str,
+    }
+)
 @websocket_api.async_response
 async def ws_get_player_session(
     hass: HomeAssistant,
@@ -124,6 +106,13 @@ async def ws_get_player_session(
     )
 
 
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/history",
+        vol.Required("player_id"): str,
+        vol.Optional("limit", default=10): int,
+    }
+)
 @websocket_api.async_response
 async def ws_get_player_history(
     hass: HomeAssistant,
@@ -152,6 +141,12 @@ async def ws_get_player_history(
     )
 
 
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/playlists",
+        vol.Required("player_id"): str,
+    }
+)
 @websocket_api.async_response
 async def ws_get_player_playlists(
     hass: HomeAssistant,
