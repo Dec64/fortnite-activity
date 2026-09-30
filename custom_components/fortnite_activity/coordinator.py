@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 from typing import Any
 
@@ -26,7 +26,7 @@ except ImportError:
     class UpdateFailed(Exception):  # type: ignore
         pass
 
-from .api.api_fortnite import ApiFortniteClient, FortniteApiError
+from .api.api_fortnite import ApiFortniteClient, FortniteApiError, FortniteAuthError
 from .const import (
     CONF_ACCOUNT_ID,
     CONF_ACTIVE_INTERVAL,
@@ -44,6 +44,9 @@ from .session_manager import FortniteSessionManager
 from .storage import FortniteStorage
 
 _LOGGER = logging.getLogger(__name__)
+
+# The level endpoint needs an Epic player token; after a 401 re-check only this often.
+LEVEL_RETRY_INTERVAL = timedelta(hours=24)
 
 
 class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -79,6 +82,9 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 inactivity_timeout_minutes=self.inactivity_timeout,
                 history=history,
             )
+            self.session_managers[p_id].restore_active_state(storage.get_active_session(p_id))
+
+        self._level_retry_after: datetime | None = None
 
         super().__init__(
             hass,
@@ -90,7 +96,9 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch stats, ranks, and level for all tracked players."""
         results: dict[str, Any] = {}
+        errors: list[str] = []
         any_active = False
+        storage_dirty = False
 
         for p in self.players_config:
             p_id = p[CONF_PLAYER_ID]
@@ -100,49 +108,48 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 raw_stats = await self.api_client.get_raw_stats(account_id)
                 raw_ranked = await self.api_client.get_raw_ranked(account_id)
-                try:
-                    raw_level = await self.api_client.get_raw_level(account_id)
-                except FortniteApiError as level_err:
-                    _LOGGER.debug("Level data unavailable for %s: %s", p_id, level_err)
-                    raw_level = {}
-
-                parsed_stats = ApiFortniteClient.parse_stats(raw_stats)
-                parsed_ranked = ApiFortniteClient.parse_ranked(raw_ranked)
-                parsed_level = ApiFortniteClient.parse_level(raw_level)
-
-                # Process match detection and update session
-                new_matches = manager.update_and_detect_matches(parsed_stats, parsed_ranked)
-                if new_matches:
-                    _LOGGER.info(
-                        "Detected %d new match(es) for %s in current session",
-                        len(new_matches),
-                        manager.player_name,
-                    )
-                    # Persist updated session history
-                    self.storage.set_player_history(p_id, manager.history)
-                    await self.storage.async_save()
-
-                if manager.is_active:
-                    any_active = True
-
-                results[p_id] = {
-                    "player_id": p_id,
-                    "player_name": manager.player_name,
-                    "stats": parsed_stats,
-                    "ranked": parsed_ranked,
-                    "level": parsed_level,
-                    "session": manager.active_session,
-                    "last_session": manager.get_latest_session_summary(),
-                    "is_playing": manager.is_active,
-                }
-
             except FortniteApiError as err:
-                _LOGGER.error("Error fetching data for %s (%s): %s", p_id, account_id, err)
+                _LOGGER.warning("Error fetching data for %s: %s", p_id, err)
+                errors.append(f"{p_id}: {err}")
                 if self.data and p_id in self.data:
                     # Keep previous data on transient errors
                     results[p_id] = self.data[p_id]
-                else:
-                    raise UpdateFailed(f"Failed to fetch Fortnite data for {p_id}: {err}") from err
+                    any_active = any_active or manager.is_active
+                continue
+
+            parsed_stats = ApiFortniteClient.parse_stats(raw_stats)
+            parsed_ranked = ApiFortniteClient.parse_ranked(raw_ranked)
+            parsed_level = await self._async_fetch_level(p_id, account_id)
+
+            state_before = self._session_signature(manager)
+            new_matches = manager.update_and_detect_matches(parsed_stats, parsed_ranked)
+            if new_matches:
+                _LOGGER.info(
+                    "Detected %d new match(es) for %s in current session",
+                    len(new_matches),
+                    manager.player_name,
+                )
+            if new_matches or self._session_signature(manager) != state_before:
+                self._store_player_state(p_id)
+                storage_dirty = True
+
+            any_active = any_active or manager.is_active
+            results[p_id] = {
+                "player_id": p_id,
+                "player_name": manager.player_name,
+                "stats": parsed_stats,
+                "ranked": parsed_ranked,
+                "level": parsed_level,
+                "session": manager.active_session,
+                "last_session": manager.get_latest_session_summary(),
+                "is_playing": manager.is_active,
+            }
+
+        if storage_dirty:
+            await self.storage.async_save()
+
+        if not results:
+            raise UpdateFailed("Failed to fetch Fortnite data: " + "; ".join(errors))
 
         # Adaptive polling interval adjustment
         if any_active:
@@ -158,6 +165,37 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         return results
 
+    async def _async_fetch_level(self, player_id: str, account_id: str) -> dict[str, Any] | None:
+        """Fetch level data, backing off for a day once the endpoint rejects the key."""
+        now = datetime.now(timezone.utc)
+        if self._level_retry_after and now < self._level_retry_after:
+            return None
+        try:
+            raw_level = await self.api_client.get_raw_level(account_id)
+        except FortniteAuthError:
+            _LOGGER.info(
+                "Level endpoint requires an Epic player token; not polling it again until %s",
+                (now + LEVEL_RETRY_INTERVAL).isoformat(timespec="minutes"),
+            )
+            self._level_retry_after = now + LEVEL_RETRY_INTERVAL
+            return None
+        except FortniteApiError as err:
+            _LOGGER.debug("Level data unavailable for %s: %s", player_id, err)
+            return None
+        return ApiFortniteClient.parse_level(raw_level)
+
+    @staticmethod
+    def _session_signature(manager: FortniteSessionManager) -> tuple[Any, ...]:
+        """Summarise session state so changes (start, end, new match) can be detected."""
+        session = manager.active_session or {}
+        return (manager.is_active, session.get("session_id"), len(session.get("matches", [])), len(manager.history))
+
+    def _store_player_state(self, player_id: str) -> None:
+        """Copy a player's history and active session into storage (caller saves)."""
+        manager = self.session_managers[player_id]
+        self.storage.set_player_history(player_id, manager.history)
+        self.storage.set_active_session(player_id, manager.export_active_state())
+
     def start_player_session(self, player_id: str) -> dict[str, Any] | None:
         """Manually trigger session start for a player."""
         if player_id not in self.session_managers or not self.data or player_id not in self.data:
@@ -167,6 +205,14 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         session = manager.start_session(p_data["stats"], p_data["ranked"])
         self.update_interval = timedelta(seconds=self.active_interval)
         self._sync_session_data(player_id)
+        self._store_player_state(player_id)
+        return session
+
+    async def async_start_player_session(self, player_id: str) -> dict[str, Any] | None:
+        """Start a session and persist it so it survives a restart."""
+        session = self.start_player_session(player_id)
+        if session:
+            await self.storage.async_save()
         return session
 
     async def async_end_player_session(self, player_id: str) -> dict[str, Any] | None:
@@ -176,7 +222,7 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         manager = self.session_managers[player_id]
         ended = manager.end_session()
         if ended:
-            self.storage.set_player_history(player_id, manager.history)
+            self._store_player_state(player_id)
             await self.storage.async_save()
         if not any(m.is_active for m in self.session_managers.values()):
             self.update_interval = timedelta(seconds=self.idle_interval)

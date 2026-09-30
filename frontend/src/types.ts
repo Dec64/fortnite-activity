@@ -19,6 +19,7 @@ export interface FortniteCardConfig {
 
 export interface MatchRecord {
   match_number: number;
+  match_count?: number;
   timestamp: string;
   playlist_id: string;
   mode_name: string;

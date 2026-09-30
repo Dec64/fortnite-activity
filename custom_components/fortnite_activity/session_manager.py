@@ -11,6 +11,29 @@ from .const import DEFAULT_INACTIVITY_TIMEOUT
 
 _LOGGER = logging.getLogger(__name__)
 
+# Placement brackets, best first. Each team size reports a different subset
+# (solo: top10/top25, duos: top5/top12, squads: top3/top6).
+PLACEMENT_BRACKETS = [
+    ("top3", "Top 3"),
+    ("top5", "Top 5"),
+    ("top6", "Top 6"),
+    ("top10", "Top 10"),
+    ("top12", "Top 12"),
+    ("top25", "Top 25"),
+]
+
+
+def _rank_position(track: dict[str, Any] | None) -> float:
+    """Return a monotonic ladder position (division * 100 + progress %) for a rank track."""
+    if not track:
+        return 0.0
+    return float(track.get("current_division", 0) or 0) * 100 + float(track.get("progress_pct", 0.0) or 0.0)
+
+
+def _track_key_for_mode(mode_category: str) -> str:
+    """Pick the ranked track whose progress a playlist affects."""
+    return "reload_build" if mode_category == "reload" else "battle_royale"
+
 
 class FortniteSessionManager:
     """Manages active gaming sessions, match delta detection, and session history."""
@@ -58,6 +81,8 @@ class FortniteSessionManager:
                 "score": overall.get("score", 0),
                 "br_rank_progress": br_rank.get("progress_pct", 0.0),
                 "br_rank_name": br_rank.get("current_rank", "Unranked"),
+                "br_rank_position": _rank_position(br_rank),
+                "reload_rank_position": _rank_position(initial_ranked.get("reload_build")),
             },
             "summary": {
                 "matches_played": 0,
@@ -66,6 +91,7 @@ class FortniteSessionManager:
                 "kd_ratio": 0.0,
                 "win_rate_pct": 0.0,
                 "net_rank_delta_pct": 0.0,
+                "net_reload_rank_delta_pct": 0.0,
             },
             "matches": [],
         }
@@ -125,8 +151,9 @@ class FortniteSessionManager:
                 self.previous_snapshot = {"stats": current_stats, "ranked": current_ranked}
                 return []
 
-        # At this point, session is active (or was just started)
-        if not self.active_session:
+        # At this point, session is active (or was just started). A session restored
+        # after a restart has no snapshot yet; the current poll becomes the comparison point.
+        if not self.active_session or not self.previous_snapshot:
             self.previous_snapshot = {"stats": current_stats, "ranked": current_ranked}
             return []
 
@@ -155,39 +182,38 @@ class FortniteSessionManager:
                     delta_wins = max(0, curr_p.get("wins", 0) - prev_p.get("wins", 0))
                     is_win = delta_wins > 0
 
-                    # Detect placement bracket
+                    # Best placement bracket reached since the previous poll
                     placement_text = "Match Completed"
                     if is_win:
-                        placement_text = "Victory Royale 🏆"
-                    elif (curr_p.get("top3", 0) - prev_p.get("top3", 0)) > 0:
-                        placement_text = "Top 3"
-                    elif (curr_p.get("top5", 0) - prev_p.get("top5", 0)) > 0:
-                        placement_text = "Top 5"
-                    elif (curr_p.get("top10", 0) - prev_p.get("top10", 0)) > 0:
-                        placement_text = "Top 10"
-                    elif (curr_p.get("top25", 0) - prev_p.get("top25", 0)) > 0:
-                        placement_text = "Top 25"
+                        placement_text = "Victory Royale \U0001F3C6"
+                    else:
+                        for key, label in PLACEMENT_BRACKETS:
+                            if curr_p.get(key, 0) - prev_p.get(key, 0) > 0:
+                                placement_text = label
+                                break
 
-                    # Calculate rank progression delta if applicable
-                    curr_br = current_ranked.get("battle_royale") or {}
-                    prev_br = prev_ranked.get("battle_royale") or {}
-                    rank_delta_pct = round(
-                        curr_br.get("progress_pct", 0.0) - prev_br.get("progress_pct", 0.0), 1
-                    )
+                    # Rank change on the ranked track this playlist feeds
+                    mode_category = curr_p.get("mode", ApiFortniteClient.resolve_playlist_mode(p_id))
+                    track_key = _track_key_for_mode(mode_category)
+                    curr_track = current_ranked.get(track_key) or {}
+                    prev_track = prev_ranked.get(track_key) or {}
+                    rank_delta_pct = round(_rank_position(curr_track) - _rank_position(prev_track), 1)
 
-                    match_number = len(self.active_session["matches"]) + 1
+                    match_number = sum(m.get("match_count", 1) for m in self.active_session["matches"]) + 1
                     match_record = {
                         "match_number": match_number,
+                        "match_count": p_match_delta,
                         "timestamp": now.isoformat(),
                         "playlist_id": p_id,
                         "mode_name": curr_p.get("name", ApiFortniteClient.resolve_playlist_name(p_id)),
-                        "mode_category": curr_p.get("mode", ApiFortniteClient.resolve_playlist_mode(p_id)),
+                        "mode_category": mode_category,
                         "is_victory": is_win,
+                        "wins": delta_wins,
                         "placement_text": placement_text,
                         "kills": delta_kills,
-                        "rank_track": curr_br.get("game_mode", "Battle Royale"),
-                        "current_rank": curr_br.get("current_rank", "Unranked"),
-                        "rank_progress_pct": curr_br.get("progress_pct", 0.0),
+                        "rank_track": curr_track.get("game_mode", "Battle Royale"),
+                        "current_rank": curr_track.get("current_rank", "Unranked"),
+                        "rank_progress_pct": curr_track.get("progress_pct", 0.0),
                         "rank_delta_pct": rank_delta_pct,
                     }
 
@@ -196,14 +222,16 @@ class FortniteSessionManager:
 
             # Update session summary KPI metrics
             baseline = self.active_session["baseline"]
-            session_matches = len(self.active_session["matches"])
+            session_matches = sum(m.get("match_count", 1) for m in self.active_session["matches"])
             session_kills = curr_overall.get("kills", 0) - baseline.get("kills", 0)
             session_wins = curr_overall.get("wins", 0) - baseline.get("wins", 0)
             deaths = max(1, session_matches - session_wins)
 
-            curr_br = current_ranked.get("battle_royale") or {}
             net_rank_delta = round(
-                curr_br.get("progress_pct", 0.0) - baseline.get("br_rank_progress", 0.0), 1
+                _rank_position(current_ranked.get("battle_royale")) - baseline.get("br_rank_position", 0.0), 1
+            )
+            net_reload_delta = round(
+                _rank_position(current_ranked.get("reload_build")) - baseline.get("reload_rank_position", 0.0), 1
             )
 
             self.active_session["summary"] = {
@@ -213,6 +241,7 @@ class FortniteSessionManager:
                 "kd_ratio": round(session_kills / deaths, 2) if session_matches > 0 else 0.0,
                 "win_rate_pct": round((session_wins / session_matches) * 100, 1) if session_matches > 0 else 0.0,
                 "net_rank_delta_pct": net_rank_delta,
+                "net_reload_rank_delta_pct": net_reload_delta,
             }
         else:
             # Check inactivity timeout
@@ -242,3 +271,24 @@ class FortniteSessionManager:
         if self.history:
             return self.history[0]
         return None
+
+    def export_active_state(self) -> dict[str, Any] | None:
+        """Return the active session for persistence, or None when idle."""
+        if not self.is_active or not self.active_session:
+            return None
+        return {
+            "session": self.active_session,
+            "last_activity_time": self.last_activity_time.isoformat() if self.last_activity_time else None,
+        }
+
+    def restore_active_state(self, state: dict[str, Any] | None) -> None:
+        """Resume an active session saved before a restart."""
+        if not state or not state.get("session"):
+            return
+        self.active_session = state["session"]
+        self.is_active = True
+        last = state.get("last_activity_time") or self.active_session.get("start_time")
+        self.last_activity_time = datetime.fromisoformat(last) if last else datetime.now(timezone.utc)
+        # No snapshot survives a restart; the first poll re-establishes the comparison point.
+        self.previous_snapshot = None
+        _LOGGER.info("Restored active Fortnite session for %s", self.player_name)

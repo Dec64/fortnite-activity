@@ -868,3 +868,13 @@ Following the user's `/plan` request and interactive alignment interview, design
   4. Card read rank name from a non-existent `current_rank` attribute (it is the sensor state).
 - **Resolution**: `useDefineForClassFields: false`; entities expose `fortnite_player_id` / `fortnite_entity_key` attributes and the card resolves by them with a legacy-name fallback; coordinator syncs session state into its data and saves history on end; rank read from state; misleading "Div N" label removed; integer `promotionProgress` accepted.
 - **Known limitation (unchanged)**: season/account level stays 0 in API-key-only mode (level endpoint requires an Epic player token).
+
+### 2026-09-30 v1.0.9 debug pass (committed, not yet released)
+
+- **Ranked progress always 0**: parser read `promotionProgress`; the live field (sanitized evidence `20260915T191238Z/ranked.json`) is `rankProgress`. Synthetic fixtures had used the invented name, masking the bug. Fixtures corrected; `unrealRank` now surfaced.
+- **Options flow crashed on HA 2026.9** (`AttributeError: property 'config_entry' ... has no setter`, observed in HA log): handler no longer assigns `config_entry`.
+- **Session engine**: duos/squads placements (`placetop6`/`placetop12`) were dropped; multiple matches in one poll produced one record; rank deltas always used the BR track and broke across tier changes (now `division*100 + progress`, per mode's track); sessions ended by inactivity were not saved; active sessions were lost on restart (now persisted, legacy storage migrated).
+- **Polling**: level endpoint (needs Epic player token) was called and rejected every poll; now backs off 24 h and the level sensor is unavailable rather than 0. One player's API failure no longer fails all players. HA shared aiohttp session used.
+- **Services**: voluptuous schemas, per-player coordinator lookup, `refresh_player` honours `player_id`, validation errors surfaced.
+- **Card**: players outlived now per-mode (per-playlist data was always available); Unreal placement shown; `×N` for batched matches.
+- **Probe note**: a bounded probe using the `API_FORTNITE_KEY` user environment variable returned 401 on every endpoint (including key-only ones that succeed from HA), so that variable no longer holds the key HA uses. No retries were made. Windowed (`startTime`) stats remain unverified live.

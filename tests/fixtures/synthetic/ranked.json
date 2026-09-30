@@ -10,7 +10,8 @@
     "currentRank": "Champion I",
     "highestDivision": 10,
     "highestRank": "Champion II",
-    "promotionProgress": 0.08
+    "rankProgress": 0.08,
+    "unrealRank": null
   },
   {
     "trackguid": "reload_ranked",
@@ -23,6 +24,7 @@
     "currentRank": "Elite III",
     "highestDivision": 8,
     "highestRank": "Elite III",
-    "promotionProgress": 0.71
+    "rankProgress": 0.71,
+    "unrealRank": null
   }
 ]

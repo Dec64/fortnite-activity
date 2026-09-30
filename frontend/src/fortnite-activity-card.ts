@@ -172,6 +172,11 @@ export class FortniteActivityCard extends LitElement {
     }
   }
 
+  private _rankLabel(attrs: any): string {
+    const name = attrs.current_rank || "Unranked";
+    return attrs.unreal_rank ? `${name} #${Number(attrs.unreal_rank).toLocaleString()}` : name;
+  }
+
   private _formatDuration(minutes: number): string {
     if (!minutes || minutes <= 0) return "0m";
     const h = Math.floor(minutes / 60);
@@ -321,7 +326,7 @@ export class FortniteActivityCard extends LitElement {
     const kd = sessionAttrs.kd_ratio || 0.0;
     const rankDelta = sessionAttrs.net_rank_delta_pct || 0.0;
 
-    const rankName = brRankAttrs.current_rank || "Unranked";
+    const rankName = this._rankLabel(brRankAttrs);
     const rankProgress = brRankAttrs.progress_pct || 0.0;
 
     const recentMatches: MatchRecord[] = sessionAttrs.recent_matches || [];
@@ -349,7 +354,7 @@ export class FortniteActivityCard extends LitElement {
         </div>
         <div class="kpi-chip">
           <span class="kpi-label">Rank Net</span>
-          <span class="kpi-value ${rankDelta >= 0 ? "positive" : "neg"}">
+          <span class="kpi-value ${rankDelta >= 0 ? "positive" : "negative"}">
             ${rankDelta >= 0 ? `+${rankDelta}%` : `${rankDelta}%`}
           </span>
         </div>
@@ -387,7 +392,7 @@ export class FortniteActivityCard extends LitElement {
                       <div class="match-card ${m.is_victory ? "victory" : ""}">
                         <div class="match-left">
                           <div class="match-headline">
-                            <span class="match-num">#${m.match_number}</span>
+                            <span class="match-num">#${m.match_number}${(m.match_count || 1) > 1 ? ` ×${m.match_count}` : ""}</span>
                             <span class="placement-badge ${m.is_victory ? "win" : ""}">
                               ${m.placement_text}
                             </span>
@@ -427,12 +432,13 @@ export class FortniteActivityCard extends LitElement {
    */
   private _renderCareerView(statsAttrs: any, brRankAttrs: any, reloadRankAttrs: any) {
     const modes = statsAttrs.modes || {};
-    let activeStats = {
+    let activeStats: Record<string, any> = {
       matches: statsAttrs.total_matches || 0,
       kills: statsAttrs.total_kills || 0,
       wins: statsAttrs.total_wins || 0,
       kd: statsAttrs.kd_ratio || 0.0,
       win_rate: statsAttrs.win_rate_pct || 0.0,
+      players_outlived: statsAttrs.players_outlived || 0,
     };
 
     if (this._selectedMode === "build" && modes.build) {
@@ -443,10 +449,10 @@ export class FortniteActivityCard extends LitElement {
       activeStats = modes.reload;
     }
 
-    const brName = brRankAttrs.current_rank || "Unranked";
+    const brName = this._rankLabel(brRankAttrs);
     const brProg = brRankAttrs.progress_pct || 0.0;
 
-    const reloadName = reloadRankAttrs.current_rank || "Unranked";
+    const reloadName = this._rankLabel(reloadRankAttrs);
     const reloadProg = reloadRankAttrs.progress_pct || 0.0;
 
     return html`
@@ -502,7 +508,7 @@ export class FortniteActivityCard extends LitElement {
         </div>
         <div class="kpi-chip">
           <span class="kpi-label">Outlived</span>
-          <span class="kpi-value">${(statsAttrs.players_outlived || 0).toLocaleString()}</span>
+          <span class="kpi-value">${(activeStats.players_outlived ?? statsAttrs.players_outlived ?? 0).toLocaleString()}</span>
         </div>
       </div>
 
@@ -546,4 +552,4 @@ if (!customElements.get("fortnite-activity-card")) {
   customElements.define("fortnite-activity-card", FortniteActivityCard);
 }
 
-console.info("%c FORTNITE-ACTIVITY-CARD %c v1.0.8 ", "background:#7928CA;color:#fff;font-weight:700", "background:#00E5FF;color:#000");
+console.info("%c FORTNITE-ACTIVITY-CARD %c v1.0.9 ", "background:#7928CA;color:#fff;font-weight:700", "background:#00E5FF;color:#000");

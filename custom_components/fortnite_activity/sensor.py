@@ -150,6 +150,7 @@ class FortniteRankBattleRoyaleSensor(FortniteEntity, SensorEntity):
         return {
             "division": br.get("current_division", 0),
             "progress_pct": br.get("progress_pct", 0.0),
+            "unreal_rank": br.get("unreal_rank"),
             "highest_rank": br.get("highest_rank", "Unranked"),
             "highest_division": br.get("highest_division", 0),
             "game_mode": br.get("game_mode", "Battle Royale"),
@@ -182,6 +183,7 @@ class FortniteRankReloadSensor(FortniteEntity, SensorEntity):
         return {
             "division": reload_track.get("current_division", 0),
             "progress_pct": reload_track.get("progress_pct", 0.0),
+            "unreal_rank": reload_track.get("unreal_rank"),
             "highest_rank": reload_track.get("highest_rank", "Unranked"),
             "highest_division": reload_track.get("highest_division", 0),
             "game_mode": reload_track.get("game_mode", "Reload Build"),
@@ -200,15 +202,20 @@ class FortniteLevelSensor(FortniteEntity, SensorEntity):
         self._attr_name = f"{player_name} Level"
 
     @property
-    def native_value(self) -> int:
+    def available(self) -> bool:
+        """Level needs an Epic player token; unavailable when the API withholds it."""
+        return super().available and bool(self.player_data.get("level"))
+
+    @property
+    def native_value(self) -> int | None:
         """Return season level."""
-        level = self.player_data.get("level", {})
-        return level.get("level", 0)
+        level = self.player_data.get("level") or {}
+        return level.get("level")
 
     @property
     def _extra_attributes(self) -> dict[str, Any]:
         """Return tier, XP, and account level."""
-        level = self.player_data.get("level", {})
+        level = self.player_data.get("level") or {}
         return {
             "tier": level.get("tier", 0),
             "xp": level.get("xp", 0),

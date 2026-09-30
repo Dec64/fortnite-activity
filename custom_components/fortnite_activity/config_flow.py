@@ -115,15 +115,11 @@ class FortniteFamilyConfigFlow(config_entries.ConfigFlow if config_entries else 
     @callback
     def async_get_options_flow(config_entry: Any) -> config_entries.OptionsFlow:
         """Get the options flow for this handler."""
-        return FortniteFamilyOptionsFlowHandler(config_entry)
+        return FortniteFamilyOptionsFlowHandler()
 
 
 class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entries else object):  # type: ignore[misc]
     """Handle options for Fortnite Family Tracker."""
-
-    def __init__(self, config_entry: Any) -> None:
-        """Initialize options flow."""
-        self.config_entry = config_entry
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Manage the options."""

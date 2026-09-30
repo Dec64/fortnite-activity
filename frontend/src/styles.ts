@@ -222,6 +222,10 @@ export const cardStyles = css`
     color: #10B981;
   }
 
+  .kpi-value.negative {
+    color: #EF4444;
+  }
+
   /* Rank Progression Card */
   .rank-section {
     background: var(--sub-btn-bg);

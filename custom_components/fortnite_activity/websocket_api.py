@@ -62,11 +62,13 @@ def async_setup_websocket_api(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_get_player_playlists)
 
 
-def _get_coordinator(hass: HomeAssistant) -> FortniteDataUpdateCoordinator | None:
-    """Helper to retrieve the active coordinator."""
+def _get_coordinator(hass: HomeAssistant, player_id: str | None = None) -> FortniteDataUpdateCoordinator | None:
+    """Return the coordinator tracking player_id (or the first one if no player given)."""
     domain_data = hass.data.get(DOMAIN, {})
     for val in domain_data.values():
-        if isinstance(val, FortniteDataUpdateCoordinator):
+        if isinstance(val, FortniteDataUpdateCoordinator) and (
+            player_id is None or player_id in val.session_managers
+        ):
             return val
     return None
 
@@ -84,7 +86,7 @@ async def ws_get_player_session(
     msg: dict[str, Any],
 ) -> None:
     """Return active session or last session summary for a player."""
-    coordinator = _get_coordinator(hass)
+    coordinator = _get_coordinator(hass, msg["player_id"])
     if not coordinator:
         connection.send_error(msg["id"], "not_found", "Fortnite Family coordinator not found")
         return
@@ -120,7 +122,7 @@ async def ws_get_player_history(
     msg: dict[str, Any],
 ) -> None:
     """Return past session history for a player."""
-    coordinator = _get_coordinator(hass)
+    coordinator = _get_coordinator(hass, msg["player_id"])
     if not coordinator:
         connection.send_error(msg["id"], "not_found", "Fortnite Family coordinator not found")
         return
@@ -154,13 +156,13 @@ async def ws_get_player_playlists(
     msg: dict[str, Any],
 ) -> None:
     """Return detailed playlist statistics for a player."""
-    coordinator = _get_coordinator(hass)
+    coordinator = _get_coordinator(hass, msg["player_id"])
     if not coordinator:
         connection.send_error(msg["id"], "not_found", "Fortnite Family coordinator not found")
         return
 
     player_id = msg["player_id"]
-    p_data = coordinator.data.get(player_id, {})
+    p_data = (coordinator.data or {}).get(player_id, {})
     playlists = p_data.get("stats", {}).get("playlists", {})
 
     connection.send_result(

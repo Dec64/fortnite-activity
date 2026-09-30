@@ -40,6 +40,7 @@ class TestEndToEndSession(unittest.IsolatedAsyncioTestCase):
         mock_client = MagicMock(spec=ApiFortniteClient)
         mock_storage = MagicMock(spec=FortniteStorage)
         mock_storage.get_player_history.return_value = []
+        mock_storage.get_active_session.return_value = None
         mock_storage.async_save = AsyncMock()
 
         coordinator = FortniteDataUpdateCoordinator(
@@ -81,7 +82,7 @@ class TestEndToEndSession(unittest.IsolatedAsyncioTestCase):
         duo_s["br_lastmodified_keyboardmouse_m0_playlist_nobuildbr_duo"] += 1200
 
         ranked_step1 = copy.deepcopy(ranked_step0)
-        ranked_step1[0]["promotionProgress"] = 0.14  # +6%
+        ranked_step1[0]["rankProgress"] = 0.14  # +6%
 
         mock_client.get_raw_stats = AsyncMock(return_value=stats_step1)
         mock_client.get_raw_ranked = AsyncMock(return_value=ranked_step1)
@@ -113,7 +114,7 @@ class TestEndToEndSession(unittest.IsolatedAsyncioTestCase):
         solo_s["br_lastmodified_keyboardmouse_m0_playlist_defaultsolo"] += 1000
 
         ranked_step2 = copy.deepcopy(ranked_step1)
-        ranked_step2[0]["promotionProgress"] = 0.16  # +2% more
+        ranked_step2[0]["rankProgress"] = 0.16  # +2% more
 
         mock_client.get_raw_stats = AsyncMock(return_value=stats_step2)
         mock_client.get_raw_ranked = AsyncMock(return_value=ranked_step2)

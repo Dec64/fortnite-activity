@@ -46,6 +46,7 @@ class TestFortniteDataUpdateCoordinator(unittest.IsolatedAsyncioTestCase):
         self.mock_hass = MagicMock()
         self.mock_storage = MagicMock(spec=FortniteStorage)
         self.mock_storage.get_player_history.return_value = []
+        self.mock_storage.get_active_session.return_value = None
         self.mock_storage.async_save = AsyncMock()
 
         self.entry_data = {
@@ -115,8 +116,12 @@ class TestFortniteDataUpdateCoordinator(unittest.IsolatedAsyncioTestCase):
 
         data = await coordinator._async_update_data()
         self.assertIn("player1", data)
-        self.assertEqual(data["player1"]["level"]["level"], 0)
+        self.assertIsNone(data["player1"]["level"])
         self.assertEqual(data["player1"]["stats"]["overall"]["matches"], 180)
+
+        # The 401 backs off: the next poll must not hit the level endpoint again
+        await coordinator._async_update_data()
+        self.assertEqual(self.mock_client.get_raw_level.await_count, 1)
 
     async def test_coordinator_first_fetch_failure_raises_update_failed(self) -> None:
         """Test coordinator raises UpdateFailed on first fetch error without throwing TypeError on None self.data."""
@@ -138,10 +143,8 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class TestManualSessionSync(TestFortniteDataUpdateCoordinator):
-    """Manual start/end must be reflected in coordinator data, not just the manager."""
-
     async def test_manual_start_and_end_update_published_data(self) -> None:
+        """Manual start/end must be reflected in coordinator data, not just the manager."""
         coordinator = FortniteDataUpdateCoordinator(
             hass=self.mock_hass,
             api_client=self.mock_client,

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import Any
 try:
     import aiohttp
 except ImportError:
@@ -107,14 +108,14 @@ class ApiFortniteClient:
         return res if isinstance(res, list) else []
 
     async def get_raw_level(self, account_id: str) -> dict[str, Any]:
-        """Fetch raw level & tier data for account."""
+        """Fetch raw level & tier data for account.
+
+        Requires an Epic player token; with a provider key alone this raises
+        FortniteAuthError, which the coordinator uses to stop polling it.
+        """
         endpoint = LEVEL_ENDPOINT.format(account_id=account_id)
-        try:
-            res = await self._request(endpoint)
-            return res if isinstance(res, dict) else {}
-        except FortniteApiError as err:
-            _LOGGER.debug("Could not fetch level for %s (endpoint requires player token): %s", account_id, err)
-            return {}
+        res = await self._request(endpoint)
+        return res if isinstance(res, dict) else {}
 
     async def validate_credentials(self, account_id: str) -> bool:
         """Validate API key and player account ID."""
@@ -184,7 +185,9 @@ class ApiFortniteClient:
                     "wins": 0,
                     "top3": 0,
                     "top5": 0,
+                    "top6": 0,
                     "top10": 0,
+                    "top12": 0,
                     "top25": 0,
                     "minutes": 0,
                     "score": 0,
@@ -203,8 +206,12 @@ class ApiFortniteClient:
                 p["top3"] += val
             elif stat_name == "placetop5":
                 p["top5"] += val
+            elif stat_name == "placetop6":
+                p["top6"] += val
             elif stat_name == "placetop10":
                 p["top10"] += val
+            elif stat_name == "placetop12":
+                p["top12"] += val
             elif stat_name == "placetop25":
                 p["top25"] += val
             elif stat_name == "minutesplayed":
@@ -231,9 +238,11 @@ class ApiFortniteClient:
 
         # Mode-based aggregations
         modes: dict[str, dict[str, Any]] = {
-            MODE_BUILD: {"matches": 0, "kills": 0, "wins": 0, "kd": 0.0, "win_rate": 0.0},
-            MODE_ZERO_BUILD: {"matches": 0, "kills": 0, "wins": 0, "kd": 0.0, "win_rate": 0.0},
-            MODE_RELOAD: {"matches": 0, "kills": 0, "wins": 0, "kd": 0.0, "win_rate": 0.0},
+            mode: {
+                "matches": 0, "kills": 0, "wins": 0, "kd": 0.0, "win_rate": 0.0,
+                "minutes": 0, "score": 0, "players_outlived": 0,
+            }
+            for mode in (MODE_BUILD, MODE_ZERO_BUILD, MODE_RELOAD)
         }
 
         for p in playlists.values():
@@ -242,6 +251,9 @@ class ApiFortniteClient:
                 modes[mode]["matches"] += p["matches"]
                 modes[mode]["kills"] += p["kills"]
                 modes[mode]["wins"] += p["wins"]
+                modes[mode]["minutes"] += p["minutes"]
+                modes[mode]["score"] += p["score"]
+                modes[mode]["players_outlived"] += p["players_outlived"]
 
         for m_data in modes.values():
             m_matches = m_data["matches"]
@@ -284,8 +296,10 @@ class ApiFortniteClient:
             mode_name = row.get("gameMode", "")
             current_rank = row.get("currentRank", "Unranked")
             division = row.get("currentDivision", 0)
-            progress = row.get("promotionProgress", 0.0)
+            # Live API field is rankProgress (0..1); promotionProgress kept as a fallback
+            progress = row.get("rankProgress", row.get("promotionProgress"))
             progress_pct = round(progress * 100, 1) if isinstance(progress, (int, float)) else 0.0
+            unreal_rank = row.get("unrealRank")
 
             track_info = {
                 "track_id": row.get("trackguid"),
@@ -295,6 +309,7 @@ class ApiFortniteClient:
                 "current_rank": current_rank,
                 "current_division": division,
                 "progress_pct": progress_pct,
+                "unreal_rank": unreal_rank if isinstance(unreal_rank, int) else None,
                 "highest_rank": row.get("highestRank", current_rank),
                 "highest_division": row.get("highestDivision", division),
                 "season_begin": row.get("seasonBegin"),
@@ -331,8 +346,10 @@ class ApiFortniteClient:
         return tracks
 
     @staticmethod
-    def parse_level(raw: dict[str, Any]) -> dict[str, Any]:
-        """Parse raw level response."""
+    def parse_level(raw: dict[str, Any]) -> dict[str, Any] | None:
+        """Parse raw level response; None when level data is unavailable."""
+        if not raw or "level" not in raw:
+            return None
         return {
             "level": int(raw.get("level", 0)),
             "tier": int(raw.get("tier", 0)),

@@ -8,16 +8,22 @@ from typing import Any
 from pathlib import Path
 
 try:
+    import voluptuous as vol
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant, ServiceCall
+    from homeassistant.exceptions import ServiceValidationError
     from homeassistant.helpers import config_validation as cv
+    from homeassistant.helpers.aiohttp_client import async_get_clientsession
     from homeassistant.components.frontend import add_extra_js_url
     from homeassistant.components.http import StaticPathConfig
 except ImportError:
+    vol = None  # type: ignore
     ConfigEntry = Any  # type: ignore
     HomeAssistant = Any  # type: ignore
     ServiceCall = Any  # type: ignore
+    ServiceValidationError = Exception  # type: ignore
     cv = Any  # type: ignore
+    async_get_clientsession = None  # type: ignore
     add_extra_js_url = None  # type: ignore
     StaticPathConfig = None  # type: ignore
 
@@ -44,9 +50,11 @@ except Exception:
 
 
 async def _async_register_frontend_card(hass: HomeAssistant) -> None:
-    """Register custom card static path and auto-load into Lovelace frontend."""
-    if not CARD_PATH.exists():
+    """Register custom card static path and auto-load into Lovelace frontend (once per run)."""
+    flags = hass.data.setdefault(f"{DOMAIN}_frontend", {})
+    if flags.get("registered") or not CARD_PATH.exists():
         return
+    flags["registered"] = True
 
     if hasattr(hass, "http"):
         try:
@@ -66,12 +74,61 @@ async def _async_register_frontend_card(hass: HomeAssistant) -> None:
             _LOGGER.debug("Card extra JS URL registration: %s", err)
 
 
+def _coordinator_for_player(hass: HomeAssistant, player_id: str) -> FortniteDataUpdateCoordinator:
+    """Find the coordinator tracking a player across all config entries."""
+    for coordinator in hass.data.get(DOMAIN, {}).values():
+        if isinstance(coordinator, FortniteDataUpdateCoordinator) and player_id in coordinator.session_managers:
+            return coordinator
+    raise ServiceValidationError(f"No Fortnite Activity player with id '{player_id}' is configured")
+
+
+PLAYER_SCHEMA = vol.Schema({vol.Required("player_id"): cv.string}) if vol else None
+OPTIONAL_PLAYER_SCHEMA = vol.Schema({vol.Optional("player_id"): cv.string}) if vol else None
+
+
+async def _async_register_services(hass: HomeAssistant) -> None:
+    """Register integration services once; handlers resolve the right coordinator per call."""
+    if hass.services.has_service(DOMAIN, "start_session"):
+        return
+
+    async def handle_start_session(call: ServiceCall) -> None:
+        player_id = call.data["player_id"].strip().lower()
+        coordinator = _coordinator_for_player(hass, player_id)
+        if not await coordinator.async_start_player_session(player_id):
+            raise ServiceValidationError(f"Cannot start a session for '{player_id}' before its first stats update")
+        _LOGGER.info("Manually started Fortnite session for %s", player_id)
+        coordinator.async_set_updated_data(coordinator.data)
+
+    async def handle_end_session(call: ServiceCall) -> None:
+        player_id = call.data["player_id"].strip().lower()
+        coordinator = _coordinator_for_player(hass, player_id)
+        if await coordinator.async_end_player_session(player_id):
+            _LOGGER.info("Manually ended Fortnite session for %s", player_id)
+        else:
+            _LOGGER.info("No active Fortnite session to end for %s", player_id)
+        coordinator.async_set_updated_data(coordinator.data)
+
+    async def handle_refresh_player(call: ServiceCall) -> None:
+        player_id = (call.data.get("player_id") or "").strip().lower()
+        if player_id:
+            await _coordinator_for_player(hass, player_id).async_request_refresh()
+            return
+        for coordinator in hass.data.get(DOMAIN, {}).values():
+            if isinstance(coordinator, FortniteDataUpdateCoordinator):
+                await coordinator.async_request_refresh()
+
+    hass.services.async_register(DOMAIN, "start_session", handle_start_session, schema=PLAYER_SCHEMA)
+    hass.services.async_register(DOMAIN, "end_session", handle_end_session, schema=PLAYER_SCHEMA)
+    hass.services.async_register(DOMAIN, "refresh_player", handle_refresh_player, schema=OPTIONAL_PLAYER_SCHEMA)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Fortnite Family Tracker from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
     api_key = entry.data[CONF_API_KEY]
-    api_client = ApiFortniteClient(api_key=api_key)
+    session = async_get_clientsession(hass) if async_get_clientsession else None
+    api_client = ApiFortniteClient(api_key=api_key, session=session)
 
     storage = FortniteStorage(hass)
     await storage.async_load()
@@ -90,40 +147,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Auto-register frontend card
     await _async_register_frontend_card(hass)
-
-    # Register WebSocket API
     async_setup_websocket_api(hass)
-
-    # Register Services
-    async def handle_start_session(call: ServiceCall) -> None:
-        """Handle start_session service."""
-        player_id = call.data["player_id"].strip().lower()
-        res = coordinator.start_player_session(player_id)
-        if res:
-            _LOGGER.info("Manually started Fortnite session for %s", player_id)
-        else:
-            _LOGGER.warning("Could not start session for unknown player %s (no data yet?)", player_id)
-        coordinator.async_set_updated_data(coordinator.data)
-
-    async def handle_end_session(call: ServiceCall) -> None:
-        """Handle end_session service."""
-        player_id = call.data["player_id"].strip().lower()
-        res = await coordinator.async_end_player_session(player_id)
-        if res:
-            _LOGGER.info("Manually ended Fortnite session for %s", player_id)
-        else:
-            _LOGGER.warning("Could not end session for unknown or idle player %s", player_id)
-        coordinator.async_set_updated_data(coordinator.data)
-
-    async def handle_refresh_player(call: ServiceCall) -> None:
-        """Handle refresh_player service."""
-        await coordinator.async_request_refresh()
-
-    hass.services.async_register(DOMAIN, "start_session", handle_start_session)
-    hass.services.async_register(DOMAIN, "end_session", handle_end_session)
-    hass.services.async_register(DOMAIN, "refresh_player", handle_refresh_player)
+    await _async_register_services(hass)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
     return True
