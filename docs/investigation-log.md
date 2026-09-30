@@ -878,3 +878,10 @@ Following the user's `/plan` request and interactive alignment interview, design
 - **Services**: voluptuous schemas, per-player coordinator lookup, `refresh_player` honours `player_id`, validation errors surfaced.
 - **Card**: players outlived now per-mode (per-playlist data was always available); Unreal placement shown; `×N` for batched matches.
 - **Probe note**: a bounded probe using the `API_FORTNITE_KEY` user environment variable returned 401 on every endpoint (including key-only ones that succeed from HA), so that variable no longer holds the key HA uses. No retries were made. Windowed (`startTime`) stats remain unverified live.
+
+### 2026-09-30 v1.0.9 profile expansion (bundled with the debug pass)
+
+- **New key-only data** (slow profile coordinator; failures isolated from match polling): `/v1/season`, `/v2/playlists` (names/images), `/v1/account/{id}`, `/v1/account/{id}/externalAuths`, `/v1/events/global`, `/v2/cosmetics/search` (card avatar), and `/v2/stats/{id}?startTime=` for Today / last 7 days / season.
+- **Unverified at release time**: the `startTime` filter (guarded: window hidden unless the response echoes `startTime` or totals differ from lifetime) and the untyped account/externalAuths shapes (parsers accept object/list/dict and fall back to None/[]). Confirm from live entity attributes after deploy.
+- **Derived metrics** (no extra API calls): kills/match, kills/min, avg match minutes, score/match, hours, solo-only Top 10/25 rates, team-size and input-method breakdowns (input method is not platform), favourite mode (excludes creative/other), last played from `lastmodified`.
+- Tournament view is schedule-only and makes no eligibility claims.

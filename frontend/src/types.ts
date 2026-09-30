@@ -15,6 +15,9 @@ export interface FortniteCardConfig {
   hide_season_level?: boolean;
   hide_rank_progress?: boolean;
   custom_background?: string;
+  avatar?: string;
+  show_platforms?: boolean;
+  show_tournaments?: boolean;
 }
 
 export interface MatchRecord {

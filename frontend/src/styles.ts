@@ -26,6 +26,7 @@ export const cardStyles = css`
   }
 
   ha-card {
+    display: block;
     background: var(--card-bg);
     border-radius: var(--card-radius);
     border: var(--card-border);
@@ -412,4 +413,213 @@ export const cardStyles = css`
       gap: 16px;
     }
   }
+
+
+  .empty {
+    padding: 20px 12px;
+    text-align: center;
+    color: var(--secondary-text-color, rgba(255, 255, 255, 0.65));
+  }
+
+  .empty small { opacity: 0.7; }
+  .muted { font-size: 11px; font-weight: 500; text-transform: none; opacity: 0.7; }
+  .tracking-live { color: var(--accent); font-size: 11px; }
+
+  .player-avatar.has-image {
+    background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.25), transparent 70%),
+      linear-gradient(135deg, var(--accent) 0%, #7928CA 100%);
+    overflow: hidden;
+  }
+
+  [hidden] { display: none !important; }
+
+  .player-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .player-meta { flex-wrap: wrap; }
+
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .platform-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: var(--pill-radius);
+    background: var(--sub-btn-bg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--secondary-text-color, rgba(255, 255, 255, 0.75));
+  }
+
+  .window-tabs { margin-bottom: 8px; }
+  .mode-tabs { flex-wrap: wrap; }
+  .kpi-row.compact .kpi-value { font-size: 15px; }
+
+  .feature-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    border-radius: var(--card-radius);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.75) 35%, rgba(0, 0, 0, 0.15)),
+      var(--feature-art, none) center / cover no-repeat, var(--sub-btn-bg);
+    color: #ffffff;
+    overflow: hidden;
+  }
+
+  .feature-label { font-size: 11px; text-transform: uppercase; font-weight: 600; opacity: 0.75; }
+  .feature-value { font-size: 17px; font-weight: 800; }
+  .feature-sub { font-size: 12px; opacity: 0.8; }
+
+  .split-section { margin-bottom: 16px; }
+
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--secondary-text-color, rgba(255, 255, 255, 0.6));
+    margin-bottom: 6px;
+  }
+
+  .split-bar {
+    display: flex;
+    height: 8px;
+    border-radius: var(--pill-radius);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .seg-0 { background: var(--accent); }
+  .seg-1 { background: #A855F7; }
+  .seg-2 { background: #F59E0B; }
+
+  .split-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--secondary-text-color, rgba(255, 255, 255, 0.7));
+  }
+
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+
+  .size-table {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+
+  .size-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr 1fr;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .size-name { font-weight: 700; }
+
+  .match-art,
+  .event-art {
+    width: 56px;
+    height: 36px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .match-card .match-left,
+  .event-card .match-left { flex: 1; min-width: 0; }
+
+  .event-card {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--card-radius);
+    padding: 10px 14px;
+  }
+
+  .event-card.live { border-color: rgba(255, 215, 0, 0.45); }
+  .event-name { font-weight: 700; font-size: 13px; }
+
+  /* ---- Theme: Cyber Fortnite (neon, high energy) ---- */
+  ha-card.theme-cyber_fortnite {
+    --accent: #00E5FF;
+    --sub-btn-bg: rgba(121, 40, 202, 0.18);
+    background: radial-gradient(120% 80% at 0% 0%, rgba(121, 40, 202, 0.55), transparent 60%),
+      radial-gradient(120% 80% at 100% 100%, rgba(0, 229, 255, 0.28), transparent 60%),
+      #0b0f1f;
+    border: 1px solid rgba(0, 229, 255, 0.35);
+    box-shadow: 0 0 24px rgba(121, 40, 202, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+  }
+
+  ha-card.theme-cyber_fortnite .player-info h2 {
+    font-style: italic;
+    letter-spacing: 1px;
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
+  }
+
+  ha-card.theme-cyber_fortnite .kpi-chip,
+  ha-card.theme-cyber_fortnite .rank-section,
+  ha-card.theme-cyber_fortnite .match-card,
+  ha-card.theme-cyber_fortnite .event-card {
+    border-color: rgba(0, 229, 255, 0.18);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+
+  ha-card.theme-cyber_fortnite .kpi-value { text-shadow: 0 0 10px rgba(0, 229, 255, 0.35); }
+
+  ha-card.theme-cyber_fortnite .progress-bar-fill {
+    background: linear-gradient(90deg, #7928CA 0%, #00E5FF 60%, #FFD700 100%);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+  }
+
+  /* ---- Theme: Minimal (flat, quiet) ---- */
+  ha-card.theme-minimal {
+    --sub-btn-bg: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  ha-card.theme-minimal .kpi-chip,
+  ha-card.theme-minimal .rank-section,
+  ha-card.theme-minimal .match-card,
+  ha-card.theme-minimal .event-card,
+  ha-card.theme-minimal .feature-card {
+    border: none;
+    border-bottom: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  ha-card.theme-minimal .kpi-chip:hover,
+  ha-card.theme-minimal .bubble-sub-button:hover { transform: none; }
+
+  ha-card.theme-minimal .player-avatar { box-shadow: none; }
+  ha-card.theme-minimal .kpi-value.gold,
+  ha-card.theme-minimal .rank-name { color: var(--primary-text-color) !important; }
+  ha-card.theme-minimal .progress-bar-fill { background: var(--accent); }
 `;

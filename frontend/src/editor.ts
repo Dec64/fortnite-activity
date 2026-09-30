@@ -9,12 +9,17 @@ const SCHEMA = [
     selector: { text: {} },
   },
   {
+    name: "avatar",
+    label: "Avatar skin name (e.g. Peely) — looked up in the cosmetics catalogue",
+    selector: { text: {} },
+  },
+  {
     name: "layout",
     label: "Card Layout Mode",
     selector: {
       select: {
         options: [
-          { value: "auto", label: "Adaptive (Session when playing, Recap when idle)" },
+          { value: "auto", label: "Adaptive (Session when playing, Stats when idle, Events tab)" },
           { value: "session_only", label: "Live Session & Match Feed Only" },
           { value: "career_only", label: "Overall Career & Ranks Only" },
         ],
@@ -27,9 +32,9 @@ const SCHEMA = [
     selector: {
       select: {
         options: [
-          { value: "bubble", label: "Bubble Card (Sleek pill badges & theme vars)" },
-          { value: "cyber_fortnite", label: "Cyber Fortnite (Vibrant gamer)" },
-          { value: "minimal", label: "Minimalist / Flat" },
+          { value: "bubble", label: "Bubble (follows your HA / Bubble Card theme)" },
+          { value: "cyber_fortnite", label: "Cyber Fortnite (neon gradients)" },
+          { value: "minimal", label: "Minimal (flat, no chrome)" },
         ],
       },
     },
@@ -59,18 +64,28 @@ const SCHEMA = [
     selector: { boolean: {} },
   },
   {
+    name: "show_platforms",
+    label: "Show linked platform accounts (PSN / Xbox / Switch names)",
+    selector: { boolean: {} },
+  },
+  {
+    name: "show_tournaments",
+    label: "Show Events (tournament schedule) tab",
+    selector: { boolean: {} },
+  },
+  {
     name: "max_feed_matches",
     label: "Max Matches in Session Feed",
     selector: { number: { min: 3, max: 20, mode: "slider" } },
   },
   {
     name: "hide_account_level",
-    label: "Hide Account Level",
+    label: "Hide Account Level (shown only once an Epic login is available)",
     selector: { boolean: {} },
   },
   {
     name: "hide_season_level",
-    label: "Hide Season Level",
+    label: "Hide Season Level (shown only once an Epic login is available)",
     selector: { boolean: {} },
   },
   {
@@ -97,6 +112,8 @@ export class FortniteActivityCardEditor extends LitElement {
       theme_accent: "auto",
       show_match_feed: true,
       show_sub_buttons: true,
+      show_platforms: true,
+      show_tournaments: true,
       max_feed_matches: 10,
       ...config,
     };
