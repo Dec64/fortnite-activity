@@ -40,6 +40,7 @@ from .profile import (
     parse_playlists,
     parse_power_ranking,
     parse_season,
+    parse_sprite_boons,
     parse_sprite_catalogue,
     parse_sprite_collection,
     parse_sprite_collection_all,
@@ -83,6 +84,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._players: dict[str, dict[str, Any]] = {}
         self.sprite_version: str | None = None
         self.sprite_catalogue: dict[str, Any] | None = None
+        self.sprite_boons: dict[str, dict[str, Any]] = {}
         # Key/type skeletons of the latest responses, for diagnostics (never values)
         self.raw_shapes: dict[str, Any] = {}
 
@@ -195,6 +197,9 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ok, raw = await self._guarded("sprite_catalogue", self.api_client.get_sprite_catalogue)
             if ok:
                 self.sprite_catalogue = parse_sprite_catalogue(raw) or self.sprite_catalogue
+            ok, raw = await self._guarded("sprite_boons", self.api_client.get_sprite_boons)
+            if ok:
+                self.sprite_boons = parse_sprite_boons(raw) or self.sprite_boons
 
         starts = self._window_starts(now)
         for p in self.players_config:
@@ -278,7 +283,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             f"sprites:{player_id}", lambda: self.api_client.get_sprite_collection(token, self.sprite_version)
         )
         if ok:
-            current = parse_sprite_collection(raw, self.sprite_catalogue)
+            current = parse_sprite_collection(raw, self.sprite_catalogue, self.sprite_boons)
             if current:
                 info["sprites"] = {**(info.get("sprites") or {}), "current": current}
 

@@ -179,6 +179,9 @@ class ApiFortniteClient:
     async def get_sprite_catalogue(self) -> Any:
         return await self._request("/v2/sprites")
 
+    async def get_sprite_boons(self) -> Any:
+        return await self._request("/v2/sprites/boons")
+
     async def get_sprite_collection(self, token: str, version: str | None = None) -> Any:
         query = f"?{urlencode({'version': version})}" if version else ""
         return await self._request(f"/v2/sprites/collection{query}", token=token)

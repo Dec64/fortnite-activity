@@ -919,3 +919,10 @@ Following the user's `/plan` request and interactive alignment interview, design
 
 - **Observed via the new diagnostics after restart**: `epic.status = unlinked` although the link had worked. The options flow mutated the stored player dict in place, so `async_update_entry` saw identical old/new data and did not persist it. Fixed by copying player dicts in every options step; regression test runs against the real `homeassistant` package.
 - **Observed in stats response skeleton**: `s42_social_bp_level` is present with the provider key alone, but its value was 32179 while the Epic level endpoint reported 322; encoding unverified, so it is exposed only as `season_level_raw` and not displayed (v1.3.3).
+
+### 2026-10-01 v1.4.0 sprites section rework
+
+- **Observed live**: 21 families, 46/101 variants, 23 mastered; icons present. Raw values leaking to the UI: currency items are asset paths (`/MorningBell/CosmicThunder/Item00`, no names available — now hidden), variant codes (`CheatMaster`, `LootHacker`, `Reaper` = "Bounty Hunter"), and `42.20` is a game update, not a season.
+- **Sprite levels removed**: `levelUpCurve` fails the cumulative check, and mastery is not a single XP threshold (mastered at 800 XP and at 4,400 XP), so no XP→level mapping is shown; raw XP and the provider's `mastered` flag are shown instead.
+- `equippedVariant` is null for this account; Power Ranking responses carry no `trackedStats` despite the route description.
+- Added: readable variant labels derived from Epic's own variant names, boon names from `/v2/sprites/boons` (key-only), full-set count, per-update history, filters/sort, "next to hunt" by provider drop chance.

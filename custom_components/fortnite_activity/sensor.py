@@ -331,6 +331,7 @@ class FortniteSpritesSensor(FortniteEntity, SensorEntity):
             "owned_families": current.get("owned_families"),
             "total_families": current.get("total_families"),
             "mastered_variants": current.get("mastered_variants"),
+            "complete_families": current.get("complete_families"),
             "equipped": current.get("equipped"),
             "currency": current.get("currency", []),
             "families": current.get("families", []),

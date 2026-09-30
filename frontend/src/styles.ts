@@ -1061,4 +1061,101 @@ export const cardStyles = css`
   .variant-row img { width: 32px; height: 32px; object-fit: contain; }
   .variant-row.missing { opacity: 0.5; }
   .variant-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---- Sprites v2 ---- */
+  .sprite-ring {
+    --size: 64px;
+    width: var(--size);
+    height: var(--size);
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: conic-gradient(var(--accent) calc(var(--pct) * 1%), rgba(255, 255, 255, 0.1) 0);
+    position: relative;
+  }
+
+  .sprite-ring::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: var(--card-bg, #131926);
+  }
+
+  .sprite-ring span { position: relative; font-weight: 800; font-size: 15px; }
+
+  .sprite-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    font-size: 12px;
+    color: var(--secondary-text-color, rgba(255, 255, 255, 0.75));
+  }
+
+  .sprite-stats b { color: var(--primary-text-color, #fff); }
+
+  .version-row {
+    display: grid;
+    grid-template-columns: 78px 1fr 58px;
+    gap: 8px;
+    align-items: center;
+    font-size: 11px;
+    margin-top: 4px;
+    opacity: 0.75;
+  }
+
+  .version-row.current { opacity: 1; font-weight: 700; }
+  .version-row .progress-bar-bg { height: 6px; }
+  .version-row span:last-child { text-align: right; }
+
+  .hunt-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+
+  .hunt-item {
+    flex: 0 0 auto;
+    width: 76px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 4px;
+    border-radius: 10px;
+    border: 1px dashed color-mix(in srgb, var(--rarity) 60%, transparent);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 10px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .hunt-item img { width: 40px; height: 40px; object-fit: contain; filter: grayscale(0.6) brightness(0.8); }
+  .hunt-item small { color: var(--accent); font-weight: 700; }
+  .sprite-count { font-size: 10px; opacity: 0.8; }
+  .sprite-card.complete { box-shadow: inset 0 -18px 24px -18px color-mix(in srgb, var(--rarity) 60%, transparent), 0 0 0 1px #FFD700; }
+
+  .variant-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .variant-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 4px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .variant-tile img { width: 48px; height: 48px; object-fit: contain; }
+  .variant-tile.missing { opacity: 0.45; }
+  .variant-tile.missing img { filter: grayscale(1); }
+  .variant-tile.mastered { box-shadow: inset 0 0 0 1px #FFD700; }
+  .variant-status { font-size: 10px; opacity: 0.85; }
+  .boon-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .rarity-tag { background: color-mix(in srgb, var(--rarity) 35%, transparent); color: #fff; }
 `;

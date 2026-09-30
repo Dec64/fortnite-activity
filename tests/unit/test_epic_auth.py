@@ -91,8 +91,9 @@ class TestIdentityAndParsing(unittest.TestCase):
         fam = current["families"][0]
         self.assertEqual(fam["icon"], "https://example.invalid/fam.png")
         self.assertEqual(fam["hint"], "Found near camps")
-        self.assertEqual(fam["variants"][0]["level"], 3)       # 3550 XP passes the 3000 threshold
-        self.assertIsNone(fam["variants"][1]["level"])          # not owned -> no level
+        self.assertNotIn("level", fam["variants"][0])  # XP->level mapping is unverified, so not derived
+        self.assertEqual([v["label"] for v in fam["variants"]], ["Base", "Gold"])
+        self.assertFalse(fam["complete"])
         self.assertEqual(fam["variants"][1]["icon"], "https://example.invalid/fam.png")  # falls back to family art
         self.assertEqual(current["equipped"]["variant"], "Jonesy Sprite")
         self.assertEqual(current["currency"], [{"item": "SpriteCoin", "count": 12}])
@@ -164,6 +165,33 @@ class TestTokenManager(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(ctx.exception.__cause__)
         self.assertNotIn(SECRET, repr(manager))
         self.assertNotIn(DEVICE, repr(manager))
+
+
+class TestSpriteLabelsAndBoons(unittest.TestCase):
+    def test_variant_labels_from_names(self) -> None:
+        from custom_components.fortnite_activity.profile import variant_label
+
+        self.assertEqual(variant_label("Cheat Master Jonesy Sprite", "Jonesy Sprite", "CheatMaster"), "Cheat Master")
+        self.assertEqual(variant_label("Bounty Hunter Jonesy Sprite", "Jonesy Sprite", "Reaper"), "Bounty Hunter")
+        # Upstream name mismatch ("Body Slam" vs family "Crash Bandicoot") still yields a readable label
+        self.assertEqual(variant_label("Bounty Hunter Body Slam Sprite", "Crash Bandicoot Sprite", "Reaper"), "Bounty Hunter Body Slam")
+        self.assertEqual(variant_label("Jonesy Sprite", "Jonesy Sprite", "Base"), "Base")
+
+    def test_boons_are_named(self) -> None:
+        from custom_components.fortnite_activity.profile import parse_sprite_boons
+
+        boons = parse_sprite_boons({"data": [{"id": "B1", "name": "Quick Heal", "description": "Heals faster"}]})
+        catalogue = parse_sprite_catalogue({"data": {"sprites": [
+            {"id": "F", "boons": [{"id": "B1", "chance": 50}], "variants": [{"id": "F_A", "boons": [{"id": "B1", "chance": 100}]}]}
+        ], "levelUpCurve": []}})
+        current = parse_sprite_collection({"data": {"totalVariants": 1, "ownedVariants": 1, "sprites": [
+            {"id": "F", "name": "F Sprite", "owned": True, "variants": [{"id": "F_A", "variant": "Base", "name": "F Sprite", "owned": True}]}
+        ]}}, catalogue, boons)
+        fam = current["families"][0]
+        self.assertEqual(fam["boons"], [{"name": "Quick Heal", "description": "Heals faster", "chance": 50}])
+        self.assertEqual(fam["variants"][0]["boons"][0]["chance"], 100)
+        self.assertTrue(fam["complete"])
+        self.assertEqual(current["complete_families"], 1)
 
 
 if __name__ == "__main__":

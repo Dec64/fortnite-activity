@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.3.3";
+const CARD_VERSION = "1.4.0";
 
 declare global {
   interface Window {
@@ -126,6 +126,8 @@ export class FortniteActivityCard extends LitElement {
   @state() private _matchLists: Record<string, { loading?: boolean; matches?: MatchRecord[]; tracked?: number; error?: string }> = {};
   @state() private _showAllMatches: Record<string, boolean> = {};
   @state() private _expandedSprite: string | null = null;
+  @state() private _spriteFilter: "all" | "missing" | "unmastered" | "complete" = "all";
+  @state() private _spriteSort: "dex" | "rarity" | "progress" = "dex";
 
   private _entityCache = new Map<string, string>();
   private _avatarTimer?: number;
@@ -868,48 +870,102 @@ export class FortniteActivityCard extends LitElement {
 
   private _renderSpritesView(sensor: any) {
     const a = sensor?.attributes || {};
-    const families: any[] = a.families || [];
-    const cumulative = a.cumulative;
+    const all: any[] = a.families || [];
     const pct = Number(sensor?.state || 0);
-    const equipped = a.equipped;
+    const ownedVariants = Number(a.owned_variants || 0);
+    const rarityOrder = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"];
+
+    const filtered = all.filter((f) => {
+      if (this._spriteFilter === "missing") return f.owned_variants < f.total_variants;
+      if (this._spriteFilter === "unmastered") return f.variants.some((v: any) => v.owned && !v.mastered);
+      if (this._spriteFilter === "complete") return f.complete;
+      return true;
+    });
+    const sorted = [...filtered].sort((x, y) => {
+      if (this._spriteSort === "rarity") return rarityOrder.indexOf(y.rarity) - rarityOrder.indexOf(x.rarity) || (x.dex ?? 0) - (y.dex ?? 0);
+      if (this._spriteSort === "progress") return y.owned_variants / y.total_variants - x.owned_variants / x.total_variants || (x.dex ?? 0) - (y.dex ?? 0);
+      return (x.dex ?? 0) - (y.dex ?? 0);
+    });
+
+    // Missing variants that can drop, most likely first
+    const hunt = all
+      .flatMap((f) => f.variants.filter((v: any) => !v.owned && v.drop_chance_pct).map((v: any) => ({ f, v })))
+      .sort((x: any, y: any) => y.v.drop_chance_pct - x.v.drop_chance_pct || rarityOrder.indexOf(x.f.rarity) - rarityOrder.indexOf(y.f.rarity))
+      .slice(0, 6);
+
+    const chip = (id: typeof this._spriteFilter, label: string) => html`
+      <button class="mode-tab ${this._spriteFilter === id ? "active" : ""}" @click=${() => (this._spriteFilter = id)}>${label}</button>`;
+    const sortChip = (id: typeof this._spriteSort, label: string) => html`
+      <button class="mode-tab ${this._spriteSort === id ? "active" : ""}" @click=${() => (this._spriteSort = id)}>${label}</button>`;
+
     return html`
       <div class="rank-section sprite-summary">
-        ${equipped?.icon ? html`<img class="equipped-icon" src=${equipped.icon} alt="" title="Equipped: ${equipped.variant}" @error=${hideBroken} />` : nothing}
+        <div class="sprite-ring" style="--pct:${Math.min(100, pct)}">
+          <span>${Math.round(pct)}%</span>
+        </div>
         <div class="sprite-summary-main">
           <div class="rank-header">
-            <span class="rank-title"><span>Sprites · Season v${a.version || "?"}</span></span>
-            <span class="rank-name">${pct}%</span>
+            <span class="rank-title"><span>Sprite collection</span></span>
+            <span class="muted">Game update ${a.version || "?"}</span>
           </div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, pct)}%"></div></div>
-          <div class="rank-meta">
-            <span>${a.owned_variants}/${a.total_variants} variants · ${a.owned_families}/${a.total_families} families</span>
-            <span>${a.mastered_variants || 0} mastered</span>
+          <div class="sprite-stats">
+            <span><b>${ownedVariants}</b>/${a.total_variants} variants</span>
+            <span><b>${a.owned_families}</b>/${a.total_families} sprites</span>
+            <span><b>${a.complete_families ?? 0}</b> full sets</span>
+            <span>★ <b>${a.mastered_variants || 0}</b>/${ownedVariants} mastered</span>
           </div>
-          ${equipped ? html`<div class="rank-meta"><span>Equipped: <b>${equipped.variant}</b></span></div>` : nothing}
+          ${a.equipped ? html`<div class="rank-meta"><span>Equipped: <b>${a.equipped.variant}</b></span></div>` : nothing}
         </div>
       </div>
-      ${cumulative
-        ? html`<div class="detail-line"><span>All seasons (deduplicated)</span>
-            <b>${cumulative.owned_variants}/${cumulative.total_variants} · ${cumulative.completion_pct}%</b></div>`
+
+      ${(a.versions || []).length > 1
+        ? html`<div class="split-section">
+            <div class="section-title">By game update${a.cumulative ? html` · all-time ${a.cumulative.owned_variants}/${a.cumulative.total_variants}` : nothing}</div>
+            ${a.versions.map((v: any) => html`
+              <div class="version-row ${v.current ? "current" : ""}">
+                <span>${v.version}${v.current ? " (now)" : ""}</span>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, v.completion_pct)}%"></div></div>
+                <span>${v.owned_variants}/${v.total_variants}</span>
+              </div>`)}
+          </div>`
         : nothing}
-      ${(a.currency || []).length
-        ? html`<div class="tag-row currency">${a.currency.map((c: any) => html`<span class="tag">${c.item}: ${this._num(c.count)}</span>`)}</div>`
-        : nothing}
-      <div class="sprite-grid">
-        ${families.map((f) => {
-          const open = this._expandedSprite === f.id;
-          return html`
-            <div class="sprite-card ${f.owned ? "" : "missing"} ${open ? "open" : ""}" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}"
-              @click=${() => (this._expandedSprite = open ? null : f.id)}>
-              ${f.icon ? html`<img src=${f.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
-              <span class="sprite-name">${f.name}</span>
-              <span class="sprite-dots">
-                ${(f.variants || []).map((v: any) => html`<i class="dot ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""}" title=${v.variant || v.name}></i>`)}
-              </span>
+
+      ${hunt.length
+        ? html`<div class="split-section">
+            <div class="section-title">Next to hunt (highest drop chance)</div>
+            <div class="hunt-row">
+              ${hunt.map(({ f, v }: any) => html`
+                <div class="hunt-item" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" title="${v.name}" @click=${() => (this._expandedSprite = f.id)}>
+                  ${v.icon ? html`<img src=${v.icon} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+                  <span>${v.label === "Base" ? f.name.replace(/ Sprite$/, "") : `${v.label}`}</span>
+                  <small>${v.drop_chance_pct}%</small>
+                </div>`)}
             </div>
-            ${open ? this._renderSpriteDetail(f) : nothing}
-          `;
-        })}
+          </div>`
+        : nothing}
+
+      <div class="tab-rows">
+        <div class="mode-tabs">${chip("all", "All")} ${chip("missing", "Missing")} ${chip("unmastered", "To master")} ${chip("complete", "Full sets")}</div>
+        <div class="mode-tabs">${sortChip("dex", "Dex")} ${sortChip("rarity", "Rarity")} ${sortChip("progress", "Progress")}</div>
+      </div>
+
+      <div class="sprite-grid">
+        ${sorted.length
+          ? sorted.map((f) => {
+              const open = this._expandedSprite === f.id;
+              return html`
+                <div class="sprite-card ${f.owned ? "" : "missing"} ${open ? "open" : ""} ${f.complete ? "complete" : ""}"
+                  style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" @click=${() => (this._expandedSprite = open ? null : f.id)}>
+                  ${f.icon ? html`<img src=${f.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+                  <span class="sprite-name">${f.name.replace(/ Sprite$/, "")}</span>
+                  <span class="sprite-count">${f.owned_variants}/${f.total_variants}${f.mastered ? html` · ★${f.mastered}` : nothing}</span>
+                  <span class="sprite-dots">
+                    ${(f.variants || []).map((v: any) => html`<i class="dot ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""}" title=${v.label}></i>`)}
+                  </span>
+                </div>
+                ${open ? this._renderSpriteDetail(f) : nothing}`;
+            })
+          : html`<div class="empty">Nothing matches this filter.</div>`}
       </div>
     `;
   }
@@ -920,19 +976,24 @@ export class FortniteActivityCard extends LitElement {
         <div class="sprite-detail-head">
           ${f.icon_large || f.icon ? html`<img src=${f.icon_large || f.icon} alt="" @error=${hideBroken} />` : nothing}
           <div>
-            <b>${f.name}</b> <span class="tag">${f.rarity || ""}</span>
+            <b>${f.name}</b> <span class="tag rarity-tag">${f.rarity || ""}</span>
             ${f.description ? html`<p class="detail-desc">${f.description}</p>` : nothing}
-            ${!f.owned && f.hint ? html`<p class="detail-desc hint">Where to find: ${f.hint}</p>` : nothing}
+            ${f.hint ? html`<p class="detail-desc hint">📍 ${f.hint}</p>` : nothing}
+            ${f.boons?.length
+              ? html`<div class="boon-list">${f.boons.map((b: any) => html`<span class="tag" title=${b.description || ""}>${b.name}${b.chance != null ? ` · ${b.chance}%` : ""}</span>`)}</div>`
+              : nothing}
           </div>
         </div>
-        <div class="variant-list">
+        <div class="variant-tiles">
           ${(f.variants || []).map((v: any) => html`
-            <div class="variant-row ${v.owned ? "" : "missing"}">
+            <div class="variant-tile ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""}" title=${v.name}>
               ${v.icon ? html`<img src=${v.icon} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
-              <span class="variant-name">${v.variant || v.name}</span>
-              <span>${v.owned ? `×${v.count}` : "Missing"}</span>
-              <span>${v.level ? `Lv ${v.level}` : v.owned && v.xp ? `${this._num(v.xp)} XP` : ""}</span>
-              <span>${v.mastered ? "★ Mastered" : v.drop_chance_pct != null && !v.owned ? `${v.drop_chance_pct}% drop` : ""}</span>
+              <span class="variant-name">${v.label}</span>
+              <span class="variant-status">
+                ${v.owned
+                  ? html`${v.mastered ? "★ Mastered" : v.xp ? `${this._num(v.xp)} XP` : "Owned"}${v.count > 1 ? ` · ×${v.count}` : ""}`
+                  : v.drop_chance_pct != null ? `Missing · ${v.drop_chance_pct}%` : "Missing · special"}
+              </span>
             </div>`)}
         </div>
       </div>

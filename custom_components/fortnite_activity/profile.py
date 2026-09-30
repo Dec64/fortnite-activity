@@ -453,6 +453,12 @@ def parse_sprite_catalogue(raw: Any) -> dict[str, Any] | None:
             continue
         icon, large = _images(fam)
         families[fam["id"]] = {
+            "boons": _boon_refs(fam.get("boons")),
+            "variant_boons": {
+                v.get("id"): _boon_refs(v.get("boons"))
+                for v in fam.get("variants") or []
+                if isinstance(v, dict) and v.get("id")
+            },
             "hint": fam.get("acquisitionHint"),
             "description": fam.get("description"),
             "spawn_chance_pct": fam.get("spawnChancePercent"),
@@ -471,6 +477,45 @@ def parse_sprite_catalogue(raw: Any) -> dict[str, Any] | None:
     return {"version": data.get("gameVersion"), "families": families, "level_curve": curve if monotonic else []}
 
 
+def _boon_refs(raw: Any) -> list[dict[str, Any]]:
+    """SpriteBoonRefDto[] -> [{id, chance}] (also accepts plain id strings)."""
+    refs = []
+    for item in raw if isinstance(raw, list) else []:
+        if isinstance(item, dict) and item.get("id"):
+            refs.append({"id": item["id"], "chance": item.get("chance")})
+        elif isinstance(item, str):
+            refs.append({"id": item, "chance": None})
+    return refs
+
+
+def parse_sprite_boons(raw: Any) -> dict[str, dict[str, Any]]:
+    """/v2/sprites/boons (SpriteBoonDto[]) -> {id: {name, description}}."""
+    data = _unwrap(raw)
+    items = data.get("boons") if isinstance(data, dict) else data
+    return {
+        b["id"]: {"name": b.get("name"), "description": b.get("description")}
+        for b in (items if isinstance(items, list) else [])
+        if isinstance(b, dict) and b.get("id")
+    }
+
+
+def variant_label(variant_name: str | None, family_name: str | None, code: str | None) -> str:
+    """Readable variant label: 'Cheat Master Jonesy Sprite' minus 'Jonesy Sprite' -> 'Cheat Master'."""
+    if code in (None, "", "Base", "A"):
+        return "Base"
+    name = (variant_name or "").strip()
+    family = (family_name or "").strip()
+    if family and name.endswith(family) and len(name) > len(family):
+        return name[: -len(family)].strip()
+    base = family.replace(" Sprite", "")
+    words = [w for w in name.replace(" Sprite", "").split() if w not in base.split()]
+    return " ".join(words) or re_split_camel(code)
+
+
+def re_split_camel(code: str | None) -> str:
+    return re.sub(r"(?<=[a-z])(?=[A-Z])", " ", code or "").strip()
+
+
 def sprite_level(xp: Any, curve: list[tuple[int, float]]) -> int | None:
     """Derived sprite level: highest curve level whose cumulative XP threshold has been reached."""
     if not isinstance(xp, (int, float)) or not curve:
@@ -482,9 +527,19 @@ def sprite_level(xp: Any, curve: list[tuple[int, float]]) -> int | None:
     return level
 
 
-def _parse_collection_body(data: dict[str, Any], catalogue: dict[str, Any] | None) -> dict[str, Any]:
+def _parse_collection_body(
+    data: dict[str, Any], catalogue: dict[str, Any] | None, boons: dict[str, dict[str, Any]] | None = None
+) -> dict[str, Any]:
     cat_families = (catalogue or {}).get("families", {})
-    curve = (catalogue or {}).get("level_curve", [])
+    boons = boons or {}
+
+    def named_boons(refs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for ref in refs:
+            info = boons.get(ref["id"])
+            if info and info.get("name"):
+                out.append({"name": info["name"], "description": info.get("description"), "chance": ref.get("chance")})
+        return out
     families = []
     for fam in data.get("sprites") or []:
         if not isinstance(fam, dict):
@@ -499,13 +554,14 @@ def _parse_collection_body(data: dict[str, Any], catalogue: dict[str, Any] | Non
                 "id": v.get("id"),
                 "name": v.get("name"),
                 "variant": v.get("variant"),
+                "label": variant_label(v.get("name"), fam.get("name"), v.get("variant")),
                 "rarity": v.get("rarity"),
                 "owned": bool(v.get("owned")),
                 "count": v.get("count") or 0,
                 "xp": v.get("xp"),
-                "level": sprite_level(v.get("xp"), curve) if v.get("owned") else None,
                 "mastered": bool(v.get("mastered")),
                 "drop_chance_pct": v.get("dropChancePercent"),
+                "boons": named_boons((extra.get("variant_boons") or {}).get(v.get("id"), [])),
                 "icon": v_icon or icon or extra.get("icon"),
             })
         families.append({
@@ -513,12 +569,15 @@ def _parse_collection_body(data: dict[str, Any], catalogue: dict[str, Any] | Non
             "name": fam.get("name"),
             "description": fam.get("description") or extra.get("description"),
             "hint": extra.get("hint"),
+            "boons": named_boons(extra.get("boons", [])),
+            "spawn_chance_pct": extra.get("spawn_chance_pct"),
             "rarity": fam.get("rarity"),
             "dex": fam.get("dexNumber"),
             "owned": bool(fam.get("owned")),
             "owned_variants": sum(1 for v in parsed_variants if v["owned"]),
             "total_variants": len(parsed_variants),
             "mastered": sum(1 for v in parsed_variants if v["mastered"]),
+            "complete": bool(parsed_variants) and all(v["owned"] for v in parsed_variants),
             "icon": icon or extra.get("icon"),
             "icon_large": large or extra.get("icon_large"),
             "variants": parsed_variants,
@@ -539,6 +598,7 @@ def _parse_collection_body(data: dict[str, Any], catalogue: dict[str, Any] | Non
         "total_families": data.get("totalFamilies", 0),
         "completion_pct": data.get("completionPercent", 0),
         "mastered_variants": sum(f["mastered"] for f in families),
+        "complete_families": sum(1 for f in families if f["complete"]),
         "equipped": equipped,
         "currency": [
             {"item": c.get("item"), "count": c.get("count")}
@@ -549,12 +609,14 @@ def _parse_collection_body(data: dict[str, Any], catalogue: dict[str, Any] | Non
     }
 
 
-def parse_sprite_collection(raw: Any, catalogue: dict[str, Any] | None = None) -> dict[str, Any] | None:
+def parse_sprite_collection(
+    raw: Any, catalogue: dict[str, Any] | None = None, boons: dict[str, dict[str, Any]] | None = None
+) -> dict[str, Any] | None:
     """Own sprite collection for one game version (SpriteCollectionResponseDto)."""
     data = _unwrap(raw)
     if not isinstance(data, dict) or "totalVariants" not in data:
         return None
-    return _parse_collection_body(data, catalogue)
+    return _parse_collection_body(data, catalogue, boons)
 
 
 def parse_sprite_collection_all(raw: Any) -> dict[str, Any] | None:
