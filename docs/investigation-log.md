@@ -844,5 +844,17 @@ Following the user's `/plan` request and interactive alignment interview, design
    - Full Visual Editor GUI (`editor.ts`) implementing `<ha-form>` schema for complete Lovelace UI configuration.
    - Implements Bubble Card 3.x styling guidelines: `--bubble-border-radius`, `--bubble-main-background-color`, `--bubble-border`, `--bubble-accent-color`, pill sub-buttons (`32px` radius), and responsive grid for Fire HD 10 landscape tablet.
 3. Automated Test Suite:
-   - 10 unit tests in `tests/unit/` covering parsing, session lifecycle, match delta detection, adaptive coordinator polling, and end-to-end multi-match session simulation. All tests passed.
+   - 12 unit tests in `tests/unit/` covering parsing, session lifecycle, match delta detection, adaptive coordinator polling, level failure resilience, initial update failure safety, and end-to-end multi-match session simulation. All tests passed.
+
+### 2026-09-30 v1.0.1 Bugfix Release
+
+- **Diagnosis**: Live Home Assistant deployment logged two errors:
+  1. `FortniteAuthError: Unauthorized (401) on /v1/profile/level`: On `api-fortnite.com`, the `profile/level` endpoint requires an interactive/OAuth Epic player token (`x-fortnite-token`), which is not present in pure Pro API key mode (`x-api-key`).
+  2. `TypeError: argument of type 'NoneType' is not a container or iterable`: Occurred at `coordinator.py:137` because on initial coordinator refresh before data is cached, `self.data` is `None` in Home Assistant core.
+- **Resolution**:
+  - In `api/api_fortnite.py`: `get_raw_level` now catches `FortniteApiError` (including 401) and returns `{}` so level unavailability does not disrupt stats or ranked updates.
+  - In `coordinator.py`: wrapped level fetch in defensive try-except and guarded `self.data` with `if self.data and p_id in self.data:` to prevent `TypeError`.
+  - In `frontend/src/fortnite-activity-card.ts`: card header adapts gracefully when level is unavailable (shows player subtitle instead of 0).
+  - Version bumped to `1.0.1`, released on GitHub tag `v1.0.1`.
+
 
