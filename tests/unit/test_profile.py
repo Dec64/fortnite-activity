@@ -18,6 +18,7 @@ from custom_components.fortnite_activity.api.api_fortnite import ApiFortniteClie
 from custom_components.fortnite_activity.profile import (
     compute_metrics,
     parse_display_name,
+    parse_leaderboard,
     parse_external_auths,
     parse_playlists,
     parse_season,
@@ -112,29 +113,57 @@ class TestParsers(unittest.TestCase):
         self.assertEqual(as_list[0]["label"], "Xbox")
         self.assertEqual(parse_external_auths(None), [])
 
-    def test_tournaments_region_filter_and_ordering(self) -> None:
+    def test_tournaments_all_regions_tags_and_ordering(self) -> None:
         def window(wid, begin, end):
-            return {"eventWindowId": wid, "beginTime": begin, "endTime": end, "round": 0, "visibility": "public"}
+            return {"eventWindowId": wid, "beginTime": begin, "endTime": end, "round": 8, "visibility": "public"}
 
         raw = [{
-            "id": "e1", "displayDataId": "d1", "name": "Solo Cash Cup", "titleLine1": "Solo Cash Cup",
+            "id": "e1", "displayDataId": "d1", "name": "Duos Ranked Cup (Zero Build)", "titleLine1": "x",
             "poster": "https://example.invalid/p.png", "loadingScreen": None,
             "regions": {
-                "EU": [{"eventId": "e1_eu", "platforms": ["Windows"], "eventWindows": [
-                    window("past", "2026-09-01T18:00:00.0000000Z", "2026-09-01T21:00:00.0000000Z"),
-                    window("later", "2026-10-03T18:00:00.0000000Z", "2026-10-03T21:00:00.0000000Z"),
-                    window("live", "2026-09-30T11:00:00.0000000Z", "2026-09-30T14:00:00.0000000Z"),
+                "EU": [{"eventId": "S42_DuosRankedCup_EU", "platforms": ["Windows", "PS5", "IOS"], "eventWindows": [
+                    window("S42_Cup_Event1Round1_EU", "2026-09-01T18:00:00.0000000Z", "2026-09-01T21:00:00.0000000Z"),
+                    window("S42_Cup_Event3Round2_EU", "2026-10-03T18:00:00.0000000Z", "2026-10-03T21:00:00.0000000Z"),
+                    window("S42_Cup_Event3Round1_EU", "2026-09-30T11:00:00.0000000Z", "2026-09-30T14:00:00.0000000Z"),
                 ]}],
-                "NAE": [{"eventId": "e1_nae", "eventWindows": [
-                    window("nae", "2026-10-01T00:00:00.0000000Z", "2026-10-01T03:00:00.0000000Z"),
+                "NAE": [{"eventId": "S42_DuosRankedCup_NAE", "platforms": ["PS5"], "eventWindows": [
+                    window("S42_Cup_Event3Round1_NAE", "2026-10-01T00:00:00.0000000Z", "2026-10-01T03:00:00.0000000Z"),
                 ]}],
             },
+        }, {
+            "id": "e2", "name": "Console Reload Solo Victory Cup",
+            "regions": {"EU": [{"eventId": "S42_ReloadSolo_EU", "platforms": ["Windows", "PS5"], "eventWindows": [
+                window("S42_Reload_Event1Round1_EU", "2026-10-02T18:00:00Z", "2026-10-02T21:00:00Z")]}]},
         }]
-        result = parse_tournaments(raw, "EU", NOW)
-        self.assertEqual([w["window_id"] for w in result], ["live", "later"])
-        self.assertTrue(result[0]["is_live"])
-        self.assertEqual(result[0]["name"], "Solo Cash Cup")
-        self.assertEqual(parse_tournaments({"bad": 1}, "EU", NOW), [])
+        events = parse_tournaments(raw, NOW)
+        self.assertEqual([e["key"] for e in events], ["S42_DuosRankedCup_EU", "S42_DuosRankedCup_NAE", "S42_ReloadSolo_EU"])
+        eu = events[0]
+        self.assertTrue(eu["is_live"])
+        self.assertEqual([w["label"] for w in eu["windows"]], ["Round 1", "Round 2"])  # month-old window dropped
+        self.assertEqual((eu["mode"], eu["team"], eu["ranked"]), ("Zero Build", "Duos", True))
+        self.assertEqual(eu["platform_groups"], ["PC", "Console", "Mobile"])
+        self.assertEqual(events[1]["region_group"], "NA")
+        reload = events[2]
+        self.assertEqual((reload["mode"], reload["team"]), ("Reload", "Solo"))
+        self.assertEqual(reload["platform_groups"], ["Console"])  # name restriction wins over platform codes
+        self.assertEqual(parse_tournaments({"bad": 1}, NOW), [])
+
+    def test_leaderboard(self) -> None:
+        raw = {"page": 0, "totalPages": 40, "updatedTime": "2026-09-16T08:08:52Z", "entries": [
+            {"rank": 1, "pointsEarned": 200, "percentile": 0, "teamId": "aaa:bbb",
+             "teamAccountDisplayNames": ["One", "Two"],
+             "sessionHistory": [
+                 {"trackedStats": {"PLACEMENT_STAT_INDEX": 1, "TEAM_ELIMS_STAT_INDEX": 12, "VICTORY_ROYALE_STAT": 1}},
+                 {"trackedStats": {"PLACEMENT_STAT_INDEX": 4, "TEAM_ELIMS_STAT_INDEX": 3}},
+             ]},
+            {"rank": 2, "pointsEarned": 150, "teamId": "synthetic_me", "teamAccountDisplayNames": ["Me"], "sessionHistory": []},
+        ]}
+        lb = parse_leaderboard(raw, "synthetic_me")
+        self.assertEqual(lb["entries"][0]["elims"], 15)
+        self.assertEqual(lb["entries"][0]["wins"], 1)
+        self.assertEqual(lb["entries"][0]["best_placement"], 1)
+        self.assertEqual(lb["player"]["rank"], 2)
+        self.assertIsNone(parse_leaderboard("nope"))
 
 
 class TestProfileCoordinatorIsolation(unittest.IsolatedAsyncioTestCase):

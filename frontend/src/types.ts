@@ -5,7 +5,7 @@
 export interface FortniteCardConfig {
   type: string;
   player?: string;
-  layout?: "auto" | "session_only" | "career_only";
+  layout?: "auto" | "session_only" | "career_only" | "events_only";
   card_style?: "bubble" | "cyber_fortnite" | "minimal";
   theme_accent?: "auto" | "victory_gold" | "slurp_cyan" | "storm_purple";
   show_match_feed?: boolean;
@@ -18,6 +18,8 @@ export interface FortniteCardConfig {
   avatar?: string;
   show_platforms?: boolean;
   show_tournaments?: boolean;
+  compact?: boolean;
+  events_region?: string;
 }
 
 export interface MatchRecord {
@@ -34,6 +36,12 @@ export interface MatchRecord {
   current_rank?: string;
   rank_progress_pct?: number;
   rank_delta_pct?: number;
+  wins?: number;
+  minutes?: number;
+  score?: number;
+  players_outlived?: number;
+  unreal_rank?: number | null;
+  unreal_rank_change?: number | null;
 }
 
 export interface SessionSummary {

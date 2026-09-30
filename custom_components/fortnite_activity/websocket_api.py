@@ -55,7 +55,8 @@ except ImportError:
     websocket_api = _MockWS()  # type: ignore
 
 from .api.api_fortnite import FortniteApiError
-from .const import DOMAIN
+from .const import CONF_ACCOUNT_ID, CONF_PLAYER_ID, DOMAIN
+from .profile import REGION_GROUPS, parse_leaderboard
 from .coordinator import FortniteDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -72,6 +73,7 @@ def async_setup_websocket_api(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_get_catalog)
     websocket_api.async_register_command(hass, ws_get_tournaments)
     websocket_api.async_register_command(hass, ws_find_cosmetic)
+    websocket_api.async_register_command(hass, ws_get_leaderboard)
 
 
 def _get_coordinator(hass: HomeAssistant, player_id: str | None = None) -> FortniteDataUpdateCoordinator | None:
@@ -232,6 +234,7 @@ async def ws_get_tournaments(
         msg["id"],
         {
             "region": profile.region if profile else None,
+            "default_region_group": REGION_GROUPS.get(profile.region, profile.region) if profile else None,
             "tournaments": profile.tournaments if profile else None,
         },
     )
@@ -282,3 +285,47 @@ async def ws_find_cosmetic(
         best = exact or (items[0] if items else None)
         _COSMETIC_CACHE[cache_key] = _cosmetic_summary(best) if best else None
     connection.send_result(msg["id"], {"query": query, "cosmetic": _COSMETIC_CACHE[cache_key]})
+
+
+_LEADERBOARD_CACHE: dict[tuple[str, str, str | None], tuple[float, Any]] = {}
+LEADERBOARD_CACHE_SECONDS = 60
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/leaderboard",
+        vol.Required("event_id"): str,
+        vol.Required("window_id"): str,
+        vol.Optional("player_id"): str,
+    }
+)
+@websocket_api.async_response
+async def ws_get_leaderboard(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Top of a tournament window leaderboard, plus the tracked player's entry when present."""
+    import time
+
+    coordinator = _get_coordinator(hass, msg.get("player_id"))
+    if not coordinator:
+        connection.send_error(msg["id"], "not_found", "Fortnite Activity is not set up")
+        return
+    account_id = next(
+        (p[CONF_ACCOUNT_ID] for p in coordinator.players_config if p[CONF_PLAYER_ID] == msg.get("player_id")),
+        None,
+    )
+    key = (msg["event_id"], msg["window_id"], account_id)
+    cached = _LEADERBOARD_CACHE.get(key)
+    if cached and time.monotonic() - cached[0] < LEADERBOARD_CACHE_SECONDS:
+        connection.send_result(msg["id"], cached[1])
+        return
+    try:
+        raw = await coordinator.api_client.get_event_leaderboard(msg["event_id"], msg["window_id"], account_id)
+    except FortniteApiError as err:
+        connection.send_error(msg["id"], "api_error", str(err))
+        return
+    result = {"leaderboard": parse_leaderboard(raw, account_id)}
+    _LEADERBOARD_CACHE[key] = (time.monotonic(), result)
+    connection.send_result(msg["id"], result)

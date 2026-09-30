@@ -885,3 +885,11 @@ Following the user's `/plan` request and interactive alignment interview, design
 - **Unverified at release time**: the `startTime` filter (guarded: window hidden unless the response echoes `startTime` or totals differ from lifetime) and the untyped account/externalAuths shapes (parsers accept object/list/dict and fall back to None/[]). Confirm from live entity attributes after deploy.
 - **Derived metrics** (no extra API calls): kills/match, kills/min, avg match minutes, score/match, hours, solo-only Top 10/25 rates, team-size and input-method breakdowns (input method is not platform), favourite mode (excludes creative/other), last played from `lastmodified`.
 - Tournament view is schedule-only and makes no eligibility claims.
+
+### 2026-09-30 v1.1.0 events, leaderboards and card polish
+
+- **Observed live (v1.0.9)**: `startTime` windows are honoured (season 649 vs lifetime 20,270 matches); `/v1/account/{id}` display name works; `/v1/account/{id}/externalAuths` returns HTTP 403 from Epic upstream with the provider key (platforms hidden); playlist catalogue has 389 entries (387 with images) but **no Reload or ranked (`ropesmile*`/`habanero*`) entries**, so those modes have no artwork; `events/global` window `round` is not a round number (a "Round1" window reported 8), so labels now come from the window id.
+- **New**: tournaments for all regions tagged with mode / team size / platform group derived only from Epic's event names and platform codes (untagged when not stated); `/v1/events/global/leaderboard` (key-only, observed 200 in sanitized evidence) with the tracked account highlighted — the highlight response shape is unverified, so the player row is matched by `teamId` and hidden if absent.
+- **Match records** now carry per-poll minutes, score, players outlived and Unreal placement change.
+- **Rank badges** are self-drawn SVG tier shields: the API exposes no ranked artwork.
+- **Header offset** was HA's `ha-card` styling of slotted `.card-header` (extra 16px padding); the card now uses its own class.

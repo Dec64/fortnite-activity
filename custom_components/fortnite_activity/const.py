@@ -22,7 +22,8 @@ TOURNAMENT_REGIONS = ["EU", "NAE", "NAW", "NAC", "BR", "ASIA", "OCE", "ME"]
 # Slow "profile" data refresh cadence (independent of match polling)
 PROFILE_REFRESH_MINUTES = 30
 CATALOGUE_REFRESH_HOURS = 24
-TOURNAMENT_REFRESH_HOURS = 6
+TOURNAMENT_REFRESH_HOURS = 3
+LEADERBOARD_ENDPOINT = "/v1/events/global/leaderboard"
 
 # API Endpoints
 API_BASE_URL = "https://prod.api-fortnite.com/api"

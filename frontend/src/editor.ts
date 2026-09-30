@@ -22,6 +22,7 @@ const SCHEMA = [
           { value: "auto", label: "Adaptive (Session when playing, Stats when idle, Events tab)" },
           { value: "session_only", label: "Live Session & Match Feed Only" },
           { value: "career_only", label: "Overall Career & Ranks Only" },
+          { value: "events_only", label: "Tournaments / Events Only" },
         ],
       },
     },
@@ -62,6 +63,28 @@ const SCHEMA = [
     name: "show_sub_buttons",
     label: "Show Quick Action Sub-Buttons (Start/End Session, Refresh)",
     selector: { boolean: {} },
+  },
+  {
+    name: "compact",
+    label: "Compact mode (smaller buttons, inline stats)",
+    selector: { boolean: {} },
+  },
+  {
+    name: "events_region",
+    label: "Default events region filter",
+    selector: {
+      select: {
+        options: [
+          { value: "EU", label: "Europe" },
+          { value: "NA", label: "North America" },
+          { value: "BR", label: "Brazil" },
+          { value: "ASIA", label: "Asia" },
+          { value: "OCE", label: "Oceania" },
+          { value: "ME", label: "Middle East" },
+          { value: "all", label: "All regions" },
+        ],
+      },
+    },
   },
   {
     name: "show_platforms",

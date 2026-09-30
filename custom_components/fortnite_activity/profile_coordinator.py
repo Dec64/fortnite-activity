@@ -155,7 +155,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._raw_events = raw
                 self._fetched_at["tournaments"] = now
         if self._raw_events is not None:
-            self.tournaments = parse_tournaments(self._raw_events, self.region, now)
+            self.tournaments = parse_tournaments(self._raw_events, now)
 
         starts = self._window_starts(now)
         for p in self.players_config:

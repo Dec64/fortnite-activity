@@ -215,6 +215,17 @@ class FortniteSessionManager:
                         "current_rank": curr_track.get("current_rank", "Unranked"),
                         "rank_progress_pct": curr_track.get("progress_pct", 0.0),
                         "rank_delta_pct": rank_delta_pct,
+                        # Extra per-poll deltas shown when a match is expanded on the card
+                        "minutes": max(0, curr_p.get("minutes", 0) - prev_p.get("minutes", 0)),
+                        "score": max(0, curr_p.get("score", 0) - prev_p.get("score", 0)),
+                        "players_outlived": max(0, curr_p.get("players_outlived", 0) - prev_p.get("players_outlived", 0)),
+                        "unreal_rank": curr_track.get("unreal_rank"),
+                        # Positive = climbed places on the Unreal leaderboard (lower number is better)
+                        "unreal_rank_change": (
+                            prev_track["unreal_rank"] - curr_track["unreal_rank"]
+                            if isinstance(prev_track.get("unreal_rank"), int) and isinstance(curr_track.get("unreal_rank"), int)
+                            else None
+                        ),
                     }
 
                     self.active_session["matches"].insert(0, match_record)

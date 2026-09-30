@@ -1,6 +1,6 @@
-var Ue=Object.defineProperty;var ze=Object.getOwnPropertyDescriptor;var v=(n,e,t,s)=>{for(var a=s>1?void 0:s?ze(e,t):e,i=n.length-1,r;i>=0;i--)(r=n[i])&&(a=(s?r(e,t,a):r(a))||a);return s&&a&&Ue(e,t,a),a};var K=globalThis,Q=K.ShadowRoot&&(K.ShadyCSS===void 0||K.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,X=Symbol(),me=new WeakMap,z=class{constructor(e,t,s){if(this._$cssResult$=!0,s!==X)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=e,this.t=t}get styleSheet(){let e=this.o,t=this.t;if(Q&&e===void 0){let s=t!==void 0&&t.length===1;s&&(e=me.get(t)),e===void 0&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),s&&me.set(t,e))}return e}toString(){return this.cssText}},ge=n=>new z(typeof n=="string"?n:n+"",void 0,X),L=(n,...e)=>{let t=n.length===1?n[0]:e.reduce((s,a,i)=>s+(r=>{if(r._$cssResult$===!0)return r.cssText;if(typeof r=="number")return r;throw Error("Value passed to 'css' function must be a 'css' function result: "+r+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(a)+n[i+1],n[0]);return new z(t,n,X)},fe=(n,e)=>{if(Q)n.adoptedStyleSheets=e.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(let t of e){let s=document.createElement("style"),a=K.litNonce;a!==void 0&&s.setAttribute("nonce",a),s.textContent=t.cssText,n.appendChild(s)}},ee=Q?n=>n:n=>n instanceof CSSStyleSheet?(e=>{let t="";for(let s of e.cssRules)t+=s.cssText;return ge(t)})(n):n;var{is:Le,defineProperty:Oe,getOwnPropertyDescriptor:Ne,getOwnPropertyNames:De,getOwnPropertySymbols:He,getPrototypeOf:Be}=Object,Y=globalThis,be=Y.trustedTypes,je=be?be.emptyScript:"",Ve=Y.reactiveElementPolyfillSupport,O=(n,e)=>n,N={toAttribute(n,e){switch(e){case Boolean:n=n?je:null;break;case Object:case Array:n=n==null?n:JSON.stringify(n)}return n},fromAttribute(n,e){let t=n;switch(e){case Boolean:t=n!==null;break;case Number:t=n===null?null:Number(n);break;case Object:case Array:try{t=JSON.parse(n)}catch{t=null}}return t}},G=(n,e)=>!Le(n,e),_e={attribute:!0,type:String,converter:N,reflect:!1,useDefault:!1,hasChanged:G};Symbol.metadata??=Symbol("metadata"),Y.litPropertyMetadata??=new WeakMap;var S=class extends HTMLElement{static addInitializer(e){this._$Ei(),(this.l??=[]).push(e)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(e,t=_e){if(t.state&&(t.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(e)&&((t=Object.create(t)).wrapped=!0),this.elementProperties.set(e,t),!t.noAccessor){let s=Symbol(),a=this.getPropertyDescriptor(e,s,t);a!==void 0&&Oe(this.prototype,e,a)}}static getPropertyDescriptor(e,t,s){let{get:a,set:i}=Ne(this.prototype,e)??{get(){return this[t]},set(r){this[t]=r}};return{get:a,set(r){let c=a?.call(this);i?.call(this,r),this.requestUpdate(e,c,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(e){return this.elementProperties.get(e)??_e}static _$Ei(){if(this.hasOwnProperty(O("elementProperties")))return;let e=Be(this);e.finalize(),e.l!==void 0&&(this.l=[...e.l]),this.elementProperties=new Map(e.elementProperties)}static finalize(){if(this.hasOwnProperty(O("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(O("properties"))){let t=this.properties,s=[...De(t),...He(t)];for(let a of s)this.createProperty(a,t[a])}let e=this[Symbol.metadata];if(e!==null){let t=litPropertyMetadata.get(e);if(t!==void 0)for(let[s,a]of t)this.elementProperties.set(s,a)}this._$Eh=new Map;for(let[t,s]of this.elementProperties){let a=this._$Eu(t,s);a!==void 0&&this._$Eh.set(a,t)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(e){let t=[];if(Array.isArray(e)){let s=new Set(e.flat(1/0).reverse());for(let a of s)t.unshift(ee(a))}else e!==void 0&&t.push(ee(e));return t}static _$Eu(e,t){let s=t.attribute;return s===!1?void 0:typeof s=="string"?s:typeof e=="string"?e.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(e=>this.enableUpdating=e),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(e=>e(this))}addController(e){(this._$EO??=new Set).add(e),this.renderRoot!==void 0&&this.isConnected&&e.hostConnected?.()}removeController(e){this._$EO?.delete(e)}_$E_(){let e=new Map,t=this.constructor.elementProperties;for(let s of t.keys())this.hasOwnProperty(s)&&(e.set(s,this[s]),delete this[s]);e.size>0&&(this._$Ep=e)}createRenderRoot(){let e=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return fe(e,this.constructor.elementStyles),e}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(e=>e.hostConnected?.())}enableUpdating(e){}disconnectedCallback(){this._$EO?.forEach(e=>e.hostDisconnected?.())}attributeChangedCallback(e,t,s){this._$AK(e,s)}_$ET(e,t){let s=this.constructor.elementProperties.get(e),a=this.constructor._$Eu(e,s);if(a!==void 0&&s.reflect===!0){let i=(s.converter?.toAttribute!==void 0?s.converter:N).toAttribute(t,s.type);this._$Em=e,i==null?this.removeAttribute(a):this.setAttribute(a,i),this._$Em=null}}_$AK(e,t){let s=this.constructor,a=s._$Eh.get(e);if(a!==void 0&&this._$Em!==a){let i=s.getPropertyOptions(a),r=typeof i.converter=="function"?{fromAttribute:i.converter}:i.converter?.fromAttribute!==void 0?i.converter:N;this._$Em=a;let c=r.fromAttribute(t,i.type);this[a]=c??this._$Ej?.get(a)??c,this._$Em=null}}requestUpdate(e,t,s,a=!1,i){if(e!==void 0){let r=this.constructor;if(a===!1&&(i=this[e]),s??=r.getPropertyOptions(e),!((s.hasChanged??G)(i,t)||s.useDefault&&s.reflect&&i===this._$Ej?.get(e)&&!this.hasAttribute(r._$Eu(e,s))))return;this.C(e,t,s)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(e,t,{useDefault:s,reflect:a,wrapped:i},r){s&&!(this._$Ej??=new Map).has(e)&&(this._$Ej.set(e,r??t??this[e]),i!==!0||r!==void 0)||(this._$AL.has(e)||(this.hasUpdated||s||(t=void 0),this._$AL.set(e,t)),a===!0&&this._$Em!==e&&(this._$Eq??=new Set).add(e))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(t){Promise.reject(t)}let e=this.scheduleUpdate();return e!=null&&await e,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(let[a,i]of this._$Ep)this[a]=i;this._$Ep=void 0}let s=this.constructor.elementProperties;if(s.size>0)for(let[a,i]of s){let{wrapped:r}=i,c=this[a];r!==!0||this._$AL.has(a)||c===void 0||this.C(a,void 0,i,c)}}let e=!1,t=this._$AL;try{e=this.shouldUpdate(t),e?(this.willUpdate(t),this._$EO?.forEach(s=>s.hostUpdate?.()),this.update(t)):this._$EM()}catch(s){throw e=!1,this._$EM(),s}e&&this._$AE(t)}willUpdate(e){}_$AE(e){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(e)),this.updated(e)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(e){return!0}update(e){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM()}updated(e){}firstUpdated(e){}};S.elementStyles=[],S.shadowRootOptions={mode:"open"},S[O("elementProperties")]=new Map,S[O("finalized")]=new Map,Ve?.({ReactiveElement:S}),(Y.reactiveElementVersions??=[]).push("2.1.2");var oe=globalThis,ve=n=>n,J=oe.trustedTypes,ye=J?J.createPolicy("lit-html",{createHTML:n=>n}):void 0,Ae="$lit$",A=`lit$${Math.random().toFixed(9).slice(2)}$`,Ee="?"+A,Ie=`<${Ee}>`,M=document,H=()=>M.createComment(""),B=n=>n===null||typeof n!="object"&&typeof n!="function",le=Array.isArray,We=n=>le(n)||typeof n?.[Symbol.iterator]=="function",te=`[ 	
-\f\r]`,D=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,$e=/-->/g,xe=/>/g,E=RegExp(`>|${te}(?:([^\\s"'>=/]+)(${te}*=${te}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`,"g"),we=/'/g,ke=/"/g,Ce=/^(?:script|style|textarea|title)$/i,ce=n=>(e,...t)=>({_$litType$:n,strings:e,values:t}),l=ce(1),rt=ce(2),nt=ce(3),R=Symbol.for("lit-noChange"),d=Symbol.for("lit-nothing"),Se=new WeakMap,C=M.createTreeWalker(M,129);function Me(n,e){if(!le(n)||!n.hasOwnProperty("raw"))throw Error("invalid template strings array");return ye!==void 0?ye.createHTML(e):e}var qe=(n,e)=>{let t=n.length-1,s=[],a,i=e===2?"<svg>":e===3?"<math>":"",r=D;for(let c=0;c<t;c++){let o=n[c],p,u,h=-1,f=0;for(;f<o.length&&(r.lastIndex=f,u=r.exec(o),u!==null);)f=r.lastIndex,r===D?u[1]==="!--"?r=$e:u[1]!==void 0?r=xe:u[2]!==void 0?(Ce.test(u[2])&&(a=RegExp("</"+u[2],"g")),r=E):u[3]!==void 0&&(r=E):r===E?u[0]===">"?(r=a??D,h=-1):u[1]===void 0?h=-2:(h=r.lastIndex-u[2].length,p=u[1],r=u[3]===void 0?E:u[3]==='"'?ke:we):r===ke||r===we?r=E:r===$e||r===xe?r=D:(r=E,a=void 0);let m=r===E&&n[c+1].startsWith("/>")?" ":"";i+=r===D?o+Ie:h>=0?(s.push(p),o.slice(0,h)+Ae+o.slice(h)+A+m):o+A+(h===-2?c:m)}return[Me(n,i+(n[t]||"<?>")+(e===2?"</svg>":e===3?"</math>":"")),s]},j=class n{constructor({strings:e,_$litType$:t},s){let a;this.parts=[];let i=0,r=0,c=e.length-1,o=this.parts,[p,u]=qe(e,t);if(this.el=n.createElement(p,s),C.currentNode=this.el.content,t===2||t===3){let h=this.el.content.firstChild;h.replaceWith(...h.childNodes)}for(;(a=C.nextNode())!==null&&o.length<c;){if(a.nodeType===1){if(a.hasAttributes())for(let h of a.getAttributeNames())if(h.endsWith(Ae)){let f=u[r++],m=a.getAttribute(h).split(A),_=/([.?@])?(.*)/.exec(f);o.push({type:1,index:i,name:_[2],strings:m,ctor:_[1]==="."?ae:_[1]==="?"?ie:_[1]==="@"?re:T}),a.removeAttribute(h)}else h.startsWith(A)&&(o.push({type:6,index:i}),a.removeAttribute(h));if(Ce.test(a.tagName)){let h=a.textContent.split(A),f=h.length-1;if(f>0){a.textContent=J?J.emptyScript:"";for(let m=0;m<f;m++)a.append(h[m],H()),C.nextNode(),o.push({type:2,index:++i});a.append(h[f],H())}}}else if(a.nodeType===8)if(a.data===Ee)o.push({type:2,index:i});else{let h=-1;for(;(h=a.data.indexOf(A,h+1))!==-1;)o.push({type:7,index:i}),h+=A.length-1}i++}}static createElement(e,t){let s=M.createElement("template");return s.innerHTML=e,s}};function P(n,e,t=n,s){if(e===R)return e;let a=s!==void 0?t._$Co?.[s]:t._$Cl,i=B(e)?void 0:e._$litDirective$;return a?.constructor!==i&&(a?._$AO?.(!1),i===void 0?a=void 0:(a=new i(n),a._$AT(n,t,s)),s!==void 0?(t._$Co??=[])[s]=a:t._$Cl=a),a!==void 0&&(e=P(n,a._$AS(n,e.values),a,s)),e}var se=class{constructor(e,t){this._$AV=[],this._$AN=void 0,this._$AD=e,this._$AM=t}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(e){let{el:{content:t},parts:s}=this._$AD,a=(e?.creationScope??M).importNode(t,!0);C.currentNode=a;let i=C.nextNode(),r=0,c=0,o=s[0];for(;o!==void 0;){if(r===o.index){let p;o.type===2?p=new V(i,i.nextSibling,this,e):o.type===1?p=new o.ctor(i,o.name,o.strings,this,e):o.type===6&&(p=new ne(i,this,e)),this._$AV.push(p),o=s[++c]}r!==o?.index&&(i=C.nextNode(),r++)}return C.currentNode=M,a}p(e){let t=0;for(let s of this._$AV)s!==void 0&&(s.strings!==void 0?(s._$AI(e,s,t),t+=s.strings.length-2):s._$AI(e[t])),t++}},V=class n{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(e,t,s,a){this.type=2,this._$AH=d,this._$AN=void 0,this._$AA=e,this._$AB=t,this._$AM=s,this.options=a,this._$Cv=a?.isConnected??!0}get parentNode(){let e=this._$AA.parentNode,t=this._$AM;return t!==void 0&&e?.nodeType===11&&(e=t.parentNode),e}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(e,t=this){e=P(this,e,t),B(e)?e===d||e==null||e===""?(this._$AH!==d&&this._$AR(),this._$AH=d):e!==this._$AH&&e!==R&&this._(e):e._$litType$!==void 0?this.$(e):e.nodeType!==void 0?this.T(e):We(e)?this.k(e):this._(e)}O(e){return this._$AA.parentNode.insertBefore(e,this._$AB)}T(e){this._$AH!==e&&(this._$AR(),this._$AH=this.O(e))}_(e){this._$AH!==d&&B(this._$AH)?this._$AA.nextSibling.data=e:this.T(M.createTextNode(e)),this._$AH=e}$(e){let{values:t,_$litType$:s}=e,a=typeof s=="number"?this._$AC(e):(s.el===void 0&&(s.el=j.createElement(Me(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===a)this._$AH.p(t);else{let i=new se(a,this),r=i.u(this.options);i.p(t),this.T(r),this._$AH=i}}_$AC(e){let t=Se.get(e.strings);return t===void 0&&Se.set(e.strings,t=new j(e)),t}k(e){le(this._$AH)||(this._$AH=[],this._$AR());let t=this._$AH,s,a=0;for(let i of e)a===t.length?t.push(s=new n(this.O(H()),this.O(H()),this,this.options)):s=t[a],s._$AI(i),a++;a<t.length&&(this._$AR(s&&s._$AB.nextSibling,a),t.length=a)}_$AR(e=this._$AA.nextSibling,t){for(this._$AP?.(!1,!0,t);e!==this._$AB;){let s=ve(e).nextSibling;ve(e).remove(),e=s}}setConnected(e){this._$AM===void 0&&(this._$Cv=e,this._$AP?.(e))}},T=class{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(e,t,s,a,i){this.type=1,this._$AH=d,this._$AN=void 0,this.element=e,this.name=t,this._$AM=a,this.options=i,s.length>2||s[0]!==""||s[1]!==""?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=d}_$AI(e,t=this,s,a){let i=this.strings,r=!1;if(i===void 0)e=P(this,e,t,0),r=!B(e)||e!==this._$AH&&e!==R,r&&(this._$AH=e);else{let c=e,o,p;for(e=i[0],o=0;o<i.length-1;o++)p=P(this,c[s+o],t,o),p===R&&(p=this._$AH[o]),r||=!B(p)||p!==this._$AH[o],p===d?e=d:e!==d&&(e+=(p??"")+i[o+1]),this._$AH[o]=p}r&&!a&&this.j(e)}j(e){e===d?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,e??"")}},ae=class extends T{constructor(){super(...arguments),this.type=3}j(e){this.element[this.name]=e===d?void 0:e}},ie=class extends T{constructor(){super(...arguments),this.type=4}j(e){this.element.toggleAttribute(this.name,!!e&&e!==d)}},re=class extends T{constructor(e,t,s,a,i){super(e,t,s,a,i),this.type=5}_$AI(e,t=this){if((e=P(this,e,t,0)??d)===R)return;let s=this._$AH,a=e===d&&s!==d||e.capture!==s.capture||e.once!==s.once||e.passive!==s.passive,i=e!==d&&(s===d||a);a&&this.element.removeEventListener(this.name,this,s),i&&this.element.addEventListener(this.name,this,e),this._$AH=e}handleEvent(e){typeof this._$AH=="function"?this._$AH.call(this.options?.host??this.element,e):this._$AH.handleEvent(e)}},ne=class{constructor(e,t,s){this.element=e,this.type=6,this._$AN=void 0,this._$AM=t,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(e){P(this,e)}};var Ke=oe.litHtmlPolyfillSupport;Ke?.(j,V),(oe.litHtmlVersions??=[]).push("3.3.3");var Re=(n,e,t)=>{let s=t?.renderBefore??e,a=s._$litPart$;if(a===void 0){let i=t?.renderBefore??null;s._$litPart$=a=new V(e.insertBefore(H(),i),i,void 0,t??{})}return a._$AI(n),a};var de=globalThis,x=class extends S{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){let e=super.createRenderRoot();return this.renderOptions.renderBefore??=e.firstChild,e}update(e){let t=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(e),this._$Do=Re(t,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return R}};x._$litElement$=!0,x.finalized=!0,de.litElementHydrateSupport?.({LitElement:x});var Qe=de.litElementPolyfillSupport;Qe?.({LitElement:x});(de.litElementVersions??=[]).push("4.2.2");var Ye={attribute:!0,type:String,converter:N,reflect:!1,hasChanged:G},Ge=(n=Ye,e,t)=>{let{kind:s,metadata:a}=t,i=globalThis.litPropertyMetadata.get(a);if(i===void 0&&globalThis.litPropertyMetadata.set(a,i=new Map),s==="setter"&&((n=Object.create(n)).wrapped=!0),i.set(t.name,n),s==="accessor"){let{name:r}=t;return{set(c){let o=e.get.call(this);e.set.call(this,c),this.requestUpdate(r,o,n,!0,c)},init(c){return c!==void 0&&this.C(r,void 0,n,c),c}}}if(s==="setter"){let{name:r}=t;return function(c){let o=this[r];e.call(this,c),this.requestUpdate(r,o,n,!0,c)}}throw Error("Unsupported decorator location: "+s)};function F(n){return(e,t)=>typeof t=="object"?Ge(n,e,t):((s,a,i)=>{let r=a.hasOwnProperty(i);return a.constructor.createProperty(i,s),r?Object.getOwnPropertyDescriptor(a,i):void 0})(n,e,t)}function $(n){return F({...n,state:!0,attribute:!1})}var Pe=L`
+var De=Object.defineProperty;var Ue=Object.getOwnPropertyDescriptor;var f=(n,a,e,t)=>{for(var i=t>1?void 0:t?Ue(a,e):a,s=n.length-1,r;s>=0;s--)(r=n[s])&&(i=(t?r(a,e,i):r(i))||i);return t&&i&&De(a,e,i),i};var Z=globalThis,G=Z.ShadowRoot&&(Z.ShadyCSS===void 0||Z.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,ie=Symbol(),be=new WeakMap,U=class{constructor(a,e,t){if(this._$cssResult$=!0,t!==ie)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=a,this.t=e}get styleSheet(){let a=this.o,e=this.t;if(G&&a===void 0){let t=e!==void 0&&e.length===1;t&&(a=be.get(e)),a===void 0&&((this.o=a=new CSSStyleSheet).replaceSync(this.cssText),t&&be.set(e,a))}return a}toString(){return this.cssText}},_e=n=>new U(typeof n=="string"?n:n+"",void 0,ie),O=(n,...a)=>{let e=n.length===1?n[0]:a.reduce((t,i,s)=>t+(r=>{if(r._$cssResult$===!0)return r.cssText;if(typeof r=="number")return r;throw Error("Value passed to 'css' function must be a 'css' function result: "+r+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+n[s+1],n[0]);return new U(e,n,ie)},ve=(n,a)=>{if(G)n.adoptedStyleSheets=a.map(e=>e instanceof CSSStyleSheet?e:e.styleSheet);else for(let e of a){let t=document.createElement("style"),i=Z.litNonce;i!==void 0&&t.setAttribute("nonce",i),t.textContent=e.cssText,n.appendChild(t)}},se=G?n=>n:n=>n instanceof CSSStyleSheet?(a=>{let e="";for(let t of a.cssRules)e+=t.cssText;return _e(e)})(n):n;var{is:Oe,defineProperty:Ne,getOwnPropertyDescriptor:Be,getOwnPropertyNames:He,getOwnPropertySymbols:je,getPrototypeOf:Ie}=Object,Y=globalThis,ye=Y.trustedTypes,We=ye?ye.emptyScript:"",Ve=Y.reactiveElementPolyfillSupport,N=(n,a)=>n,B={toAttribute(n,a){switch(a){case Boolean:n=n?We:null;break;case Object:case Array:n=n==null?n:JSON.stringify(n)}return n},fromAttribute(n,a){let e=n;switch(a){case Boolean:e=n!==null;break;case Number:e=n===null?null:Number(n);break;case Object:case Array:try{e=JSON.parse(n)}catch{e=null}}return e}},Q=(n,a)=>!Oe(n,a),$e={attribute:!0,type:String,converter:B,reflect:!1,useDefault:!1,hasChanged:Q};Symbol.metadata??=Symbol("metadata"),Y.litPropertyMetadata??=new WeakMap;var S=class extends HTMLElement{static addInitializer(a){this._$Ei(),(this.l??=[]).push(a)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(a,e=$e){if(e.state&&(e.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(a)&&((e=Object.create(e)).wrapped=!0),this.elementProperties.set(a,e),!e.noAccessor){let t=Symbol(),i=this.getPropertyDescriptor(a,t,e);i!==void 0&&Ne(this.prototype,a,i)}}static getPropertyDescriptor(a,e,t){let{get:i,set:s}=Be(this.prototype,a)??{get(){return this[e]},set(r){this[e]=r}};return{get:i,set(r){let l=i?.call(this);s?.call(this,r),this.requestUpdate(a,l,t)},configurable:!0,enumerable:!0}}static getPropertyOptions(a){return this.elementProperties.get(a)??$e}static _$Ei(){if(this.hasOwnProperty(N("elementProperties")))return;let a=Ie(this);a.finalize(),a.l!==void 0&&(this.l=[...a.l]),this.elementProperties=new Map(a.elementProperties)}static finalize(){if(this.hasOwnProperty(N("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(N("properties"))){let e=this.properties,t=[...He(e),...je(e)];for(let i of t)this.createProperty(i,e[i])}let a=this[Symbol.metadata];if(a!==null){let e=litPropertyMetadata.get(a);if(e!==void 0)for(let[t,i]of e)this.elementProperties.set(t,i)}this._$Eh=new Map;for(let[e,t]of this.elementProperties){let i=this._$Eu(e,t);i!==void 0&&this._$Eh.set(i,e)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(a){let e=[];if(Array.isArray(a)){let t=new Set(a.flat(1/0).reverse());for(let i of t)e.unshift(se(i))}else a!==void 0&&e.push(se(a));return e}static _$Eu(a,e){let t=e.attribute;return t===!1?void 0:typeof t=="string"?t:typeof a=="string"?a.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(a=>this.enableUpdating=a),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(a=>a(this))}addController(a){(this._$EO??=new Set).add(a),this.renderRoot!==void 0&&this.isConnected&&a.hostConnected?.()}removeController(a){this._$EO?.delete(a)}_$E_(){let a=new Map,e=this.constructor.elementProperties;for(let t of e.keys())this.hasOwnProperty(t)&&(a.set(t,this[t]),delete this[t]);a.size>0&&(this._$Ep=a)}createRenderRoot(){let a=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return ve(a,this.constructor.elementStyles),a}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(a=>a.hostConnected?.())}enableUpdating(a){}disconnectedCallback(){this._$EO?.forEach(a=>a.hostDisconnected?.())}attributeChangedCallback(a,e,t){this._$AK(a,t)}_$ET(a,e){let t=this.constructor.elementProperties.get(a),i=this.constructor._$Eu(a,t);if(i!==void 0&&t.reflect===!0){let s=(t.converter?.toAttribute!==void 0?t.converter:B).toAttribute(e,t.type);this._$Em=a,s==null?this.removeAttribute(i):this.setAttribute(i,s),this._$Em=null}}_$AK(a,e){let t=this.constructor,i=t._$Eh.get(a);if(i!==void 0&&this._$Em!==i){let s=t.getPropertyOptions(i),r=typeof s.converter=="function"?{fromAttribute:s.converter}:s.converter?.fromAttribute!==void 0?s.converter:B;this._$Em=i;let l=r.fromAttribute(e,s.type);this[i]=l??this._$Ej?.get(i)??l,this._$Em=null}}requestUpdate(a,e,t,i=!1,s){if(a!==void 0){let r=this.constructor;if(i===!1&&(s=this[a]),t??=r.getPropertyOptions(a),!((t.hasChanged??Q)(s,e)||t.useDefault&&t.reflect&&s===this._$Ej?.get(a)&&!this.hasAttribute(r._$Eu(a,t))))return;this.C(a,e,t)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(a,e,{useDefault:t,reflect:i,wrapped:s},r){t&&!(this._$Ej??=new Map).has(a)&&(this._$Ej.set(a,r??e??this[a]),s!==!0||r!==void 0)||(this._$AL.has(a)||(this.hasUpdated||t||(e=void 0),this._$AL.set(a,e)),i===!0&&this._$Em!==a&&(this._$Eq??=new Set).add(a))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(e){Promise.reject(e)}let a=this.scheduleUpdate();return a!=null&&await a,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(let[i,s]of this._$Ep)this[i]=s;this._$Ep=void 0}let t=this.constructor.elementProperties;if(t.size>0)for(let[i,s]of t){let{wrapped:r}=s,l=this[i];r!==!0||this._$AL.has(i)||l===void 0||this.C(i,void 0,s,l)}}let a=!1,e=this._$AL;try{a=this.shouldUpdate(e),a?(this.willUpdate(e),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(e)):this._$EM()}catch(t){throw a=!1,this._$EM(),t}a&&this._$AE(e)}willUpdate(a){}_$AE(a){this._$EO?.forEach(e=>e.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(a)),this.updated(a)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(a){return!0}update(a){this._$Eq&&=this._$Eq.forEach(e=>this._$ET(e,this[e])),this._$EM()}updated(a){}firstUpdated(a){}};S.elementStyles=[],S.shadowRootOptions={mode:"open"},S[N("elementProperties")]=new Map,S[N("finalized")]=new Map,Ve?.({ReactiveElement:S}),(Y.reactiveElementVersions??=[]).push("2.1.2");var pe=globalThis,xe=n=>n,J=pe.trustedTypes,we=J?J.createPolicy("lit-html",{createHTML:n=>n}):void 0,Me="$lit$",A=`lit$${Math.random().toFixed(9).slice(2)}$`,Fe="?"+A,qe=`<${Fe}>`,F=document,j=()=>F.createComment(""),I=n=>n===null||typeof n!="object"&&typeof n!="function",he=Array.isArray,Ke=n=>he(n)||typeof n?.[Symbol.iterator]=="function",re=`[ 	
+\f\r]`,H=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,ke=/-->/g,Ee=/>/g,C=RegExp(`>|${re}(?:([^\\s"'>=/]+)(${re}*=${re}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`,"g"),Se=/'/g,Ae=/"/g,Re=/^(?:script|style|textarea|title)$/i,ue=n=>(a,...e)=>({_$litType$:n,strings:a,values:e}),c=ue(1),X=ue(2),lt=ue(3),R=Symbol.for("lit-noChange"),d=Symbol.for("lit-nothing"),Ce=new WeakMap,M=F.createTreeWalker(F,129);function ze(n,a){if(!he(n)||!n.hasOwnProperty("raw"))throw Error("invalid template strings array");return we!==void 0?we.createHTML(a):a}var Ze=(n,a)=>{let e=n.length-1,t=[],i,s=a===2?"<svg>":a===3?"<math>":"",r=H;for(let l=0;l<e;l++){let o=n[l],p,h,u=-1,b=0;for(;b<o.length&&(r.lastIndex=b,h=r.exec(o),h!==null);)b=r.lastIndex,r===H?h[1]==="!--"?r=ke:h[1]!==void 0?r=Ee:h[2]!==void 0?(Re.test(h[2])&&(i=RegExp("</"+h[2],"g")),r=C):h[3]!==void 0&&(r=C):r===C?h[0]===">"?(r=i??H,u=-1):h[1]===void 0?u=-2:(u=r.lastIndex-h[2].length,p=h[1],r=h[3]===void 0?C:h[3]==='"'?Ae:Se):r===Ae||r===Se?r=C:r===ke||r===Ee?r=H:(r=C,i=void 0);let m=r===C&&n[l+1].startsWith("/>")?" ":"";s+=r===H?o+qe:u>=0?(t.push(p),o.slice(0,u)+Me+o.slice(u)+A+m):o+A+(u===-2?l:m)}return[ze(n,s+(n[e]||"<?>")+(a===2?"</svg>":a===3?"</math>":"")),t]},W=class n{constructor({strings:a,_$litType$:e},t){let i;this.parts=[];let s=0,r=0,l=a.length-1,o=this.parts,[p,h]=Ze(a,e);if(this.el=n.createElement(p,t),M.currentNode=this.el.content,e===2||e===3){let u=this.el.content.firstChild;u.replaceWith(...u.childNodes)}for(;(i=M.nextNode())!==null&&o.length<l;){if(i.nodeType===1){if(i.hasAttributes())for(let u of i.getAttributeNames())if(u.endsWith(Me)){let b=h[r++],m=i.getAttribute(u).split(A),x=/([.?@])?(.*)/.exec(b);o.push({type:1,index:s,name:x[2],strings:m,ctor:x[1]==="."?oe:x[1]==="?"?le:x[1]==="@"?ce:L}),i.removeAttribute(u)}else u.startsWith(A)&&(o.push({type:6,index:s}),i.removeAttribute(u));if(Re.test(i.tagName)){let u=i.textContent.split(A),b=u.length-1;if(b>0){i.textContent=J?J.emptyScript:"";for(let m=0;m<b;m++)i.append(u[m],j()),M.nextNode(),o.push({type:2,index:++s});i.append(u[b],j())}}}else if(i.nodeType===8)if(i.data===Fe)o.push({type:2,index:s});else{let u=-1;for(;(u=i.data.indexOf(A,u+1))!==-1;)o.push({type:7,index:s}),u+=A.length-1}s++}}static createElement(a,e){let t=F.createElement("template");return t.innerHTML=a,t}};function P(n,a,e=n,t){if(a===R)return a;let i=t!==void 0?e._$Co?.[t]:e._$Cl,s=I(a)?void 0:a._$litDirective$;return i?.constructor!==s&&(i?._$AO?.(!1),s===void 0?i=void 0:(i=new s(n),i._$AT(n,e,t)),t!==void 0?(e._$Co??=[])[t]=i:e._$Cl=i),i!==void 0&&(a=P(n,i._$AS(n,a.values),i,t)),a}var ne=class{constructor(a,e){this._$AV=[],this._$AN=void 0,this._$AD=a,this._$AM=e}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(a){let{el:{content:e},parts:t}=this._$AD,i=(a?.creationScope??F).importNode(e,!0);M.currentNode=i;let s=M.nextNode(),r=0,l=0,o=t[0];for(;o!==void 0;){if(r===o.index){let p;o.type===2?p=new V(s,s.nextSibling,this,a):o.type===1?p=new o.ctor(s,o.name,o.strings,this,a):o.type===6&&(p=new de(s,this,a)),this._$AV.push(p),o=t[++l]}r!==o?.index&&(s=M.nextNode(),r++)}return M.currentNode=F,i}p(a){let e=0;for(let t of this._$AV)t!==void 0&&(t.strings!==void 0?(t._$AI(a,t,e),e+=t.strings.length-2):t._$AI(a[e])),e++}},V=class n{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(a,e,t,i){this.type=2,this._$AH=d,this._$AN=void 0,this._$AA=a,this._$AB=e,this._$AM=t,this.options=i,this._$Cv=i?.isConnected??!0}get parentNode(){let a=this._$AA.parentNode,e=this._$AM;return e!==void 0&&a?.nodeType===11&&(a=e.parentNode),a}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(a,e=this){a=P(this,a,e),I(a)?a===d||a==null||a===""?(this._$AH!==d&&this._$AR(),this._$AH=d):a!==this._$AH&&a!==R&&this._(a):a._$litType$!==void 0?this.$(a):a.nodeType!==void 0?this.T(a):Ke(a)?this.k(a):this._(a)}O(a){return this._$AA.parentNode.insertBefore(a,this._$AB)}T(a){this._$AH!==a&&(this._$AR(),this._$AH=this.O(a))}_(a){this._$AH!==d&&I(this._$AH)?this._$AA.nextSibling.data=a:this.T(F.createTextNode(a)),this._$AH=a}$(a){let{values:e,_$litType$:t}=a,i=typeof t=="number"?this._$AC(a):(t.el===void 0&&(t.el=W.createElement(ze(t.h,t.h[0]),this.options)),t);if(this._$AH?._$AD===i)this._$AH.p(e);else{let s=new ne(i,this),r=s.u(this.options);s.p(e),this.T(r),this._$AH=s}}_$AC(a){let e=Ce.get(a.strings);return e===void 0&&Ce.set(a.strings,e=new W(a)),e}k(a){he(this._$AH)||(this._$AH=[],this._$AR());let e=this._$AH,t,i=0;for(let s of a)i===e.length?e.push(t=new n(this.O(j()),this.O(j()),this,this.options)):t=e[i],t._$AI(s),i++;i<e.length&&(this._$AR(t&&t._$AB.nextSibling,i),e.length=i)}_$AR(a=this._$AA.nextSibling,e){for(this._$AP?.(!1,!0,e);a!==this._$AB;){let t=xe(a).nextSibling;xe(a).remove(),a=t}}setConnected(a){this._$AM===void 0&&(this._$Cv=a,this._$AP?.(a))}},L=class{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(a,e,t,i,s){this.type=1,this._$AH=d,this._$AN=void 0,this.element=a,this.name=e,this._$AM=i,this.options=s,t.length>2||t[0]!==""||t[1]!==""?(this._$AH=Array(t.length-1).fill(new String),this.strings=t):this._$AH=d}_$AI(a,e=this,t,i){let s=this.strings,r=!1;if(s===void 0)a=P(this,a,e,0),r=!I(a)||a!==this._$AH&&a!==R,r&&(this._$AH=a);else{let l=a,o,p;for(a=s[0],o=0;o<s.length-1;o++)p=P(this,l[t+o],e,o),p===R&&(p=this._$AH[o]),r||=!I(p)||p!==this._$AH[o],p===d?a=d:a!==d&&(a+=(p??"")+s[o+1]),this._$AH[o]=p}r&&!i&&this.j(a)}j(a){a===d?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,a??"")}},oe=class extends L{constructor(){super(...arguments),this.type=3}j(a){this.element[this.name]=a===d?void 0:a}},le=class extends L{constructor(){super(...arguments),this.type=4}j(a){this.element.toggleAttribute(this.name,!!a&&a!==d)}},ce=class extends L{constructor(a,e,t,i,s){super(a,e,t,i,s),this.type=5}_$AI(a,e=this){if((a=P(this,a,e,0)??d)===R)return;let t=this._$AH,i=a===d&&t!==d||a.capture!==t.capture||a.once!==t.once||a.passive!==t.passive,s=a!==d&&(t===d||i);i&&this.element.removeEventListener(this.name,this,t),s&&this.element.addEventListener(this.name,this,a),this._$AH=a}handleEvent(a){typeof this._$AH=="function"?this._$AH.call(this.options?.host??this.element,a):this._$AH.handleEvent(a)}},de=class{constructor(a,e,t){this.element=a,this.type=6,this._$AN=void 0,this._$AM=e,this.options=t}get _$AU(){return this._$AM._$AU}_$AI(a){P(this,a)}};var Ge=pe.litHtmlPolyfillSupport;Ge?.(W,V),(pe.litHtmlVersions??=[]).push("3.3.3");var Pe=(n,a,e)=>{let t=e?.renderBefore??a,i=t._$litPart$;if(i===void 0){let s=e?.renderBefore??null;t._$litPart$=i=new V(a.insertBefore(j(),s),s,void 0,e??{})}return i._$AI(n),i};var me=globalThis,E=class extends S{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){let a=super.createRenderRoot();return this.renderOptions.renderBefore??=a.firstChild,a}update(a){let e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(a),this._$Do=Pe(e,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return R}};E._$litElement$=!0,E.finalized=!0,me.litElementHydrateSupport?.({LitElement:E});var Ye=me.litElementPolyfillSupport;Ye?.({LitElement:E});(me.litElementVersions??=[]).push("4.2.2");var Qe={attribute:!0,type:String,converter:B,reflect:!1,hasChanged:Q},Je=(n=Qe,a,e)=>{let{kind:t,metadata:i}=e,s=globalThis.litPropertyMetadata.get(i);if(s===void 0&&globalThis.litPropertyMetadata.set(i,s=new Map),t==="setter"&&((n=Object.create(n)).wrapped=!0),s.set(e.name,n),t==="accessor"){let{name:r}=e;return{set(l){let o=a.get.call(this);a.set.call(this,l),this.requestUpdate(r,o,n,!0,l)},init(l){return l!==void 0&&this.C(r,void 0,n,l),l}}}if(t==="setter"){let{name:r}=e;return function(l){let o=this[r];a.call(this,l),this.requestUpdate(r,o,n,!0,l)}}throw Error("Unsupported decorator location: "+t)};function T(n){return(a,e)=>typeof e=="object"?Je(n,a,e):((t,i,s)=>{let r=i.hasOwnProperty(s);return i.constructor.createProperty(s,t),r?Object.getOwnPropertyDescriptor(i,s):void 0})(n,a,e)}function y(n){return T({...n,state:!0,attribute:!1})}var Le=O`
   :host {
     display: block;
     box-sizing: border-box;
@@ -40,19 +40,43 @@ var Ue=Object.defineProperty;var ze=Object.getOwnPropertyDescriptor;var v=(n,e,t
   }
 
   /* Header Section */
-  .card-header {
-    display: flex;
-    justify-content: space-between;
+  .fa-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 16px;
+    column-gap: 12px;
+    margin: 0 0 12px;
+    padding: 0;
   }
 
-  .player-identity {
+  .player-info { min-width: 0; }
+
+  .name-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .name-row h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-ranks { display: inline-flex; gap: 4px; flex-shrink: 0; }
+
+  .season-bar {
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: -4px 0 14px;
+    overflow: hidden;
+  }
+
+  .season-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #7928CA);
   }
 
   .player-avatar {
@@ -306,10 +330,15 @@ var Ue=Object.defineProperty;var ze=Object.getOwnPropertyDescriptor;var v=(n,e,t
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--card-radius);
     padding: 10px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .match-row,
+  .event-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .match-card:hover {
@@ -458,24 +487,56 @@ var Ue=Object.defineProperty;var ze=Object.getOwnPropertyDescriptor;var v=(n,e,t
     color: var(--secondary-text-color, rgba(255, 255, 255, 0.75));
   }
 
-  .window-tabs { margin-bottom: 8px; }
+  .tab-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .tab-rows .mode-tabs { margin-bottom: 0; }
   .mode-tabs { flex-wrap: wrap; }
-  .kpi-row.compact .kpi-value { font-size: 15px; }
+  .kpi-row.secondary .kpi-value { font-size: 15px; }
 
   .feature-card {
-    position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 14px 16px;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
     margin-bottom: 16px;
     border-radius: var(--card-radius);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.75) 35%, rgba(0, 0, 0, 0.15)),
-      var(--feature-art, none) center / cover no-repeat, var(--sub-btn-bg);
-    color: #ffffff;
+    background: var(--sub-btn-bg);
     overflow: hidden;
+    min-height: 76px;
   }
+
+  .feature-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 12px 0 12px 16px;
+    min-width: 0;
+  }
+
+  /* 16:9 artwork shown whole on the right, anchored to the top so heads are never cropped */
+  .feature-art {
+    width: 42%;
+    max-width: 180px;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: center top;
+    align-self: center;
+    flex-shrink: 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 22%);
+  }
+
+  .feature-icon {
+    --mdc-icon-size: 40px;
+    align-self: center;
+    margin-right: 18px;
+    opacity: 0.85;
+  }
+
+  .feature-card.no-art.art-reload { background: linear-gradient(110deg, rgba(0, 0, 0, 0.2), rgba(255, 94, 58, 0.35)); }
+  .feature-card.no-art.art-zero_build { background: linear-gradient(110deg, rgba(0, 0, 0, 0.2), rgba(0, 229, 255, 0.3)); }
+  .feature-card.no-art.art-build { background: linear-gradient(110deg, rgba(0, 0, 0, 0.2), rgba(168, 85, 247, 0.35)); }
 
   .feature-label { font-size: 11px; text-transform: uppercase; font-weight: 600; opacity: 0.75; }
   .feature-value { font-size: 17px; font-weight: 800; }
@@ -544,23 +605,225 @@ var Ue=Object.defineProperty;var ze=Object.getOwnPropertyDescriptor;var v=(n,e,t
     height: 36px;
     border-radius: 8px;
     object-fit: cover;
-    margin-right: 10px;
+    object-position: center top;
     flex-shrink: 0;
   }
+
+  .event-art { width: 44px; height: 44px; }
 
   .match-card .match-left,
   .event-card .match-left { flex: 1; min-width: 0; }
 
   .event-card {
-    display: flex;
-    align-items: center;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--card-radius);
     padding: 10px 14px;
+    cursor: pointer;
   }
 
+  .chevron { --mdc-icon-size: 18px; opacity: 0.5; flex-shrink: 0; }
+
+  /* ---- Tier badges ---- */
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  }
+
+  .rank-badge.unranked {
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 12px;
+    color: var(--secondary-text-color);
+  }
+
+  .rank-title { display: inline-flex; align-items: center; gap: 8px; }
+
+  .unreal-position {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 2px 0;
+  }
+
+  .unreal-number {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #FF9BD2, #A855F7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ---- Buttons: live badge ---- */
+  .bubble-sub-button { position: relative; }
+
+  .notify-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 9px;
+    background: #EF4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 18px;
+    text-align: center;
+    box-shadow: 0 0 0 2px var(--card-bg, #131926);
+  }
+
+  /* ---- Expanded match / event details ---- */
+  .match-details,
+  .event-details {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: default;
+  }
+
+  .detail-art,
+  .event-hero {
+    width: 100%;
+    max-height: 170px;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  .detail-desc { font-size: 12px; line-height: 1.45; margin: 4px 0 8px; opacity: 0.85; }
+  .detail-sub { font-weight: 700; font-size: 13px; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 6px;
+  }
+
+  .detail,
+  .detail-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .detail span,
+  .detail-line span { opacity: 0.7; }
+
+  .detail-line { margin-bottom: 4px; }
+
+  /* ---- Events ---- */
+  .event-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .filter-select {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 6px 26px 6px 12px;
+    border-radius: var(--pill-radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--sub-btn-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E") no-repeat right 10px center;
+    color: var(--primary-text-color, #fff);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .filter-select option { color: #000; }
+
+  .match-list.events { max-height: 520px; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: var(--pill-radius);
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--secondary-text-color, rgba(255, 255, 255, 0.75));
+  }
+
+  .match-mode.soon { color: var(--accent); }
+
+  .window-list { display: grid; gap: 6px; margin-top: 4px; }
+
+  .window-row {
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .window-row.live { box-shadow: inset 3px 0 0 #FFD700; }
+  .window-row.finished { opacity: 0.8; }
+
+  .window-main {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .window-label { font-weight: 700; }
+  .window-time { opacity: 0.8; }
+  .window-status.live { color: #FFD700; font-weight: 700; }
+  .window-status.upcoming { color: var(--accent); }
+
+  .mini-button {
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: var(--pill-radius);
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+  }
+
+  .leaderboard { margin-top: 8px; display: grid; gap: 3px; }
+
+  .lb-row {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    grid-template-areas: "rank names points" "rank extra extra";
+    column-gap: 8px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .lb-row.you { background: rgba(0, 229, 255, 0.14); border: 1px solid var(--accent); }
+  .lb-rank { grid-area: rank; font-weight: 800; align-self: center; }
+  .lb-names { grid-area: names; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-points { grid-area: points; font-weight: 700; color: #FFD700; }
+  .lb-extra { grid-area: extra; font-size: 10px; opacity: 0.65; }
+  .lb-note { font-size: 11px; opacity: 0.7; padding: 4px 2px; }
+
   .event-card.live { border-color: rgba(255, 215, 0, 0.45); }
+  .event-card.expanded,
+  .match-card.expanded { background: rgba(255, 255, 255, 0.07); }
   .event-name { font-weight: 700; font-size: 13px; }
 
   /* ---- Theme: Cyber Fortnite (neon, high energy) ---- */
@@ -622,210 +885,344 @@ var Ue=Object.defineProperty;var ze=Object.getOwnPropertyDescriptor;var v=(n,e,t
   ha-card.theme-minimal .kpi-value.gold,
   ha-card.theme-minimal .rank-name { color: var(--primary-text-color) !important; }
   ha-card.theme-minimal .progress-bar-fill { background: var(--accent); }
-`;var Je=[{name:"player",label:"Tracked Player Key (e.g. player1, player2)",selector:{text:{}}},{name:"avatar",label:"Avatar skin name (e.g. Peely) \u2014 looked up in the cosmetics catalogue",selector:{text:{}}},{name:"layout",label:"Card Layout Mode",selector:{select:{options:[{value:"auto",label:"Adaptive (Session when playing, Stats when idle, Events tab)"},{value:"session_only",label:"Live Session & Match Feed Only"},{value:"career_only",label:"Overall Career & Ranks Only"}]}}},{name:"card_style",label:"Visual Theme",selector:{select:{options:[{value:"bubble",label:"Bubble (follows your HA / Bubble Card theme)"},{value:"cyber_fortnite",label:"Cyber Fortnite (neon gradients)"},{value:"minimal",label:"Minimal (flat, no chrome)"}]}}},{name:"theme_accent",label:"Accent Tint",selector:{select:{options:[{value:"auto",label:"Inherit Theme Accent (--bubble-accent-color)"},{value:"victory_gold",label:"Victory Gold (#FFD700)"},{value:"slurp_cyan",label:"Slurp Cyan (#00E5FF)"},{value:"storm_purple",label:"Storm Purple (#A855F7)"}]}}},{name:"show_match_feed",label:"Show Match-by-Match Timeline",selector:{boolean:{}}},{name:"show_sub_buttons",label:"Show Quick Action Sub-Buttons (Start/End Session, Refresh)",selector:{boolean:{}}},{name:"show_platforms",label:"Show linked platform accounts (PSN / Xbox / Switch names)",selector:{boolean:{}}},{name:"show_tournaments",label:"Show Events (tournament schedule) tab",selector:{boolean:{}}},{name:"max_feed_matches",label:"Max Matches in Session Feed",selector:{number:{min:3,max:20,mode:"slider"}}},{name:"hide_account_level",label:"Hide Account Level (shown only once an Epic login is available)",selector:{boolean:{}}},{name:"hide_season_level",label:"Hide Season Level (shown only once an Epic login is available)",selector:{boolean:{}}},{name:"hide_rank_progress",label:"Hide Rank Progress Bars",selector:{boolean:{}}},{name:"custom_background",label:"Custom Background Image URL",selector:{text:{}}}],I=class extends x{setConfig(e){this._config={player:"player1",layout:"auto",card_style:"bubble",theme_accent:"auto",show_match_feed:!0,show_sub_buttons:!0,show_platforms:!0,show_tournaments:!0,max_feed_matches:10,...e}}_valueChanged(e){if(!this._config||!this.hass)return;let t=e.target,s=e.detail?e.detail.value:t.value;this._config={...this._config,...s};let a=new CustomEvent("config-changed",{detail:{config:this._config},bubbles:!0,composed:!0});this.dispatchEvent(a)}render(){return!this.hass||!this._config?d:l`
+
+  /* ---- Compact mode: small buttons, inline stat strip ---- */
+  ha-card.compact { padding: 12px; }
+  ha-card.compact .fa-header { margin-bottom: 10px; }
+  ha-card.compact .player-avatar { width: 34px; height: 34px; font-size: 14px; }
+  ha-card.compact .player-info h2 { font-size: 15px; }
+  ha-card.compact .platforms { display: none; }
+
+  ha-card.compact .sub-button-row { gap: 6px; margin-bottom: 10px; }
+
+  ha-card.compact .bubble-sub-button {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+    gap: 4px;
+    --mdc-icon-size: 18px;
+  }
+
+  ha-card.compact .bubble-sub-button:not(.active) .btn-label { display: none; }
+
+  ha-card.compact .kpi-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    margin-bottom: 10px;
+  }
+
+  ha-card.compact .kpi-chip {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: var(--pill-radius);
+  }
+
+  ha-card.compact .kpi-label { margin: 0; font-size: 10px; }
+  ha-card.compact .kpi-value,
+  ha-card.compact .kpi-row.secondary .kpi-value { font-size: 13px; }
+  ha-card.compact .rank-section { padding: 8px 12px; margin-bottom: 10px; }
+  ha-card.compact .feature-card { min-height: 56px; margin-bottom: 10px; }
+  ha-card.compact .feature-value { font-size: 14px; }
+  ha-card.compact .size-table,
+  ha-card.compact .split-section { margin-bottom: 10px; }
+  ha-card.compact .match-card,
+  ha-card.compact .event-card { padding: 7px 10px; }
+  ha-card.compact .mode-tab { padding: 3px 10px; font-size: 11px; }
+  ha-card.compact .unreal-number { font-size: 18px; }
+`;var Xe=[{name:"player",label:"Tracked Player Key (e.g. player1, player2)",selector:{text:{}}},{name:"avatar",label:"Avatar skin name (e.g. Peely) \u2014 looked up in the cosmetics catalogue",selector:{text:{}}},{name:"layout",label:"Card Layout Mode",selector:{select:{options:[{value:"auto",label:"Adaptive (Session when playing, Stats when idle, Events tab)"},{value:"session_only",label:"Live Session & Match Feed Only"},{value:"career_only",label:"Overall Career & Ranks Only"},{value:"events_only",label:"Tournaments / Events Only"}]}}},{name:"card_style",label:"Visual Theme",selector:{select:{options:[{value:"bubble",label:"Bubble (follows your HA / Bubble Card theme)"},{value:"cyber_fortnite",label:"Cyber Fortnite (neon gradients)"},{value:"minimal",label:"Minimal (flat, no chrome)"}]}}},{name:"theme_accent",label:"Accent Tint",selector:{select:{options:[{value:"auto",label:"Inherit Theme Accent (--bubble-accent-color)"},{value:"victory_gold",label:"Victory Gold (#FFD700)"},{value:"slurp_cyan",label:"Slurp Cyan (#00E5FF)"},{value:"storm_purple",label:"Storm Purple (#A855F7)"}]}}},{name:"show_match_feed",label:"Show Match-by-Match Timeline",selector:{boolean:{}}},{name:"show_sub_buttons",label:"Show Quick Action Sub-Buttons (Start/End Session, Refresh)",selector:{boolean:{}}},{name:"compact",label:"Compact mode (smaller buttons, inline stats)",selector:{boolean:{}}},{name:"events_region",label:"Default events region filter",selector:{select:{options:[{value:"EU",label:"Europe"},{value:"NA",label:"North America"},{value:"BR",label:"Brazil"},{value:"ASIA",label:"Asia"},{value:"OCE",label:"Oceania"},{value:"ME",label:"Middle East"},{value:"all",label:"All regions"}]}}},{name:"show_platforms",label:"Show linked platform accounts (PSN / Xbox / Switch names)",selector:{boolean:{}}},{name:"show_tournaments",label:"Show Events (tournament schedule) tab",selector:{boolean:{}}},{name:"max_feed_matches",label:"Max Matches in Session Feed",selector:{number:{min:3,max:20,mode:"slider"}}},{name:"hide_account_level",label:"Hide Account Level (shown only once an Epic login is available)",selector:{boolean:{}}},{name:"hide_season_level",label:"Hide Season Level (shown only once an Epic login is available)",selector:{boolean:{}}},{name:"hide_rank_progress",label:"Hide Rank Progress Bars",selector:{boolean:{}}},{name:"custom_background",label:"Custom Background Image URL",selector:{text:{}}}],q=class extends E{setConfig(a){this._config={player:"player1",layout:"auto",card_style:"bubble",theme_accent:"auto",show_match_feed:!0,show_sub_buttons:!0,show_platforms:!0,show_tournaments:!0,max_feed_matches:10,...a}}_valueChanged(a){if(!this._config||!this.hass)return;let e=a.target,t=a.detail?a.detail.value:e.value;this._config={...this._config,...t};let i=new CustomEvent("config-changed",{detail:{config:this._config},bubbles:!0,composed:!0});this.dispatchEvent(i)}render(){return!this.hass||!this._config?d:c`
       <div class="card-config">
         <ha-form
           .hass=${this.hass}
           .data=${this._config}
-          .schema=${Je}
-          .computeLabel=${e=>e.label||e.name}
+          .schema=${Xe}
+          .computeLabel=${a=>a.label||a.name}
           @value-changed=${this._valueChanged}
         ></ha-form>
       </div>
-    `}static{this.styles=L`
+    `}static{this.styles=O`
     .card-config {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-  `}};v([F({attribute:!1})],I.prototype,"hass",2),v([$()],I.prototype,"_config",2);customElements.get("fortnite-activity-card-editor")||customElements.define("fortnite-activity-card-editor",I);var Ze="1.0.9";window.customCards=window.customCards||[];window.customCards.push({type:"fortnite-activity-card",name:"Fortnite Activity Card",description:"Fortnite player profile, live session tracker, time-windowed stats and tournaments.",preview:!1,documentationURL:"https://github.com/Dec64/fortnite-activity"});var Xe={current_session:["session"],rank_battle_royale:["battle_royale_rank"],rank_reload:["reload_rank"]},Te={Bronze:"#CD7F32",Silver:"#C0C0C0",Gold:"#FFD700",Platinum:"#00E5FF",Diamond:"#3B82F6",Elite:"#A855F7",Champion:"#F59E0B",Unreal:"#EF4444"},pe={player:"player1",layout:"auto",card_style:"bubble",theme_accent:"auto",show_match_feed:!0,show_sub_buttons:!0,show_platforms:!0,show_tournaments:!0,max_feed_matches:10},he=n=>{n.target.hidden=!0},W={at:0},ue=new Map,y=class extends x{constructor(){super(...arguments);this._config={type:"custom:fortnite-activity-card",...pe};this._view=null;this._window="lifetime";this._selectedMode="all";this._loadingAction=null;this._catalog={playlists:{}};this._avatar=null;this._tournaments={};this._entityCache=new Map;this._avatarQuery="";this._tournamentsAt=0}static get styles(){return Pe}setConfig(t){if(!t)throw new Error("Invalid configuration");this._config={...pe,...t},this._entityCache.clear()}static getConfigElement(){return document.createElement("fortnite-activity-card-editor")}static getStubConfig(){return{type:"custom:fortnite-activity-card",...pe}}getCardSize(){return 6}get _player(){return(this._config.player||"player1").toLowerCase()}updated(t){super.updated(t),this.hass&&(t.has("hass")&&!t.get("hass")&&this._loadCatalog(),(t.has("_config")||t.has("hass")&&!t.get("hass"))&&this._scheduleAvatar())}async _loadCatalog(){(!W.promise||Date.now()-W.at>36e5)&&(W.at=Date.now(),W.promise=this.hass.callWS({type:"fortnite_activity/catalog",player_id:this._player}).catch(()=>({playlists:{}})));let t=await W.promise;this._catalog={season:t?.season,playlists:t?.playlists||{}}}_scheduleAvatar(){let t=(this._config.avatar||"").trim();if(t!==this._avatarQuery){if(this._avatarQuery=t,window.clearTimeout(this._avatarTimer),t.length<3){this._avatar=null;return}this._avatarTimer=window.setTimeout(async()=>{let s=t.toLowerCase();ue.has(s)||ue.set(s,this.hass.callWS({type:"fortnite_activity/cosmetic",query:t}).then(i=>i?.cosmetic||null).catch(()=>null));let a=await ue.get(s);this._avatarQuery===t&&(this._avatar=a)},800)}}async _loadTournaments(t=!1){if(!(!this.hass||this._tournaments.loading)&&!(!t&&Date.now()-this._tournamentsAt<30*6e4&&this._tournaments.tournaments!==void 0)){this._tournaments={...this._tournaments,loading:!0,error:void 0};try{let s=await this.hass.callWS({type:"fortnite_activity/tournaments",player_id:this._player});this._tournaments={region:s?.region,tournaments:s?.tournaments??null},this._tournamentsAt=Date.now()}catch(s){this._tournaments={error:s?.message||"Could not load tournaments"}}}}_findEntity(t,s){let a=this.hass?.states;if(!a)return;let i=this._player,r=`${i}:${t}:${s}`,c=this._entityCache.get(r);if(c&&a[c])return a[c];let o;for(let[p,u]of Object.entries(a))if(p.startsWith(`${t}.`)&&u.attributes?.fortnite_player_id===i&&u.attributes?.fortnite_entity_key===s){o=p;break}if(o||(o=[s,...Xe[s]||[]].flatMap(h=>[`${t}.fortnite_${i}_${h}`,`${t}.fortnite_${i}_${i}_${h}`]).find(h=>a[h])),!!o)return this._entityCache.set(r,o),a[o]}async _callService(t,s={}){if(this.hass){this._loadingAction=t;try{await this.hass.callService("fortnite_activity",t,{player_id:this._player,...s}),setTimeout(()=>{this._loadingAction=null},1500)}catch(a){this._loadingAction=null,console.error(`Error calling service fortnite_activity.${t}:`,a)}}}_setView(t){this._view=t,t==="events"&&this._loadTournaments()}_formatRelativeTime(t){if(!t)return"";let s=new Date(t);if(isNaN(s.getTime()))return"";let a=Math.max(1,Math.round((Date.now()-s.getTime())/6e4));if(a<60)return`${a}m ago`;let i=Math.round(a/60);return i<24?`${i}h ago`:`${Math.round(i/24)}d ago`}_formatDuration(t){if(!t||t<=0)return"0m";let s=Math.floor(t/60),a=t%60;return s>0?`${s}h ${a}m`:`${a}m`}_formatWhen(t){let s=new Date(t),a=this.hass?.locale?.language||void 0;return s.toLocaleString(a,{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}_num(t,s=0){return Number(t||0).toLocaleString(this.hass?.locale?.language||void 0,{maximumFractionDigits:s,minimumFractionDigits:0})}_rankLabel(t){let s=t.current_rank||"Unranked";return t.unreal_rank?`${s} #${Number(t.unreal_rank).toLocaleString()}`:s}_rankColor(t){let s=Object.keys(Te).find(a=>(t||"").startsWith(a));return s?Te[s]:"var(--secondary-text-color)"}_playlist(t){return t?this._catalog.playlists[t.toLowerCase()]:void 0}render(){if(!this.hass)return l`<ha-card><div class="empty">Loading Fortnite Activity...</div></ha-card>`;let t=this._player,s=this._findEntity("sensor","current_session"),a=this._findEntity("sensor","overall_stats"),i=this._findEntity("sensor","rank_battle_royale"),r=this._findEntity("sensor","rank_reload"),c=this._findEntity("sensor","level"),o=this._findEntity("binary_sensor","playing"),p=this._findEntity("sensor","profile");if(!s&&!a&&!o)return l`<ha-card><div class="empty">
-        No Fortnite Activity entities found for player <b>${t}</b>.
+  `}};f([T({attribute:!1})],q.prototype,"hass",2),f([y()],q.prototype,"_config",2);customElements.get("fortnite-activity-card-editor")||customElements.define("fortnite-activity-card-editor",q);var et="1.1.0";window.customCards=window.customCards||[];window.customCards.push({type:"fortnite-activity-card",name:"Fortnite Activity Card",description:"Fortnite player profile, live session tracker, time-windowed stats and tournaments.",preview:!1,documentationURL:"https://github.com/Dec64/fortnite-activity"});var tt={current_session:["session"],rank_battle_royale:["battle_royale_rank"],rank_reload:["reload_rank"]},te={Bronze:["#E0A06A","#8A5429"],Silver:["#E8EDF2","#8C99A6"],Gold:["#FFE27A","#C99A12"],Platinum:["#8FF3FF","#1C9DB5"],Diamond:["#9CC2FF","#2F5FD0"],Elite:["#D9B4FF","#7B35C9"],Champion:["#FFC76B","#D9530F"],Unreal:["#FF9BD2","#7B2FF7"]},at={reload:"mdi:reload",zero_build:"mdi:shield-outline",build:"mdi:wall"},ge={player:"player1",layout:"auto",card_style:"bubble",theme_accent:"auto",show_match_feed:!0,show_sub_buttons:!0,show_platforms:!0,show_tournaments:!0,compact:!1,max_feed_matches:10},D=n=>{n.target.hidden=!0},Te=n=>new Intl.DateTimeFormat("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:!0,timeZone:n}),K={at:0},z={at:0},fe=new Map,v=class extends E{constructor(){super(...arguments);this._config={type:"custom:fortnite-activity-card",...ge};this._view=null;this._window="lifetime";this._selectedMode="all";this._loadingAction=null;this._catalog={playlists:{}};this._avatar=null;this._events={};this._filters=null;this._expandedEvent=null;this._expandedMatch=null;this._leaderboards={};this._now=Date.now();this._entityCache=new Map;this._avatarQuery=""}static get styles(){return Le}setConfig(e){if(!e)throw new Error("Invalid configuration");this._config={...ge,...e},this._entityCache.clear(),this._filters=null}static getConfigElement(){return document.createElement("fortnite-activity-card-editor")}static getStubConfig(){return{type:"custom:fortnite-activity-card",...ge}}getCardSize(){return this._config.compact?4:6}connectedCallback(){super.connectedCallback(),this._tick=window.setInterval(()=>{this._now=Date.now(),Date.now()-z.at>10*6e4&&this._loadEvents()},3e4)}disconnectedCallback(){super.disconnectedCallback(),window.clearInterval(this._tick)}get _player(){return(this._config.player||"player1").toLowerCase()}get _eventsEnabled(){return this._config.show_tournaments!==!1||this._config.layout==="events_only"}updated(e){if(super.updated(e),!this.hass)return;let t=e.has("hass")&&!e.get("hass");t&&(this._loadCatalog(),this._eventsEnabled&&this._loadEvents()),(e.has("_config")||t)&&this._scheduleAvatar()}async _loadCatalog(){(!K.promise||Date.now()-K.at>36e5)&&(K.at=Date.now(),K.promise=this.hass.callWS({type:"fortnite_activity/catalog",player_id:this._player}).catch(()=>({playlists:{}})));let e=await K.promise;this._catalog={season:e?.season,playlists:e?.playlists||{}}}async _loadEvents(e=!1){if(this.hass){(e||!z.promise||Date.now()-z.at>10*6e4)&&(z.at=Date.now(),z.promise=this.hass.callWS({type:"fortnite_activity/tournaments",player_id:this._player})),this._events.list||(this._events={...this._events,loading:!0});try{let t=await z.promise;this._events={list:t?.tournaments??null,defaultRegion:t?.default_region_group}}catch(t){z.promise=void 0,this._events={error:t?.message||"Could not load tournaments"}}}}_scheduleAvatar(){let e=(this._config.avatar||"").trim();if(e!==this._avatarQuery){if(this._avatarQuery=e,window.clearTimeout(this._avatarTimer),e.length<3){this._avatar=null;return}this._avatarTimer=window.setTimeout(async()=>{let t=e.toLowerCase();fe.has(t)||fe.set(t,this.hass.callWS({type:"fortnite_activity/cosmetic",query:e}).then(s=>s?.cosmetic||null).catch(()=>null));let i=await fe.get(t);this._avatarQuery===e&&(this._avatar=i)},800)}}async _loadLeaderboard(e,t){let i=`${e}|${t}`;if(!this._leaderboards[i]?.loading){this._leaderboards={...this._leaderboards,[i]:{...this._leaderboards[i],loading:!0,error:void 0}};try{let s=await this.hass.callWS({type:"fortnite_activity/leaderboard",event_id:e,window_id:t,player_id:this._player});this._leaderboards={...this._leaderboards,[i]:{data:s?.leaderboard}}}catch(s){this._leaderboards={...this._leaderboards,[i]:{error:s?.message||"Leaderboard unavailable"}}}}}_findEntity(e,t){let i=this.hass?.states;if(!i)return;let s=this._player,r=`${s}:${e}:${t}`,l=this._entityCache.get(r);if(l&&i[l])return i[l];let o;for(let[p,h]of Object.entries(i))if(p.startsWith(`${e}.`)&&h.attributes?.fortnite_player_id===s&&h.attributes?.fortnite_entity_key===t){o=p;break}if(o||(o=[t,...tt[t]||[]].flatMap(u=>[`${e}.fortnite_${s}_${u}`,`${e}.fortnite_${s}_${s}_${u}`]).find(u=>i[u])),!!o)return this._entityCache.set(r,o),i[o]}async _callService(e,t={}){if(this.hass){this._loadingAction=e;try{await this.hass.callService("fortnite_activity",e,{player_id:this._player,...t}),e==="refresh_player"&&this._eventsEnabled&&this._loadEvents(!0),setTimeout(()=>{this._loadingAction=null},1500)}catch(i){this._loadingAction=null,console.error(`Error calling service fortnite_activity.${e}:`,i)}}}_setView(e){this._view=e,e==="events"&&this._loadEvents()}_toggleEvent(e){if(this._expandedEvent===e.key){this._expandedEvent=null;return}this._expandedEvent=e.key;let t=e.windows.find(i=>this._windowState(i)==="live")||[...e.windows].reverse().find(i=>this._windowState(i)==="finished");t&&!this._leaderboards[`${e.event_id}|${t.window_id}`]&&this._loadLeaderboard(e.event_id,t.window_id)}_formatRelativeTime(e){if(!e)return"";let t=new Date(e);if(isNaN(t.getTime()))return"";let i=Math.max(1,Math.round((this._now-t.getTime())/6e4));if(i<60)return`${i}m ago`;let s=Math.round(i/60);return s<24?`${s}h ago`:`${Math.round(s/24)}d ago`}_formatDuration(e){if(!e||e<=0)return"0m";let t=Math.floor(e/60),i=Math.round(e%60);return t>0?`${t}h ${i}m`:`${i}m`}_formatSpan(e){let t=Math.max(0,Math.round(e/6e4)),i=Math.floor(t/1440),s=Math.floor(t%1440/60),r=t%60;return i>0?`${i}d ${s}h`:s>0?`${s}h ${r}m`:`${r}m`}_formatWhen(e){try{return Te(this.hass?.config?.time_zone).format(new Date(e)).replace(/\b(am|pm)\b/i,t=>t.toLowerCase())}catch{return Te().format(new Date(e))}}_num(e,t=0){return Number(e||0).toLocaleString("en-GB",{maximumFractionDigits:t,minimumFractionDigits:0})}_playlist(e){return e?this._catalog.playlists[e.toLowerCase()]:void 0}_windowState(e){let t=Date.parse(e.begin),i=Date.parse(e.end);return this._now>=i?"finished":this._now>=t?"live":"upcoming"}_rankBadge(e,t=30){let i=e||"Unranked",s=Object.keys(te).find(u=>i.startsWith(u));if(!s)return c`<span class="rank-badge unranked" style="width:${t}px;height:${t}px">–</span>`;let[r,l]=te[s],o=(i.match(/\b(I{1,3})$/)||[])[1]||"",p=`g-${s}-${t}`;return c`<span class="rank-badge" title=${i} style="width:${t}px;height:${t}px">
+      ${X`<svg viewBox="0 0 40 44" width=${t} height=${t} aria-hidden="true">
+        <defs><linearGradient id=${p} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color=${r}></stop><stop offset="1" stop-color=${l}></stop>
+        </linearGradient></defs>
+        ${s==="Unreal"?X`<path d="M20 2 L37 12 L37 30 L20 42 L3 30 L3 12 Z" fill="url(#${p})" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"></path>
+                <path d="M11 17 L15 24 L20 13 L25 24 L29 17 L27 30 L13 30 Z" fill="rgba(255,255,255,0.92)"></path>`:X`<path d="M20 2 L36 8 L36 22 C36 32 28 39 20 42 C12 39 4 32 4 22 L4 8 Z" fill="url(#${p})" stroke="rgba(255,255,255,0.75)" stroke-width="1.5"></path>
+                <path d="M20 9 L29 13 L29 22 C29 28 25 32 20 34 C15 32 11 28 11 22 L11 13 Z" fill="rgba(0,0,0,0.18)"></path>
+                <text x="20" y="27" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="sans-serif">${o}</text>`}
+      </svg>`}
+    </span>`}render(){if(!this.hass)return c`<ha-card><div class="empty">Loading Fortnite Activity...</div></ha-card>`;let e=this._player,t=this._findEntity("sensor","current_session"),i=this._findEntity("sensor","overall_stats"),s=this._findEntity("sensor","rank_battle_royale"),r=this._findEntity("sensor","rank_reload"),l=this._findEntity("sensor","level"),o=this._findEntity("binary_sensor","playing"),p=this._findEntity("sensor","profile");if(!t&&!i&&!o)return c`<ha-card><div class="empty">
+        No Fortnite Activity entities found for player <b>${e}</b>.
         Check the card's player key matches the player ID configured in the integration.
-      </div></ha-card>`;let u=o?.state==="on"||s?.state==="active",h=s?.attributes||{},f=a?.attributes||{},m=p?.attributes||{},_={...i?.attributes||{},current_rank:i?.state},g={...r?.attributes||{},current_rank:r?.state},b=this._view??(u?"session":"stats");this._config.layout==="session_only"?b="session":this._config.layout==="career_only"&&(b="stats"),b==="events"&&this._config.show_tournaments===!1&&(b="stats");let w="",U={victory_gold:"#FFD700",slurp_cyan:"#00E5FF",storm_purple:"#A855F7"};return U[this._config.theme_accent||""]&&(w+=`--accent: ${U[this._config.theme_accent]};`),this._config.custom_background&&(w+=` --card-bg: url('${this._config.custom_background}') center/cover no-repeat;`),l`
-      <ha-card class="theme-${this._config.card_style||"bubble"}" style="${w}">
-        ${this._renderHeader(t,u,h,f,m,c)}
-        ${this._config.show_sub_buttons!==!1?this._renderButtons(b,u):d}
-        ${b==="session"?this._renderSessionView(u,h,_):b==="events"?this._renderEventsView():this._renderStatsView(f,m,_,g)}
+      </div></ha-card>`;let h=o?.state==="on"||t?.state==="active",u=t?.attributes||{},b=i?.attributes||{},m=p?.attributes||{},x={...s?.attributes||{},current_rank:s?.state},_={...r?.attributes||{},current_rank:r?.state},k=this._config.layout||"auto",$=this._view??(h?"session":"stats");k==="session_only"?$="session":k==="career_only"?$="stats":k==="events_only"&&($="events"),$==="events"&&!this._eventsEnabled&&($="stats");let w="",g={victory_gold:"#FFD700",slurp_cyan:"#00E5FF",storm_purple:"#A855F7"};g[this._config.theme_accent||""]&&(w+=`--accent: ${g[this._config.theme_accent]};`),this._config.custom_background&&(w+=` --card-bg: url('${this._config.custom_background}') center/cover no-repeat;`);let ae=`theme-${this._config.card_style||"bubble"}${this._config.compact?" compact":""}`;return c`
+      <ha-card class=${ae} style="${w}">
+        ${this._renderHeader(e,h,u,b,m,l,x,_)}
+        ${this._config.show_sub_buttons!==!1&&k!=="events_only"?this._renderButtons($,h):d}
+        ${$==="session"?this._renderSessionView(h,u,x):$==="events"?this._renderEventsView():this._renderStatsView(b,m,x,_)}
       </ha-card>
-    `}_renderHeader(t,s,a,i,r,c){let o=r.display_name||t.charAt(0).toUpperCase()+t.slice(1),p=r.season||this._catalog.season,u=this._config.show_platforms!==!1?r.platforms||[]:[],h=i.metrics?.last_played,f=c?.attributes||{},m=Number(c?.state),_=Number(f.account_level||0),g=this._avatar?.icon;return l`
-      <div class="card-header">
-        <div class="player-identity">
-          <div class="player-avatar ${g?"has-image":""}">
-            ${g?l`<img src=${g} alt=${this._avatar?.name||""} @error=${he} />`:t.slice(0,2).toUpperCase()}
-          </div>
-          <div class="player-info">
-            <h2>${o}</h2>
-            <div class="player-meta">
-              ${p?.number?l`<span class="level-badge">S${p.number} · ${p.days_left}d left</span>`:d}
-              ${!this._config.hide_season_level&&m>0?l`<span class="level-badge">Lvl ${m}</span>`:d}
-              ${!this._config.hide_account_level&&_>0?l`<span>Acct ${_.toLocaleString()}</span>`:d}
-              ${h?.time&&!s?l`<span title=${h.name||""}>Played ${this._formatRelativeTime(h.time)}</span>`:d}
-            </div>
-            ${u.length?l`<div class="platforms">
-                  ${u.map(b=>l`<span class="platform-chip" title=${b.name||b.label}>${b.label}${b.name?l` · ${b.name}`:d}</span>`)}
-                </div>`:d}
-          </div>
+    `}_renderHeader(e,t,i,s,r,l,o,p){let h=r.display_name||e.charAt(0).toUpperCase()+e.slice(1),u=r.season||this._catalog.season,b=this._config.show_platforms!==!1?r.platforms||[]:[],m=s.metrics?.last_played,x=l?.attributes||{},_=Number(l?.state),k=Number(x.account_level||0),$=this._avatar?.icon,w=this._config.compact?20:24;return c`
+      <div class="fa-header">
+        <div class="player-avatar ${$?"has-image":""}">
+          ${$?c`<img src=${$} alt=${this._avatar?.name||""} @error=${D} />`:e.slice(0,2).toUpperCase()}
         </div>
-        <div class="status-pill ${s?"live":"idle"}">
-          ${s?l`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(a.duration_minutes||0)}</span>`:l`<span>IDLE</span>`}
+        <div class="player-info">
+          <div class="name-row">
+            <h2>${h}</h2>
+            <span class="header-ranks">
+              ${o.current_rank&&o.current_rank!=="Unranked"?this._rankBadge(o.current_rank,w):d}
+              ${p.current_rank&&p.current_rank!=="Unranked"?this._rankBadge(p.current_rank,w):d}
+            </span>
+          </div>
+          <div class="player-meta">
+            ${u?.number?c`<span class="level-badge">S${u.number} · ${u.days_left}d left</span>`:d}
+            ${!this._config.hide_season_level&&_>0?c`<span class="level-badge">Lvl ${_}</span>`:d}
+            ${!this._config.hide_account_level&&k>0?c`<span>Acct ${k.toLocaleString()}</span>`:d}
+            ${m?.time&&!t?c`<span title=${m.name||""}>Played ${this._formatRelativeTime(m.time)}</span>`:d}
+          </div>
+          ${b.length?c`<div class="platforms">
+                ${b.map(g=>c`<span class="platform-chip" title=${g.name||g.label}>${g.label}${g.name?c` · ${g.name}`:d}</span>`)}
+              </div>`:d}
+        </div>
+        <div class="status-pill ${t?"live":"idle"}">
+          ${t?c`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(i.duration_minutes||0)}</span>`:c`<span>IDLE</span>`}
         </div>
       </div>
-    `}_renderButtons(t,s){let a=(i,r,c)=>l`
-      <button class="bubble-sub-button ${t===i?"active":""}" @click=${()=>this._setView(i)}>
-        <ha-icon icon=${r}></ha-icon><span>${c}</span>
+      ${u?.progress_pct!==void 0&&!this._config.compact?c`<div class="season-bar" title="Season ${u.number}: ${u.progress_pct}% complete">
+            <div class="season-bar-fill" style="width:${Math.min(100,u.progress_pct)}%"></div>
+          </div>`:d}
+    `}_liveEventCount(){let e=this._currentFilters();return(this._events.list||[]).filter(t=>this._matchesFilters(t,e)&&t.windows.some(i=>this._windowState(i)==="live")).length}_renderButtons(e,t){let i=this._config.layout||"auto",s=this._eventsEnabled?this._liveEventCount():0,r=(l,o,p,h=0)=>c`
+      <button class="bubble-sub-button ${e===l?"active":""}" @click=${()=>this._setView(l)} title=${p}>
+        <ha-icon icon=${o}></ha-icon><span class="btn-label">${p}</span>
+        ${h>0?c`<span class="notify-badge" title="${h} live">${h}</span>`:d}
       </button>
-    `;return l`
+    `;return c`
       <div class="sub-button-row">
-        ${this._config.layout!=="career_only"?a("session","mdi:lightning-bolt",s?"Live Session":"Last Session"):d}
-        ${this._config.layout!=="session_only"?a("stats","mdi:trophy-outline","Stats"):d}
-        ${this._config.show_tournaments!==!1&&this._config.layout==="auto"?a("events","mdi:tournament","Events"):d}
-        ${s?l`<button class="bubble-sub-button" @click=${()=>this._callService("end_session")} ?disabled=${this._loadingAction==="end_session"}>
+        ${i!=="career_only"?r("session","mdi:lightning-bolt",t?"Live Session":"Last Session"):d}
+        ${i!=="session_only"?r("stats","mdi:trophy-outline","Stats"):d}
+        ${this._eventsEnabled&&i==="auto"?r("events","mdi:tournament","Events",s):d}
+        ${t?c`<button class="bubble-sub-button" title="End Session" @click=${()=>this._callService("end_session")} ?disabled=${this._loadingAction==="end_session"}>
               <ha-icon icon="mdi:stop-circle-outline"></ha-icon>
-              <span>${this._loadingAction==="end_session"?"Stopping...":"End Session"}</span>
-            </button>`:l`<button class="bubble-sub-button" @click=${()=>this._callService("start_session")} ?disabled=${this._loadingAction==="start_session"}>
+              <span class="btn-label">${this._loadingAction==="end_session"?"Stopping...":"End Session"}</span>
+            </button>`:c`<button class="bubble-sub-button" title="Start Session" @click=${()=>this._callService("start_session")} ?disabled=${this._loadingAction==="start_session"}>
               <ha-icon icon="mdi:play-circle-outline"></ha-icon>
-              <span>${this._loadingAction==="start_session"?"Starting...":"Start Session"}</span>
+              <span class="btn-label">${this._loadingAction==="start_session"?"Starting...":"Start Session"}</span>
             </button>`}
-        <button class="bubble-sub-button" @click=${()=>this._callService("refresh_player")} ?disabled=${this._loadingAction==="refresh_player"}>
+        <button class="bubble-sub-button" title="Refresh" @click=${()=>this._callService("refresh_player")} ?disabled=${this._loadingAction==="refresh_player"}>
           <ha-icon icon=${this._loadingAction==="refresh_player"?"mdi:loading":"mdi:refresh"} class=${this._loadingAction==="refresh_player"?"spin":""}></ha-icon>
-          <span>${this._loadingAction==="refresh_player"?"Refreshing...":"Refresh"}</span>
+          <span class="btn-label">${this._loadingAction==="refresh_player"?"Refreshing...":"Refresh"}</span>
         </button>
       </div>
-    `}_renderRank(t,s,a){let i=this._rankLabel(s),r=Number(s.progress_pct||0);return l`
+    `}_renderKpis(e){return c`<div class="kpi-row">
+      ${e.map(([t,i,s])=>c`<div class="kpi-chip"><span class="kpi-label">${t}</span><span class="kpi-value ${s||""}">${i}</span></div>`)}
+    </div>`}_renderRank(e,t,i,s){let r=t.current_rank||"Unranked",l=Number(t.progress_pct||0),o=r.startsWith("Unreal");return c`
       <div class="rank-section">
         <div class="rank-header">
-          <span class="rank-title">${t}</span>
-          <span class="rank-name" style="color: ${this._rankColor(s.current_rank)}">${i}</span>
+          <span class="rank-title">${this._rankBadge(r,this._config.compact?26:34)}<span>${e}</span></span>
+          <span class="rank-name" style="color: ${(te[Object.keys(te).find(p=>r.startsWith(p))||""]||["var(--secondary-text-color)"])[0]}">${r}</span>
         </div>
-        ${this._config.hide_rank_progress||(s.current_rank||"").startsWith("Unreal")?d:l`<div class="progress-bar-bg">
-              <div class="progress-bar-fill" style="width: ${Math.min(100,Math.max(0,r))}%;"></div>
-            </div>`}
+        ${o?c`<div class="unreal-position">
+              <span class="unreal-number">${t.unreal_rank?`#${this._num(t.unreal_rank)}`:"Unreal"}</span>
+              ${s?c`<span class="rank-delta-badge ${s>0?"pos":"neg"}">${s>0?"\u25B2":"\u25BC"} ${this._num(Math.abs(s))} places</span>`:d}
+            </div>`:this._config.hide_rank_progress?d:c`<div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width: ${Math.min(100,Math.max(0,l))}%;"></div>
+              </div>`}
         <div class="rank-meta">
-          <span>${(s.current_rank||"").startsWith("Unreal")?"Top rank":`${r}% to promotion`}</span>
-          <span>${a}</span>
+          <span>${o?"Unreal leaderboard position":`${l}% to promotion`}</span>
+          <span>${i}</span>
         </div>
       </div>
-    `}_renderSessionView(t,s,a){let i=Number(s.net_rank_delta_pct||0),r=s.recent_matches||[],c=r.slice(0,this._config.max_feed_matches||10),o=p=>p>=0?`+${p}%`:`${p}%`;return l`
-      <div class="kpi-row">
-        <div class="kpi-chip"><span class="kpi-label">Matches</span><span class="kpi-value cyan">${s.matches_played||0}</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Victories</span><span class="kpi-value gold">${s.wins||0} 🏆</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Kills</span><span class="kpi-value">${s.kills||0}</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Session K/D</span><span class="kpi-value">${s.kd_ratio||0}</span></div>
-        <div class="kpi-chip">
-          <span class="kpi-label">Rank Net</span>
-          <span class="kpi-value ${i>=0?"positive":"negative"}">${o(i)}</span>
-        </div>
-      </div>
+    `}_renderSessionView(e,t,i){let s=Number(t.net_rank_delta_pct||0),r=t.recent_matches||[],l=r.slice(0,this._config.max_feed_matches||10),o=h=>h>=0?`+${h}%`:`${h}%`,p=r.filter(h=>h.rank_track===i.game_mode&&typeof h.unreal_rank_change=="number").reduce((h,u)=>h+(u.unreal_rank_change||0),0);return c`
+      ${this._renderKpis([["Matches",t.matches_played||0,"cyan"],["Wins",`${t.wins||0} \u{1F3C6}`,"gold"],["Kills",t.kills||0],["K/D",t.kd_ratio||0],["Rank Net",o(s),s>=0?"positive":"negative"]])}
 
-      ${this._renderRank("Battle Royale Ranked",a,`${i>=0?"\u25B2":"\u25BC"} ${o(i)} this session`)}
+      ${this._renderRank("Battle Royale Ranked",i,`${s>=0?"\u25B2":"\u25BC"} ${o(s)} this session`,p||null)}
 
-      ${this._config.show_match_feed!==!1?l`
+      ${this._config.show_match_feed!==!1?c`
             <div class="match-feed-header">
               <span>Match Feed (${r.length} ${r.length===1?"entry":"entries"})</span>
-              ${t?l`<span class="tracking-live">Tracking Live</span>`:d}
+              ${e?c`<span class="tracking-live">Tracking Live</span>`:d}
             </div>
             <div class="match-list">
-              ${c.length>0?c.map(p=>this._renderMatch(p)):l`<div class="empty">
+              ${l.length>0?l.map(h=>this._renderMatch(h)):c`<div class="empty">
                     No matches recorded in this session yet.<br />
                     <small>Matches appear here once Fortnite publishes the finished game's stats.</small>
                   </div>`}
             </div>
           `:d}
-    `}_renderMatch(t){let s=this._playlist(t.playlist_id)?.image;return l`
-      <div class="match-card ${t.is_victory?"victory":""}">
-        ${s?l`<img class="match-art" src=${s} alt="" loading="lazy" @error=${he} />`:d}
-        <div class="match-left">
-          <div class="match-headline">
-            <span class="match-num">#${t.match_number}${(t.match_count||1)>1?` \xD7${t.match_count}`:""}</span>
-            <span class="placement-badge ${t.is_victory?"win":""}">${t.placement_text}</span>
+    `}_renderMatch(e){let t=this._playlist(e.playlist_id),i=t?.image,s=`${e.timestamp}|${e.playlist_id}`,r=this._expandedMatch===s,l=(o,p)=>p==null||p===""?d:c`<div class="detail"><span>${o}</span><b>${p}</b></div>`;return c`
+      <div class="match-card ${e.is_victory?"victory":""} ${r?"expanded":""}"
+        @click=${()=>this._expandedMatch=r?null:s}>
+        <div class="match-row">
+          ${i?c`<img class="match-art" src=${i} alt="" loading="lazy" @error=${D} />`:d}
+          <div class="match-left">
+            <div class="match-headline">
+              <span class="match-num">#${e.match_number}${(e.match_count||1)>1?` \xD7${e.match_count}`:""}</span>
+              <span class="placement-badge ${e.is_victory?"win":""}">${e.placement_text}</span>
+            </div>
+            <span class="match-mode">${e.mode_name} • ${this._formatRelativeTime(e.timestamp)}</span>
           </div>
-          <span class="match-mode">${t.mode_name} • ${this._formatRelativeTime(t.timestamp)}</span>
+          <div class="match-right">
+            <span class="kills-badge"><ha-icon icon="mdi:skull-outline" style="--mdc-icon-size: 16px;"></ha-icon>${e.kills}</span>
+            ${e.rank_delta_pct?c`<span class="rank-delta-badge ${e.rank_delta_pct>=0?"pos":"neg"}">
+                  ${e.rank_delta_pct>=0?`+${e.rank_delta_pct}%`:`${e.rank_delta_pct}%`}
+                </span>`:d}
+          </div>
+          <ha-icon class="chevron" icon=${r?"mdi:chevron-up":"mdi:chevron-down"}></ha-icon>
         </div>
-        <div class="match-right">
-          <span class="kills-badge"><ha-icon icon="mdi:skull-outline" style="--mdc-icon-size: 16px;"></ha-icon>${t.kills}</span>
-          ${t.rank_delta_pct?l`<span class="rank-delta-badge ${t.rank_delta_pct>=0?"pos":"neg"}">
-                ${t.rank_delta_pct>=0?`+${t.rank_delta_pct}%`:`${t.rank_delta_pct}%`}
-              </span>`:d}
+        ${r?c`<div class="match-details" @click=${o=>o.stopPropagation()}>
+              ${i?c`<img class="detail-art" src=${i} alt="" @error=${D} />`:d}
+              ${t?.description?c`<p class="detail-desc">${t.description}</p>`:d}
+              <div class="detail-grid">
+                ${l("Finished",this._formatWhen(e.timestamp))}
+                ${l("Placement",e.placement_text)}
+                ${l("Kills",e.kills)}
+                ${l("Wins",e.wins)}
+                ${l("Time played",e.minutes?this._formatDuration(e.minutes):void 0)}
+                ${l("Score",e.score?this._num(e.score):void 0)}
+                ${l("Players outlived",e.players_outlived?this._num(e.players_outlived):void 0)}
+                ${l("Rank track",e.rank_track)}
+                ${l("Rank after",e.unreal_rank?`${e.current_rank} #${this._num(e.unreal_rank)}`:e.current_rank)}
+                ${l("Rank change",e.rank_delta_pct?`${e.rank_delta_pct>0?"+":""}${e.rank_delta_pct}%`:void 0)}
+                ${l("Unreal places",e.unreal_rank_change?`${e.unreal_rank_change>0?"\u25B2":"\u25BC"} ${this._num(Math.abs(e.unreal_rank_change))}`:void 0)}
+                ${l("Games in poll",(e.match_count||1)>1?e.match_count:void 0)}
+              </div>
+              ${(e.match_count||1)>1?c`<small class="muted">Several games finished between polls; totals are combined.</small>`:d}
+            </div>`:d}
+      </div>
+    `}_renderStatsView(e,t,i,s){let r=t.windows||{},l=t.window_labels||{},o=["lifetime",...["season","week","today"].filter(g=>r[g])],p=o.includes(this._window)?this._window:"lifetime",h={lifetime:"Lifetime",season:"Season",week:"7 Days",today:"Today"},u=e.metrics||{},b={matches:e.total_matches||0,kills:e.total_kills||0,wins:e.total_wins||0,kd:e.kd_ratio||0,win_rate:e.win_rate_pct||0,players_outlived:e.players_outlived||0,hours_played:u.hours_played,favourite_mode:u.favourite_mode,modes:e.modes||{}},m=p==="lifetime"?b:r[p],x=this._selectedMode!=="all"?m.modes?.[this._selectedMode]:null,_=x&&x.matches!==void 0?x:m,k=_.minutes!==void 0?Math.round(_.minutes/60*10)/10:m.hours_played,$=m.favourite_mode,w=(g,ae)=>c`
+      <button class="mode-tab ${this._selectedMode===g?"active":""}" @click=${()=>this._selectedMode=g}>${ae}</button>
+    `;return c`
+      <div class="tab-rows">
+        ${o.length>1?c`<div class="mode-tabs">
+              ${o.map(g=>c`<button class="mode-tab ${p===g?"active":""}" title=${l[g]||""}
+                  @click=${()=>this._window=g}>${h[g]}</button>`)}
+            </div>`:d}
+        <div class="mode-tabs">
+          ${w("all","Overall")} ${w("zero_build","Zero Build")} ${w("build","Build")} ${w("reload","Reload")}
         </div>
       </div>
-    `}_renderStatsView(t,s,a,i){let r=s.windows||{},c=s.window_labels||{},o=["lifetime",...["season","week","today"].filter(k=>r[k])],p=o.includes(this._window)?this._window:"lifetime",u={lifetime:"Lifetime",season:"Season",week:"7 Days",today:"Today"},h=t.metrics||{},f={matches:t.total_matches||0,kills:t.total_kills||0,wins:t.total_wins||0,kd:t.kd_ratio||0,win_rate:t.win_rate_pct||0,players_outlived:t.players_outlived||0,hours_played:h.hours_played,kills_per_match:h.kills_per_match,avg_match_minutes:h.avg_match_minutes,favourite_mode:h.favourite_mode,modes:t.modes||{}},m=p==="lifetime"?f:r[p],_=this._selectedMode!=="all"?m.modes?.[this._selectedMode]:null,g=_&&_.matches!==void 0?_:m,b=g.minutes!==void 0?Math.round(g.minutes/60*10)/10:m.hours_played,w=m.favourite_mode,U=this._playlist(w?.playlist_id)?.image,q=(k,Fe)=>l`
-      <button class="mode-tab ${this._selectedMode===k?"active":""}" @click=${()=>this._selectedMode=k}>${Fe}</button>
-    `;return l`
-      ${o.length>1?l`<div class="mode-tabs window-tabs">
-            ${o.map(k=>l`<button class="mode-tab ${p===k?"active":""}" title=${c[k]||""}
-                @click=${()=>this._window=k}>${u[k]}</button>`)}
-          </div>`:d}
 
-      <div class="mode-tabs">
-        ${q("all","Overall")} ${q("zero_build","Zero Build")} ${q("build","Build")} ${q("reload","Reload")}
+      ${this._renderKpis([["Win Rate",`${_.win_rate||0}%`,"cyan"],["K/D",_.kd||0],["Wins",c`${this._num(_.wins)} 🏆`,"gold"],["Matches",this._num(_.matches)],["Kills",this._num(_.kills)],["Outlived",this._num(_.players_outlived)],["Kills/Match",_.matches?this._num(_.kills/_.matches,2):0],...k!==void 0?[["Hours",this._num(k,1)]]:[]])}
+
+      ${p==="lifetime"&&this._selectedMode==="all"?this._renderLifetimeExtras(e):d}
+      ${$?this._renderFavourite($,p!=="lifetime"?h[p]:""):d}
+
+      ${this._renderRank("Battle Royale",i,`Peak: ${i.highest_rank||i.current_rank||"Unranked"}`)}
+      ${this._renderRank("Reload",s,`Peak: ${s.highest_rank||s.current_rank||"Unranked"}`)}
+    `}_renderFavourite(e,t){let i=this._playlist(e.playlist_id),s=i?.image,r=/ropesmile|reload/i.test(e.playlist_id+e.name)?"reload":/nobuild|zero build/i.test(e.playlist_id+e.name)?"zero_build":"build";return c`
+      <div class="feature-card ${s?"":`no-art art-${r}`}">
+        <div class="feature-text">
+          <span class="feature-label">Favourite mode${t?` \xB7 ${t}`:""}</span>
+          <span class="feature-value">${i?.name||e.name}</span>
+          <span class="feature-sub">${this._num(e.matches)} matches</span>
+        </div>
+        ${s?c`<img class="feature-art" src=${s} alt="" @error=${D} />`:c`<ha-icon class="feature-icon" icon=${at[r]}></ha-icon>`}
+      </div>
+    `}_renderLifetimeExtras(e){let t=e.metrics||{},i=Object.values(e.inputs||{}).filter(r=>r.matches>0),s=e.team_sizes||{};return c`
+      <div class="kpi-row secondary">
+        ${[["Kills/Min",t.kills_per_minute??0],["Avg Match",`${t.avg_match_minutes??0}m`],["Score/Match",this._num(t.score_per_match)],["Solo Top 10",`${t.solo_top10_rate??0}%`],["Solo Top 25",`${t.solo_top25_rate??0}%`]].map(([r,l])=>c`<div class="kpi-chip"><span class="kpi-label">${r}</span><span class="kpi-value">${l}</span></div>`)}
       </div>
 
-      <div class="kpi-row">
-        <div class="kpi-chip"><span class="kpi-label">Win Rate</span><span class="kpi-value cyan">${g.win_rate||0}%</span></div>
-        <div class="kpi-chip"><span class="kpi-label">K/D</span><span class="kpi-value">${g.kd||0}</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Wins</span><span class="kpi-value gold">${this._num(g.wins)} 🏆</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Matches</span><span class="kpi-value">${this._num(g.matches)}</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Kills</span><span class="kpi-value">${this._num(g.kills)}</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Outlived</span><span class="kpi-value">${this._num(g.players_outlived)}</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Kills / Match</span><span class="kpi-value">${g.matches?this._num(g.kills/g.matches,2):0}</span></div>
-        ${b!==void 0?l`<div class="kpi-chip"><span class="kpi-label">Hours</span><span class="kpi-value">${this._num(b,1)}</span></div>`:d}
-      </div>
-
-      ${p==="lifetime"&&this._selectedMode==="all"?this._renderLifetimeExtras(t):d}
-
-      ${w?l`<div class="feature-card" style=${U?`--feature-art: url('${U}')`:""}>
-            <span class="feature-label">Favourite mode${p!=="lifetime"?` \xB7 ${u[p]}`:""}</span>
-            <span class="feature-value">${this._playlist(w.playlist_id)?.name||w.name}</span>
-            <span class="feature-sub">${this._num(w.matches)} matches</span>
-          </div>`:d}
-
-      ${this._renderRank("Battle Royale",a,`Peak: ${a.highest_rank||a.current_rank||"Unranked"}`)}
-      ${this._renderRank("Reload",i,`Peak: ${i.highest_rank||i.current_rank||"Unranked"}`)}
-    `}_renderLifetimeExtras(t){let s=t.metrics||{},a=Object.values(t.inputs||{}).filter(r=>r.matches>0),i=t.team_sizes||{};return l`
-      <div class="kpi-row compact">
-        <div class="kpi-chip"><span class="kpi-label">Kills / Min</span><span class="kpi-value">${s.kills_per_minute??0}</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Avg Match</span><span class="kpi-value">${s.avg_match_minutes??0}m</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Score / Match</span><span class="kpi-value">${this._num(s.score_per_match)}</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Solo Top 10</span><span class="kpi-value">${s.solo_top10_rate??0}%</span></div>
-        <div class="kpi-chip"><span class="kpi-label">Solo Top 25</span><span class="kpi-value">${s.solo_top25_rate??0}%</span></div>
-      </div>
-
-      ${a.length>1?l`<div class="split-section">
+      ${i.length>1?c`<div class="split-section">
             <div class="section-title">Input (by matches)</div>
             <div class="split-bar">
-              ${a.map((r,c)=>l`<div class="split-seg seg-${c}" style="width: ${r.share_pct}%" title="${r.label}: ${r.share_pct}%"></div>`)}
+              ${i.map((r,l)=>c`<div class="split-seg seg-${l}" style="width: ${r.share_pct}%" title="${r.label}: ${r.share_pct}%"></div>`)}
             </div>
             <div class="split-legend">
-              ${a.map((r,c)=>l`<span><i class="dot seg-${c}"></i>${r.label} ${r.share_pct}% · K/D ${r.kd}</span>`)}
+              ${i.map((r,l)=>c`<span><i class="dot seg-${l}"></i>${r.label} ${r.share_pct}% · K/D ${r.kd}</span>`)}
             </div>
           </div>`:d}
 
-      ${Object.keys(i).length?l`<div class="size-table">
-            ${["solo","duo","trio","squad"].filter(r=>i[r]).map(r=>l`<div class="size-row">
+      ${Object.keys(s).length?c`<div class="size-table">
+            ${["solo","duo","trio","squad"].filter(r=>s[r]).map(r=>c`<div class="size-row">
                 <span class="size-name">${r.charAt(0).toUpperCase()+r.slice(1)}</span>
-                <span>${this._num(i[r].matches)} m</span>
-                <span>${i[r].win_rate}% win</span>
-                <span>${i[r].kd} K/D</span>
+                <span>${this._num(s[r].matches)} m</span>
+                <span>${s[r].win_rate}% win</span>
+                <span>${s[r].kd} K/D</span>
               </div>`)}
           </div>`:d}
-    `}_renderEventsView(){let t=this._tournaments;if(t.loading&&!t.tournaments)return l`<div class="empty">Loading tournaments…</div>`;if(t.error)return l`<div class="empty">${t.error}</div>`;if(t.tournaments===null)return l`<div class="empty">Tournament schedule is not available right now.</div>`;let s=t.tournaments||[];return l`
+    `}_currentFilters(){return this._filters||{region:this._config.events_region||this._events.defaultRegion||"EU",mode:"all",team:"all",platform:"all"}}_matchesFilters(e,t){return!(t.region!=="all"&&e.region_group!==t.region||(t.mode==="Ranked"?!e.ranked:t.mode!=="all"&&e.mode!==t.mode)||t.team!=="all"&&e.team!==t.team||t.platform!=="all"&&!(e.platform_groups||[]).includes(t.platform))}_setFilter(e,t){this._filters={...this._currentFilters(),[e]:t}}_renderEventsView(){let e=this._events;if(e.loading&&!e.list)return c`<div class="empty">Loading tournaments…</div>`;if(e.error)return c`<div class="empty">${e.error}</div>`;if(e.list===null)return c`<div class="empty">Tournament schedule is not available right now.</div>`;let t=e.list||[],i=this._currentFilters(),s=[...new Set(t.map(o=>o.region_group))].sort(),r=t.filter(o=>this._matchesFilters(o,i)).filter(o=>o.windows.some(p=>this._windowState(p)!=="finished")||this._expandedEvent===o.key),l=(o,p)=>c`
+      <select class="filter-select" .value=${i[o]} @change=${h=>this._setFilter(o,h.target.value)}>
+        ${p.map(([h,u])=>c`<option value=${h} ?selected=${i[o]===h}>${u}</option>`)}
+      </select>
+    `;return c`
+      <div class="event-filters">
+        ${l("region",[["all","All regions"],...s.map(o=>[o,o])])}
+        ${l("mode",[["all","All modes"],["Battle Royale","Battle Royale"],["Zero Build","Zero Build"],["Reload","Reload"],["Ranked","Ranked cups"]])}
+        ${l("team",[["all","Any team"],["Solo","Solo"],["Duos","Duos"],["Trios","Trios"],["Squads","Squads"]])}
+        ${l("platform",[["all","Any platform"],["PC","PC"],["Console","Console"],["Mobile","Mobile"]])}
+      </div>
       <div class="match-feed-header">
-        <span>Tournaments${t.region?` \xB7 ${t.region}`:""}</span>
-        <span class="muted">Schedule only — check eligibility in game</span>
+        <span>Tournaments (${r.length})</span>
+        <span class="muted">UK time · schedule only</span>
       </div>
-      <div class="match-list">
-        ${s.length?s.map(a=>l`<div class="event-card ${a.is_live?"live":""}">
-                ${a.poster?l`<img class="event-art" src=${a.poster} alt="" loading="lazy" @error=${he} />`:d}
-                <div class="match-left">
-                  <div class="match-headline">
-                    <span class="event-name">${a.name}</span>
-                    ${a.is_live?l`<span class="placement-badge win">LIVE</span>`:d}
-                  </div>
-                  <span class="match-mode">${a.is_live?`Ends ${this._formatWhen(a.end)}`:this._formatWhen(a.begin)}${a.round?` \xB7 Round ${Number(a.round)+1}`:""}</span>
+      <div class="match-list events">
+        ${r.length?r.map(o=>this._renderEvent(o)):c`<div class="empty">No tournaments match these filters.</div>`}
+      </div>
+    `}_eventTiming(e){let t=e.windows.find(l=>this._windowState(l)==="live");if(t)return{text:`Live now \xB7 ends in ${this._formatSpan(Date.parse(t.end)-this._now)}`,live:!0,soon:!1};let i=e.windows.find(l=>this._windowState(l)==="upcoming");if(!i)return{text:"Finished",live:!1,soon:!1};let s=Date.parse(i.begin)-this._now,r=s<7*864e5;return{text:`${this._formatWhen(i.begin)}${i.label?` \xB7 ${i.label}`:""}${r?` \xB7 in ${this._formatSpan(s)}`:""}`,live:!1,soon:r}}_renderEvent(e){let t=this._eventTiming(e),i=this._expandedEvent===e.key,s=[e.mode,e.team,e.ranked?"Ranked":null,...e.platform_groups||[],e.region].filter(Boolean);return c`
+      <div class="event-card ${t.live?"live":""} ${i?"expanded":""}">
+        <div class="event-row" @click=${()=>this._toggleEvent(e)}>
+          ${e.poster?c`<img class="event-art" src=${e.poster} alt="" loading="lazy" @error=${D} />`:d}
+          <div class="match-left">
+            <div class="match-headline">
+              <span class="event-name">${e.name}</span>
+              ${t.live?c`<span class="placement-badge win">LIVE</span>`:d}
+            </div>
+            <span class="match-mode ${t.soon?"soon":""}">${t.text}</span>
+            <div class="tag-row">${s.map(r=>c`<span class="tag">${r}</span>`)}</div>
+          </div>
+          <ha-icon class="chevron" icon=${i?"mdi:chevron-up":"mdi:chevron-down"}></ha-icon>
+        </div>
+        ${i?this._renderEventDetails(e):d}
+      </div>
+    `}_renderEventDetails(e){let t=e.loading_screen||e.poster;return c`
+      <div class="event-details">
+        ${t?c`<img class="event-hero" src=${t} alt="" @error=${D} />`:d}
+        ${e.subtitle&&e.subtitle!==e.name?c`<div class="detail-sub">${e.subtitle}</div>`:d}
+        ${e.description?c`<p class="detail-desc">${e.description}</p>`:d}
+        ${e.schedule_info?c`<p class="detail-desc muted">${e.schedule_info}</p>`:d}
+        ${e.platform_groups?.length?c`<div class="detail-line"><span>Platforms</span><b>${e.platform_groups.join(", ")}</b></div>`:d}
+        <div class="detail-line"><span>Region</span><b>${e.region}</b></div>
+
+        <div class="section-title">Sessions</div>
+        <div class="window-list">
+          ${e.windows.map(i=>{let s=this._windowState(i),r=`${e.event_id}|${i.window_id}`,l=this._leaderboards[r],o=Date.parse(i.begin)-this._now;return c`
+              <div class="window-row ${s}">
+                <div class="window-main">
+                  <span class="window-label">${i.label||"Session"}</span>
+                  <span class="window-time">${this._formatWhen(i.begin)} – ${this._formatWhen(i.end).split(", ").pop()}</span>
+                  <span class="window-status ${s}">
+                    ${s==="live"?`Live \xB7 ${this._formatSpan(Date.parse(i.end)-this._now)} left`:s==="finished"?"Finished":o<7*864e5?`in ${this._formatSpan(o)}`:"Upcoming"}
+                  </span>
+                  ${s!=="upcoming"?c`<button class="mini-button" @click=${()=>this._loadLeaderboard(e.event_id,i.window_id)}>
+                        ${l?.loading?"Loading\u2026":l?.data?"Refresh":"Leaderboard"}
+                      </button>`:d}
                 </div>
-              </div>`):l`<div class="empty">No upcoming tournaments listed for this region.</div>`}
+                ${l?this._renderLeaderboard(l):d}
+              </div>
+            `})}
+        </div>
       </div>
-    `}};v([F({attribute:!1})],y.prototype,"hass",2),v([$()],y.prototype,"_config",2),v([$()],y.prototype,"_view",2),v([$()],y.prototype,"_window",2),v([$()],y.prototype,"_selectedMode",2),v([$()],y.prototype,"_loadingAction",2),v([$()],y.prototype,"_catalog",2),v([$()],y.prototype,"_avatar",2),v([$()],y.prototype,"_tournaments",2);customElements.get("fortnite-activity-card")||customElements.define("fortnite-activity-card",y);console.info(`%c FORTNITE-ACTIVITY-CARD %c v${Ze} `,"background:#7928CA;color:#fff;font-weight:700","background:#00E5FF;color:#000");export{y as FortniteActivityCard};
+    `}_renderLeaderboard(e){if(e.error)return c`<div class="lb-note">${e.error}</div>`;if(!e.data)return e.loading?c`<div class="lb-note">Loading leaderboard…</div>`:d;let t=e.data,i=(s,r=!1)=>c`
+      <div class="lb-row ${r?"you":""}">
+        <span class="lb-rank">#${this._num(s.rank)}</span>
+        <span class="lb-names">${r?"You \xB7 ":""}${(s.names||[]).join(", ")||"\u2014"}</span>
+        <span class="lb-points">${this._num(s.points)} pts</span>
+        <span class="lb-extra">${s.matches}m · ${s.wins}W · ${s.elims}E</span>
+      </div>
+    `;return c`
+      <div class="leaderboard">
+        ${t.player&&!t.entries.some(s=>s.is_player)?i(t.player,!0):d}
+        ${t.entries.length?t.entries.map(s=>i(s,s.is_player)):c`<div class="lb-note">No scores yet.</div>`}
+        ${t.updated?c`<div class="lb-note">Updated ${this._formatRelativeTime(t.updated)}${t.total_pages?` \xB7 ${t.total_pages} pages`:""}</div>`:d}
+      </div>
+    `}};f([T({attribute:!1})],v.prototype,"hass",2),f([y()],v.prototype,"_config",2),f([y()],v.prototype,"_view",2),f([y()],v.prototype,"_window",2),f([y()],v.prototype,"_selectedMode",2),f([y()],v.prototype,"_loadingAction",2),f([y()],v.prototype,"_catalog",2),f([y()],v.prototype,"_avatar",2),f([y()],v.prototype,"_events",2),f([y()],v.prototype,"_filters",2),f([y()],v.prototype,"_expandedEvent",2),f([y()],v.prototype,"_expandedMatch",2),f([y()],v.prototype,"_leaderboards",2),f([y()],v.prototype,"_now",2);customElements.get("fortnite-activity-card")||customElements.define("fortnite-activity-card",v);console.info(`%c FORTNITE-ACTIVITY-CARD %c v${et} `,"background:#7928CA;color:#fff;font-weight:700","background:#00E5FF;color:#000");export{v as FortniteActivityCard};
 /*! Bundled license information:
 
 @lit/reactive-element/css-tag.js:

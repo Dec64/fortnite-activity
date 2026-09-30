@@ -254,39 +254,150 @@ def parse_external_auths(raw: Any) -> list[dict[str, str]]:
     return platforms
 
 
-def parse_tournaments(raw: Any, region: str, now: datetime, limit: int = 12) -> list[dict[str, Any]]:
-    """Upcoming/live tournament windows for one region from /v1/events/global (GlobalEventDto)."""
-    windows: list[dict[str, Any]] = []
-    seen: set[str] = set()
+REGION_GROUPS = {"EU": "EU", "NAE": "NA", "NAC": "NA", "NAW": "NA", "BR": "BR", "ASIA": "ASIA", "OCE": "OCE", "ME": "ME"}
+_CONSOLE_PLATFORMS = {"PS4", "PS5", "XB1", "XboxOne", "XboxOneGDK", "XSX", "Switch", "Switch2"}
+_PC_PLATFORMS = {"Windows", "Mac"}
+_MOBILE_PLATFORMS = {"IOS", "Android"}
+_ROUND_RE = re.compile(r"Round(\d+)", re.IGNORECASE)
+
+
+def classify_event(text: str) -> dict[str, str | None]:
+    """Mode and team-size tags taken only from Epic's own event names/ids (None when not stated)."""
+    lower = text.lower()
+    if "reload" in lower:
+        mode = "Reload"
+    elif re.search(r"zero ?build|nobuild|(?<![a-z])zb(?![a-z])", lower):
+        mode = "Zero Build"
+    elif "battle royale" in lower or "(br)" in lower:
+        mode = "Battle Royale"
+    else:
+        mode = None
+    team = None
+    for size, label in (("solo", "Solo"), ("duo", "Duos"), ("trio", "Trios"), ("squad", "Squads")):
+        if size in lower:
+            team = label
+            break
+    return {"mode": mode, "team": team, "ranked": "ranked" in lower}
+
+
+def platform_groups(name: str, platforms: list[str]) -> list[str]:
+    """Group Epic platform codes into PC / Console / Mobile (name restrictions take precedence)."""
+    lower = name.lower()
+    for label in ("Console", "Mobile", "PC"):
+        if re.search(rf"(?<![a-z]){label.lower()}(?![a-z])", lower):
+            return [label]
+    codes = set(platforms or [])
+    groups = []
+    if codes & _PC_PLATFORMS:
+        groups.append("PC")
+    if codes & _CONSOLE_PLATFORMS:
+        groups.append("Console")
+    if codes & _MOBILE_PLATFORMS:
+        groups.append("Mobile")
+    return groups
+
+
+def _window_label(window_id: str) -> str | None:
+    if re.search(r"final", window_id, re.IGNORECASE):
+        return "Final"
+    match = _ROUND_RE.search(window_id)
+    return f"Round {match.group(1)}" if match else None
+
+
+def parse_tournaments(
+    raw: Any, now: datetime, horizon_days: int = 14, recent_hours: int = 12, limit: int = 120
+) -> list[dict[str, Any]]:
+    """Tournaments across all regions from /v1/events/global (GlobalEventDto).
+
+    Each regional event lists its session windows that are live, upcoming within
+    horizon_days, or finished within recent_hours (so recent leaderboards stay reachable).
+    """
+    horizon = now.timestamp() + horizon_days * 86400
+    recent = now.timestamp() - recent_hours * 3600
+    events: list[dict[str, Any]] = []
     for event in raw if isinstance(raw, list) else []:
         if not isinstance(event, dict):
             continue
+        name = event.get("name") or event.get("titleLine1") or event.get("shortTitle")
         regions = event.get("regions") if isinstance(event.get("regions"), dict) else {}
-        for regional in regions.get(region) or []:
-            if not isinstance(regional, dict):
-                continue
-            for window in regional.get("eventWindows") or []:
-                if not isinstance(window, dict):
+        for region, regionals in regions.items():
+            for regional in regionals or []:
+                if not isinstance(regional, dict) or not regional.get("eventId"):
                     continue
-                begin = _parse_iso(window.get("beginTime"))
-                end = _parse_iso(window.get("endTime"))
-                window_id = window.get("eventWindowId")
-                if not begin or not end or end <= now or not window_id or window_id in seen:
+                windows = []
+                for window in regional.get("eventWindows") or []:
+                    if not isinstance(window, dict) or not window.get("eventWindowId"):
+                        continue
+                    begin = _parse_iso(window.get("beginTime"))
+                    end = _parse_iso(window.get("endTime"))
+                    if not begin or not end or end.timestamp() < recent or begin.timestamp() > horizon:
+                        continue
+                    windows.append({
+                        "window_id": window["eventWindowId"],
+                        "label": _window_label(window["eventWindowId"]),
+                        "begin": begin.isoformat(),
+                        "end": end.isoformat(),
+                        "is_live": begin <= now < end,
+                        "finished": end <= now,
+                    })
+                if not windows:
                     continue
-                seen.add(window_id)
-                windows.append({
-                    "window_id": window_id,
-                    "event_id": regional.get("eventId"),
-                    "name": event.get("name") or event.get("titleLine1") or event.get("shortTitle") or window_id,
+                windows.sort(key=lambda w: w["begin"])
+                upcoming = [w for w in windows if not w["finished"]]
+                tags_text = " ".join(str(x) for x in (name, event.get("titleLine2"), regional.get("eventId")) if x)
+                platforms = regional.get("platforms") or []
+                events.append({
+                    "key": f"{regional['eventId']}",
+                    "event_id": regional["eventId"],
+                    "region": region,
+                    "region_group": REGION_GROUPS.get(region, region),
+                    "name": name or regional["eventId"],
                     "subtitle": event.get("titleLine2") or event.get("shortTitle"),
                     "description": event.get("detailsDescription") or event.get("description"),
+                    "schedule_info": event.get("scheduleInfo"),
                     "poster": event.get("poster") or None,
                     "loading_screen": event.get("loadingScreen") or None,
-                    "round": window.get("round"),
-                    "begin": begin.isoformat(),
-                    "end": end.isoformat(),
-                    "is_live": begin <= now < end,
-                    "platforms": regional.get("platforms") or [],
+                    "platform_groups": platform_groups(name or "", platforms),
+                    **classify_event(tags_text),
+                    "is_live": any(w["is_live"] for w in windows),
+                    "finished": not upcoming,
+                    "next": upcoming[0] if upcoming else windows[-1],
+                    "windows": windows,
                 })
-    windows.sort(key=lambda w: w["begin"])
-    return windows[:limit]
+    # Live first, then soonest upcoming, then most recently finished
+    events.sort(key=lambda e: (0 if e["is_live"] else 1 if not e["finished"] else 2,
+                               e["next"]["begin"] if not e["finished"] else "~" + e["next"]["end"]))
+    return events[:limit]
+
+
+def parse_leaderboard(raw: Any, account_id: str | None = None, limit: int = 10) -> dict[str, Any] | None:
+    """Parse an event-window leaderboard page (entries with sessionHistory.trackedStats)."""
+    if not isinstance(raw, dict):
+        return None
+    entries = raw.get("entries") if isinstance(raw.get("entries"), list) else []
+
+    def summarise(entry: dict[str, Any]) -> dict[str, Any]:
+        sessions = [s for s in entry.get("sessionHistory") or [] if isinstance(s, dict)]
+        stats = [s.get("trackedStats") or {} for s in sessions]
+        placements = [st.get("PLACEMENT_STAT_INDEX") for st in stats if isinstance(st.get("PLACEMENT_STAT_INDEX"), int)]
+        names = entry.get("teamAccountDisplayNames") or []
+        return {
+            "rank": entry.get("rank"),
+            "points": entry.get("pointsEarned"),
+            "percentile": entry.get("percentile"),
+            "names": [n for n in names if isinstance(n, str)],
+            "matches": len(sessions),
+            "wins": sum(int(st.get("VICTORY_ROYALE_STAT") or 0) for st in stats),
+            "elims": sum(int(st.get("TEAM_ELIMS_STAT_INDEX") or 0) for st in stats),
+            "best_placement": min(placements) if placements else None,
+            "is_player": bool(account_id and account_id in str(entry.get("teamId") or "")),
+        }
+
+    parsed = [summarise(e) for e in entries if isinstance(e, dict)]
+    return {
+        "page": raw.get("page"),
+        "total_pages": raw.get("totalPages"),
+        "updated": raw.get("updatedTime"),
+        "entries": parsed[:limit],
+        "player": next((e for e in parsed if e["is_player"]), None),
+    }

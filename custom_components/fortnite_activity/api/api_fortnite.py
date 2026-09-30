@@ -18,6 +18,7 @@ from ..const import (
     API_HEADER_KEY,
     COSMETIC_SEARCH_ENDPOINT,
     EVENTS_GLOBAL_ENDPOINT,
+    LEADERBOARD_ENDPOINT,
     EXTERNAL_AUTHS_ENDPOINT,
     LEVEL_ENDPOINT,
     PLAYLISTS_ENDPOINT,
@@ -134,6 +135,15 @@ class ApiFortniteClient:
     async def get_events_global(self) -> Any:
         """Fetch global tournament listings with per-region windows."""
         return await self._request(EVENTS_GLOBAL_ENDPOINT)
+
+    async def get_event_leaderboard(
+        self, event_id: str, window_id: str, account_id: str | None = None, page: int = 0
+    ) -> Any:
+        """Fetch one page of a tournament window leaderboard (optionally highlighting an account)."""
+        params = {"eventId": event_id, "eventWindowId": window_id, "page": page}
+        if account_id:
+            params["accountId"] = account_id
+        return await self._request(f"{LEADERBOARD_ENDPOINT}?{urlencode(params)}")
 
     async def search_cosmetics(self, query: str, cosmetic_type: str | None = "outfit") -> Any:
         """Search the public cosmetic catalogue by name."""
