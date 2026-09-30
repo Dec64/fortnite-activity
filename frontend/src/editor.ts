@@ -85,7 +85,6 @@ const SCHEMA = [
   },
 ];
 
-@customElement("fortnite-activity-card-editor")
 export class FortniteActivityCardEditor extends LitElement {
   @property({ attribute: false }) public hass?: any;
   @state() private _config?: FortniteCardConfig;
@@ -145,4 +144,8 @@ export class FortniteActivityCardEditor extends LitElement {
       gap: 12px;
     }
   `;
+}
+
+if (!customElements.get("fortnite-activity-card-editor")) {
+  customElements.define("fortnite-activity-card-editor", FortniteActivityCardEditor);
 }

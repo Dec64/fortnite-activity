@@ -33,7 +33,6 @@ window.customCards.push({
   documentationURL: "https://github.com/Dec64/fortnite-activity",
 });
 
-@customElement("fortnite-activity-card")
 export class FortniteActivityCard extends LitElement {
   public static get styles() {
     return cardStyles;
@@ -77,6 +76,7 @@ export class FortniteActivityCard extends LitElement {
 
   public static getStubConfig(): Record<string, any> {
     return {
+      type: "custom:fortnite-activity-card",
       player: "player1",
       layout: "auto",
       card_style: "bubble",
