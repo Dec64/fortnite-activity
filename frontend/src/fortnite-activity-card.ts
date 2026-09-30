@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.4.1";
+const CARD_VERSION = "1.4.2";
 
 declare global {
   interface Window {
@@ -936,8 +936,8 @@ export class FortniteActivityCard extends LitElement {
             <div class="hunt-row">
               ${hunt.map(({ f, v }: any) => html`
                 <div class="hunt-item" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" title="${v.name}" @click=${() => (this._expandedSprite = f.id)}>
-                  ${v.icon ? html`<img src=${v.icon} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
-                  <span>${v.label === "Base" ? f.name.replace(/ Sprite$/, "") : `${v.label}`}</span>
+                  ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                  <span>${v.label === "Base" ? f.name.replace(/ Sprite$/, "") : `${v.label} ${f.name.replace(/ Sprite$/, "")}`}</span>
                   <small>${v.drop_chance_pct}%</small>
                 </div>`)}
             </div>
@@ -956,7 +956,7 @@ export class FortniteActivityCard extends LitElement {
               return html`
                 <div class="sprite-card ${f.owned ? "" : "missing"} ${open ? "open" : ""} ${f.complete ? "complete" : ""}"
                   style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" @click=${() => (this._expandedSprite = open ? null : f.id)}>
-                  ${f.icon ? html`<img src=${f.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+                  ${f.icon ? html`<img src=${f.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
                   <span class="sprite-name">${f.name.replace(/ Sprite$/, "")}</span>
                   <span class="sprite-count">${f.owned_variants}/${f.total_variants}${f.mastered ? html` · ★${f.mastered}` : nothing}</span>
                   <span class="sprite-dots">
@@ -981,7 +981,7 @@ export class FortniteActivityCard extends LitElement {
     if (!perks.length) return nothing;
     return html`<div class="perk-list">
       <div class="section-title">Variant perks</div>
-      ${perks.map((b: any) => html`<div class="detail-line"><span>${b.variant}</span><b title=${b.description || ""}>${b.name}</b></div>
+      ${perks.map((b: any) => html`<div class="detail-line"><b>${b.variant}</b>${b.name !== b.variant ? html`<span>${b.name}</span>` : nothing}</div>
         ${b.description ? html`<div class="perk-desc">${b.description}</div>` : nothing}`)}
     </div>`;
   }
@@ -1002,7 +1002,7 @@ export class FortniteActivityCard extends LitElement {
         <div class="variant-tiles">
           ${(f.variants || []).map((v: any) => html`
             <div class="variant-tile ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""}" title=${v.name}>
-              ${v.icon ? html`<img src=${v.icon} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+              ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
               <span class="variant-name">${v.label}</span>
               <span class="variant-status">
                 ${v.owned
