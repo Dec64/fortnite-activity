@@ -10,10 +10,18 @@ try:
 except ImportError:
     aiohttp = None  # type: ignore
 
+from urllib.parse import urlencode
+
 from ..const import (
+    ACCOUNT_ENDPOINT,
     API_BASE_URL,
     API_HEADER_KEY,
+    COSMETIC_SEARCH_ENDPOINT,
+    EVENTS_GLOBAL_ENDPOINT,
+    EXTERNAL_AUTHS_ENDPOINT,
     LEVEL_ENDPOINT,
+    PLAYLISTS_ENDPOINT,
+    SEASON_ENDPOINT,
     MODE_BUILD,
     MODE_OTHER,
     MODE_RELOAD,
@@ -96,10 +104,43 @@ class ApiFortniteClient:
         except aiohttp.ClientError as err:
             raise FortniteApiError(f"Connection error to {endpoint}: {err}") from err
 
-    async def get_raw_stats(self, account_id: str) -> dict[str, Any]:
-        """Fetch raw stats dictionary for account."""
+    async def get_raw_stats(
+        self, account_id: str, start_time: int | None = None, end_time: int | None = None
+    ) -> dict[str, Any]:
+        """Fetch raw stats for account, optionally limited to a unix-time window."""
         endpoint = STATS_ENDPOINT.format(account_id=account_id)
+        params = {k: v for k, v in (("startTime", start_time), ("endTime", end_time)) if v is not None}
+        if params:
+            endpoint = f"{endpoint}?{urlencode(params)}"
         return await self._request(endpoint)
+
+    async def get_season(self) -> dict[str, Any]:
+        """Fetch current season number and dates."""
+        res = await self._request(SEASON_ENDPOINT)
+        return res if isinstance(res, dict) else {}
+
+    async def get_playlists(self) -> Any:
+        """Fetch the playlist catalogue (names, descriptions, images)."""
+        return await self._request(PLAYLISTS_ENDPOINT)
+
+    async def get_account(self, account_id: str) -> Any:
+        """Fetch public Epic account info (display name)."""
+        return await self._request(ACCOUNT_ENDPOINT.format(account_id=account_id))
+
+    async def get_external_auths(self, account_id: str) -> Any:
+        """Fetch linked platform accounts."""
+        return await self._request(EXTERNAL_AUTHS_ENDPOINT.format(account_id=account_id))
+
+    async def get_events_global(self) -> Any:
+        """Fetch global tournament listings with per-region windows."""
+        return await self._request(EVENTS_GLOBAL_ENDPOINT)
+
+    async def search_cosmetics(self, query: str, cosmetic_type: str | None = "outfit") -> Any:
+        """Search the public cosmetic catalogue by name."""
+        params = {"q": query, "pageSize": 10, "lang": "en"}
+        if cosmetic_type:
+            params["type"] = cosmetic_type
+        return await self._request(f"{COSMETIC_SEARCH_ENDPOINT}?{urlencode(params)}")
 
     async def get_raw_ranked(self, account_id: str) -> list[dict[str, Any]]:
         """Fetch raw ranked track entries for account."""
@@ -162,9 +203,11 @@ class ApiFortniteClient:
                 },
                 "playlists": {},
                 "modes": {MODE_BUILD: {}, MODE_ZERO_BUILD: {}, MODE_RELOAD: {}},
+                "inputs": {},
             }
 
         playlists: dict[str, dict[str, Any]] = {}
+        inputs: dict[str, dict[str, int]] = {}
 
         for key, value in raw_stats.items():
             match = STAT_KEY_REGEX.match(key)
@@ -174,6 +217,15 @@ class ApiFortniteClient:
             stat_name = match.group("stat")
             playlist_id = match.group("playlist").lower()
             val = int(value) if isinstance(value, (int, float)) else 0
+
+            if stat_name in ("matchesplayed", "kills", "placetop1", "minutesplayed"):
+                bucket = inputs.setdefault(
+                    match.group("input"), {"matches": 0, "kills": 0, "wins": 0, "minutes": 0}
+                )
+                field = {"matchesplayed": "matches", "placetop1": "wins", "minutesplayed": "minutes"}.get(
+                    stat_name, stat_name
+                )
+                bucket[field] += val
 
             if playlist_id not in playlists:
                 playlists[playlist_id] = {
@@ -277,6 +329,7 @@ class ApiFortniteClient:
             },
             "playlists": playlists,
             "modes": modes,
+            "inputs": inputs,
         }
 
     @staticmethod

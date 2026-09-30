@@ -40,6 +40,7 @@ from .const import (
     DEFAULT_INACTIVITY_TIMEOUT,
     DOMAIN,
 )
+from .profile import compute_metrics
 from .session_manager import FortniteSessionManager
 from .storage import FortniteStorage
 
@@ -132,12 +133,15 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if new_matches or self._session_signature(manager) != state_before:
                 self._store_player_state(p_id)
                 storage_dirty = True
+                if state_before[0] and not manager.is_active:
+                    self._request_profile_refresh()
 
             any_active = any_active or manager.is_active
             results[p_id] = {
                 "player_id": p_id,
                 "player_name": manager.player_name,
                 "stats": parsed_stats,
+                "metrics": compute_metrics(parsed_stats),
                 "ranked": parsed_ranked,
                 "level": parsed_level,
                 "session": manager.active_session,
@@ -224,10 +228,22 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if ended:
             self._store_player_state(player_id)
             await self.storage.async_save()
+            self._request_profile_refresh()
         if not any(m.is_active for m in self.session_managers.values()):
             self.update_interval = timedelta(seconds=self.idle_interval)
         self._sync_session_data(player_id)
         return ended
+
+    def _request_profile_refresh(self) -> None:
+        """Refresh windowed stats soon after a session ends (debounced by the coordinator)."""
+        profile = getattr(self, "profile", None)
+        if profile is not None and hasattr(self.hass, "async_create_task"):
+            self.hass.async_create_task(profile.async_request_refresh())
+
+    def lifetime_matches(self, player_id: str) -> int:
+        """Lifetime match total from the latest poll (used to validate windowed stats)."""
+        player = (self.data or {}).get(player_id) or {}
+        return (player.get("stats") or {}).get("overall", {}).get("matches", 0)
 
     def _sync_session_data(self, player_id: str) -> None:
         """Copy session manager state into coordinator data so entities reflect it."""

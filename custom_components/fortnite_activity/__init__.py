@@ -28,8 +28,18 @@ except ImportError:
     StaticPathConfig = None  # type: ignore
 
 from .api.api_fortnite import ApiFortniteClient
-from .const import CONF_API_KEY, DOMAIN
+from .const import (
+    CONF_API_KEY,
+    CONF_INACTIVITY_TIMEOUT,
+    CONF_PLAYERS,
+    CONF_REGION,
+    DEFAULT_INACTIVITY_TIMEOUT,
+    DEFAULT_REGION,
+    DOMAIN,
+    LEGACY_INACTIVITY_TIMEOUT,
+)
 from .coordinator import FortniteDataUpdateCoordinator
+from .profile_coordinator import FortniteProfileCoordinator
 from .storage import FortniteStorage
 from .websocket_api import async_setup_websocket_api
 
@@ -126,6 +136,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Fortnite Family Tracker from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
+    # 1.0.9: the old 20-minute default could end sessions mid-match; move untouched entries to 35
+    if entry.options.get(CONF_INACTIVITY_TIMEOUT) == LEGACY_INACTIVITY_TIMEOUT:
+        hass.config_entries.async_update_entry(
+            entry, options={**entry.options, CONF_INACTIVITY_TIMEOUT: DEFAULT_INACTIVITY_TIMEOUT}
+        )
+
     api_key = entry.data[CONF_API_KEY]
     session = async_get_clientsession(hass) if async_get_clientsession else None
     api_client = ApiFortniteClient(api_key=api_key, session=session)
@@ -142,6 +158,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     await coordinator.async_config_entry_first_refresh()
+
+    # Profile/catalogue data refreshes on its own slow cadence and never blocks setup
+    coordinator.profile = FortniteProfileCoordinator(
+        hass,
+        api_client=api_client,
+        players_config=entry.data.get(CONF_PLAYERS, []),
+        region=entry.options.get(CONF_REGION, DEFAULT_REGION),
+        lifetime_matches=coordinator.lifetime_matches,
+    )
+    entry.async_create_background_task(
+        hass, coordinator.profile.async_refresh(), f"{DOMAIN}_profile_first_refresh"
+    )
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 

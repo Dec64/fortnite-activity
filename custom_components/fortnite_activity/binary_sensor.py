@@ -47,7 +47,7 @@ class FortnitePlayingBinarySensor(FortniteEntity, BinarySensorEntity):
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the binary sensor."""
         super().__init__(coordinator, "binary_sensor", player_id, player_name, "playing")
-        self._attr_name = f"{player_name} Playing"
+        self._attr_name = "Playing"
 
     @property
     def is_on(self) -> bool:

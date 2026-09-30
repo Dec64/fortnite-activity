@@ -9,11 +9,20 @@ CONF_ACCOUNT_ID = "account_id"
 CONF_ACTIVE_INTERVAL = "active_interval"
 CONF_IDLE_INTERVAL = "idle_interval"
 CONF_INACTIVITY_TIMEOUT = "inactivity_timeout"
+CONF_REGION = "region"
 
 # Defaults
 DEFAULT_ACTIVE_INTERVAL = 90  # 90 seconds while playing
 DEFAULT_IDLE_INTERVAL = 1800  # 30 minutes when idle
-DEFAULT_INACTIVITY_TIMEOUT = 20  # 20 minutes before ending session
+DEFAULT_INACTIVITY_TIMEOUT = 35  # minutes without a new match before ending a session
+LEGACY_INACTIVITY_TIMEOUT = 20  # pre-1.0.9 default, migrated to the new default
+DEFAULT_REGION = "EU"
+TOURNAMENT_REGIONS = ["EU", "NAE", "NAW", "NAC", "BR", "ASIA", "OCE", "ME"]
+
+# Slow "profile" data refresh cadence (independent of match polling)
+PROFILE_REFRESH_MINUTES = 30
+CATALOGUE_REFRESH_HOURS = 24
+TOURNAMENT_REFRESH_HOURS = 6
 
 # API Endpoints
 API_BASE_URL = "https://prod.api-fortnite.com/api"
@@ -21,6 +30,12 @@ API_HEADER_KEY = "x-api-key"
 STATS_ENDPOINT = "/v2/stats/{account_id}"
 RANKED_ENDPOINT = "/v1/profile/ranked?accountId={account_id}"
 LEVEL_ENDPOINT = "/v1/profile/level?accountId={account_id}"
+SEASON_ENDPOINT = "/v1/season"
+PLAYLISTS_ENDPOINT = "/v2/playlists?lang=en"
+ACCOUNT_ENDPOINT = "/v1/account/{account_id}"
+EXTERNAL_AUTHS_ENDPOINT = "/v1/account/{account_id}/externalAuths"
+EVENTS_GLOBAL_ENDPOINT = "/v1/events/global?lang=en"
+COSMETIC_SEARCH_ENDPOINT = "/v2/cosmetics/search"
 
 # Playlist Name Mapping
 PLAYLIST_NAMES = {

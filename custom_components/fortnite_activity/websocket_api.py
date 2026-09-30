@@ -23,6 +23,14 @@ except ImportError:
         def Schema(*args: Any, **kwargs: Any) -> Any:
             return args[0]
 
+        @staticmethod
+        def All(*args: Any, **kwargs: Any) -> Any:
+            return args[0]
+
+        @staticmethod
+        def Length(*args: Any, **kwargs: Any) -> Any:
+            return None
+
     vol = _MockVol()  # type: ignore
     HomeAssistant = Any  # type: ignore
 
@@ -46,6 +54,7 @@ except ImportError:
 
     websocket_api = _MockWS()  # type: ignore
 
+from .api.api_fortnite import FortniteApiError
 from .const import DOMAIN
 from .coordinator import FortniteDataUpdateCoordinator
 
@@ -60,6 +69,9 @@ def async_setup_websocket_api(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_get_player_session)
     websocket_api.async_register_command(hass, ws_get_player_history)
     websocket_api.async_register_command(hass, ws_get_player_playlists)
+    websocket_api.async_register_command(hass, ws_get_catalog)
+    websocket_api.async_register_command(hass, ws_get_tournaments)
+    websocket_api.async_register_command(hass, ws_find_cosmetic)
 
 
 def _get_coordinator(hass: HomeAssistant, player_id: str | None = None) -> FortniteDataUpdateCoordinator | None:
@@ -172,3 +184,101 @@ async def ws_get_player_playlists(
             "playlists": playlists,
         },
     )
+
+
+def _profile(hass: HomeAssistant, player_id: str | None):
+    coordinator = _get_coordinator(hass, player_id)
+    return getattr(coordinator, "profile", None) if coordinator else None
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/catalog",
+        vol.Optional("player_id"): str,
+    }
+)
+@websocket_api.async_response
+async def ws_get_catalog(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Return the playlist catalogue (names/images) and current season, cached daily."""
+    profile = _profile(hass, msg.get("player_id"))
+    connection.send_result(
+        msg["id"],
+        {
+            "season": profile.season if profile else None,
+            "playlists": profile.playlists if profile else {},
+        },
+    )
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/tournaments",
+        vol.Optional("player_id"): str,
+    }
+)
+@websocket_api.async_response
+async def ws_get_tournaments(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Return upcoming/live tournament windows for the configured region."""
+    profile = _profile(hass, msg.get("player_id"))
+    connection.send_result(
+        msg["id"],
+        {
+            "region": profile.region if profile else None,
+            "tournaments": profile.tournaments if profile else None,
+        },
+    )
+
+
+_COSMETIC_CACHE: dict[str, dict[str, Any] | None] = {}
+
+
+def _cosmetic_summary(item: dict[str, Any]) -> dict[str, Any]:
+    images = item.get("images") if isinstance(item.get("images"), dict) else {}
+    return {
+        "id": item.get("id"),
+        "name": item.get("name"),
+        "rarity": item.get("rarity"),
+        "icon": images.get("icon") or images.get("smallIcon") or item.get("icon"),
+        "featured": images.get("largeIcon") or images.get("featured"),
+    }
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/cosmetic",
+        vol.Required("query"): vol.All(str, vol.Length(min=3, max=60)),
+        vol.Optional("cosmetic_type", default="outfit"): str,
+    }
+)
+@websocket_api.async_response
+async def ws_find_cosmetic(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Resolve a cosmetic name (e.g. a skin chosen as avatar) to images; cached per query."""
+    query = msg["query"].strip()
+    cache_key = f"{msg['cosmetic_type']}:{query.lower()}"
+    if cache_key not in _COSMETIC_CACHE:
+        coordinator = _get_coordinator(hass)
+        if not coordinator:
+            connection.send_error(msg["id"], "not_found", "Fortnite Activity is not set up")
+            return
+        try:
+            raw = await coordinator.api_client.search_cosmetics(query, msg["cosmetic_type"] or None)
+        except FortniteApiError as err:
+            connection.send_error(msg["id"], "api_error", str(err))
+            return
+        items = [i for i in (raw.get("data") if isinstance(raw, dict) else raw) or [] if isinstance(i, dict)]
+        exact = next((i for i in items if str(i.get("name", "")).lower() == query.lower()), None)
+        best = exact or (items[0] if items else None)
+        _COSMETIC_CACHE[cache_key] = _cosmetic_summary(best) if best else None
+    connection.send_result(msg["id"], {"query": query, "cosmetic": _COSMETIC_CACHE[cache_key]})

@@ -4,14 +4,19 @@ from __future__ import annotations
 
 from typing import Any
 
+from datetime import datetime
+
 try:
-    from homeassistant.components.sensor import SensorEntity
+    from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 except ImportError:
     class SensorEntity:  # type: ignore
         pass
+
+    class SensorDeviceClass:  # type: ignore
+        TIMESTAMP = "timestamp"
     ConfigEntry = Any  # type: ignore
     HomeAssistant = Any  # type: ignore
     AddEntitiesCallback = Any  # type: ignore
@@ -42,6 +47,8 @@ async def async_setup_entry(
                 FortniteRankBattleRoyaleSensor(coordinator, p_id, p_name),
                 FortniteRankReloadSensor(coordinator, p_id, p_name),
                 FortniteLevelSensor(coordinator, p_id, p_name),
+                FortniteLastPlayedSensor(coordinator, p_id, p_name),
+                FortniteProfileSensor(coordinator.profile, p_id, p_name),
             ]
         )
 
@@ -52,11 +59,13 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
     """Sensor displaying overall matches and career statistics."""
 
     _attr_icon = "mdi:trophy-outline"
+    # Nested breakdowns change every poll; keep them out of the recorder database
+    _unrecorded_attributes = frozenset({"modes", "team_sizes", "inputs", "metrics"})
 
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, "sensor", player_id, player_name, "overall_stats")
-        self._attr_name = f"{player_name} Overall Stats"
+        self._attr_name = "Overall Stats"
 
     @property
     def native_value(self) -> int | None:
@@ -68,6 +77,7 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
     def _extra_attributes(self) -> dict[str, Any]:
         """Return career statistics breakdown."""
         stats = self.player_data.get("stats", {})
+        metrics = self.player_data.get("metrics") or {}
         overall = stats.get("overall", {})
         return {
             "total_matches": overall.get("matches", 0),
@@ -79,6 +89,9 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
             "score": overall.get("score", 0),
             "players_outlived": overall.get("players_outlived", 0),
             "modes": stats.get("modes", {}),
+            "metrics": {k: v for k, v in metrics.items() if k not in ("team_sizes", "inputs")},
+            "team_sizes": metrics.get("team_sizes", {}),
+            "inputs": metrics.get("inputs", {}),
         }
 
 
@@ -90,7 +103,7 @@ class FortniteCurrentSessionSensor(FortniteEntity, SensorEntity):
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, "sensor", player_id, player_name, "current_session")
-        self._attr_name = f"{player_name} Session"
+        self._attr_name = "Session"
 
     @property
     def native_value(self) -> str:
@@ -133,7 +146,7 @@ class FortniteRankBattleRoyaleSensor(FortniteEntity, SensorEntity):
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, "sensor", player_id, player_name, "rank_battle_royale")
-        self._attr_name = f"{player_name} Battle Royale Rank"
+        self._attr_name = "Battle Royale Rank"
 
     @property
     def native_value(self) -> str:
@@ -166,7 +179,7 @@ class FortniteRankReloadSensor(FortniteEntity, SensorEntity):
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, "sensor", player_id, player_name, "rank_reload")
-        self._attr_name = f"{player_name} Reload Rank"
+        self._attr_name = "Reload Rank"
 
     @property
     def native_value(self) -> str:
@@ -199,7 +212,7 @@ class FortniteLevelSensor(FortniteEntity, SensorEntity):
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, "sensor", player_id, player_name, "level")
-        self._attr_name = f"{player_name} Level"
+        self._attr_name = "Level"
 
     @property
     def available(self) -> bool:
@@ -220,4 +233,58 @@ class FortniteLevelSensor(FortniteEntity, SensorEntity):
             "tier": level.get("tier", 0),
             "xp": level.get("xp", 0),
             "account_level": level.get("account_level", 0),
+        }
+
+
+class FortniteLastPlayedSensor(FortniteEntity, SensorEntity):
+    """When the player last finished a match (from stats lastmodified), for automations."""
+
+    _attr_icon = "mdi:clock-check-outline"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, "sensor", player_id, player_name, "last_played")
+        self._attr_name = "Last Played"
+
+    @property
+    def _last(self) -> dict[str, Any]:
+        return (self.player_data.get("metrics") or {}).get("last_played") or {}
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the last match timestamp."""
+        value = self._last.get("time")
+        return datetime.fromisoformat(value) if value else None
+
+    @property
+    def _extra_attributes(self) -> dict[str, Any]:
+        return {"playlist_id": self._last.get("playlist_id"), "mode_name": self._last.get("name")}
+
+
+class FortniteProfileSensor(FortniteEntity, SensorEntity):
+    """Epic display name, linked platforms, season and time-windowed stats."""
+
+    _attr_icon = "mdi:account-star"
+    _unrecorded_attributes = frozenset({"windows", "window_labels", "season", "platforms"})
+
+    def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, "sensor", player_id, player_name, "profile")
+        self._attr_name = "Profile"
+        self._fallback_name = player_name
+
+    @property
+    def native_value(self) -> str:
+        """Return the Epic display name (or configured name until it is known)."""
+        return self.player_data.get("display_name") or self._fallback_name
+
+    @property
+    def _extra_attributes(self) -> dict[str, Any]:
+        return {
+            "display_name": self.player_data.get("display_name"),
+            "platforms": self.player_data.get("platforms"),
+            "season": self.coordinator.season,
+            "windows": self.player_data.get("windows") or {},
+            "window_labels": self.player_data.get("window_labels") or {},
         }
