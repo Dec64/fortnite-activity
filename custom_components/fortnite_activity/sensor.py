@@ -55,7 +55,7 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
 
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
-        super().__init__(coordinator, player_id, player_name, "overall_stats")
+        super().__init__(coordinator, "sensor", player_id, player_name, "overall_stats")
         self._attr_name = f"{player_name} Overall Stats"
 
     @property
@@ -89,7 +89,7 @@ class FortniteCurrentSessionSensor(FortniteEntity, SensorEntity):
 
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
-        super().__init__(coordinator, player_id, player_name, "current_session")
+        super().__init__(coordinator, "sensor", player_id, player_name, "current_session")
         self._attr_name = f"{player_name} Session"
 
     @property
@@ -132,7 +132,7 @@ class FortniteRankBattleRoyaleSensor(FortniteEntity, SensorEntity):
 
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
-        super().__init__(coordinator, player_id, player_name, "rank_battle_royale")
+        super().__init__(coordinator, "sensor", player_id, player_name, "rank_battle_royale")
         self._attr_name = f"{player_name} Battle Royale Rank"
 
     @property
@@ -164,7 +164,7 @@ class FortniteRankReloadSensor(FortniteEntity, SensorEntity):
 
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
-        super().__init__(coordinator, player_id, player_name, "rank_reload")
+        super().__init__(coordinator, "sensor", player_id, player_name, "rank_reload")
         self._attr_name = f"{player_name} Reload Rank"
 
     @property
@@ -196,7 +196,7 @@ class FortniteLevelSensor(FortniteEntity, SensorEntity):
 
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
-        super().__init__(coordinator, player_id, player_name, "level")
+        super().__init__(coordinator, "sensor", player_id, player_name, "level")
         self._attr_name = f"{player_name} Level"
 
     @property

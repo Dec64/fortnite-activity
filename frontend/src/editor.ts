@@ -63,6 +63,26 @@ const SCHEMA = [
     label: "Max Matches in Session Feed",
     selector: { number: { min: 3, max: 20, mode: "slider" } },
   },
+  {
+    name: "hide_account_level",
+    label: "Hide Account Level",
+    selector: { boolean: {} },
+  },
+  {
+    name: "hide_season_level",
+    label: "Hide Season Level",
+    selector: { boolean: {} },
+  },
+  {
+    name: "hide_rank_progress",
+    label: "Hide Rank Progress Bars",
+    selector: { boolean: {} },
+  },
+  {
+    name: "custom_background",
+    label: "Custom Background Image URL",
+    selector: { text: {} },
+  },
 ];
 
 @customElement("fortnite-activity-card-editor")

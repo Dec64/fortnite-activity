@@ -31,6 +31,7 @@ class FortniteEntity(CoordinatorEntity[FortniteDataUpdateCoordinator]):
     def __init__(
         self,
         coordinator: FortniteDataUpdateCoordinator,
+        platform: str,
         player_id: str,
         player_name: str,
         key: str,
@@ -40,6 +41,7 @@ class FortniteEntity(CoordinatorEntity[FortniteDataUpdateCoordinator]):
         self.player_id = player_id
         self.player_name = player_name
         self.entity_key = key
+        self.entity_id = f"{platform}.fortnite_{player_id}_{key}"
 
         self._attr_unique_id = f"{DOMAIN}_{player_id}_{key}"
         self._attr_device_info = DeviceInfo(

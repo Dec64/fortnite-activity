@@ -12,6 +12,19 @@ export const cardStyles = css`
     --pill-radius: 32px;
   }
 
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+
   ha-card {
     background: var(--card-bg);
     border-radius: var(--card-radius);

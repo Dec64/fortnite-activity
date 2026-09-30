@@ -53,6 +53,7 @@ export class FortniteActivityCard extends LitElement {
 
   @state() private _activeTab: "session" | "career" = "session";
   @state() private _selectedMode: "all" | "build" | "zero_build" | "reload" = "all";
+  @state() private _loadingAction: string | null = null;
 
   public setConfig(config: FortniteCardConfig): void {
     if (!config) {
@@ -96,12 +97,18 @@ export class FortniteActivityCard extends LitElement {
 
   private async _callService(service: string, data: Record<string, any> = {}): Promise<void> {
     if (!this.hass) return;
+    this._loadingAction = service;
     try {
       await this.hass.callService("fortnite_activity", service, {
         player_id: this._player,
         ...data,
       });
+      // Keep loading state briefly for visual feedback
+      setTimeout(() => {
+        this._loadingAction = null;
+      }, 1500);
     } catch (err) {
+      this._loadingAction = null;
       console.error(`Error calling service fortnite_activity.${service}:`, err);
     }
   }
@@ -172,6 +179,10 @@ export class FortniteActivityCard extends LitElement {
       activeView = "career";
     }
 
+    if (this._config.custom_background) {
+      accentStyle += ` --card-bg: url('${this._config.custom_background}') center/cover no-repeat;`;
+    }
+
     return html`
       <ha-card style="${accentStyle}">
         <!-- Card Header -->
@@ -181,9 +192,9 @@ export class FortniteActivityCard extends LitElement {
             <div class="player-info">
               <h2>${playerName}</h2>
               <div class="player-meta">
-                ${Number(seasonLevel) > 0 ? html`<span class="level-badge">Lvl ${seasonLevel}</span>` : ""}
-                ${Number(accountLevel) > 0 ? html`<span>• Account: ${accountLevel.toLocaleString()}</span>` : ""}
-                ${Number(seasonLevel) === 0 && Number(accountLevel) === 0 ? html`<span>Fortnite Player</span>` : ""}
+                ${!this._config.hide_season_level && Number(seasonLevel) > 0 ? html`<span class="level-badge">Lvl ${seasonLevel}</span>` : ""}
+                ${!this._config.hide_account_level && Number(accountLevel) > 0 ? html`<span>• Account: ${accountLevel.toLocaleString()}</span>` : ""}
+                ${(this._config.hide_season_level || Number(seasonLevel) === 0) && (this._config.hide_account_level || Number(accountLevel) === 0) ? html`<span>Fortnite Player</span>` : ""}
               </div>
             </div>
           </div>
@@ -219,21 +230,21 @@ export class FortniteActivityCard extends LitElement {
 
                 ${isPlaying
                   ? html`
-                      <button class="bubble-sub-button" @click=${() => this._callService("end_session")}>
+                      <button class="bubble-sub-button" @click=${() => this._callService("end_session")} ?disabled=${this._loadingAction === "end_session"}>
                         <ha-icon icon="mdi:stop-circle-outline"></ha-icon>
-                        <span>End Session</span>
+                        <span>${this._loadingAction === "end_session" ? "Stopping..." : "End Session"}</span>
                       </button>
                     `
                   : html`
-                      <button class="bubble-sub-button" @click=${() => this._callService("start_session")}>
+                      <button class="bubble-sub-button" @click=${() => this._callService("start_session")} ?disabled=${this._loadingAction === "start_session"}>
                         <ha-icon icon="mdi:play-circle-outline"></ha-icon>
-                        <span>Start Session</span>
+                        <span>${this._loadingAction === "start_session" ? "Starting..." : "Start Session"}</span>
                       </button>
                     `}
 
-                <button class="bubble-sub-button" @click=${() => this._callService("refresh_player")}>
-                  <ha-icon icon="mdi:refresh"></ha-icon>
-                  <span>Refresh</span>
+                <button class="bubble-sub-button" @click=${() => this._callService("refresh_player")} ?disabled=${this._loadingAction === "refresh_player"}>
+                  <ha-icon icon=${this._loadingAction === "refresh_player" ? "mdi:loading" : "mdi:refresh"} class=${this._loadingAction === "refresh_player" ? "spin" : ""}></ha-icon>
+                  <span>${this._loadingAction === "refresh_player" ? "Refreshing..." : "Refresh"}</span>
                 </button>
               </div>
             `
@@ -451,9 +462,11 @@ export class FortniteActivityCard extends LitElement {
           <span class="rank-title">Battle Royale</span>
           <span class="rank-name">${brName} (Div ${brDiv})</span>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, brProg))}%;"></div>
-        </div>
+        ${!this._config.hide_rank_progress ? html`
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, brProg))}%;"></div>
+          </div>
+        ` : ""}
         <div class="rank-meta">
           <span>${brProg}% to promotion</span>
           <span>Peak: ${brRankAttrs.highest_rank || brName}</span>
@@ -465,9 +478,11 @@ export class FortniteActivityCard extends LitElement {
           <span class="rank-title">Reload Build</span>
           <span class="rank-name">${reloadName} (Div ${reloadDiv})</span>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, reloadProg))}%;"></div>
-        </div>
+        ${!this._config.hide_rank_progress ? html`
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, reloadProg))}%;"></div>
+          </div>
+        ` : ""}
         <div class="rank-meta">
           <span>${reloadProg}% to promotion</span>
           <span>Peak: ${reloadRankAttrs.highest_rank || reloadName}</span>

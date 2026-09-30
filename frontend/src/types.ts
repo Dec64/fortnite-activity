@@ -11,6 +11,10 @@ export interface FortniteCardConfig {
   show_match_feed?: boolean;
   show_sub_buttons?: boolean;
   max_feed_matches?: number;
+  hide_account_level?: boolean;
+  hide_season_level?: boolean;
+  hide_rank_progress?: boolean;
+  custom_background?: string;
 }
 
 export interface MatchRecord {
