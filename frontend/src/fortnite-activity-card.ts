@@ -491,3 +491,7 @@ export class FortniteActivityCard extends LitElement {
     `;
   }
 }
+
+if (!customElements.get("fortnite-activity-card")) {
+  customElements.define("fortnite-activity-card", FortniteActivityCard);
+}
