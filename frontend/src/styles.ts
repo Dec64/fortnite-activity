@@ -932,4 +932,56 @@ export const cardStyles = css`
   ha-card.compact .event-card { padding: 7px 10px; }
   ha-card.compact .mode-tab { padding: 3px 10px; font-size: 11px; }
   ha-card.compact .unreal-number { font-size: 18px; }
+
+  /* ---- Compact stats table ---- */
+  .stat-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 12px;
+    table-layout: fixed;
+  }
+
+  .stat-table tr + tr th,
+  .stat-table tr + tr td { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+
+  .stat-table th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--secondary-text-color, rgba(255, 255, 255, 0.6));
+    padding: 5px 6px 5px 0;
+    width: 28%;
+  }
+
+  .stat-table td.kpi-value {
+    display: table-cell;
+    text-align: right;
+    font-size: 13px;
+    padding: 5px 12px 5px 0;
+    width: 22%;
+  }
+
+  .secondary .stat-table { margin-top: -4px; }
+
+  /* ---- Filters reset & show more ---- */
+  .filter-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: var(--pill-radius);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.12);
+    color: #FCA5A5;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    --mdc-icon-size: 16px;
+  }
+
+  .show-more { align-self: center; margin: 4px auto 0; }
 `;

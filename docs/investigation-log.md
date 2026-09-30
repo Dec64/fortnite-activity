@@ -893,3 +893,9 @@ Following the user's `/plan` request and interactive alignment interview, design
 - **Match records** now carry per-poll minutes, score, players outlived and Unreal placement change.
 - **Rank badges** are self-drawn SVG tier shields: the API exposes no ranked artwork.
 - **Header offset** was HA's `ha-card` styling of slotted `.card-header` (extra 16px padding); the card now uses its own class.
+
+### 2026-09-30 v1.2.0 match lists, logical display, compact table
+
+- New `fortnite_activity/matches` websocket returns every tracked match (active + archived sessions) filtered by session or `since`; the card lists them for the session and for Today / 7 Days / Season windows, labelled "N of M" against the API window total because the stats API has no per-match history (only games the tracker saw finish are listed).
+- Rank details are shown only for ranked games (rank moved, Unreal place changed, or a `habanero*` playlist); per-game "wins" removed (placement already says Victory Royale; "Victories" appears only when several games were combined in one poll).
+- Dashboard: card moved from Office Hub main view into the existing Gaming sub-view (plus an events-only card). Previous config hash `c0e1b7b589bcbd1c`.

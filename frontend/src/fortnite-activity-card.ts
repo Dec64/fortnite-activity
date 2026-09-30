@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.1.1";
+const CARD_VERSION = "1.2.0";
 
 declare global {
   interface Window {
@@ -114,6 +114,8 @@ export class FortniteActivityCard extends LitElement {
   @state() private _expandedMatch: string | null = null;
   @state() private _leaderboards: Record<string, { loading?: boolean; data?: any; error?: string }> = {};
   @state() private _now = Date.now();
+  @state() private _matchLists: Record<string, { loading?: boolean; matches?: MatchRecord[]; tracked?: number; error?: string }> = {};
+  @state() private _showAllMatches: Record<string, boolean> = {};
 
   private _entityCache = new Map<string, string>();
   private _avatarTimer?: number;
@@ -249,6 +251,25 @@ export class FortniteActivityCard extends LitElement {
     } catch (err: any) {
       this._leaderboards = { ...this._leaderboards, [key]: { error: err?.message || "Leaderboard unavailable" } };
     }
+  }
+
+  /** Fetch every tracked match for a session or time window (sensor attributes only keep 10). */
+  private _ensureMatches(key: string, params: Record<string, any>): void {
+    if (!this.hass || this._matchLists[key]) return;
+    this._matchLists = { ...this._matchLists, [key]: { loading: true } };
+    this.hass
+      .callWS({ type: "fortnite_activity/matches", player_id: this._player, ...params })
+      .then((r: any) => {
+        this._matchLists = { ...this._matchLists, [key]: { matches: r?.matches || [], tracked: r?.tracked_matches || 0 } };
+      })
+      .catch((err: any) => {
+        this._matchLists = { ...this._matchLists, [key]: { error: err?.message || "Could not load matches" } };
+      });
+  }
+
+  /** A match counts as ranked only if rank data actually moved or it is a ranked playlist. */
+  private _isRanked(m: MatchRecord): boolean {
+    return Boolean(m.rank_delta_pct) || Boolean(m.unreal_rank_change) || /habanero/i.test(m.playlist_id || "");
   }
 
   // ---- entity lookup -------------------------------------------------------
@@ -563,6 +584,17 @@ export class FortniteActivityCard extends LitElement {
   }
 
   private _renderKpis(items: Array<[string, any, string?]>) {
+    if (this._config.compact) {
+      // Two label/value pairs per row keeps compact mode tidy
+      const rows: Array<Array<[string, any, string?]>> = [];
+      for (let i = 0; i < items.length; i += 2) rows.push(items.slice(i, i + 2));
+      return html`<table class="stat-table"><tbody>
+        ${rows.map((row) => html`<tr>
+          ${row.map(([label, value, cls]) => html`<th>${label}</th><td class="kpi-value ${cls || ""}">${value}</td>`)}
+          ${row.length < 2 ? html`<th></th><td></td>` : nothing}
+        </tr>`)}
+      </tbody></table>`;
+    }
     return html`<div class="kpi-row">
       ${items.map(([label, value, cls]) => html`<div class="kpi-chip"><span class="kpi-label">${label}</span><span class="kpi-value ${cls || ""}">${value}</span></div>`)}
     </div>`;
@@ -602,10 +634,14 @@ export class FortniteActivityCard extends LitElement {
 
   private _renderSessionView(isPlaying: boolean, sessionAttrs: any, brRankAttrs: any) {
     const rankDelta = Number(sessionAttrs.net_rank_delta_pct || 0);
-    const recentMatches: MatchRecord[] = sessionAttrs.recent_matches || [];
-    const displayMatches = recentMatches.slice(0, this._config.max_feed_matches || 10);
     const signed = (n: number) => (n >= 0 ? `+${n}%` : `${n}%`);
-    const unrealChange = recentMatches
+    const sessionId = sessionAttrs.session_id;
+    const listKey = sessionId ? `session:${sessionId}:${sessionAttrs.matches_played || 0}` : "";
+    if (listKey && this._config.show_match_feed !== false) this._ensureMatches(listKey, { session_id: sessionId });
+    const full = listKey ? this._matchLists[listKey]?.matches : undefined;
+    const matches: MatchRecord[] = full || sessionAttrs.recent_matches || [];
+    const ranked = matches.filter((m) => this._isRanked(m));
+    const unrealChange = ranked
       .filter((m) => m.rank_track === brRankAttrs.game_mode && typeof m.unreal_rank_change === "number")
       .reduce((sum, m) => sum + (m.unreal_rank_change || 0), 0);
 
@@ -615,28 +651,41 @@ export class FortniteActivityCard extends LitElement {
         ["Wins", `${sessionAttrs.wins || 0} 🏆`, "gold"],
         ["Kills", sessionAttrs.kills || 0],
         ["K/D", sessionAttrs.kd_ratio || 0],
-        ["Rank Net", signed(rankDelta), rankDelta >= 0 ? "positive" : "negative"],
+        ...(ranked.length ? [["Rank Net", signed(rankDelta), rankDelta >= 0 ? "positive" : "negative"] as [string, any, string]] : []),
       ])}
 
-      ${this._renderRank("Battle Royale Ranked", brRankAttrs,
-        `${rankDelta >= 0 ? "▲" : "▼"} ${signed(rankDelta)} this session`, unrealChange || null)}
+      ${ranked.length
+        ? this._renderRank("Battle Royale Ranked", brRankAttrs,
+            `${rankDelta >= 0 ? "▲" : "▼"} ${signed(rankDelta)} this session`, unrealChange || null)
+        : nothing}
 
       ${this._config.show_match_feed !== false
         ? html`
             <div class="match-feed-header">
-              <span>Match Feed (${recentMatches.length} ${recentMatches.length === 1 ? "entry" : "entries"})</span>
+              <span>Match Feed (${sessionAttrs.matches_played || matches.length} ${(sessionAttrs.matches_played || matches.length) === 1 ? "match" : "matches"})</span>
               ${isPlaying ? html`<span class="tracking-live">Tracking Live</span>` : nothing}
             </div>
-            <div class="match-list">
-              ${displayMatches.length > 0
-                ? displayMatches.map((m) => this._renderMatch(m))
-                : html`<div class="empty">
-                    No matches recorded in this session yet.<br />
-                    <small>Matches appear here once Fortnite publishes the finished game's stats.</small>
-                  </div>`}
-            </div>
+            ${this._renderMatchList(listKey || "session", matches,
+              html`No matches recorded in this session yet.<br />
+                <small>Matches appear here once Fortnite publishes the finished game's stats.</small>`)}
           `
         : nothing}
+    `;
+  }
+
+  private _renderMatchList(key: string, matches: MatchRecord[], emptyText: any) {
+    const limit = this._config.max_feed_matches || 10;
+    const showAll = this._showAllMatches[key];
+    const shown = showAll ? matches : matches.slice(0, limit);
+    return html`
+      <div class="match-list">
+        ${shown.length ? shown.map((m) => this._renderMatch(m)) : html`<div class="empty">${emptyText}</div>`}
+        ${matches.length > limit
+          ? html`<button class="mini-button show-more" @click=${() => (this._showAllMatches = { ...this._showAllMatches, [key]: !showAll })}>
+              ${showAll ? "Show fewer" : `Show all ${matches.length}`}
+            </button>`
+          : nothing}
+      </div>
     `;
   }
 
@@ -645,6 +694,8 @@ export class FortniteActivityCard extends LitElement {
     const art = info?.image;
     const key = `${m.timestamp}|${m.playlist_id}`;
     const expanded = this._expandedMatch === key;
+    const multi = (m.match_count || 1) > 1;
+    const ranked = this._isRanked(m);
     const detail = (label: string, value: any) =>
       value === undefined || value === null || value === "" ? nothing : html`<div class="detail"><span>${label}</span><b>${value}</b></div>`;
 
@@ -662,7 +713,7 @@ export class FortniteActivityCard extends LitElement {
           </div>
           <div class="match-right">
             <span class="kills-badge"><ha-icon icon="mdi:skull-outline" style="--mdc-icon-size: 16px;"></ha-icon>${m.kills}</span>
-            ${m.rank_delta_pct
+            ${m.rank_delta_pct && this._isRanked(m)
               ? html`<span class="rank-delta-badge ${m.rank_delta_pct >= 0 ? "pos" : "neg"}">
                   ${m.rank_delta_pct >= 0 ? `+${m.rank_delta_pct}%` : `${m.rank_delta_pct}%`}
                 </span>`
@@ -676,17 +727,21 @@ export class FortniteActivityCard extends LitElement {
               ${info?.description ? html`<p class="detail-desc">${info.description}</p>` : nothing}
               <div class="detail-grid">
                 ${detail("Finished", this._formatWhen(m.timestamp))}
+                ${detail("Mode", m.mode_name)}
                 ${detail("Placement", m.placement_text)}
                 ${detail("Kills", m.kills)}
-                ${detail("Wins", m.wins)}
+                ${multi ? detail("Games", m.match_count) : nothing}
+                ${multi && m.wins ? detail("Victories", m.wins) : nothing}
                 ${detail("Time played", m.minutes ? this._formatDuration(m.minutes) : undefined)}
                 ${detail("Score", m.score ? this._num(m.score) : undefined)}
                 ${detail("Players outlived", m.players_outlived ? this._num(m.players_outlived) : undefined)}
-                ${detail("Rank track", m.rank_track)}
-                ${detail("Rank after", m.unreal_rank ? `${m.current_rank} #${this._num(m.unreal_rank)}` : m.current_rank)}
-                ${detail("Rank change", m.rank_delta_pct ? `${m.rank_delta_pct > 0 ? "+" : ""}${m.rank_delta_pct}%` : undefined)}
-                ${detail("Unreal places", m.unreal_rank_change ? `${m.unreal_rank_change > 0 ? "▲" : "▼"} ${this._num(Math.abs(m.unreal_rank_change))}` : undefined)}
-                ${detail("Games in poll", (m.match_count || 1) > 1 ? m.match_count : undefined)}
+                ${ranked
+                  ? html`
+                      ${detail("Ranked track", m.rank_track)}
+                      ${detail("Rank after", m.unreal_rank ? `${m.current_rank} #${this._num(m.unreal_rank)}` : m.current_rank)}
+                      ${detail("Rank change", m.rank_delta_pct ? `${m.rank_delta_pct > 0 ? "+" : ""}${m.rank_delta_pct}%` : undefined)}
+                      ${detail("Unreal places", m.unreal_rank_change ? `${m.unreal_rank_change > 0 ? "▲" : "▼"} ${this._num(Math.abs(m.unreal_rank_change))}` : undefined)}`
+                  : nothing}
               </div>
               ${(m.match_count || 1) > 1
                 ? html`<small class="muted">Several games finished between polls; totals are combined.</small>`
@@ -756,9 +811,30 @@ export class FortniteActivityCard extends LitElement {
 
       ${activeWindow === "lifetime" && this._selectedMode === "all" ? this._renderLifetimeExtras(statsAttrs) : nothing}
       ${favourite ? this._renderFavourite(favourite, activeWindow !== "lifetime" ? windowNames[activeWindow] : "") : nothing}
+      ${activeWindow !== "lifetime" && base?.since ? this._renderWindowMatches(activeWindow, windowNames[activeWindow], base) : nothing}
 
       ${this._renderRank("Battle Royale", brRankAttrs, `Peak: ${brRankAttrs.highest_rank || brRankAttrs.current_rank || "Unranked"}`)}
       ${this._renderRank("Reload", reloadRankAttrs, `Peak: ${reloadRankAttrs.highest_rank || reloadRankAttrs.current_rank || "Unranked"}`)}
+    `;
+  }
+
+  private _renderWindowMatches(windowKey: string, windowName: string, windowStats: any) {
+    // Refetch when the API total for the window changes (new games played)
+    const key = `window:${windowKey}:${windowStats.since}:${windowStats.matches}`;
+    this._ensureMatches(key, { since: windowStats.since });
+    const list = this._matchLists[key];
+    const matches = list?.matches || [];
+    const tracked = list?.tracked ?? 0;
+    const total = windowStats.matches || 0;
+    return html`
+      <div class="match-feed-header">
+        <span>${windowName} matches (${tracked}${total > tracked ? ` of ${total}` : ""})</span>
+        ${total > tracked ? html`<span class="muted" title="Only games the tracker saw finish are listed; the stats API has no per-match history">tracked only</span>` : nothing}
+      </div>
+      ${list?.loading
+        ? html`<div class="empty">Loading matches…</div>`
+        : this._renderMatchList(key, matches, html`No tracked matches in this window.<br />
+            <small>Games are recorded while a session is being tracked.</small>`)}
     `;
   }
 
@@ -789,14 +865,14 @@ export class FortniteActivityCard extends LitElement {
     const inputs = Object.values<any>(statsAttrs.inputs || {}).filter((i) => i.matches > 0);
     const sizes = statsAttrs.team_sizes || {};
     return html`
-      <div class="kpi-row secondary">
-        ${[
+      <div class="secondary">
+        ${this._renderKpis([
           ["Kills/Min", metrics.kills_per_minute ?? 0],
           ["Avg Match", `${metrics.avg_match_minutes ?? 0}m`],
           ["Score/Match", this._num(metrics.score_per_match)],
           ["Solo Top 10", `${metrics.solo_top10_rate ?? 0}%`],
           ["Solo Top 25", `${metrics.solo_top25_rate ?? 0}%`],
-        ].map(([l, v]) => html`<div class="kpi-chip"><span class="kpi-label">${l}</span><span class="kpi-value">${v}</span></div>`)}
+        ])}
       </div>
 
       ${inputs.length > 1
@@ -828,13 +904,17 @@ export class FortniteActivityCard extends LitElement {
 
   // ---- events --------------------------------------------------------------
 
-  private _currentFilters(): EventFilters {
-    return this._filters || {
+  private _defaultFilters(): EventFilters {
+    return {
       region: this._config.events_region || this._events.defaultRegion || "EU",
       mode: "all",
       team: "all",
       platform: "all",
     };
+  }
+
+  private _currentFilters(): EventFilters {
+    return this._filters || this._defaultFilters();
   }
 
   private _matchesFilters(e: any, f: EventFilters): boolean {
@@ -873,6 +953,11 @@ export class FortniteActivityCard extends LitElement {
         ${select("mode", [["all", "Mode"], ["Battle Royale", "Battle Royale"], ["Zero Build", "Zero Build"], ["Reload", "Reload"], ["Ranked", "Ranked cups"]])}
         ${select("team", [["all", "Team"], ["Solo", "Solo"], ["Duos", "Duos"], ["Trios", "Trios"], ["Squads", "Squads"]])}
         ${select("platform", [["all", "Platform"], ["PC", "PC"], ["Console", "Console"], ["Mobile", "Mobile"]])}
+        ${this._filters && JSON.stringify(this._filters) !== JSON.stringify({ ...this._filters, ...this._defaultFilters() })
+          ? html`<button class="filter-reset" @click=${() => (this._filters = null)} title="Clear all filters">
+              <ha-icon icon="mdi:filter-remove-outline"></ha-icon><span>Reset</span>
+            </button>`
+          : nothing}
       </div>
       <div class="match-feed-header">
         <span>Tournaments (${list.length})</span>

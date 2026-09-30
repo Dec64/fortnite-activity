@@ -74,6 +74,7 @@ def async_setup_websocket_api(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_get_tournaments)
     websocket_api.async_register_command(hass, ws_find_cosmetic)
     websocket_api.async_register_command(hass, ws_get_leaderboard)
+    websocket_api.async_register_command(hass, ws_get_matches)
 
 
 def _get_coordinator(hass: HomeAssistant, player_id: str | None = None) -> FortniteDataUpdateCoordinator | None:
@@ -343,3 +344,62 @@ async def ws_get_leaderboard(
         result = {"leaderboard": parse_leaderboard(raw, account_id)}
     _LEADERBOARD_CACHE[key] = (time.monotonic(), result)
     connection.send_result(msg["id"], result)
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/matches",
+        vol.Required("player_id"): str,
+        vol.Optional("since"): str,
+        vol.Optional("session_id"): str,
+        vol.Optional("limit", default=200): int,
+    }
+)
+@websocket_api.async_response
+async def ws_get_matches(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """All tracked matches (active session + archived sessions), newest first.
+
+    Only matches the session tracker detected are available; the stats API has no per-match history.
+    """
+    from datetime import datetime
+
+    coordinator = _get_coordinator(hass, msg["player_id"])
+    manager = coordinator.session_managers.get(msg["player_id"]) if coordinator else None
+    if not manager:
+        connection.send_error(msg["id"], "not_found", f"Player {msg['player_id']} not found")
+        return
+
+    since = None
+    if msg.get("since"):
+        try:
+            since = datetime.fromisoformat(msg["since"])
+        except ValueError:
+            connection.send_error(msg["id"], "invalid_format", "since must be an ISO timestamp")
+            return
+
+    sessions = ([manager.active_session] if manager.active_session else []) + list(manager.history)
+    matches: list[dict[str, Any]] = []
+    for session in sessions:
+        if msg.get("session_id") and session.get("session_id") != msg["session_id"]:
+            continue
+        for match in session.get("matches", []):
+            try:
+                finished = datetime.fromisoformat(match["timestamp"])
+            except (KeyError, ValueError):
+                continue
+            if since and finished < since:
+                continue
+            matches.append({**match, "session_id": session.get("session_id")})
+    matches.sort(key=lambda m: m["timestamp"], reverse=True)
+    connection.send_result(
+        msg["id"],
+        {
+            "player_id": msg["player_id"],
+            "tracked_matches": sum(m.get("match_count", 1) for m in matches),
+            "matches": matches[: msg["limit"]],
+        },
+    )
