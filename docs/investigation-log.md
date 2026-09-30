@@ -918,4 +918,4 @@ Following the user's `/plan` request and interactive alignment interview, design
 ### 2026-09-30 v1.3.2 Epic link persistence fix
 
 - **Observed via the new diagnostics after restart**: `epic.status = unlinked` although the link had worked. The options flow mutated the stored player dict in place, so `async_update_entry` saw identical old/new data and did not persist it. Fixed by copying player dicts in every options step; regression test runs against the real `homeassistant` package.
-- **Observed in stats response skeleton**: `s42_social_bp_level` (season level) is present with the provider key alone; used as the header level fallback when Epic is not linked.
+- **Observed in stats response skeleton**: `s42_social_bp_level` is present with the provider key alone, but its value was 32179 while the Epic level endpoint reported 322; encoding unverified, so it is exposed only as `season_level_raw` and not displayed (v1.3.3).

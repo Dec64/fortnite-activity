@@ -90,7 +90,8 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
             "minutes_played": overall.get("minutes", 0),
             "score": overall.get("score", 0),
             "players_outlived": overall.get("players_outlived", 0),
-            "season_level": stats.get("season_level"),
+            # Raw sNN_social_bp_level value; its encoding is unverified (observed 32179 while level was 322)
+            "season_level_raw": stats.get("season_level"),
             "modes": stats.get("modes", {}),
             "metrics": {k: v for k, v in metrics.items() if k not in ("team_sizes", "inputs")},
             "team_sizes": metrics.get("team_sizes", {}),
