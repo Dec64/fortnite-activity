@@ -7,7 +7,7 @@ from typing import Any
 from datetime import datetime
 
 try:
-    from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+    from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -17,6 +17,10 @@ except ImportError:
 
     class SensorDeviceClass:  # type: ignore
         TIMESTAMP = "timestamp"
+
+    class SensorStateClass:  # type: ignore
+        MEASUREMENT = "measurement"
+        TOTAL_INCREASING = "total_increasing"
     ConfigEntry = Any  # type: ignore
     HomeAssistant = Any  # type: ignore
     AddEntitiesCallback = Any  # type: ignore
@@ -49,6 +53,12 @@ async def async_setup_entry(
                 FortniteLevelSensor(coordinator.profile, p_id, p_name),
                 FortniteSpritesSensor(coordinator.profile, p_id, p_name),
                 FortnitePowerRankingSensor(coordinator.profile, p_id, p_name),
+                FortniteLadderSensor(coordinator, p_id, p_name, "battle_royale", "BR Ladder", "ladder_battle_royale"),
+                FortniteLadderSensor(coordinator, p_id, p_name, "reload_build", "Reload Ladder", "ladder_reload"),
+                FortniteUnrealPositionSensor(coordinator, p_id, p_name, "battle_royale", "BR Unreal Position", "unreal_battle_royale"),
+                FortniteUnrealPositionSensor(coordinator, p_id, p_name, "reload_build", "Reload Unreal Position", "unreal_reload"),
+                FortniteSeasonStatSensor(coordinator.profile, p_id, p_name, "kd", "Season K/D", "season_kd", None),
+                FortniteSeasonStatSensor(coordinator.profile, p_id, p_name, "win_rate", "Season Win Rate", "season_win_rate", "%"),
                 FortniteLastPlayedSensor(coordinator, p_id, p_name),
                 FortniteProfileSensor(coordinator.profile, p_id, p_name),
             ]
@@ -61,6 +71,7 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
     """Sensor displaying overall matches and career statistics."""
 
     _attr_icon = "mdi:trophy-outline"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
     # Nested breakdowns change every poll; keep them out of the recorder database
     _unrecorded_attributes = frozenset({"modes", "team_sizes", "inputs", "metrics"})
 
@@ -147,6 +158,8 @@ class FortniteRankBattleRoyaleSensor(FortniteEntity, SensorEntity):
 
     _attr_icon = "mdi:shield-star"
 
+    _unrecorded_attributes = frozenset({"all_tracks"})
+
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, "sensor", player_id, player_name, "rank_battle_royale")
@@ -165,6 +178,18 @@ class FortniteRankBattleRoyaleSensor(FortniteEntity, SensorEntity):
         ranked = self.player_data.get("ranked", {})
         br = ranked.get("battle_royale") or {}
         return {
+            # Every current ranked track (Arena Boxfights, Rocket Racing, ...), as returned
+            "all_tracks": [
+                {
+                    "game_mode": t.get("game_mode"),
+                    "current_rank": t.get("current_rank"),
+                    "progress_pct": t.get("progress_pct"),
+                    "unreal_rank": t.get("unreal_rank"),
+                    "highest_rank": t.get("highest_rank"),
+                    "season_end": t.get("season_end"),
+                }
+                for t in ranked.get("current_tracks") or []
+            ],
             "division": br.get("current_division", 0),
             "progress_pct": br.get("progress_pct", 0.0),
             "unreal_rank": br.get("unreal_rank"),
@@ -212,6 +237,7 @@ class FortniteLevelSensor(FortniteEntity, SensorEntity):
     """Sensor for Season Level and Battle Pass tier."""
 
     _attr_icon = "mdi:star-circle"
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
         """Initialize the sensor (profile coordinator: needs the player's linked Epic account)."""
@@ -292,6 +318,7 @@ class FortniteProfileSensor(FortniteEntity, SensorEntity):
             "windows": self.player_data.get("windows") or {},
             "window_labels": self.player_data.get("window_labels") or {},
             "epic_link": (self.player_data.get("epic") or {}).get("status", "unlinked"),
+            "capabilities": (self.coordinator.capabilities or {}).get(self.player_id),
         }
 
 
@@ -299,6 +326,7 @@ class FortniteSpritesSensor(FortniteEntity, SensorEntity):
     """Current-season Sprite collection completion (needs a linked Epic account)."""
 
     _attr_icon = "mdi:ghost-outline"
+    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "%"
     _unrecorded_attributes = frozenset({"families", "cumulative", "versions"})
 
@@ -332,6 +360,7 @@ class FortniteSpritesSensor(FortniteEntity, SensorEntity):
             "total_families": current.get("total_families"),
             "mastered_variants": current.get("mastered_variants"),
             "complete_families": current.get("complete_families"),
+            "level_curve": ((self.coordinator.sprite_catalogue or {}).get("level_curve_raw")) or [],
             "equipped": current.get("equipped"),
             "currency": current.get("currency", []),
             "families": current.get("families", []),
@@ -345,6 +374,7 @@ class FortnitePowerRankingSensor(FortniteEntity, SensorEntity):
     """Competitive Power Ranking position as returned by the provider (needs a linked Epic account)."""
 
     _attr_icon = "mdi:podium"
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
@@ -371,3 +401,80 @@ class FortnitePowerRankingSensor(FortniteEntity, SensorEntity):
             "counting_events": ranking.get("counting_events"),
             "event_id": ranking.get("event_id"),
         }
+
+
+class FortniteLadderSensor(FortniteEntity, SensorEntity):
+    """Ranked ladder position as one number (division x 100 + progress %), for trend charts."""
+
+    _attr_icon = "mdi:stairs-up"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: Any, player_id: str, player_name: str, track: str, name: str, key: str) -> None:
+        super().__init__(coordinator, "sensor", player_id, player_name, key)
+        self._attr_name = name
+        self._track = track
+
+    @property
+    def _data(self) -> dict[str, Any]:
+        return (self.player_data.get("ranked") or {}).get(self._track) or {}
+
+    @property
+    def native_value(self) -> float | None:
+        t = self._data
+        if not t or t.get("current_rank") in (None, "Unranked"):
+            return None
+        return round(float(t.get("current_division", 0)) * 100 + float(t.get("progress_pct", 0.0)), 1)
+
+    @property
+    def _extra_attributes(self) -> dict[str, Any]:
+        return {"rank": self._data.get("current_rank"), "progress_pct": self._data.get("progress_pct")}
+
+
+class FortniteUnrealPositionSensor(FortniteEntity, SensorEntity):
+    """Unreal leaderboard placement (lower is better); unavailable when not Unreal, so statistics get no zeros."""
+
+    _attr_icon = "mdi:crown"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: Any, player_id: str, player_name: str, track: str, name: str, key: str) -> None:
+        super().__init__(coordinator, "sensor", player_id, player_name, key)
+        self._attr_name = name
+        self._track = track
+
+    @property
+    def _position(self) -> int | None:
+        value = ((self.player_data.get("ranked") or {}).get(self._track) or {}).get("unreal_rank")
+        return value if isinstance(value, int) and value > 0 else None
+
+    @property
+    def available(self) -> bool:
+        return super().available and self._position is not None
+
+    @property
+    def native_value(self) -> int | None:
+        return self._position
+
+
+class FortniteSeasonStatSensor(FortniteEntity, SensorEntity):
+    """Season-window K/D or win rate (from the stats API startTime window), for trend charts."""
+
+    _attr_icon = "mdi:chart-line"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: Any, player_id: str, player_name: str, field: str, name: str, key: str, unit: str | None) -> None:
+        super().__init__(coordinator, "sensor", player_id, player_name, key)
+        self._attr_name = name
+        self._field = field
+        self._attr_native_unit_of_measurement = unit
+
+    @property
+    def _season(self) -> dict[str, Any] | None:
+        return (self.player_data.get("windows") or {}).get("season")
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(self._season)
+
+    @property
+    def native_value(self) -> float | None:
+        return (self._season or {}).get(self._field)

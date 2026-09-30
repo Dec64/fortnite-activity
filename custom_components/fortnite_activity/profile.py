@@ -334,6 +334,7 @@ def parse_tournaments(
                         continue
                     windows.append({
                         "window_id": window["eventWindowId"],
+                        "can_spectate": bool(window.get("canLiveSpectate")),
                         "label": _window_label(window["eventWindowId"]),
                         "begin": begin.isoformat(),
                         "end": end.isoformat(),
@@ -358,6 +359,11 @@ def parse_tournaments(
                     "poster": event.get("poster") or None,
                     "loading_screen": event.get("loadingScreen") or None,
                     "platform_groups": platform_groups(name or "", platforms),
+                    # Epic's own classification fields (values recorded in diagnostics before any UI use)
+                    "tournament_type": (regional.get("metadata") or {}).get("tournamentType"),
+                    "event_group": regional.get("eventGroup"),
+                    "min_account_level": (regional.get("metadata") or {}).get("minimumAccountLevel"),
+                    "can_spectate": any(w.get("can_spectate") for w in windows),
                     **classify_event(tags_text),
                     "is_live": any(w["is_live"] for w in windows),
                     "finished": not upcoming,
@@ -474,7 +480,18 @@ def parse_sprite_catalogue(raw: Any) -> dict[str, Any] | None:
     )
     # Only trust the curve if XP thresholds increase with level (cumulative thresholds)
     monotonic = all(b[1] >= a[1] for a, b in zip(curve, curve[1:]))
-    return {"version": data.get("gameVersion"), "families": families, "level_curve": curve if monotonic else []}
+    raw_curve = [
+        {"level": e.get("level"), "xp": e.get("xp")}
+        for e in data.get("levelUpCurve") or []
+        if isinstance(e, dict)
+    ]
+    return {
+        "version": data.get("gameVersion"),
+        "families": families,
+        "level_curve": curve if monotonic else [],
+        # As returned (order and values untouched) so the card can derive levels once the semantics are confirmed
+        "level_curve_raw": raw_curve,
+    }
 
 
 def _boon_refs(raw: Any) -> list[dict[str, Any]]:

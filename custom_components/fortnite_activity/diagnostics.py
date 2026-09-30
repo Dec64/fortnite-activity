@@ -32,7 +32,6 @@ TO_REDACT = {
     "display_name",
     "names",
     "platforms",
-    "event_id",
 }
 
 
@@ -86,6 +85,12 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
                 "failing": sorted(getattr(profile, "_failing", set())),
                 "players": profile_players,
                 "response_shapes": getattr(profile, "raw_shapes", {}),
+                "capabilities": getattr(profile, "capabilities", {}),
+                "sprite_level_curve_raw": ((getattr(profile, "sprite_catalogue", None) or {}).get("level_curve_raw")),
+                "tournament_classification": sorted({
+                    f"{e.get('tournament_type')}|{e.get('event_group')}|spectate={e.get('can_spectate')}|{e.get('name')}"
+                    for e in (getattr(profile, "tournaments", None) or [])
+                })[:80],
             },
         },
         TO_REDACT,

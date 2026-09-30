@@ -85,6 +85,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.sprite_version: str | None = None
         self.sprite_catalogue: dict[str, Any] | None = None
         self.sprite_boons: dict[str, dict[str, Any]] = {}
+        # Daily status-only checks of routes we cannot use yet (quests, Battle Pass, inventory)
+        self.capabilities: dict[str, dict[str, Any]] = {}
         # Key/type skeletons of the latest responses, for diagnostics (never values)
         self.raw_shapes: dict[str, Any] = {}
 
@@ -270,6 +272,16 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return
         self._failing.discard(f"token:{player_id}")
         info["epic"] = {"status": "linked"}
+
+        key = f"capabilities:{player_id}"
+        if self._stale(key, timedelta(hours=24), now):
+            self.capabilities[player_id] = {
+                "checked_at": now.isoformat(),
+                "quests": await self.api_client.probe_status(f"/v2/quests/{account_id}", token),
+                "battlepass_catalogue": await self.api_client.probe_status("/v2/battlepass"),
+                "br_inventory": await self.api_client.probe_status(f"/v2/fn/br-inventory/{account_id}", token),
+            }
+            self._fetched_at[key] = now
 
         ok, raw = await self._guarded(f"level:{player_id}", lambda: self.api_client.get_raw_level(account_id, token))
         if ok:

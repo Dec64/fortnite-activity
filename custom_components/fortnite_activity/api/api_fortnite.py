@@ -179,6 +179,14 @@ class ApiFortniteClient:
     async def get_sprite_catalogue(self) -> Any:
         return await self._request("/v2/sprites")
 
+    async def probe_status(self, endpoint: str, token: str | None = None) -> int | None:
+        """HTTP status of a GET without reading or keeping the body (capability checks only)."""
+        try:
+            status, _ = await self._send(endpoint, token=token)
+        except FortniteApiError:
+            return None
+        return status
+
     async def get_sprite_boons(self) -> Any:
         return await self._request("/v2/sprites/boons")
 
