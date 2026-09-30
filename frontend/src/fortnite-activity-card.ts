@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.6.1";
+const CARD_VERSION = "1.6.2";
 
 declare global {
   interface Window {
@@ -1061,7 +1061,15 @@ export class FortniteActivityCard extends LitElement {
     if (!p.data) return html`<div class="empty">The Battle Pass catalogue is not available right now.</div>`;
     const bp = p.data;
     const level = Number(levelSensor?.state) || null;
-    const pages = this._showAllPages ? bp.pages : bp.pages.slice(0, 3);
+    // Each reward track restarts its page numbers, so number the tracks as sections
+    const trackIndex = new Map<string, number>();
+    for (const pg of bp.pages) {
+      const base = String(pg.track || "").replace(/Bonus$/, "");
+      if (!trackIndex.has(base)) trackIndex.set(base, trackIndex.size + 1);
+    }
+    const rewardName = (r: any) =>
+      r.name && !/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(r.name) ? r.name : r.type || "Reward";
+    const pages = this._showAllPages ? bp.pages : bp.pages.slice(0, 4);
     return html`
       <div class="rank-section">
         <div class="rank-header">
@@ -1075,16 +1083,16 @@ export class FortniteActivityCard extends LitElement {
         <div class="perk-desc">Which rewards you have claimed is not available from this data source.</div>
       </div>
       ${pages.map((pg: any) => html`
-        <div class="section-title">${/Bonus$/.test(pg.track || "") ? "Bonus page" : "Page"} ${pg.page}</div>
+        <div class="section-title">Section ${trackIndex.get(String(pg.track || "").replace(/Bonus$/, ""))} · ${/Bonus$/.test(pg.track || "") ? "bonus page" : "page"} ${pg.page}</div>
         <div class="variant-tiles">
           ${pg.rewards.map((r: any) => html`
-            <div class="variant-tile" style="--rarity:${RARITY_COLORS[r.rarity] || "#9CA3AF"}" title="${r.name}${r.type ? ` (${r.type})` : ""}">
+            <div class="variant-tile" style="--rarity:${RARITY_COLORS[r.rarity] || "#9CA3AF"}" title="${rewardName(r)}${r.type ? ` (${r.type})` : ""}">
               ${r.icon ? html`<img src=${r.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
-              <span class="variant-name">${r.name}</span>
+              <span class="variant-name">${rewardName(r)}</span>
               <span class="variant-status">${r.price_row === "Included" || r.cost === 0 ? "Included" : r.cost != null ? `${r.cost} ${currencyLabel(r.currency, r.cost)}` : r.type || ""}</span>
             </div>`)}
         </div>`)}
-      ${bp.pages.length > 3
+      ${bp.pages.length > 4
         ? html`<button class="mini-button show-more" @click=${() => (this._showAllPages = !this._showAllPages)}>
             ${this._showAllPages ? "Show fewer pages" : `Show all ${bp.pages.length} pages`}</button>`
         : nothing}
