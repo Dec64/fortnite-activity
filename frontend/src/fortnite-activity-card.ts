@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.3.1";
+const CARD_VERSION = "1.3.2";
 
 declare global {
   interface Window {
@@ -529,7 +529,8 @@ export class FortniteActivityCard extends LitElement {
     const platforms: any[] = this._config.show_platforms !== false ? profileAttrs.platforms || [] : [];
     const lastPlayed = statsAttrs.metrics?.last_played;
     const levelAttrs = levelSensor?.attributes || {};
-    const seasonLevel = Number(levelSensor?.state);
+    // Linked Epic account gives the level sensor; otherwise the stats payload's sNN_social_bp_level
+    const seasonLevel = Number(levelSensor?.state) || Number(statsAttrs.season_level?.level) || 0;
     const accountLevel = Number(levelAttrs.account_level || 0);
     const avatarImg = this._avatar?.icon;
     const badgeSize = this._config.compact ? 20 : 24;

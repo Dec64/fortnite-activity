@@ -914,3 +914,8 @@ Following the user's `/plan` request and interactive alignment interview, design
 - **New derived data**: sprite level per owned variant from the public `/v2/sprites` `levelUpCurve` (used only if thresholds are monotonic); acquisition hints for missing families; Power Ranking `trackedStats` (PR, peak PR, delta PR, counting events).
 - **Session history**: sessions ending with zero detected matches are no longer archived (six empty Start/End test sessions had hidden the real last session).
 - Epic's matchmaking skill rating is not exposed by any provider route; the closest skill measures are ranked division/Unreal placement and Power Ranking PR.
+
+### 2026-09-30 v1.3.2 Epic link persistence fix
+
+- **Observed via the new diagnostics after restart**: `epic.status = unlinked` although the link had worked. The options flow mutated the stored player dict in place, so `async_update_entry` saw identical old/new data and did not persist it. Fixed by copying player dicts in every options step; regression test runs against the real `homeassistant` package.
+- **Observed in stats response skeleton**: `s42_social_bp_level` (season level) is present with the provider key alone; used as the header level fallback when Epic is not linked.

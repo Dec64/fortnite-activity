@@ -42,6 +42,9 @@ STAT_KEY_REGEX = re.compile(
 )
 
 
+SEASON_LEVEL_REGEX = re.compile(r"^s(?P<season>\d+)_social_bp_level$")
+
+
 class FortniteApiError(Exception):
     """Base exception for Fortnite API errors (status is the HTTP status when known)."""
 
@@ -298,8 +301,16 @@ class ApiFortniteClient:
 
         playlists: dict[str, dict[str, Any]] = {}
         inputs: dict[str, dict[str, int]] = {}
+        season_level: dict[str, int] | None = None
 
         for key, value in raw_stats.items():
+            # e.g. s42_social_bp_level: season (Battle Pass) level, readable with the provider key alone
+            bp = SEASON_LEVEL_REGEX.match(key)
+            if bp and isinstance(value, (int, float)):
+                season = int(bp.group("season"))
+                if season_level is None or season > season_level["season"]:
+                    season_level = {"season": season, "level": int(value)}
+                continue
             match = STAT_KEY_REGEX.match(key)
             if not match:
                 continue
@@ -420,6 +431,7 @@ class ApiFortniteClient:
             "playlists": playlists,
             "modes": modes,
             "inputs": inputs,
+            "season_level": season_level,
         }
 
     @staticmethod

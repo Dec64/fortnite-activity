@@ -183,7 +183,8 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
     async def async_step_add_player(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Add another tracked player (validated with one stats request)."""
         errors: dict[str, str] = {}
-        players = list(self.config_entry.data.get(CONF_PLAYERS, []))
+        # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
+        players = [dict(p) for p in self.config_entry.data.get(CONF_PLAYERS, [])]
 
         if user_input is not None:
             player_id = user_input[CONF_PLAYER_ID].strip().lower()
@@ -229,7 +230,8 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
 
     async def async_step_remove_player(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Stop tracking a player (at least one must remain)."""
-        players = list(self.config_entry.data.get(CONF_PLAYERS, []))
+        # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
+        players = [dict(p) for p in self.config_entry.data.get(CONF_PLAYERS, [])]
         if len(players) <= 1:
             return self.async_abort(reason="last_player")
 
@@ -273,7 +275,8 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
         from .epic_auth import identity_matches, parse_device_credential, parse_flow_start
 
         errors: dict[str, str] = {}
-        players = list(self.config_entry.data.get(CONF_PLAYERS, []))
+        # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
+        players = [dict(p) for p in self.config_entry.data.get(CONF_PLAYERS, [])]
         player = next(p for p in players if p[CONF_PLAYER_ID] == self._link_player)
         client = self._client()
 
@@ -329,7 +332,8 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
 
     async def async_step_unlink_epic(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Forget a stored Epic device credential locally (it is not revoked at Epic)."""
-        players = list(self.config_entry.data.get(CONF_PLAYERS, []))
+        # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
+        players = [dict(p) for p in self.config_entry.data.get(CONF_PLAYERS, [])]
         linked = {p[CONF_PLAYER_ID]: p.get(CONF_PLAYER_NAME, p[CONF_PLAYER_ID]) for p in players if p.get(CONF_EPIC_DEVICE)}
         if user_input is not None:
             for p in players:
