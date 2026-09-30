@@ -103,15 +103,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         res = coordinator.start_player_session(player_id)
         if res:
             _LOGGER.info("Manually started Fortnite session for %s", player_id)
-            coordinator.async_set_updated_data(coordinator.data)
+        else:
+            _LOGGER.warning("Could not start session for unknown player %s (no data yet?)", player_id)
+        coordinator.async_set_updated_data(coordinator.data)
 
     async def handle_end_session(call: ServiceCall) -> None:
         """Handle end_session service."""
         player_id = call.data["player_id"].strip().lower()
-        res = coordinator.end_player_session(player_id)
+        res = await coordinator.async_end_player_session(player_id)
         if res:
             _LOGGER.info("Manually ended Fortnite session for %s", player_id)
-            coordinator.async_set_updated_data(coordinator.data)
+        else:
+            _LOGGER.warning("Could not end session for unknown or idle player %s", player_id)
+        coordinator.async_set_updated_data(coordinator.data)
 
     async def handle_refresh_player(call: ServiceCall) -> None:
         """Handle refresh_player service."""

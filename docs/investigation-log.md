@@ -858,3 +858,13 @@ Following the user's `/plan` request and interactive alignment interview, design
   - Version bumped to `1.0.1`, released on GitHub tag `v1.0.1`.
 
 
+
+### 2026-09-30 v1.0.7 Card Bugfix Release
+
+- **Diagnosis** (observed on live HA 1.0.6 install):
+  1. Card never re-rendered after first paint (Career Stats / Start / End did nothing; visual editor blank). The TS target ES2022 emitted native class fields which shadowed Lit's reactive accessors.
+  2. All stats blank: card looked up `sensor.fortnite_<player>_current_session` etc., but `has_entity_name` + device name produced `sensor.fortnite_player1_player1_session`, `..._battle_royale_rank`, `..._reload_rank`.
+  3. Manual `start_session`/`end_session` changed the session manager but republished stale `coordinator.data`, so entities did not change; `end_session` did not persist history.
+  4. Card read rank name from a non-existent `current_rank` attribute (it is the sensor state).
+- **Resolution**: `useDefineForClassFields: false`; entities expose `fortnite_player_id` / `fortnite_entity_key` attributes and the card resolves by them with a legacy-name fallback; coordinator syncs session state into its data and saves history on end; rank read from state; misleading "Div N" label removed; integer `promotionProgress` accepted.
+- **Known limitation (unchanged)**: season/account level stays 0 in API-key-only mode (level endpoint requires an Epic player token).

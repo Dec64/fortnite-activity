@@ -53,6 +53,20 @@ class FortniteEntity(CoordinatorEntity[FortniteDataUpdateCoordinator]):
         )
 
     @property
+    def _extra_attributes(self) -> dict[str, Any]:
+        """Entity-specific attributes; overridden by subclasses."""
+        return {}
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return entity attributes plus stable keys the Lovelace card uses to find this entity."""
+        return {
+            **self._extra_attributes,
+            "fortnite_player_id": self.player_id,
+            "fortnite_entity_key": self.entity_key,
+        }
+
+    @property
     def player_data(self) -> dict[str, Any]:
         """Return the current player data dictionary from coordinator."""
         if not self.coordinator.data or self.player_id not in self.coordinator.data:

@@ -55,7 +55,7 @@ class FortnitePlayingBinarySensor(FortniteEntity, BinarySensorEntity):
         return bool(self.player_data.get("is_playing", False))
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
+    def _extra_attributes(self) -> dict[str, Any]:
         """Return active session summary."""
         session = self.player_data.get("session")
         if not session:

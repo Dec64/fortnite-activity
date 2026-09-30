@@ -285,7 +285,7 @@ class ApiFortniteClient:
             current_rank = row.get("currentRank", "Unranked")
             division = row.get("currentDivision", 0)
             progress = row.get("promotionProgress", 0.0)
-            progress_pct = round(progress * 100, 1) if isinstance(progress, float) else 0.0
+            progress_pct = round(progress * 100, 1) if isinstance(progress, (int, float)) else 0.0
 
             track_info = {
                 "track_id": row.get("trackguid"),

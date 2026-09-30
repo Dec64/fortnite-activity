@@ -136,3 +136,29 @@ class TestFortniteDataUpdateCoordinator(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestManualSessionSync(TestFortniteDataUpdateCoordinator):
+    """Manual start/end must be reflected in coordinator data, not just the manager."""
+
+    async def test_manual_start_and_end_update_published_data(self) -> None:
+        coordinator = FortniteDataUpdateCoordinator(
+            hass=self.mock_hass,
+            api_client=self.mock_client,
+            entry_data=self.entry_data,
+            entry_options=self.entry_options,
+            storage=self.mock_storage,
+        )
+        coordinator.data = await coordinator._async_update_data()
+
+        self.assertIsNotNone(coordinator.start_player_session("player1"))
+        self.assertTrue(coordinator.data["player1"]["is_playing"])
+        self.assertIsNotNone(coordinator.data["player1"]["session"])
+        self.assertEqual(coordinator.update_interval, timedelta(seconds=90))
+
+        self.assertIsNotNone(await coordinator.async_end_player_session("player1"))
+        self.assertFalse(coordinator.data["player1"]["is_playing"])
+        self.assertIsNone(coordinator.data["player1"]["session"])
+        self.assertIsNotNone(coordinator.data["player1"]["last_session"])
+        self.assertEqual(coordinator.update_interval, timedelta(seconds=1800))
+        self.mock_storage.async_save.assert_awaited()

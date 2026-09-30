@@ -65,7 +65,7 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
         return stats.get("overall", {}).get("matches")
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
+    def _extra_attributes(self) -> dict[str, Any]:
         """Return career statistics breakdown."""
         stats = self.player_data.get("stats", {})
         overall = stats.get("overall", {})
@@ -98,7 +98,7 @@ class FortniteCurrentSessionSensor(FortniteEntity, SensorEntity):
         return "active" if self.player_data.get("is_playing", False) else "idle"
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
+    def _extra_attributes(self) -> dict[str, Any]:
         """Return detailed session KPIs and recent match feed."""
         session = self.player_data.get("session") or self.player_data.get("last_session")
         if not session:
@@ -143,7 +143,7 @@ class FortniteRankBattleRoyaleSensor(FortniteEntity, SensorEntity):
         return br.get("current_rank", "Unranked")
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
+    def _extra_attributes(self) -> dict[str, Any]:
         """Return division and progress percentage."""
         ranked = self.player_data.get("ranked", {})
         br = ranked.get("battle_royale") or {}
@@ -175,7 +175,7 @@ class FortniteRankReloadSensor(FortniteEntity, SensorEntity):
         return reload_track.get("current_rank", "Unranked")
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
+    def _extra_attributes(self) -> dict[str, Any]:
         """Return division and progress percentage."""
         ranked = self.player_data.get("ranked", {})
         reload_track = ranked.get("reload_build") or {}
@@ -206,7 +206,7 @@ class FortniteLevelSensor(FortniteEntity, SensorEntity):
         return level.get("level", 0)
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
+    def _extra_attributes(self) -> dict[str, Any]:
         """Return tier, XP, and account level."""
         level = self.player_data.get("level", {})
         return {

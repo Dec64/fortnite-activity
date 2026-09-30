@@ -29,6 +29,13 @@ window.customCards.push({
   documentationURL: "https://github.com/Dec64/fortnite-activity",
 });
 
+// Name-derived entity suffixes used by pre-1.0.7 registries (entity name based)
+const ENTITY_KEY_ALIASES: Record<string, string[]> = {
+  current_session: ["session"],
+  rank_battle_royale: ["battle_royale_rank"],
+  rank_reload: ["reload_rank"],
+};
+
 export class FortniteActivityCard extends LitElement {
   public static get styles() {
     return cardStyles;
@@ -91,8 +98,44 @@ export class FortniteActivityCard extends LitElement {
     return (this._config.player || "player1").toLowerCase();
   }
 
-  private _getEntityState(entityId: string): any {
-    return this.hass?.states[entityId];
+  private _entityCache = new Map<string, string>();
+
+  /**
+   * Locate an integration entity for the configured player. Entities expose
+   * fortnite_player_id / fortnite_entity_key attributes (v1.0.7+); older
+   * registry naming (e.g. sensor.fortnite_player1_player1_session) is matched
+   * as a fallback.
+   */
+  private _findEntity(domain: string, key: string): any {
+    const states = this.hass?.states;
+    if (!states) return undefined;
+    const player = this._player;
+    const cacheKey = `${player}:${domain}:${key}`;
+    const cached = this._entityCache.get(cacheKey);
+    if (cached && states[cached]) return states[cached];
+
+    let found: string | undefined;
+    for (const [entityId, st] of Object.entries<any>(states)) {
+      if (
+        entityId.startsWith(`${domain}.`) &&
+        st.attributes?.fortnite_player_id === player &&
+        st.attributes?.fortnite_entity_key === key
+      ) {
+        found = entityId;
+        break;
+      }
+    }
+    if (!found) {
+      const suffixes = [key, ...(ENTITY_KEY_ALIASES[key] || [])];
+      const candidates = suffixes.flatMap((suffix) => [
+        `${domain}.fortnite_${player}_${suffix}`,
+        `${domain}.fortnite_${player}_${player}_${suffix}`,
+      ]);
+      found = candidates.find((id) => states[id]);
+    }
+    if (!found) return undefined;
+    this._entityCache.set(cacheKey, found);
+    return states[found];
   }
 
   private async _callService(service: string, data: Record<string, any> = {}): Promise<void> {
@@ -143,20 +186,28 @@ export class FortniteActivityCard extends LitElement {
     }
 
     const player = this._player;
-    const sessionSensor = this._getEntityState(`sensor.fortnite_${player}_current_session`);
-    const statsSensor = this._getEntityState(`sensor.fortnite_${player}_overall_stats`);
-    const brRankSensor = this._getEntityState(`sensor.fortnite_${player}_rank_battle_royale`);
-    const reloadRankSensor = this._getEntityState(`sensor.fortnite_${player}_rank_reload`);
-    const levelSensor = this._getEntityState(`sensor.fortnite_${player}_level`);
-    const playingSensor = this._getEntityState(`binary_sensor.fortnite_${player}_playing`);
+    const sessionSensor = this._findEntity("sensor", "current_session");
+    const statsSensor = this._findEntity("sensor", "overall_stats");
+    const brRankSensor = this._findEntity("sensor", "rank_battle_royale");
+    const reloadRankSensor = this._findEntity("sensor", "rank_reload");
+    const levelSensor = this._findEntity("sensor", "level");
+    const playingSensor = this._findEntity("binary_sensor", "playing");
+
+    if (!sessionSensor && !statsSensor && !playingSensor) {
+      return html`<ha-card><div style="padding: 16px; color: var(--secondary-text-color);">
+        No Fortnite Activity entities found for player <b>${player}</b>.
+        Check the card's player key matches the player ID configured in the integration.
+      </div></ha-card>`;
+    }
 
     const isPlaying = playingSensor?.state === "on" || sessionSensor?.state === "active";
 
     // Extract attributes
     const sessionAttrs = sessionSensor?.attributes || {};
     const statsAttrs = statsSensor?.attributes || {};
-    const brRankAttrs = brRankSensor?.attributes || {};
-    const reloadRankAttrs = reloadRankSensor?.attributes || {};
+    // Rank name is the sensor state, not an attribute
+    const brRankAttrs = { ...(brRankSensor?.attributes || {}), current_rank: brRankSensor?.state };
+    const reloadRankAttrs = { ...(reloadRankSensor?.attributes || {}), current_rank: reloadRankSensor?.state };
     const levelAttrs = levelSensor?.attributes || {};
 
     const playerName = player.charAt(0).toUpperCase() + player.slice(1);
@@ -272,7 +323,6 @@ export class FortniteActivityCard extends LitElement {
 
     const rankName = brRankAttrs.current_rank || "Unranked";
     const rankProgress = brRankAttrs.progress_pct || 0.0;
-    const rankDiv = brRankAttrs.division || 0;
 
     const recentMatches: MatchRecord[] = sessionAttrs.recent_matches || [];
     const maxMatches = this._config.max_feed_matches || 10;
@@ -309,7 +359,7 @@ export class FortniteActivityCard extends LitElement {
       <div class="rank-section">
         <div class="rank-header">
           <span class="rank-title">Battle Royale Ranked</span>
-          <span class="rank-name">${rankName} (Div ${rankDiv})</span>
+          <span class="rank-name">${rankName}</span>
         </div>
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, rankProgress))}%;"></div>
@@ -395,11 +445,9 @@ export class FortniteActivityCard extends LitElement {
 
     const brName = brRankAttrs.current_rank || "Unranked";
     const brProg = brRankAttrs.progress_pct || 0.0;
-    const brDiv = brRankAttrs.division || 0;
 
     const reloadName = reloadRankAttrs.current_rank || "Unranked";
     const reloadProg = reloadRankAttrs.progress_pct || 0.0;
-    const reloadDiv = reloadRankAttrs.division || 0;
 
     return html`
       <!-- Mode Tabs Switcher -->
@@ -462,7 +510,7 @@ export class FortniteActivityCard extends LitElement {
       <div class="rank-section">
         <div class="rank-header">
           <span class="rank-title">Battle Royale</span>
-          <span class="rank-name">${brName} (Div ${brDiv})</span>
+          <span class="rank-name">${brName}</span>
         </div>
         ${!this._config.hide_rank_progress ? html`
           <div class="progress-bar-bg">
@@ -478,7 +526,7 @@ export class FortniteActivityCard extends LitElement {
       <div class="rank-section">
         <div class="rank-header">
           <span class="rank-title">Reload Build</span>
-          <span class="rank-name">${reloadName} (Div ${reloadDiv})</span>
+          <span class="rank-name">${reloadName}</span>
         </div>
         ${!this._config.hide_rank_progress ? html`
           <div class="progress-bar-bg">
@@ -497,3 +545,5 @@ export class FortniteActivityCard extends LitElement {
 if (!customElements.get("fortnite-activity-card")) {
   customElements.define("fortnite-activity-card", FortniteActivityCard);
 }
+
+console.info("%c FORTNITE-ACTIVITY-CARD %c v1.0.7 ", "background:#7928CA;color:#fff;font-weight:700", "background:#00E5FF;color:#000");

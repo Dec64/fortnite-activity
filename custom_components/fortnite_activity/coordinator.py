@@ -166,13 +166,31 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         p_data = self.data[player_id]
         session = manager.start_session(p_data["stats"], p_data["ranked"])
         self.update_interval = timedelta(seconds=self.active_interval)
+        self._sync_session_data(player_id)
         return session
 
-    def end_player_session(self, player_id: str) -> dict[str, Any] | None:
-        """Manually trigger session end for a player."""
+    async def async_end_player_session(self, player_id: str) -> dict[str, Any] | None:
+        """Manually trigger session end for a player and persist history."""
         if player_id not in self.session_managers:
             return None
         manager = self.session_managers[player_id]
         ended = manager.end_session()
-        self.storage.set_player_history(player_id, manager.history)
+        if ended:
+            self.storage.set_player_history(player_id, manager.history)
+            await self.storage.async_save()
+        if not any(m.is_active for m in self.session_managers.values()):
+            self.update_interval = timedelta(seconds=self.idle_interval)
+        self._sync_session_data(player_id)
         return ended
+
+    def _sync_session_data(self, player_id: str) -> None:
+        """Copy session manager state into coordinator data so entities reflect it."""
+        if not self.data or player_id not in self.data:
+            return
+        manager = self.session_managers[player_id]
+        self.data[player_id] = {
+            **self.data[player_id],
+            "session": manager.active_session,
+            "last_session": manager.get_latest_session_summary(),
+            "is_playing": manager.is_active,
+        }
