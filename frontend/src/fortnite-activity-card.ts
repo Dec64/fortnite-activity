@@ -1,13 +1,9 @@
-import { LitElement, html, nothing } from "lit";
-import { property, state, customElement } from "lit/decorators.js";
+import { LitElement, html, nothing, css } from "lit";
+import { property, state } from "lit/decorators.js";
 import { cardStyles } from "./styles";
 import {
-  CareerStatsData,
   FortniteCardConfig,
-  LevelData,
   MatchRecord,
-  RankTrackData,
-  SessionData,
 } from "./types";
 import "./editor";
 
@@ -29,7 +25,7 @@ window.customCards.push({
   type: "fortnite-activity-card",
   name: "Fortnite Activity Card",
   description: "Dynamic Fortnite stats and live game-by-game session tracker with Bubble Card styling.",
-  preview: true,
+  preview: false,
   documentationURL: "https://github.com/Dec64/fortnite-activity",
 });
 
@@ -70,7 +66,7 @@ export class FortniteActivityCard extends LitElement {
     };
   }
 
-  public static async getConfigElement() {
+  public static getConfigElement(): HTMLElement {
     return document.createElement("fortnite-activity-card-editor");
   }
 
@@ -85,6 +81,10 @@ export class FortniteActivityCard extends LitElement {
       show_sub_buttons: true,
       max_feed_matches: 10,
     };
+  }
+
+  public getCardSize(): number {
+    return 5;
   }
 
   private get _player(): string {
@@ -138,7 +138,9 @@ export class FortniteActivityCard extends LitElement {
   }
 
   protected render() {
-    if (!this.hass) return nothing;
+    if (!this.hass) {
+      return html`<ha-card><div style="padding: 16px; text-align: center; color: var(--secondary-text-color);">Loading Fortnite Activity...</div></ha-card>`;
+    }
 
     const player = this._player;
     const sessionSensor = this._getEntityState(`sensor.fortnite_${player}_current_session`);

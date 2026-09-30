@@ -34,6 +34,14 @@ PLATFORMS = ["sensor", "binary_sensor"]
 CARD_URL = "/fortnite_activity_static/fortnite-activity-card.js"
 CARD_PATH = Path(__file__).parent / "frontend" / "fortnite-activity-card.js"
 
+# Read manifest version for cache busting
+try:
+    import json
+    _MANIFEST = json.loads((Path(__file__).parent / "manifest.json").read_text())
+    _VERSION = _MANIFEST.get("version", "0")
+except Exception:
+    _VERSION = "0"
+
 
 async def _async_register_frontend_card(hass: HomeAssistant) -> None:
     """Register custom card static path and auto-load into Lovelace frontend."""
@@ -53,7 +61,7 @@ async def _async_register_frontend_card(hass: HomeAssistant) -> None:
 
     if add_extra_js_url:
         try:
-            add_extra_js_url(hass, CARD_URL)
+            add_extra_js_url(hass, f"{CARD_URL}?v={_VERSION}")
         except Exception as err:
             _LOGGER.debug("Card extra JS URL registration: %s", err)
 
