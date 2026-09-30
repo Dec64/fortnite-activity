@@ -546,4 +546,4 @@ if (!customElements.get("fortnite-activity-card")) {
   customElements.define("fortnite-activity-card", FortniteActivityCard);
 }
 
-console.info("%c FORTNITE-ACTIVITY-CARD %c v1.0.7 ", "background:#7928CA;color:#fff;font-weight:700", "background:#00E5FF;color:#000");
+console.info("%c FORTNITE-ACTIVITY-CARD %c v1.0.8 ", "background:#7928CA;color:#fff;font-weight:700", "background:#00E5FF;color:#000");

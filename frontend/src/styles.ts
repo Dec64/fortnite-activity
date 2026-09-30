@@ -136,7 +136,7 @@ export const cardStyles = css`
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
-    overflow-x: auto;
+    flex-wrap: wrap;
     padding-bottom: 4px;
   }
 

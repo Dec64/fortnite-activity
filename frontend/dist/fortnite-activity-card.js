@@ -136,7 +136,7 @@ var Ee=Object.defineProperty;var Ce=Object.getOwnPropertyDescriptor;var v=(r,e,t
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
-    overflow-x: auto;
+    flex-wrap: wrap;
     padding-bottom: 4px;
   }
 
@@ -663,7 +663,7 @@ var Ee=Object.defineProperty;var Ce=Object.getOwnPropertyDescriptor;var v=(r,e,t
           <span>Peak: ${i.highest_rank||c}</span>
         </div>
       </div>
-    `}};v([P({attribute:!1})],x.prototype,"hass",2),v([E()],x.prototype,"_config",2),v([E()],x.prototype,"_activeTab",2),v([E()],x.prototype,"_selectedMode",2),v([E()],x.prototype,"_loadingAction",2);customElements.get("fortnite-activity-card")||customElements.define("fortnite-activity-card",x);console.info("%c FORTNITE-ACTIVITY-CARD %c v1.0.7 ","background:#7928CA;color:#fff;font-weight:700","background:#00E5FF;color:#000");export{x as FortniteActivityCard};
+    `}};v([P({attribute:!1})],x.prototype,"hass",2),v([E()],x.prototype,"_config",2),v([E()],x.prototype,"_activeTab",2),v([E()],x.prototype,"_selectedMode",2),v([E()],x.prototype,"_loadingAction",2);customElements.get("fortnite-activity-card")||customElements.define("fortnite-activity-card",x);console.info("%c FORTNITE-ACTIVITY-CARD %c v1.0.8 ","background:#7928CA;color:#fff;font-weight:700","background:#00E5FF;color:#000");export{x as FortniteActivityCard};
 /*! Bundled license information:
 
 @lit/reactive-element/css-tag.js:
