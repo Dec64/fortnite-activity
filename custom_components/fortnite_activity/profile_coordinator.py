@@ -38,6 +38,7 @@ from .profile import (
     parse_display_name,
     parse_external_auths,
     parse_playlists,
+    parse_battlepass,
     parse_power_ranking,
     parse_season,
     parse_sprite_boons,
@@ -46,6 +47,7 @@ from .profile import (
     parse_sprite_collection_all,
     parse_sprite_versions,
     parse_tournaments,
+    sample_items,
     window_is_valid,
 )
 
@@ -87,6 +89,9 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.sprite_boons: dict[str, dict[str, Any]] = {}
         # Daily status-only checks of routes we cannot use yet (quests, Battle Pass, inventory)
         self.capabilities: dict[str, dict[str, Any]] = {}
+        self.battlepass: dict[str, Any] | None = None
+        # Untyped quest payload: structure + a small sample kept for diagnostics only (not shown in the UI)
+        self.quest_debug: dict[str, Any] = {}
         # Key/type skeletons of the latest responses, for diagnostics (never values)
         self.raw_shapes: dict[str, Any] = {}
 
@@ -182,6 +187,12 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if parsed:
                     self.playlists = parsed
                 self._fetched_at["playlists"] = now
+
+        if self._stale("battlepass", catalogue_age, now):
+            ok, raw = await self._guarded("battlepass", self.api_client.get_battlepass)
+            if ok:
+                self.battlepass = parse_battlepass(raw) or self.battlepass
+                self._fetched_at["battlepass"] = now
 
         if self._stale("tournaments", timedelta(hours=TOURNAMENT_REFRESH_HOURS), now):
             ok, raw = await self._guarded("tournaments", self.api_client.get_events_global)
@@ -281,6 +292,13 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "battlepass_catalogue": await self.api_client.probe_status("/v2/battlepass"),
                 "br_inventory": await self.api_client.probe_status(f"/v2/fn/br-inventory/{account_id}", token),
             }
+            self._fetched_at[key] = now
+
+        key = f"quests:{player_id}"
+        if self._stale(key, timedelta(hours=6), now):
+            ok, raw = await self._guarded(key, lambda: self.api_client.get_quests(account_id, token))
+            if ok:
+                self.quest_debug[player_id] = sample_items(raw)
             self._fetched_at[key] = now
 
         ok, raw = await self._guarded(f"level:{player_id}", lambda: self.api_client.get_raw_level(account_id, token))

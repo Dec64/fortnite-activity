@@ -194,3 +194,25 @@ class TestProfileCoordinatorIsolation(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestBattlePass(unittest.TestCase):
+    def test_parse_battlepass_catalog_dto(self) -> None:
+        from custom_components.fortnite_activity.profile import parse_battlepass, sample_items
+
+        bp = parse_battlepass({"data": {
+            "gameVersion": "42.20", "season": 42, "plugin": "x", "generated": "2026-09-30T00:00:00Z", "levelRewards": {},
+            "prices": [{"name": "Battle Pass", "cost": 950, "currency": "MtxCurrency"}],
+            "pages": [
+                {"id": "p2", "track": "Paid", "page": 2, "rewards": [{"item": "AthenaCharacter:x", "displayName": "Skin X",
+                  "type": "Outfit", "rarity": "Epic", "icon": "https://example.invalid/x.png", "quantity": 1, "cost": 8, "currency": "Stars"}]},
+                {"id": "p1", "track": "Paid", "page": 1, "rewards": [{"item": "y", "displayName": "Wrap Y", "cost": 0, "priceRow": "Included"}]},
+            ],
+        }})
+        self.assertEqual(bp["season"], 42)
+        self.assertEqual([p["page"] for p in bp["pages"]], [1, 2])
+        self.assertEqual(bp["pages"][1]["rewards"][0]["name"], "Skin X")
+        self.assertEqual(bp["reward_count"], 2)
+        self.assertIsNone(parse_battlepass({"data": {"no": "pages"}}))
+        self.assertEqual(sample_items({"quests": [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]}, 2),
+                         {"largest_list_length": 4, "sample": [{"a": 1}, {"a": 2}]})

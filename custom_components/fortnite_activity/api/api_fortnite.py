@@ -187,6 +187,15 @@ class ApiFortniteClient:
             return None
         return status
 
+    async def get_battlepass(self, season: int | None = None) -> Any:
+        """Battle Pass catalogue (BattlePassCatalog): pages of rewards with names, rarity, icons, cost."""
+        query = f"?{urlencode({'season': season})}" if season else ""
+        return await self._request(f"/v2/battlepass{query}")
+
+    async def get_quests(self, account_id: str, token: str) -> Any:
+        """Player quests (untyped in the spec; only captured for diagnostics until its shape is known)."""
+        return await self._request(f"/v2/quests/{account_id}", token=token)
+
     async def get_sprite_boons(self) -> Any:
         return await self._request("/v2/sprites/boons")
 

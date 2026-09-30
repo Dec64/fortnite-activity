@@ -75,6 +75,7 @@ def async_setup_websocket_api(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_find_cosmetic)
     websocket_api.async_register_command(hass, ws_get_leaderboard)
     websocket_api.async_register_command(hass, ws_get_matches)
+    websocket_api.async_register_command(hass, ws_get_battlepass)
 
 
 def _get_coordinator(hass: HomeAssistant, player_id: str | None = None) -> FortniteDataUpdateCoordinator | None:
@@ -403,3 +404,20 @@ async def ws_get_matches(
             "matches": matches[: msg["limit"]],
         },
     )
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/battlepass",
+        vol.Optional("player_id"): str,
+    }
+)
+@websocket_api.async_response
+async def ws_get_battlepass(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Current Battle Pass catalogue (pages and rewards). Personal claim status is not available."""
+    profile = _profile(hass, msg.get("player_id"))
+    connection.send_result(msg["id"], {"battlepass": profile.battlepass if profile else None})

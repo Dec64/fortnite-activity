@@ -926,3 +926,10 @@ Following the user's `/plan` request and interactive alignment interview, design
 - **Sprite levels removed**: `levelUpCurve` fails the cumulative check, and mastery is not a single XP threshold (mastered at 800 XP and at 4,400 XP), so no XP→level mapping is shown; raw XP and the provider's `mastered` flag are shown instead.
 - `equippedVariant` is null for this account; Power Ranking responses carry no `trackedStats` despite the route description.
 - Added: readable variant labels derived from Epic's own variant names, boon names from `/v2/sprites/boons` (key-only), full-set count, per-update history, filters/sort, "next to hunt" by provider drop chance.
+
+### 2026-10-01 v1.6.0 sprite levels, tournament types, trends, Battle Pass
+
+- **Observed live (diagnostics)**: sprite `levelUpCurve` = L1 0, L2 400, L3 1000, L4 2200, L5 4000, then L6–10 = 350/450/575/700/850 (meaning unconfirmed). All variants with ≥4000 XP are flagged mastered; several flagged mastered hold far less XP (e.g. 800 → level 2), confirming the user's point that `mastered` is a collection record while XP belongs to the currently held copy. Card derives L1–5 from the leading rising run only; XP above 4000 shows as "Lv 5+".
+- **Observed live**: `tournamentType` values CashCup, FNCS, RankedCup, ShopCup, VictoryCup, WorkshopCup; `canLiveSpectate` true for some cash cups. UI shows Epic's type and "Spectate in-game"; FNCS gets a channel link with an explicit note that per-session broadcast is not in the data.
+- **Observed live (status-only checks)**: with the linked token, `/v2/quests/{id}` = 200, `/v2/battlepass` = 200, `/v2/fn/br-inventory/{id}` = 200 (all previously failing in research). Battle Pass catalogue now parsed per `BattlePassCatalog`; quests remain untyped, so only structure and a 3-item sample are captured in diagnostics before any UI. Inventory is not fetched or shown (V-Bucks; needs the user's say-so).
+- Trend sensors carry `state_class`; the card's Trends tab reads recorder statistics (daily, falling back to hourly while history is short).

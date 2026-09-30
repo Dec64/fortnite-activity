@@ -1160,4 +1160,64 @@ export const cardStyles = css`
   .rarity-tag { background: color-mix(in srgb, var(--rarity) 35%, transparent); color: #fff; }
   .perk-list { margin-top: 8px; }
   .perk-desc { font-size: 11px; opacity: 0.75; margin: -2px 0 6px 8px; }
+
+  /* ---- Sprite mastery ---- */
+  .master-list { display: grid; gap: 4px; }
+
+  .master-row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1.4fr) auto minmax(50px, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border-left: 3px solid var(--rarity);
+    cursor: pointer;
+  }
+
+  .master-row img { width: 28px; height: 28px; object-fit: contain; }
+  .master-row .progress-bar-bg { height: 6px; }
+
+  /* ---- Tournament badges ---- */
+  .type-tag { background: rgba(0, 229, 255, 0.15); color: var(--accent); }
+  .type-tag.fncs { background: linear-gradient(90deg, #7B2FF7, #F107A3); color: #fff; }
+  .spectate-tag { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; }
+  .event-card.featured { border-color: rgba(241, 7, 163, 0.5); box-shadow: 0 0 0 1px rgba(123, 47, 247, 0.25); }
+  .detail-line a { color: var(--accent); font-weight: 700; text-decoration: none; }
+
+  /* ---- Other ranked tracks ---- */
+  .track-row {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 3px;
+  }
+
+  /* ---- Trends ---- */
+  .trend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-top: 12px; }
+
+  .trend-card {
+    padding: 10px 12px;
+    border-radius: var(--card-radius);
+    background: var(--sub-btn-bg);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .trend-card .kpi-value { font-size: 16px; }
+  .trend-svg { width: 100%; height: 90px; display: block; overflow: visible; }
+  .trend-line { fill: none; stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .trend-dot { fill: var(--accent); }
+  .trend-hit { fill: transparent; }
+  .trend-pt:hover .trend-dot { r: 4; }
+  .trend-base { stroke: rgba(255, 255, 255, 0.12); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .kill-bar { fill: var(--accent); opacity: 0.85; }
+  .win-mark { fill: #FFD700; font-size: 10px; }
+  .collecting { font-size: 12px; opacity: 0.7; padding: 18px 0; text-align: center; }
 `;

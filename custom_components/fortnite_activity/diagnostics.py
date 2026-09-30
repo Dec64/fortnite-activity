@@ -86,6 +86,11 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
                 "players": profile_players,
                 "response_shapes": getattr(profile, "raw_shapes", {}),
                 "capabilities": getattr(profile, "capabilities", {}),
+                "battlepass_summary": (
+                    {k: v for k, v in (getattr(profile, "battlepass", None) or {}).items() if k != "pages"}
+                    | {"page_tracks": sorted({str(p.get("track")) for p in (getattr(profile, "battlepass", None) or {}).get("pages", [])})}
+                ) if getattr(profile, "battlepass", None) else None,
+                "quest_debug": getattr(profile, "quest_debug", {}),
                 "sprite_level_curve_raw": ((getattr(profile, "sprite_catalogue", None) or {}).get("level_curve_raw")),
                 "tournament_classification": sorted({
                     f"{e.get('tournament_type')}|{e.get('event_group')}|spectate={e.get('can_spectate')}|{e.get('name')}"

@@ -684,3 +684,63 @@ def parse_power_ranking(raw: Any) -> dict[str, Any] | None:
         "peak_performance": stat("peakPerf"),
         "counting_events": stat("countingEvents"),
     }
+
+
+def parse_battlepass(raw: Any) -> dict[str, Any] | None:
+    """/v2/battlepass (BattlePassCatalog) -> season, prices and reward pages."""
+    data = _unwrap(raw)
+    if not isinstance(data, dict) or not isinstance(data.get("pages"), list):
+        return None
+    pages = []
+    for page in data["pages"]:
+        if not isinstance(page, dict):
+            continue
+        rewards = [
+            {
+                "name": r.get("displayName") or r.get("item"),
+                "type": r.get("type"),
+                "rarity": r.get("rarity"),
+                "icon": r.get("icon"),
+                "quantity": r.get("quantity"),
+                "cost": r.get("cost"),
+                "currency": r.get("currency"),
+                "price_row": r.get("priceRow"),
+            }
+            for r in page.get("rewards") or []
+            if isinstance(r, dict)
+        ]
+        pages.append({"id": page.get("id"), "track": page.get("track"), "page": page.get("page"), "rewards": rewards})
+    pages.sort(key=lambda pg: (str(pg.get("track") or ""), pg.get("page") or 0))
+    return {
+        "season": data.get("season"),
+        "game_version": data.get("gameVersion"),
+        "generated": data.get("generated"),
+        "prices": [
+            {"name": pr.get("name"), "cost": pr.get("cost"), "currency": pr.get("currency")}
+            for pr in data.get("prices") or []
+            if isinstance(pr, dict)
+        ],
+        "pages": pages,
+        "reward_count": sum(len(pg["rewards"]) for pg in pages),
+    }
+
+
+def sample_items(raw: Any, limit: int = 3) -> Any:
+    """First few items of the largest list in an untyped payload (diagnostics only)."""
+    best: list[Any] = []
+
+    def walk(value: Any, depth: int = 0) -> None:
+        nonlocal best
+        if depth > 5:
+            return
+        if isinstance(value, list):
+            if len(value) > len(best):
+                best = value
+            for item in value[:5]:
+                walk(item, depth + 1)
+        elif isinstance(value, dict):
+            for item in value.values():
+                walk(item, depth + 1)
+
+    walk(raw)
+    return {"largest_list_length": len(best), "sample": best[:limit]}

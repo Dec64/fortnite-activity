@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.4.2";
+const CARD_VERSION = "1.6.0";
 
 declare global {
   interface Window {
@@ -54,6 +54,28 @@ const RARITY_COLORS: Record<string, string> = {
   Mythic: "#FACC15",
 };
 
+const TOURNAMENT_TYPES: Record<string, string> = {
+  FNCS: "FNCS",
+  CashCup: "Cash Cup",
+  RankedCup: "Ranked Cup",
+  VictoryCup: "Victory Cup",
+  ShopCup: "Shop Cup",
+  WorkshopCup: "Test event",
+};
+
+// Trend metrics: entity key, label, formatter, whether lower values are better
+const TREND_METRICS: Array<{ key: string; label: string; unit?: string; lowerBetter?: boolean; digits?: number }> = [
+  { key: "season_kd", label: "Season K/D", digits: 2 },
+  { key: "season_win_rate", label: "Season win rate", unit: "%", digits: 1 },
+  { key: "ladder_battle_royale", label: "BR ranked ladder (division × 100 + progress)" },
+  { key: "unreal_reload", label: "Reload Unreal position", lowerBetter: true },
+  { key: "unreal_battle_royale", label: "BR Unreal position", lowerBetter: true },
+  { key: "ladder_reload", label: "Reload ranked ladder" },
+  { key: "sprites", label: "Sprite collection", unit: "%", digits: 1 },
+  { key: "level", label: "Season level" },
+  { key: "power_ranking", label: "Power Ranking position", lowerBetter: true },
+];
+
 const MODE_ICONS: Record<string, string> = {
   reload: "mdi:reload",
   zero_build: "mdi:shield-outline",
@@ -73,11 +95,12 @@ const DEFAULTS: Partial<FortniteCardConfig> = {
   max_feed_matches: 10,
 };
 
-type View = "session" | "stats" | "events" | "sprites";
+type View = "session" | "stats" | "events" | "sprites" | "trends" | "pass";
 type StatWindow = "lifetime" | "season" | "week" | "today";
 type Mode = "all" | "build" | "zero_build" | "reload";
 interface EventFilters {
   region: string;
+  type: string;
   mode: string;
   team: string;
   platform: string;
@@ -128,6 +151,9 @@ export class FortniteActivityCard extends LitElement {
   @state() private _expandedSprite: string | null = null;
   @state() private _spriteFilter: "all" | "missing" | "unmastered" | "complete" = "all";
   @state() private _spriteSort: "dex" | "rarity" | "progress" = "dex";
+  @state() private _trends: { loading?: boolean; stats?: Record<string, any[]>; at?: number; error?: string; period?: string } = {};
+  @state() private _pass: { loading?: boolean; data?: any; error?: string } = {};
+  @state() private _showAllPages = false;
 
   private _entityCache = new Map<string, string>();
   private _avatarTimer?: number;
@@ -279,6 +305,49 @@ export class FortniteActivityCard extends LitElement {
     }
   }
 
+  private async _loadPass(): Promise<void> {
+    if (!this.hass || this._pass.loading || this._pass.data !== undefined) return;
+    this._pass = { loading: true };
+    try {
+      const r = await this.hass.callWS({ type: "fortnite_activity/battlepass", player_id: this._player });
+      this._pass = { data: r?.battlepass ?? null };
+    } catch (err: any) {
+      this._pass = { error: err?.message || "Battle Pass unavailable" };
+    }
+  }
+
+  /** Long-term statistics for the trend sensors (fetched when the Trends tab opens, cached 10 min). */
+  private async _loadTrends(): Promise<void> {
+    if (!this.hass || this._trends.loading || (this._trends.at && Date.now() - this._trends.at < 600_000)) return;
+    const ids = TREND_METRICS.map((m) => this._entityId("sensor", m.key)).filter(Boolean) as string[];
+    this._ensureMatches("trend:recent", { limit: 30 });
+    if (!ids.length) {
+      this._trends = { stats: {}, at: Date.now() };
+      return;
+    }
+    this._trends = { ...this._trends, loading: true };
+    const fetchStats = (days: number, period: string) =>
+      this.hass.callWS({
+        type: "recorder/statistics_during_period",
+        start_time: new Date(Date.now() - days * 86400_000).toISOString(),
+        statistic_ids: ids,
+        period,
+        types: ["mean", "min", "max", "state"],
+      });
+    try {
+      let stats = await fetchStats(30, "day");
+      let period = "day";
+      // New sensors have few daily rows at first: fall back to hourly for the last week
+      if (Object.values<any>(stats || {}).every((rows) => (rows || []).length < 3)) {
+        stats = await fetchStats(7, "hour");
+        period = "hour";
+      }
+      this._trends = { stats: stats || {}, at: Date.now(), period };
+    } catch (err: any) {
+      this._trends = { error: err?.message || "Statistics unavailable", at: Date.now() };
+    }
+  }
+
   /** Fetch every tracked match for a session or time window (sensor attributes only keep 10). */
   private _ensureMatches(key: string, params: Record<string, any>): void {
     if (!this.hass || this._matchLists[key]) return;
@@ -358,6 +427,12 @@ export class FortniteActivityCard extends LitElement {
   private _setView(view: View): void {
     this._view = view;
     if (view === "events") this._loadEvents();
+    if (view === "trends") this._loadTrends();
+    if (view === "pass") this._loadPass();
+  }
+
+  private _entityId(domain: string, key: string): string | undefined {
+    return this._findEntity(domain, key)?.entity_id;
   }
 
   private _toggleEvent(ev: any): void {
@@ -517,7 +592,11 @@ export class FortniteActivityCard extends LitElement {
             ? this._renderEventsView()
             : view === "sprites"
               ? this._renderSpritesView(spritesSensor)
-              : this._renderStatsView(statsAttrs, profileAttrs, brRankAttrs, reloadRankAttrs, powerSensor)}
+              : view === "trends"
+                ? this._renderTrendsView()
+                : view === "pass"
+                  ? this._renderPassView(levelSensor)
+                  : this._renderStatsView(statsAttrs, profileAttrs, brRankAttrs, reloadRankAttrs, powerSensor)}
       </ha-card>
     `;
   }
@@ -600,6 +679,8 @@ export class FortniteActivityCard extends LitElement {
         ${layout !== "session_only" ? tab("stats", "mdi:trophy-outline", "Stats") : nothing}
         ${this._eventsEnabled && layout === "auto" ? tab("events", "mdi:tournament", "Events", liveCount) : nothing}
         ${hasSprites && layout === "auto" ? tab("sprites", "mdi:ghost-outline", "Sprites") : nothing}
+        ${layout === "auto" ? tab("trends", "mdi:chart-line", "Trends") : nothing}
+        ${layout === "auto" ? tab("pass", "mdi:ticket-confirmation-outline", "Pass") : nothing}
         ${isPlaying
           ? html`<button class="bubble-sub-button" title="End Session" @click=${() => this._callService("end_session")} ?disabled=${this._loadingAction === "end_session"}>
               <ha-icon icon="mdi:stop-circle-outline"></ha-icon>
@@ -849,6 +930,7 @@ export class FortniteActivityCard extends LitElement {
 
       ${this._renderRank("Battle Royale", brRankAttrs, `Peak: ${brRankAttrs.highest_rank || brRankAttrs.current_rank || "Unranked"}`)}
       ${this._renderRank("Reload", reloadRankAttrs, `Peak: ${reloadRankAttrs.highest_rank || reloadRankAttrs.current_rank || "Unranked"}`)}
+      ${this._renderOtherTracks(brRankAttrs)}
       ${powerSensor && !["unavailable", "unknown"].includes(powerSensor.state)
         ? html`<div class="rank-section power-ranking">
             <div class="rank-header">
@@ -866,10 +948,172 @@ export class FortniteActivityCard extends LitElement {
     `;
   }
 
+  private _renderOtherTracks(brRankAttrs: any) {
+    const tracks = (brRankAttrs.all_tracks || []).filter(
+      (t: any) => !["Battle Royale", "Reload Build"].includes(t.game_mode) && t.current_rank && t.current_rank !== "Unranked",
+    );
+    if (!tracks.length) return nothing;
+    return html`<div class="split-section">
+      <div class="section-title">Other ranked tracks</div>
+      ${tracks.map((t: any) => html`
+        <div class="track-row">
+          ${this._rankBadge(t.current_rank, 22)}
+          <span class="variant-name">${t.game_mode}</span>
+          <span style="color:${(RANK_COLORS[Object.keys(RANK_COLORS).find((x) => t.current_rank.startsWith(x)) || ""] || ["inherit"])[0]}">${t.current_rank}${t.unreal_rank ? ` #${this._num(t.unreal_rank)}` : ""}</span>
+          <span class="muted">${t.current_rank.startsWith("Unreal") ? "" : `${t.progress_pct}%`}</span>
+        </div>`)}
+    </div>`;
+  }
+
+  // ---- trends --------------------------------------------------------------
+
+  private _lineChart(rows: Array<{ t: number; v: number }>, fmt: (v: number) => string, period: string) {
+    const W = 320, H = 90, P = 6;
+    const vs = rows.map((r) => r.v);
+    const min = Math.min(...vs), max = Math.max(...vs);
+    const span = max - min || Math.abs(max) || 1;
+    const t0 = rows[0].t, t1 = rows[rows.length - 1].t || t0 + 1;
+    const x = (t: number) => P + ((t - t0) / (t1 - t0 || 1)) * (W - 2 * P);
+    const y = (v: number) => H - P - ((v - min) / span) * (H - 2 * P);
+    const d = rows.map((r, i) => `${i ? "L" : "M"}${x(r.t).toFixed(1)},${y(r.v).toFixed(1)}`).join(" ");
+    const when = (t: number) => new Date(t).toLocaleString("en-GB", period === "hour" ? { day: "numeric", month: "short", hour: "numeric", hour12: true } : { day: "numeric", month: "short" });
+    return html`<svg class="trend-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img">
+      ${svg`<line x1="${P}" x2="${W - P}" y1="${H - P}" y2="${H - P}" class="trend-base"></line>
+        <path d="${d}" class="trend-line"></path>
+        ${rows.map((r) => svg`<g class="trend-pt"><circle cx="${x(r.t)}" cy="${y(r.v)}" r="7" class="trend-hit"></circle><circle cx="${x(r.t)}" cy="${y(r.v)}" r="2.5" class="trend-dot"></circle><title>${when(r.t)}: ${fmt(r.v)}</title></g>`)}`}
+    </svg>`;
+  }
+
+  private _renderKillsChart() {
+    const list = this._matchLists["trend:recent"];
+    const matches = [...(list?.matches || [])].reverse();
+    if (!matches.length) return html`<div class="empty">No tracked games yet — they appear after a tracked session.</div>`;
+    const W = 320, H = 100, P = 4;
+    const maxK = Math.max(4, ...matches.map((m) => m.kills || 0));
+    const bw = (W - 2 * P) / matches.length;
+    return html`<svg class="trend-svg" viewBox="0 0 ${W} ${H + 12}" preserveAspectRatio="none" role="img">
+      ${svg`${matches.map((m, i) => {
+        const h = Math.max(2, ((m.kills || 0) / maxK) * (H - 14));
+        const x = P + i * bw + 1;
+        return svg`<g><rect x="${x}" y="${H - h}" width="${Math.max(2, bw - 2)}" height="${h}" rx="2" class="kill-bar"></rect>
+          ${m.is_victory ? svg`<text x="${x + (bw - 2) / 2}" y="${H - h - 3}" text-anchor="middle" class="win-mark">★</text>` : nothing}
+          <rect x="${x - 1}" y="0" width="${bw}" height="${H}" fill="transparent"><title>${this._formatWhen(m.timestamp)} · ${m.mode_name}: ${m.kills} kills · ${m.placement_text}</title></rect></g>`;
+      })}
+      <line x1="${P}" x2="${W - P}" y1="${H}" y2="${H}" class="trend-base"></line>`}
+    </svg>
+    <div class="rank-meta"><span>Oldest → newest · ★ = Victory Royale</span><span>Max ${maxK} kills</span></div>`;
+  }
+
+  private _renderTrendsView() {
+    const tr = this._trends;
+    const cards = TREND_METRICS.map((m) => {
+      const id = this._entityId("sensor", m.key);
+      if (!id) return nothing;
+      const rows = ((tr.stats || {})[id] || [])
+        .map((r: any) => ({ t: typeof r.start === "number" ? r.start : Date.parse(r.start), v: r.mean ?? r.state ?? r.max }))
+        .filter((r: any) => typeof r.v === "number");
+      const current = this.hass.states[id];
+      if (!rows.length && (!current || ["unavailable", "unknown"].includes(current.state))) return nothing;
+      const fmt = (v: number) => `${this._num(v, m.digits || 0)}${m.unit || ""}`;
+      const first = rows[0]?.v, last = rows[rows.length - 1]?.v;
+      const change = rows.length > 1 ? last - first : null;
+      const good = change == null || change === 0 ? "" : (change > 0) !== !!m.lowerBetter ? "positive" : "negative";
+      return html`<div class="trend-card">
+        <div class="rank-header">
+          <span class="rank-title"><span>${m.label}</span></span>
+          <span class="kpi-value ${good}">${current && !isNaN(Number(current.state)) ? fmt(Number(current.state)) : "—"}</span>
+        </div>
+        ${rows.length > 1
+          ? this._lineChart(rows, fmt, tr.period || "day")
+          : html`<div class="collecting">Collecting history — the chart fills in as Home Assistant records it.</div>`}
+        <div class="rank-meta">
+          <span>${rows.length > 1 ? `${change! >= 0 ? "▲" : "▼"} ${fmt(Math.abs(change!))} over ${rows.length} ${tr.period === "hour" ? "hours" : "days"}` : ""}</span>
+          <span>${m.lowerBetter ? "lower is better" : ""}</span>
+        </div>
+      </div>`;
+    });
+    return html`
+      <div class="section-title">Kills per tracked game (last 30)</div>
+      ${this._renderKillsChart()}
+      ${tr.loading && !tr.stats ? html`<div class="empty">Loading history…</div>` : nothing}
+      ${tr.error ? html`<div class="empty">${tr.error}</div>` : nothing}
+      <div class="trend-grid">${cards}</div>
+    `;
+  }
+
+  // ---- battle pass -----------------------------------------------------------
+
+  private _renderPassView(levelSensor: any) {
+    const p = this._pass;
+    if (p.loading || p.data === undefined) return html`<div class="empty">Loading Battle Pass…</div>`;
+    if (p.error) return html`<div class="empty">${p.error}</div>`;
+    if (!p.data) return html`<div class="empty">The Battle Pass catalogue is not available right now.</div>`;
+    const bp = p.data;
+    const level = Number(levelSensor?.state) || null;
+    const pages = this._showAllPages ? bp.pages : bp.pages.slice(0, 3);
+    return html`
+      <div class="rank-section">
+        <div class="rank-header">
+          <span class="rank-title"><ha-icon icon="mdi:ticket-confirmation-outline"></ha-icon><span>Season ${bp.season} Battle Pass</span></span>
+          ${level ? html`<span class="rank-name">Level ${level}</span>` : nothing}
+        </div>
+        <div class="sprite-stats">
+          <span><b>${bp.reward_count}</b> rewards</span><span><b>${bp.pages.length}</b> pages</span>
+          ${bp.prices.map((pr: any) => html`<span>${pr.name}: <b>${this._num(pr.cost)}</b> ${pr.currency === "MtxCurrency" ? "V-Bucks" : pr.currency || ""}</span>`)}
+        </div>
+        <div class="perk-desc">Which rewards you have claimed is not available from this data source.</div>
+      </div>
+      ${pages.map((pg: any) => html`
+        <div class="section-title">Page ${pg.page}${pg.track ? ` · ${pg.track}` : ""}</div>
+        <div class="variant-tiles">
+          ${pg.rewards.map((r: any) => html`
+            <div class="variant-tile" style="--rarity:${RARITY_COLORS[r.rarity] || "#9CA3AF"}" title="${r.name}${r.type ? ` (${r.type})` : ""}">
+              ${r.icon ? html`<img src=${r.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
+              <span class="variant-name">${r.name}</span>
+              <span class="variant-status">${r.price_row === "Included" || r.cost === 0 ? "Included" : r.cost != null ? `${r.cost} ${r.currency || ""}` : r.type || ""}</span>
+            </div>`)}
+        </div>`)}
+      ${bp.pages.length > 3
+        ? html`<button class="mini-button show-more" @click=${() => (this._showAllPages = !this._showAllPages)}>
+            ${this._showAllPages ? "Show fewer pages" : `Show all ${bp.pages.length} pages`}</button>`
+        : nothing}
+    `;
+  }
+
   // ---- sprites -------------------------------------------------------------
+
+  /**
+   * Levels 1..N from the public level-up curve: the leading run of rising cumulative XP thresholds
+   * (observed 0/400/1000/2200/4000; 4000 = level 5 = mastery). Rows after that run have a different,
+   * unconfirmed meaning and are not used.
+   */
+  private _spriteCurve(a: any): Array<[number, number]> {
+    const rows = [...(a.level_curve || [])]
+      .filter((r: any) => typeof r.level === "number" && typeof r.xp === "number")
+      .sort((x: any, y: any) => x.level - y.level);
+    const out: Array<[number, number]> = [];
+    for (const r of rows) {
+      if (out.length && r.xp < out[out.length - 1][1]) break;
+      out.push([r.level, r.xp]);
+    }
+    return out.length >= 2 ? out : [];
+  }
+
+  private _spriteLevel(xp: any, curve: Array<[number, number]>) {
+    if (typeof xp !== "number" || !curve.length) return null;
+    let idx = 0;
+    curve.forEach(([, t], i) => {
+      if (xp >= t) idx = i;
+    });
+    const [level] = curve[idx];
+    const max = curve[curve.length - 1];
+    const next = curve[idx + 1];
+    return { level, maxLevel: max[0], maxXp: max[1], next: next ? next[1] : null, toMax: Math.max(0, max[1] - xp), atMax: idx === curve.length - 1 };
+  }
 
   private _renderSpritesView(sensor: any) {
     const a = sensor?.attributes || {};
+    const curve = this._spriteCurve(a);
     const all: any[] = a.families || [];
     const pct = Number(sensor?.state || 0);
     const ownedVariants = Number(a.owned_variants || 0);
@@ -892,6 +1136,15 @@ export class FortniteActivityCard extends LitElement {
       .flatMap((f) => f.variants.filter((v: any) => !v.owned && v.drop_chance_pct).map((v: any) => ({ f, v })))
       .sort((x: any, y: any) => y.v.drop_chance_pct - x.v.drop_chance_pct || rarityOrder.indexOf(x.f.rarity) - rarityOrder.indexOf(y.f.rarity))
       .slice(0, 6);
+
+    // Owned copies with XP, not yet at max level, nearest to mastery first
+    const toMaster = curve.length
+      ? all
+          .flatMap((f) => f.variants.filter((v: any) => v.owned && typeof v.xp === "number" && v.xp > 0).map((v: any) => ({ f, v, lv: this._spriteLevel(v.xp, curve)! })))
+          .filter((x: any) => x.lv && !x.lv.atMax)
+          .sort((x: any, y: any) => x.lv.toMax - y.lv.toMax)
+          .slice(0, 6)
+      : [];
 
     const chip = (id: typeof this._spriteFilter, label: string) => html`
       <button class="mode-tab ${this._spriteFilter === id ? "active" : ""}" @click=${() => (this._spriteFilter = id)}>${label}</button>`;
@@ -927,6 +1180,22 @@ export class FortniteActivityCard extends LitElement {
                 <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, v.completion_pct)}%"></div></div>
                 <span>${v.owned_variants}/${v.total_variants}</span>
               </div>`)}
+          </div>`
+        : nothing}
+
+      ${toMaster.length
+        ? html`<div class="split-section">
+            <div class="section-title">Closest to mastering (current copy, level ${curve[curve.length - 1][0]} = ${this._num(curve[curve.length - 1][1])} XP)</div>
+            <div class="master-list">
+              ${toMaster.map(({ f, v, lv }: any) => html`
+                <div class="master-row" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" @click=${() => (this._expandedSprite = f.id)}>
+                  ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                  <span class="variant-name">${f.name.replace(/ Sprite$/, "")}${v.label !== "Base" ? ` · ${v.label}` : ""}</span>
+                  <span>Lv ${lv.level}</span>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, (v.xp / lv.maxXp) * 100)}%"></div></div>
+                  <span class="muted">${this._num(lv.toMax)} XP to go</span>
+                </div>`)}
+            </div>
           </div>`
         : nothing}
 
@@ -987,6 +1256,7 @@ export class FortniteActivityCard extends LitElement {
   }
 
   private _renderSpriteDetail(f: any) {
+    const curve = this._spriteCurve(this._findEntity("sensor", "sprites")?.attributes || {});
     return html`
       <div class="sprite-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
         <div class="sprite-detail-head">
@@ -1006,7 +1276,11 @@ export class FortniteActivityCard extends LitElement {
               <span class="variant-name">${v.label}</span>
               <span class="variant-status">
                 ${v.owned
-                  ? html`${v.mastered ? "★ Mastered" : v.xp ? `${this._num(v.xp)} XP` : "Owned"}${v.count > 1 ? ` · ×${v.count}` : ""}`
+                  ? (() => {
+                      const lv = this._spriteLevel(v.xp, curve);
+                      const level = lv ? (lv.atMax ? `Lv ${lv.level}${v.xp > lv.maxXp ? "+" : ""}` : `Lv ${lv.level} · ${this._num(v.xp)}/${this._num(lv.next)}`) : v.xp ? `${this._num(v.xp)} XP` : "Owned";
+                      return html`${level}${v.count > 1 ? ` · ×${v.count}` : ""}${v.mastered ? html` <span title="Mastered at some point (collection record)">★</span>` : nothing}`;
+                    })()
                   : v.drop_chance_pct != null ? `Missing · ${v.drop_chance_pct}%` : "Missing · special"}
               </span>
             </div>`)}
@@ -1104,6 +1378,7 @@ export class FortniteActivityCard extends LitElement {
   private _defaultFilters(): EventFilters {
     return {
       region: this._config.events_region || this._events.defaultRegion || "EU",
+      type: "all",
       mode: "all",
       team: "all",
       platform: "all",
@@ -1116,6 +1391,7 @@ export class FortniteActivityCard extends LitElement {
 
   private _matchesFilters(e: any, f: EventFilters): boolean {
     if (f.region !== "all" && e.region_group !== f.region) return false;
+    if (f.type !== "all" && e.tournament_type !== f.type) return false;
     if (f.mode === "Ranked" ? !e.ranked : f.mode !== "all" && e.mode !== f.mode) return false;
     if (f.team !== "all" && e.team !== f.team) return false;
     if (f.platform !== "all" && !(e.platform_groups || []).includes(f.platform)) return false;
@@ -1147,6 +1423,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="event-filters">
         ${select("region", [["all", "All regions"], ...regions.map((r) => [r, r] as [string, string])])}
+        ${select("type", [["all", "Type"], ...[...new Set(all.map((e) => e.tournament_type).filter(Boolean))].map((t: any) => [t, TOURNAMENT_TYPES[t] || t] as [string, string])])}
         ${select("mode", [["all", "Mode"], ["Battle Royale", "Battle Royale"], ["Zero Build", "Zero Build"], ["Reload", "Reload"], ["Ranked", "Ranked cups"]])}
         ${select("team", [["all", "Team"], ["Solo", "Solo"], ["Duos", "Duos"], ["Trios", "Trios"], ["Squads", "Squads"]])}
         ${select("platform", [["all", "Platform"], ["PC", "PC"], ["Console", "Console"], ["Mobile", "Mobile"]])}
@@ -1185,9 +1462,10 @@ export class FortniteActivityCard extends LitElement {
   private _renderEvent(e: any) {
     const timing = this._eventTiming(e);
     const expanded = this._expandedEvent === e.key;
-    const tags = [e.mode, e.team, e.ranked ? "Ranked" : null, ...(e.platform_groups || []), e.region].filter(Boolean);
+    const typeLabel = e.tournament_type ? TOURNAMENT_TYPES[e.tournament_type] || e.tournament_type : null;
+    const tags = [e.mode, e.team, e.ranked && e.tournament_type !== "RankedCup" ? "Ranked" : null, ...(e.platform_groups || []), e.region].filter(Boolean);
     return html`
-      <div class="event-card ${timing.live ? "live" : ""} ${expanded ? "expanded" : ""}">
+      <div class="event-card ${timing.live ? "live" : ""} ${expanded ? "expanded" : ""} ${e.tournament_type === "FNCS" ? "featured" : ""}">
         <div class="event-row" @click=${() => this._toggleEvent(e)}>
           ${e.poster ? html`<img class="event-art" src=${e.poster} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
           <div class="match-left">
@@ -1196,7 +1474,11 @@ export class FortniteActivityCard extends LitElement {
               ${timing.live ? html`<span class="placement-badge win">LIVE</span>` : nothing}
             </div>
             <span class="match-mode ${timing.soon ? "soon" : ""}">${timing.text}</span>
-            <div class="tag-row">${tags.map((t) => html`<span class="tag">${t}</span>`)}</div>
+            <div class="tag-row">
+              ${typeLabel ? html`<span class="tag type-tag ${e.tournament_type === "FNCS" ? "fncs" : ""}">${typeLabel}</span>` : nothing}
+              ${e.can_spectate ? html`<span class="tag spectate-tag" title="Epic allows spectating this session inside Fortnite">👁 Spectate in-game</span>` : nothing}
+              ${tags.map((t) => html`<span class="tag">${t}</span>`)}
+            </div>
           </div>
           <ha-icon class="chevron" icon=${expanded ? "mdi:chevron-up" : "mdi:chevron-down"}></ha-icon>
         </div>
@@ -1215,6 +1497,12 @@ export class FortniteActivityCard extends LitElement {
         ${e.schedule_info ? html`<p class="detail-desc muted">${e.schedule_info}</p>` : nothing}
         ${e.platform_groups?.length ? html`<div class="detail-line"><span>Platforms</span><b>${e.platform_groups.join(", ")}</b></div>` : nothing}
         <div class="detail-line"><span>Region</span><b>${e.region}</b></div>
+        ${e.min_account_level ? html`<div class="detail-line"><span>Minimum account level</span><b>${e.min_account_level}</b></div>` : nothing}
+        ${e.tournament_type === "FNCS"
+          ? html`<div class="detail-line"><span>Official coverage</span>
+              <a href="https://www.twitch.tv/fortnite" target="_blank" rel="noopener">Fortnite on Twitch ↗</a></div>
+              <div class="perk-desc">Epic streams major FNCS rounds on its official channels; this schedule does not say which sessions are broadcast.</div>`
+          : nothing}
 
         <div class="section-title">Sessions</div>
         <div class="window-list">
