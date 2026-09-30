@@ -46,7 +46,9 @@ async def async_setup_entry(
                 FortniteCurrentSessionSensor(coordinator, p_id, p_name),
                 FortniteRankBattleRoyaleSensor(coordinator, p_id, p_name),
                 FortniteRankReloadSensor(coordinator, p_id, p_name),
-                FortniteLevelSensor(coordinator, p_id, p_name),
+                FortniteLevelSensor(coordinator.profile, p_id, p_name),
+                FortniteSpritesSensor(coordinator.profile, p_id, p_name),
+                FortnitePowerRankingSensor(coordinator.profile, p_id, p_name),
                 FortniteLastPlayedSensor(coordinator, p_id, p_name),
                 FortniteProfileSensor(coordinator.profile, p_id, p_name),
             ]
@@ -209,8 +211,8 @@ class FortniteLevelSensor(FortniteEntity, SensorEntity):
 
     _attr_icon = "mdi:star-circle"
 
-    def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
-        """Initialize the sensor."""
+    def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
+        """Initialize the sensor (profile coordinator: needs the player's linked Epic account)."""
         super().__init__(coordinator, "sensor", player_id, player_name, "level")
         self._attr_name = "Level"
 
@@ -287,4 +289,72 @@ class FortniteProfileSensor(FortniteEntity, SensorEntity):
             "season": self.coordinator.season,
             "windows": self.player_data.get("windows") or {},
             "window_labels": self.player_data.get("window_labels") or {},
+            "epic_link": (self.player_data.get("epic") or {}).get("status", "unlinked"),
         }
+
+
+class FortniteSpritesSensor(FortniteEntity, SensorEntity):
+    """Current-season Sprite collection completion (needs a linked Epic account)."""
+
+    _attr_icon = "mdi:ghost-outline"
+    _attr_native_unit_of_measurement = "%"
+    _unrecorded_attributes = frozenset({"families", "cumulative", "versions"})
+
+    def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, "sensor", player_id, player_name, "sprites")
+        self._attr_name = "Sprites"
+
+    @property
+    def _sprites(self) -> dict[str, Any]:
+        return self.player_data.get("sprites") or {}
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(self._sprites.get("current"))
+
+    @property
+    def native_value(self) -> float | None:
+        current = self._sprites.get("current") or {}
+        return current.get("completion_pct")
+
+    @property
+    def _extra_attributes(self) -> dict[str, Any]:
+        current = self._sprites.get("current") or {}
+        cumulative = self._sprites.get("cumulative") or {}
+        return {
+            "version": current.get("version"),
+            "owned_variants": current.get("owned_variants"),
+            "total_variants": current.get("total_variants"),
+            "owned_families": current.get("owned_families"),
+            "total_families": current.get("total_families"),
+            "mastered_variants": current.get("mastered_variants"),
+            "families": current.get("families", []),
+            # Deduplicated across versions by the provider; never a sum of per-version totals
+            "cumulative": {k: v for k, v in cumulative.items() if k != "versions"} or None,
+            "versions": cumulative.get("versions", []),
+        }
+
+
+class FortnitePowerRankingSensor(FortniteEntity, SensorEntity):
+    """Competitive Power Ranking position as returned by the provider (needs a linked Epic account)."""
+
+    _attr_icon = "mdi:podium"
+
+    def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, "sensor", player_id, player_name, "power_ranking")
+        self._attr_name = "Power Ranking"
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(self.player_data.get("power_ranking"))
+
+    @property
+    def native_value(self) -> int | None:
+        return (self.player_data.get("power_ranking") or {}).get("rank")
+
+    @property
+    def _extra_attributes(self) -> dict[str, Any]:
+        ranking = self.player_data.get("power_ranking") or {}
+        return {"points": ranking.get("points"), "event_id": ranking.get("event_id")}

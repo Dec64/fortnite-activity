@@ -10,6 +10,7 @@ CONF_ACTIVE_INTERVAL = "active_interval"
 CONF_IDLE_INTERVAL = "idle_interval"
 CONF_INACTIVITY_TIMEOUT = "inactivity_timeout"
 CONF_REGION = "region"
+CONF_EPIC_DEVICE = "epic_device"  # per player: {"device_id": ..., "secret": ...}
 
 # Defaults
 DEFAULT_ACTIVE_INTERVAL = 90  # 90 seconds while playing

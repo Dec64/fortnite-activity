@@ -43,7 +43,16 @@ STAT_KEY_REGEX = re.compile(
 
 
 class FortniteApiError(Exception):
-    """Base exception for Fortnite API errors."""
+    """Base exception for Fortnite API errors (status is the HTTP status when known)."""
+
+    def __init__(self, message: str, status: int | None = None) -> None:
+        super().__init__(message)
+        self.status = status
+
+
+def _safe_endpoint(endpoint: str) -> str:
+    """Endpoint for messages/logs with Epic account ids masked."""
+    return re.sub(r"[0-9a-fA-F]{32}", "<id>", endpoint)
 
 
 class FortniteAuthError(FortniteApiError):
@@ -79,31 +88,100 @@ class ApiFortniteClient:
         if self._owns_session and self._session and not self._session.closed:
             await self._session.close()
 
-    async def _request(self, endpoint: str) -> Any:
-        """Make an authenticated GET request."""
+    async def _send(
+        self,
+        endpoint: str,
+        method: str = "GET",
+        json_body: dict[str, Any] | None = None,
+        token: str | None = None,
+    ) -> tuple[int, Any]:
+        """Send a request and return (status, parsed JSON or None). Raises only on transport errors."""
         session = await self._get_session()
-        url = f"{API_BASE_URL}{endpoint}"
         headers = {
             API_HEADER_KEY: self._api_key,
             "Accept": "application/json",
             "User-Agent": "HomeAssistant-FortniteFamilyTracker/1.0",
         }
-
+        if token:
+            headers["x-fortnite-token"] = token
         try:
-            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=20)) as resp:
-                if resp.status == 200:
-                    return await resp.json()
-                elif resp.status == 401:
-                    raise FortniteAuthError(f"Unauthorized (401) on {endpoint}. Verify API key.")
-                elif resp.status == 404:
-                    raise FortniteNotFoundError(f"Not found (404) on {endpoint}.")
-                elif resp.status == 429:
-                    raise FortniteRateLimitError(f"Rate limited (429) on {endpoint}.")
-                else:
-                    text = await resp.text()
-                    raise FortniteApiError(f"API request failed with HTTP {resp.status}: {text[:200]}")
-        except aiohttp.ClientError as err:
-            raise FortniteApiError(f"Connection error to {endpoint}: {err}") from err
+            async with session.request(
+                method, f"{API_BASE_URL}{endpoint}", headers=headers, json=json_body,
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as resp:
+                try:
+                    data = await resp.json(content_type=None)
+                except (ValueError, aiohttp.ContentTypeError):
+                    data = None
+                return resp.status, data
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise FortniteApiError(f"Connection error to {_safe_endpoint(endpoint.split('?')[0])}: {type(err).__name__}") from None
+
+    async def _request(
+        self,
+        endpoint: str,
+        method: str = "GET",
+        json_body: dict[str, Any] | None = None,
+        token: str | None = None,
+        sensitive: bool = False,
+    ) -> Any:
+        """Authenticated request returning JSON on HTTP 200.
+
+        With sensitive=True (OAuth routes) errors carry only the status code, never the body.
+        """
+        status, data = await self._send(endpoint, method, json_body, token)
+        if status == 200:
+            return data
+        where = _safe_endpoint(endpoint.split("?")[0] if sensitive else endpoint)
+        if status == 401:
+            raise FortniteAuthError(f"Unauthorized (401) on {where}.", status)
+        if status == 404:
+            raise FortniteNotFoundError(f"Not found (404) on {where}.", status)
+        if status == 429:
+            raise FortniteRateLimitError(f"Rate limited (429) on {where}.", status)
+        detail = ""
+        if not sensitive and isinstance(data, dict):
+            detail = f": {str(data.get('error') or data.get('message') or '')[:160]}"
+        raise FortniteApiError(f"API request failed with HTTP {status} on {where}{detail}", status)
+
+    # ---- Epic device-code OAuth (responses contain credentials: never log them) ----
+
+    async def oauth_start(self) -> Any:
+        """Begin the device-code flow; returns flowId and the Epic sign-in URL."""
+        return await self._request("/v1/oauth/get-token", sensitive=True)
+
+    async def oauth_complete(self, flow_id: str) -> tuple[int, Any]:
+        """Poll the flow once. 202 = user has not finished signing in; 200 = tokens + device auth."""
+        status, data = await self._send("/v1/oauth/complete", "POST", {"flowId": flow_id})
+        if status in (200, 202):
+            return status, data
+        raise FortniteApiError(f"Epic sign-in could not be completed (HTTP {status})", status)
+
+    async def oauth_refresh_device(self, account_id: str, device_id: str, secret: str) -> Any:
+        """Exchange stored device credentials for a fresh access token."""
+        return await self._request(
+            "/v1/oauth/refresh-device", "POST",
+            {"accountId": account_id, "deviceId": device_id, "secret": secret},
+            sensitive=True,
+        )
+
+    # ---- Player-token routes ----
+
+    async def get_power_ranking(self, account_id: str, token: str) -> Any:
+        return await self._request(f"/v1/events/powerrankings/player/{account_id}", token=token)
+
+    async def get_sprite_versions(self) -> Any:
+        return await self._request("/v2/sprites/versions")
+
+    async def get_sprite_catalogue(self) -> Any:
+        return await self._request("/v2/sprites")
+
+    async def get_sprite_collection(self, token: str, version: str | None = None) -> Any:
+        query = f"?{urlencode({'version': version})}" if version else ""
+        return await self._request(f"/v2/sprites/collection{query}", token=token)
+
+    async def get_sprite_collection_all(self, token: str) -> Any:
+        return await self._request("/v2/sprites/collection/all", token=token)
 
     async def get_raw_stats(
         self, account_id: str, start_time: int | None = None, end_time: int | None = None
@@ -164,14 +242,10 @@ class ApiFortniteClient:
         res = await self._request(endpoint)
         return res if isinstance(res, list) else []
 
-    async def get_raw_level(self, account_id: str) -> dict[str, Any]:
-        """Fetch raw level & tier data for account.
-
-        Requires an Epic player token; with a provider key alone this raises
-        FortniteAuthError, which the coordinator uses to stop polling it.
-        """
+    async def get_raw_level(self, account_id: str, token: str | None = None) -> dict[str, Any]:
+        """Fetch raw level & tier data for account (needs an Epic player token)."""
         endpoint = LEVEL_ENDPOINT.format(account_id=account_id)
-        res = await self._request(endpoint)
+        res = await self._request(endpoint, token=token)
         return res if isinstance(res, dict) else {}
 
     async def validate_credentials(self, account_id: str) -> bool:
@@ -416,12 +490,24 @@ class ApiFortniteClient:
 
     @staticmethod
     def parse_level(raw: dict[str, Any]) -> dict[str, Any] | None:
-        """Parse raw level response; None when level data is unavailable."""
-        if not raw or "level" not in raw:
+        """Parse /v1/profile/level; None when level data is unavailable.
+
+        Observed shape: level, xp, accountLevel at the top plus a nested object holding
+        tier / xp / purchased. The provider's `purchased` flag contradicts Epic's own
+        profile, so pass ownership is deliberately not exposed.
+        """
+        if isinstance(raw, dict) and isinstance(raw.get("data"), dict) and "level" not in raw:
+            raw = raw["data"]
+        if not isinstance(raw, dict) or "level" not in raw:
             return None
+        nested = next((v for v in raw.values() if isinstance(v, dict) and "tier" in v), {})
+
+        def as_int(value: Any) -> int:
+            return int(value) if isinstance(value, (int, float)) else 0
+
         return {
-            "level": int(raw.get("level", 0)),
-            "tier": int(raw.get("tier", 0)),
-            "xp": int(raw.get("xp", 0)),
-            "account_level": int(raw.get("accountLevel", 0)),
+            "level": as_int(raw.get("level")),
+            "tier": as_int(raw.get("tier", nested.get("tier"))),
+            "xp": as_int(raw.get("xp")),
+            "account_level": as_int(raw.get("accountLevel")),
         }

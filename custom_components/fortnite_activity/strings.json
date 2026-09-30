@@ -29,7 +29,9 @@
         "menu_options": {
           "settings": "Polling, session & tournament settings",
           "add_player": "Add a player",
-          "remove_player": "Remove a player"
+          "remove_player": "Remove a player",
+          "link_epic": "Link Epic account (Sprites, level, Power Ranking)",
+          "unlink_epic": "Unlink Epic account"
         }
       },
       "settings": {
@@ -56,6 +58,24 @@
         "data": {
           "player_id": "Player"
         }
+      },
+      "link_epic": {
+        "title": "Link Epic account",
+        "description": "Choose which tracked player is signing in.",
+        "data": {
+          "player_id": "Player"
+        }
+      },
+      "link_epic_signin": {
+        "title": "Sign in to Epic Games",
+        "description": "1. Open [Epic Games sign-in]({url}) and sign in as **{player}**, then approve access.\n2. Come back here and press **Submit**.\n\nOnly a device credential is stored in Home Assistant; the password never is. The link expires after about 10 minutes."
+      },
+      "unlink_epic": {
+        "title": "Unlink Epic account",
+        "description": "Removes the stored device credential from Home Assistant. To revoke it at Epic too, remove the device from your Epic account settings.",
+        "data": {
+          "player_id": "Player"
+        }
       }
     },
     "error": {
@@ -63,10 +83,21 @@
       "invalid_auth": "The configured API key was rejected.",
       "player_not_found": "No stats found for this Epic Games Account ID.",
       "already_configured": "This player is already tracked.",
-      "invalid_player_id": "Use 1-32 lowercase letters, numbers or underscores."
+      "invalid_player_id": "Use 1-32 lowercase letters, numbers or underscores.",
+      "link_pending": "Epic has not confirmed the sign-in yet. Finish signing in, then press Submit again.",
+      "link_expired": "The sign-in link expired; a new one is shown below.",
+      "link_failed": "Epic sign-in could not be completed. Try again."
     },
     "abort": {
-      "last_player": "At least one player must remain tracked."
+      "last_player": "At least one player must remain tracked.",
+      "identity_mismatch": "That Epic account does not match this player's configured account ID, so nothing was saved.",
+      "link_unavailable": "Could not start Epic sign-in (api-fortnite.com did not return a sign-in link)."
+    }
+  },
+  "issues": {
+    "epic_relink": {
+      "title": "Link {player}'s Epic account again",
+      "description": "Epic rejected the stored sign-in for {player}, so Sprites, level and Power Ranking are paused. Go to Settings > Devices & services > Fortnite Activity Tracker > Configure > Link Epic account."
     }
   }
 }

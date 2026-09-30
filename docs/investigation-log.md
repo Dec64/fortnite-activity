@@ -899,3 +899,10 @@ Following the user's `/plan` request and interactive alignment interview, design
 - New `fortnite_activity/matches` websocket returns every tracked match (active + archived sessions) filtered by session or `since`; the card lists them for the session and for Today / 7 Days / Season windows, labelled "N of M" against the API window total because the stats API has no per-match history (only games the tracker saw finish are listed).
 - Rank details are shown only for ranked games (rank moved, Unreal place changed, or a `habanero*` playlist); per-game "wins" removed (placement already says Victory Royale; "Victories" appears only when several games were combined in one poll).
 - Dashboard: card moved from Office Hub main view into the existing Gaming sub-view (plus an events-only card). Previous config hash `c0e1b7b589bcbd1c`.
+
+### 2026-09-30 v1.3.0 Epic account link (user-approved credential decision)
+
+- User approved device-code sign-in in HA. Flow: `GET /v1/oauth/get-token` (flowId + Epic URL) → user signs in → one `POST /v1/oauth/complete` per Submit click (202 pending / 200 done) → identity gate against the player's configured account → store device_id + secret only → `POST /v1/oauth/refresh-device` for 2-hour tokens (in memory, refreshed 5 min early, single-flight lock).
+- Rejected refresh (400/401/403) or identity mismatch stops the credential and raises a Repair issue; no retries. Unlink is local only (no `revoke-device`, an account-changing call).
+- Token routes wired: level (nested `tier`), power rankings, sprites (current version via `/v2/sprites/versions`, plus deduplicated `/collection/all`). Level polling moved from the 90 s match poll to the 30 min profile poll.
+- Unverified until the user links: exact `complete` response nesting, sprite image field names, power-ranking response wrapper.

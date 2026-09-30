@@ -32,3 +32,17 @@ Evidence terms: **Observed** means an actual response inspected in this phase; *
 | Player Two private data | No verified Player Two account ID or authorization is available; PSN entities belong to Player One and Nintendo mapping is unverified | Identity not supplied | Missing project input; no private source can be queried or safely associated | Obtain explicit Epic identity and separate authorization when the user is ready; never infer it from friends/display names |
 
 Primary sources: [saved OpenAPI](../evidence/sanitized/specifications/api-fortnite-openapi.json), [provider docs](https://api-fortnite.com/docs), and [historical handoff](fortnite-home-assistant-agent-handoff.md). Absence from this specification establishes a documentation gap, not proof that an undocumented service cannot exist.
+
+## Home Assistant integration status (updated 2026-09-30, v1.3.0)
+
+| Capability | In HA | Auth | Notes |
+| --- | --- | --- | --- |
+| Lifetime / Today / 7-day / Season stats, derived metrics | Yes | Key | `startTime` windows observed honoured live |
+| Ranks incl. Unreal placement | Yes | Key | Field is `rankProgress` |
+| Tournaments (all regions), leaderboards | Yes | Key | Account highlight returns 403; plain page used |
+| Playlist artwork, season, display name | Yes | Key | Catalogue lacks Reload/ranked playlists |
+| Linked platforms | No | Key | `externalAuths` returns 403 upstream |
+| Season level / XP / tier | Yes (after Epic link) | Key + player token | Pass ownership deliberately not shown |
+| Sprites (current + cumulative) | Yes (after Epic link) | Key + player token | Image field name unverified live |
+| Power Ranking | Yes (after Epic link) | Key + player token | Shown exactly as returned |
+| Quests, locker, friends/presence | No | — | 401 / direct-Epic only / 403 on Pro |

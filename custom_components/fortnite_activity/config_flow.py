@@ -20,7 +20,7 @@ except ImportError:
     def callback(func: Any) -> Any:
         return func
 
-from .api.api_fortnite import ApiFortniteClient, FortniteAuthError, FortniteNotFoundError
+from .api.api_fortnite import ApiFortniteClient, FortniteApiError, FortniteAuthError, FortniteNotFoundError
 from .const import (
     CONF_ACCOUNT_ID,
     CONF_ACTIVE_INTERVAL,
@@ -29,6 +29,7 @@ from .const import (
     CONF_INACTIVITY_TIMEOUT,
     CONF_PLAYERS,
     CONF_PLAYER_ID,
+    CONF_EPIC_DEVICE,
     CONF_PLAYER_NAME,
     CONF_REGION,
     DEFAULT_ACTIVE_INTERVAL,
@@ -146,7 +147,10 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Show the options menu."""
-        return self.async_show_menu(step_id="init", menu_options=["settings", "add_player", "remove_player"])
+        menu = ["settings", "add_player", "remove_player", "link_epic"]
+        if any(p.get(CONF_EPIC_DEVICE) for p in self.config_entry.data.get(CONF_PLAYERS, [])):
+            menu.append("unlink_epic")
+        return self.async_show_menu(step_id="init", menu_options=menu)
 
     async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Polling intervals, session timeout and tournament region."""
@@ -240,3 +244,101 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
             {vol.Required(CONF_PLAYER_ID): vol.In({p[CONF_PLAYER_ID]: p.get(CONF_PLAYER_NAME, p[CONF_PLAYER_ID]) for p in players})}
         )
         return self.async_show_form(step_id="remove_player", data_schema=schema)
+
+    # ---- Epic account link (device-code OAuth via api-fortnite.com) ----
+
+    def _client(self) -> ApiFortniteClient:
+        from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
+        return ApiFortniteClient(self.config_entry.data[CONF_API_KEY], async_get_clientsession(self.hass))
+
+    async def async_step_link_epic(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Pick which tracked player is signing in to Epic."""
+        players = self.config_entry.data.get(CONF_PLAYERS, [])
+        if user_input is not None or len(players) == 1:
+            self._link_player = (user_input or {}).get(CONF_PLAYER_ID) or players[0][CONF_PLAYER_ID]
+            self._link_flow = None
+            return await self.async_step_link_epic_signin()
+        schema = vol.Schema(
+            {vol.Required(CONF_PLAYER_ID): vol.In({p[CONF_PLAYER_ID]: p.get(CONF_PLAYER_NAME, p[CONF_PLAYER_ID]) for p in players})}
+        )
+        return self.async_show_form(step_id="link_epic", data_schema=schema)
+
+    async def async_step_link_epic_signin(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Show the Epic sign-in link; on submit, complete the flow once (no background polling)."""
+        import time
+
+        from homeassistant.helpers import issue_registry as ir
+
+        from .epic_auth import identity_matches, parse_device_credential, parse_flow_start
+
+        errors: dict[str, str] = {}
+        players = list(self.config_entry.data.get(CONF_PLAYERS, []))
+        player = next(p for p in players if p[CONF_PLAYER_ID] == self._link_player)
+        client = self._client()
+
+        flow = getattr(self, "_link_flow", None)
+        if flow and time.monotonic() - flow[2] > 570:  # device-code flows last ~600 s
+            flow = None
+            errors["base"] = "link_expired"
+
+        if user_input is not None and flow and not errors:
+            try:
+                status, data = await client.oauth_complete(flow[0])
+            except FortniteApiError:
+                status, data = None, None
+                errors["base"] = "link_failed"
+            if status == 202:
+                errors["base"] = "link_pending"
+            elif status == 200:
+                credential = parse_device_credential(data)
+                if not identity_matches(data, player[CONF_ACCOUNT_ID]):
+                    # Signed in to a different Epic account: keep nothing
+                    self._link_flow = None
+                    return self.async_abort(reason="identity_mismatch")
+                if not credential:
+                    errors["base"] = "link_failed"
+                else:
+                    device_id, secret = credential
+                    for p in players:
+                        if p[CONF_PLAYER_ID] == player[CONF_PLAYER_ID]:
+                            p[CONF_EPIC_DEVICE] = {"device_id": device_id, "secret": secret}
+                    self._link_flow = None
+                    self.hass.config_entries.async_update_entry(
+                        self.config_entry, data={**self.config_entry.data, CONF_PLAYERS: players}
+                    )
+                    ir.async_delete_issue(self.hass, DOMAIN, f"epic_relink_{player[CONF_PLAYER_ID]}")
+                    return self.async_create_entry(title="", data=dict(self.config_entry.options))
+
+        if not flow:
+            try:
+                started = parse_flow_start(await client.oauth_start())
+            except FortniteApiError:
+                started = None
+            if not started:
+                return self.async_abort(reason="link_unavailable")
+            flow = (started[0], started[1], time.monotonic())
+            self._link_flow = flow
+
+        return self.async_show_form(
+            step_id="link_epic_signin",
+            data_schema=vol.Schema({}),
+            errors=errors,
+            description_placeholders={"url": flow[1], "player": player.get(CONF_PLAYER_NAME, player[CONF_PLAYER_ID])},
+        )
+
+    async def async_step_unlink_epic(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Forget a stored Epic device credential locally (it is not revoked at Epic)."""
+        players = list(self.config_entry.data.get(CONF_PLAYERS, []))
+        linked = {p[CONF_PLAYER_ID]: p.get(CONF_PLAYER_NAME, p[CONF_PLAYER_ID]) for p in players if p.get(CONF_EPIC_DEVICE)}
+        if user_input is not None:
+            for p in players:
+                if p[CONF_PLAYER_ID] == user_input[CONF_PLAYER_ID]:
+                    p.pop(CONF_EPIC_DEVICE, None)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry, data={**self.config_entry.data, CONF_PLAYERS: players}
+            )
+            return self.async_create_entry(title="", data=dict(self.config_entry.options))
+        return self.async_show_form(
+            step_id="unlink_epic", data_schema=vol.Schema({vol.Required(CONF_PLAYER_ID): vol.In(linked)})
+        )

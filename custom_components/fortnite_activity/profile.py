@@ -409,3 +409,114 @@ def parse_leaderboard(raw: Any, account_id: str | None = None, limit: int = 10) 
         "entries": parsed[:limit],
         "player": next((e for e in parsed if e["is_player"]), None),
     }
+
+
+# ---- Player-token data (sprites, power rankings) ----------------------------
+
+
+def _unwrap(raw: Any) -> Any:
+    """api-fortnite wraps many payloads in {"data": ...}."""
+    return raw["data"] if isinstance(raw, dict) and "data" in raw and not {"families", "ownedVariants"} & set(raw) else raw
+
+
+def _image(item: dict[str, Any]) -> str | None:
+    """First https URL under an image/icon-like key (no image field name was ever captured)."""
+    for key, value in item.items():
+        if isinstance(value, str) and value.startswith("https://") and re.search(r"image|icon|render|art", key, re.I):
+            return value
+        if isinstance(value, dict) and re.search(r"image|icon", key, re.I):
+            nested = _image(value)
+            if nested:
+                return nested
+    return None
+
+
+def parse_sprite_versions(raw: Any) -> str | None:
+    """Current sprite game version from /v2/sprites/versions."""
+    data = _unwrap(raw)
+    items = data.get("versions") if isinstance(data, dict) else data
+    for item in items if isinstance(items, list) else []:
+        if isinstance(item, dict) and item.get("isCurrent") and item.get("version"):
+            return str(item["version"])
+    return None
+
+
+def parse_sprite_collection(raw: Any) -> dict[str, Any] | None:
+    """Own sprite collection for one game version (/v2/sprites/collection?version=)."""
+    data = _unwrap(raw)
+    if not isinstance(data, dict) or "totalVariants" not in data:
+        return None
+    families = []
+    for fam in data.get("families") or []:
+        if not isinstance(fam, dict):
+            continue
+        variants = [v for v in fam.get("variants") or [] if isinstance(v, dict)]
+        families.append({
+            "id": fam.get("id"),
+            "name": fam.get("name"),
+            "rarity": fam.get("rarity"),
+            "dex": fam.get("dexNumber"),
+            "owned": bool(fam.get("owned")),
+            "owned_variants": sum(1 for v in variants if v.get("owned")),
+            "total_variants": len(variants),
+            "mastered": sum(1 for v in variants if v.get("mastered")),
+            "image": _image(fam) or next((_image(v) for v in variants if _image(v)), None),
+            "variants": [
+                {
+                    "name": v.get("name"),
+                    "variant": v.get("variant"),
+                    "owned": bool(v.get("owned")),
+                    "count": v.get("count") or 0,
+                    "mastered": bool(v.get("mastered")),
+                    "drop_chance_pct": v.get("dropChancePercent"),
+                    "image": _image(v),
+                }
+                for v in variants
+            ],
+        })
+    families.sort(key=lambda f: (f["dex"] is None, f["dex"] or 0, f["name"] or ""))
+    return {
+        "version": data.get("gameVersion"),
+        "owned_variants": data.get("ownedVariants", 0),
+        "total_variants": data.get("totalVariants", 0),
+        "owned_families": data.get("ownedFamilies", 0),
+        "total_families": data.get("totalFamilies", 0),
+        "completion_pct": data.get("completionPercent", 0),
+        "mastered_variants": sum(f["mastered"] for f in families),
+        "families": families,
+    }
+
+
+def parse_sprite_collection_all(raw: Any) -> dict[str, Any] | None:
+    """Cumulative (deduplicated) totals across versions; never sum the per-version figures."""
+    data = _unwrap(raw)
+    if not isinstance(data, dict) or "totalVariants" not in data:
+        return None
+    return {
+        "owned_variants": data.get("ownedVariants", 0),
+        "total_variants": data.get("totalVariants", 0),
+        "owned_families": data.get("ownedFamilies", 0),
+        "total_families": data.get("totalFamilies", 0),
+        "completion_pct": data.get("completionPercent", 0),
+        "versions": [
+            {
+                "version": v.get("gameVersion"),
+                "owned_variants": v.get("ownedVariants", 0),
+                "total_variants": v.get("totalVariants", 0),
+                "completion_pct": v.get("completionPercent", 0),
+                "current": bool(v.get("isCurrent")),
+            }
+            for v in data.get("versionSummaries") or []
+            if isinstance(v, dict)
+        ],
+    }
+
+
+def parse_power_ranking(raw: Any) -> dict[str, Any] | None:
+    """Power Ranking entry exactly as returned (rank + points)."""
+    data = _unwrap(raw)
+    if isinstance(data, list):
+        data = data[0] if data else None
+    if not isinstance(data, dict) or not isinstance(data.get("rank"), (int, float)):
+        return None
+    return {"rank": int(data["rank"]), "points": data.get("pointsEarned"), "event_id": data.get("eventId")}

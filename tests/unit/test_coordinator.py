@@ -103,9 +103,8 @@ class TestFortniteDataUpdateCoordinator(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data["player1"]["session"]["summary"]["matches_played"], 1)
         self.assertEqual(coordinator.update_interval, timedelta(seconds=90))
 
-    async def test_coordinator_handles_level_401_gracefully(self) -> None:
-        """Test coordinator does not fail if get_raw_level raises FortniteAuthError or returns empty."""
-        self.mock_client.get_raw_level = AsyncMock(side_effect=FortniteAuthError("401 Unauthorized"))
+    async def test_match_polling_never_calls_level_endpoint(self) -> None:
+        """Level needs an Epic token and is fetched by the profile coordinator, not per match poll."""
         coordinator = FortniteDataUpdateCoordinator(
             hass=self.mock_hass,
             api_client=self.mock_client,
@@ -113,15 +112,9 @@ class TestFortniteDataUpdateCoordinator(unittest.IsolatedAsyncioTestCase):
             entry_options=self.entry_options,
             storage=self.mock_storage,
         )
-
         data = await coordinator._async_update_data()
-        self.assertIn("player1", data)
-        self.assertIsNone(data["player1"]["level"])
-        self.assertEqual(data["player1"]["stats"]["overall"]["matches"], 180)
-
-        # The 401 backs off: the next poll must not hit the level endpoint again
-        await coordinator._async_update_data()
-        self.assertEqual(self.mock_client.get_raw_level.await_count, 1)
+        self.assertNotIn("level", data["player1"])
+        self.mock_client.get_raw_level.assert_not_called()
 
     async def test_coordinator_first_fetch_failure_raises_update_failed(self) -> None:
         """Test coordinator raises UpdateFailed on first fetch error without throwing TypeError on None self.data."""

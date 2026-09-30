@@ -984,4 +984,46 @@ export const cardStyles = css`
   }
 
   .show-more { align-self: center; margin: 4px auto 0; }
+
+  /* ---- Sprites ---- */
+  .sprite-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .sprite-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 6px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid color-mix(in srgb, var(--rarity) 55%, transparent);
+    box-shadow: inset 0 -18px 24px -18px color-mix(in srgb, var(--rarity) 60%, transparent);
+    text-align: center;
+  }
+
+  .sprite-card.missing { opacity: 0.4; filter: grayscale(0.8); }
+  .sprite-card img { width: 56px; height: 56px; object-fit: contain; }
+  .sprite-card ha-icon { --mdc-icon-size: 40px; color: var(--rarity); }
+  .sprite-name { font-size: 11px; font-weight: 700; line-height: 1.2; }
+  .sprite-dots { display: flex; gap: 3px; }
+  .sprite-dots .dot { width: 6px; height: 6px; margin: 0; background: rgba(255, 255, 255, 0.2); }
+  .sprite-dots .dot.owned { background: var(--rarity); }
+  .sprite-dots .dot.mastered { box-shadow: 0 0 0 1.5px #FFD700; }
+
+  .power-ranking .rank-title ha-icon { --mdc-icon-size: 22px; color: #FFD700; }
+  .power-ranking .unreal-number { font-size: 18px; }
+
+  .notice {
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    margin-bottom: 12px;
+  }
 `;

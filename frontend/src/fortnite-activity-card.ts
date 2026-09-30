@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.2.1";
+const CARD_VERSION = "1.3.0";
 
 declare global {
   interface Window {
@@ -45,6 +45,15 @@ const RANK_COLORS: Record<string, [string, string]> = {
   Unreal: ["#FF9BD2", "#7B2FF7"],
 };
 
+const RARITY_COLORS: Record<string, string> = {
+  Common: "#9CA3AF",
+  Uncommon: "#22C55E",
+  Rare: "#3B82F6",
+  Epic: "#A855F7",
+  Legendary: "#F59E0B",
+  Mythic: "#FACC15",
+};
+
 const MODE_ICONS: Record<string, string> = {
   reload: "mdi:reload",
   zero_build: "mdi:shield-outline",
@@ -64,7 +73,7 @@ const DEFAULTS: Partial<FortniteCardConfig> = {
   max_feed_matches: 10,
 };
 
-type View = "session" | "stats" | "events";
+type View = "session" | "stats" | "events" | "sprites";
 type StatWindow = "lifetime" | "season" | "week" | "today";
 type Mode = "all" | "build" | "zero_build" | "reload";
 interface EventFilters {
@@ -460,6 +469,9 @@ export class FortniteActivityCard extends LitElement {
     const levelSensor = this._findEntity("sensor", "level");
     const playingSensor = this._findEntity("binary_sensor", "playing");
     const profileSensor = this._findEntity("sensor", "profile");
+    const spritesSensor = this._findEntity("sensor", "sprites");
+    const powerSensor = this._findEntity("sensor", "power_ranking");
+    const hasSprites = !!spritesSensor && !["unavailable", "unknown"].includes(spritesSensor.state);
 
     if (!sessionSensor && !statsSensor && !playingSensor) {
       return html`<ha-card><div class="empty">
@@ -482,6 +494,7 @@ export class FortniteActivityCard extends LitElement {
     else if (layout === "career_only") view = "stats";
     else if (layout === "events_only") view = "events";
     if (view === "events" && !this._eventsEnabled) view = "stats";
+    if (view === "sprites" && !hasSprites) view = "stats";
 
     let style = "";
     const accents: Record<string, string> = { victory_gold: "#FFD700", slurp_cyan: "#00E5FF", storm_purple: "#A855F7" };
@@ -494,12 +507,14 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <ha-card class=${classes} style="${style}">
         ${this._renderHeader(player, isPlaying, sessionAttrs, statsAttrs, profileAttrs, levelSensor, brRankAttrs, reloadRankAttrs)}
-        ${this._config.show_sub_buttons !== false && layout !== "events_only" ? this._renderButtons(view, isPlaying) : nothing}
+        ${this._config.show_sub_buttons !== false && layout !== "events_only" ? this._renderButtons(view, isPlaying, hasSprites) : nothing}
         ${view === "session"
           ? this._renderSessionView(isPlaying, sessionAttrs, brRankAttrs)
           : view === "events"
             ? this._renderEventsView()
-            : this._renderStatsView(statsAttrs, profileAttrs, brRankAttrs, reloadRankAttrs)}
+            : view === "sprites"
+              ? this._renderSpritesView(spritesSensor)
+              : this._renderStatsView(statsAttrs, profileAttrs, brRankAttrs, reloadRankAttrs, powerSensor)}
       </ha-card>
     `;
   }
@@ -566,7 +581,7 @@ export class FortniteActivityCard extends LitElement {
     ).length;
   }
 
-  private _renderButtons(view: View, isPlaying: boolean) {
+  private _renderButtons(view: View, isPlaying: boolean, hasSprites = false) {
     const layout = this._config.layout || "auto";
     const liveCount = this._eventsEnabled ? this._liveEventCount() : 0;
     const tab = (id: View, icon: string, label: string, badge = 0) => html`
@@ -580,6 +595,7 @@ export class FortniteActivityCard extends LitElement {
         ${layout !== "career_only" ? tab("session", "mdi:lightning-bolt", isPlaying ? "Live Session" : "Last Session") : nothing}
         ${layout !== "session_only" ? tab("stats", "mdi:trophy-outline", "Stats") : nothing}
         ${this._eventsEnabled && layout === "auto" ? tab("events", "mdi:tournament", "Events", liveCount) : nothing}
+        ${hasSprites && layout === "auto" ? tab("sprites", "mdi:ghost-outline", "Sprites") : nothing}
         ${isPlaying
           ? html`<button class="bubble-sub-button" title="End Session" @click=${() => this._callService("end_session")} ?disabled=${this._loadingAction === "end_session"}>
               <ha-icon icon="mdi:stop-circle-outline"></ha-icon>
@@ -768,7 +784,7 @@ export class FortniteActivityCard extends LitElement {
 
   // ---- stats ---------------------------------------------------------------
 
-  private _renderStatsView(statsAttrs: any, profileAttrs: any, brRankAttrs: any, reloadRankAttrs: any) {
+  private _renderStatsView(statsAttrs: any, profileAttrs: any, brRankAttrs: any, reloadRankAttrs: any, powerSensor?: any) {
     const windows = profileAttrs.windows || {};
     const labels = profileAttrs.window_labels || {};
     const available: StatWindow[] = ["lifetime", ...(["season", "week", "today"] as StatWindow[]).filter((w) => windows[w])];
@@ -829,6 +845,58 @@ export class FortniteActivityCard extends LitElement {
 
       ${this._renderRank("Battle Royale", brRankAttrs, `Peak: ${brRankAttrs.highest_rank || brRankAttrs.current_rank || "Unranked"}`)}
       ${this._renderRank("Reload", reloadRankAttrs, `Peak: ${reloadRankAttrs.highest_rank || reloadRankAttrs.current_rank || "Unranked"}`)}
+      ${powerSensor && !["unavailable", "unknown"].includes(powerSensor.state)
+        ? html`<div class="rank-section power-ranking">
+            <div class="rank-header">
+              <span class="rank-title"><ha-icon icon="mdi:podium"></ha-icon><span>Power Ranking</span></span>
+              <span class="unreal-number">#${this._num(powerSensor.state)}</span>
+            </div>
+            <div class="rank-meta"><span>${this._num(powerSensor.attributes?.points)} points</span><span>Competitive (tournaments)</span></div>
+          </div>`
+        : nothing}
+      ${profileAttrs.epic_link === "relink_required"
+        ? html`<div class="notice">Epic sign-in expired — Sprites, level and Power Ranking are paused.
+            Re-link via Settings › Devices &amp; services › Fortnite Activity › Configure.</div>`
+        : nothing}
+    `;
+  }
+
+  // ---- sprites -------------------------------------------------------------
+
+  private _renderSpritesView(sensor: any) {
+    const a = sensor?.attributes || {};
+    const families: any[] = a.families || [];
+    const cumulative = a.cumulative;
+    const pct = Number(sensor?.state || 0);
+    return html`
+      <div class="rank-section">
+        <div class="rank-header">
+          <span class="rank-title"><ha-icon icon="mdi:ghost-outline"></ha-icon><span>Sprites · v${a.version || "?"}</span></span>
+          <span class="rank-name">${pct}%</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, pct)}%"></div></div>
+        <div class="rank-meta">
+          <span>${a.owned_variants}/${a.total_variants} variants · ${a.owned_families}/${a.total_families} families</span>
+          <span>${a.mastered_variants || 0} mastered</span>
+        </div>
+      </div>
+      ${cumulative
+        ? html`<div class="detail-line"><span>All seasons (deduplicated)</span>
+            <b>${cumulative.owned_variants}/${cumulative.total_variants} · ${cumulative.completion_pct}%</b></div>`
+        : nothing}
+      <div class="sprite-grid">
+        ${families.map((f) => html`
+          <div class="sprite-card ${f.owned ? "" : "missing"}" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}"
+            title=${f.variants?.map((v: any) => `${v.variant || v.name}: ${v.owned ? `owned ×${v.count}` : "missing"}${v.mastered ? " (mastered)" : ""}`).join("\n") || f.name}>
+            ${f.image
+              ? html`<img src=${f.image} alt="" loading="lazy" @error=${hideBroken} />`
+              : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+            <span class="sprite-name">${f.name}</span>
+            <span class="sprite-dots">
+              ${(f.variants || []).map((v: any) => html`<i class="dot ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""}"></i>`)}
+            </span>
+          </div>`)}
+      </div>
     `;
   }
 
@@ -876,7 +944,7 @@ export class FortniteActivityCard extends LitElement {
 
   private _renderLifetimeExtras(statsAttrs: any) {
     const metrics = statsAttrs.metrics || {};
-    const inputs = Object.values<any>(statsAttrs.inputs || {}).filter((i) => i.matches > 0);
+    const inputs = Object.values<any>(statsAttrs.inputs || {}).filter((i) => i.share_pct >= 1);
     const sizes = statsAttrs.team_sizes || {};
     return html`
       <div class="secondary">

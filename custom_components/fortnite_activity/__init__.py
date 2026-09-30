@@ -84,6 +84,21 @@ async def _async_register_frontend_card(hass: HomeAssistant) -> None:
             _LOGGER.debug("Card extra JS URL registration: %s", err)
 
 
+def _async_raise_relink_issue(hass: HomeAssistant, player_id: str, player_name: str) -> None:
+    """Ask the user to link Epic again (never retried automatically)."""
+    from homeassistant.helpers import issue_registry as ir
+
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        f"epic_relink_{player_id}",
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key="epic_relink",
+        translation_placeholders={"player": player_name},
+    )
+
+
 def _coordinator_for_player(hass: HomeAssistant, player_id: str) -> FortniteDataUpdateCoordinator:
     """Find the coordinator tracking a player across all config entries."""
     for coordinator in hass.data.get(DOMAIN, {}).values():
@@ -166,6 +181,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         players_config=entry.data.get(CONF_PLAYERS, []),
         region=entry.options.get(CONF_REGION, DEFAULT_REGION),
         lifetime_matches=coordinator.lifetime_matches,
+        on_relink_required=lambda pid, name: _async_raise_relink_issue(hass, pid, name),
     )
     entry.async_create_background_task(
         hass, coordinator.profile.async_refresh(), f"{DOMAIN}_profile_first_refresh"

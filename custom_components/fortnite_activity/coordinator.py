@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 import logging
 from typing import Any
 
@@ -26,7 +26,7 @@ except ImportError:
     class UpdateFailed(Exception):  # type: ignore
         pass
 
-from .api.api_fortnite import ApiFortniteClient, FortniteApiError, FortniteAuthError
+from .api.api_fortnite import ApiFortniteClient, FortniteApiError
 from .const import (
     CONF_ACCOUNT_ID,
     CONF_ACTIVE_INTERVAL,
@@ -46,8 +46,6 @@ from .storage import FortniteStorage
 
 _LOGGER = logging.getLogger(__name__)
 
-# The level endpoint needs an Epic player token; after a 401 re-check only this often.
-LEVEL_RETRY_INTERVAL = timedelta(hours=24)
 
 
 class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -85,7 +83,6 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             )
             self.session_managers[p_id].restore_active_state(storage.get_active_session(p_id))
 
-        self._level_retry_after: datetime | None = None
 
         super().__init__(
             hass,
@@ -95,7 +92,7 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
 
     async def _async_update_data(self) -> dict[str, Any]:
-        """Fetch stats, ranks, and level for all tracked players."""
+        """Fetch stats and ranks for all tracked players (level lives in the profile coordinator)."""
         results: dict[str, Any] = {}
         errors: list[str] = []
         any_active = False
@@ -120,7 +117,6 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             parsed_stats = ApiFortniteClient.parse_stats(raw_stats)
             parsed_ranked = ApiFortniteClient.parse_ranked(raw_ranked)
-            parsed_level = await self._async_fetch_level(p_id, account_id)
 
             state_before = self._session_signature(manager)
             new_matches = manager.update_and_detect_matches(parsed_stats, parsed_ranked)
@@ -143,7 +139,6 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "stats": parsed_stats,
                 "metrics": compute_metrics(parsed_stats),
                 "ranked": parsed_ranked,
-                "level": parsed_level,
                 "session": manager.active_session,
                 "last_session": manager.get_latest_session_summary(),
                 "is_playing": manager.is_active,
@@ -168,25 +163,6 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self.update_interval = target_interval
 
         return results
-
-    async def _async_fetch_level(self, player_id: str, account_id: str) -> dict[str, Any] | None:
-        """Fetch level data, backing off for a day once the endpoint rejects the key."""
-        now = datetime.now(timezone.utc)
-        if self._level_retry_after and now < self._level_retry_after:
-            return None
-        try:
-            raw_level = await self.api_client.get_raw_level(account_id)
-        except FortniteAuthError:
-            _LOGGER.info(
-                "Level endpoint requires an Epic player token; not polling it again until %s",
-                (now + LEVEL_RETRY_INTERVAL).isoformat(timespec="minutes"),
-            )
-            self._level_retry_after = now + LEVEL_RETRY_INTERVAL
-            return None
-        except FortniteApiError as err:
-            _LOGGER.debug("Level data unavailable for %s: %s", player_id, err)
-            return None
-        return ApiFortniteClient.parse_level(raw_level)
 
     @staticmethod
     def _session_signature(manager: FortniteSessionManager) -> tuple[Any, ...]:
