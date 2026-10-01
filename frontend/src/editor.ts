@@ -28,7 +28,7 @@ const SCHEMA = [
   },
   {
     name: "avatar",
-    label: "Avatar skin name (optional; leave empty to use the equipped outfit)",
+    label: "Avatar skin name (optional; overrides the avatar chosen in the Locker section)",
     selector: { text: {} },
   },
   {

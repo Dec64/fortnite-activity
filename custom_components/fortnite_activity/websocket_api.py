@@ -476,7 +476,7 @@ async def ws_get_outfits(
         msg["id"],
         {
             "outfits": profile.owned_outfit_list(pid) if pid and pid in profile.owned_outfits else None,
-            "equipped_id": info.get("equipped_id"),
+            "avatar_id": (info.get("avatar") or {}).get("id"),
             "catalogue": profile.outfit_index_info,
         },
     )

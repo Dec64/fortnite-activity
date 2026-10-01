@@ -109,6 +109,9 @@ def _coordinator_for_player(hass: HomeAssistant, player_id: str) -> FortniteData
 
 PLAYER_SCHEMA = vol.Schema({vol.Required("player_id"): cv.string}) if vol else None
 OPTIONAL_PLAYER_SCHEMA = vol.Schema({vol.Optional("player_id"): cv.string}) if vol else None
+AVATAR_SCHEMA = (
+    vol.Schema({vol.Required("player_id"): cv.string, vol.Optional("outfit_id", default=""): cv.string}) if vol else None
+)
 
 
 async def _async_register_services(hass: HomeAssistant) -> None:
@@ -146,6 +149,19 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     hass.services.async_register(DOMAIN, "end_session", handle_end_session, schema=PLAYER_SCHEMA)
     hass.services.async_register(DOMAIN, "refresh_player", handle_refresh_player, schema=OPTIONAL_PLAYER_SCHEMA)
 
+    async def handle_set_avatar(call: ServiceCall) -> None:
+        player_id = call.data["player_id"].strip().lower()
+        coordinator = _coordinator_for_player(hass, player_id)
+        profile = getattr(coordinator, "profile", None)
+        if profile is None:
+            raise ServiceValidationError("Profile data is not loaded yet")
+        try:
+            await profile.async_set_avatar(player_id, call.data.get("outfit_id"))
+        except ValueError as err:
+            raise ServiceValidationError(str(err)) from err
+
+    hass.services.async_register(DOMAIN, "set_avatar", handle_set_avatar, schema=AVATAR_SCHEMA)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Fortnite Family Tracker from a config entry."""
@@ -182,6 +198,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         region=entry.options.get(CONF_REGION, DEFAULT_REGION),
         lifetime_matches=coordinator.lifetime_matches,
         on_relink_required=lambda pid, name: _async_raise_relink_issue(hass, pid, name),
+        storage=storage,
     )
     entry.async_create_background_task(
         hass, coordinator.profile.async_refresh(), f"{DOMAIN}_profile_first_refresh"

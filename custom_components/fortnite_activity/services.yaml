@@ -33,3 +33,22 @@ refresh_player:
       example: "player1"
       selector:
         text:
+
+set_avatar:
+  name: Set Avatar
+  description: Use one of the player's owned outfits (from the linked Epic account) as their avatar on the card. Leave the outfit empty to clear it.
+  fields:
+    player_id:
+      name: Player Identifier
+      description: Identifier of the player (e.g. player1).
+      required: true
+      example: "player1"
+      selector:
+        text:
+    outfit_id:
+      name: Outfit ID
+      description: Owned outfit id (as listed in the card's Locker section). Empty clears the avatar.
+      required: false
+      example: "cid_028_athena_commando_f"
+      selector:
+        text:

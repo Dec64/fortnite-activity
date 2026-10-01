@@ -74,10 +74,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             # Counts and presence only; outfit IDs are not included
             "outfits": {
                 k: v for k, v in (data.get("outfits") or {}).items() if k in ("owned_count", "named_count", "shuffle", "profile_updated")
-            } | {
-                "equipped_known": bool(((data.get("outfits") or {}).get("equipped") or {}).get("name")),
-                "equipped_present": bool((data.get("outfits") or {}).get("equipped_id")),
-            },
+            } | {"avatar_set": bool((data.get("outfits") or {}).get("avatar"))},
         }
     return async_redact_data(
         {

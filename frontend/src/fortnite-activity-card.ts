@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.10.0";
+const CARD_VERSION = "1.10.1";
 
 declare global {
   interface Window {
@@ -218,6 +218,7 @@ export class FortniteActivityCard extends LitElement {
   @state() private _outfitQuery = "";
   @state() private _outfitSort: "rarity" | "name" = "rarity";
   @state() private _outfitPage = 0;
+  @state() private _selectedOutfit: string | null = null;
   private _renderedView: View | null = null;
 
   private _entityCache = new Map<string, string>();
@@ -786,15 +787,28 @@ export class FortniteActivityCard extends LitElement {
     ).length;
   }
 
-  /** Configured avatar skin (by name) wins; otherwise the outfit equipped in the linked account's locker. */
+  /** A skin name set on the card wins; otherwise the owned outfit chosen as avatar in the Locker. */
   private _avatarImage(profileAttrs: any): string | undefined {
     if ((this._config.avatar || "").trim()) return this._avatar?.icon;
-    return profileAttrs?.outfits?.equipped?.icon || undefined;
+    return profileAttrs?.outfits?.avatar?.icon || undefined;
   }
 
   private _avatarName(profileAttrs: any): string {
     if ((this._config.avatar || "").trim()) return this._avatar?.name || "";
-    return profileAttrs?.outfits?.equipped?.name || "";
+    return profileAttrs?.outfits?.avatar?.name || "";
+  }
+
+  private async _setAvatar(outfitId: string | null): Promise<void> {
+    this._loadingAction = "set_avatar";
+    try {
+      await this.hass.callService("fortnite_activity", "set_avatar", { player_id: this._player, outfit_id: outfitId || "" });
+      this._outfits = { data: { ...(this._outfits.data || {}), avatar_id: outfitId } };
+    } catch (err) {
+      console.error("Error setting Fortnite avatar:", err);
+    } finally {
+      this._loadingAction = null;
+      this._selectedOutfit = null;
+    }
   }
 
   /** One-line header for single-section cards: avatar, name, V-Bucks, live state. */
@@ -1388,7 +1402,9 @@ export class FortniteActivityCard extends LitElement {
 
   private _renderLockerView(profileAttrs: any) {
     const info = profileAttrs.outfits || {};
-    const equipped = info.equipped;
+    const avatar = info.avatar;
+    const avatarId: string | null = avatar?.id || null;
+    const cardOverride = !!(this._config.avatar || "").trim();
     const st = this._outfits;
     if (st.loading || (st.data === undefined && !st.error)) return html`<div class="empty">Loading locker…</div>`;
     if (st.error) return html`<div class="empty">${st.error}</div>`;
@@ -1402,8 +1418,8 @@ export class FortniteActivityCard extends LitElement {
     const q = this._outfitQuery.trim().toLowerCase();
     const filtered = known.filter((o) => !q || String(o.name).toLowerCase().includes(q) || String(o.set || "").toLowerCase().includes(q));
     const sorted = [...filtered].sort((a, b) => {
-      if (a.id?.toLowerCase() === info.equipped_id) return -1;
-      if (b.id?.toLowerCase() === info.equipped_id) return 1;
+      if (a.id?.toLowerCase() === avatarId) return -1;
+      if (b.id?.toLowerCase() === avatarId) return 1;
       if (this._outfitSort === "rarity") {
         const ra = rarityOrder.indexOf(this._outfitRarity(a));
         const rb = rarityOrder.indexOf(this._outfitRarity(b));
@@ -1420,14 +1436,19 @@ export class FortniteActivityCard extends LitElement {
 
     return html`
       <div class="locker">
-        <div class="locker-hero" style="--rarity:${RARITY_COLORS[this._outfitRarity(equipped)] || "var(--accent)"}">
+        <div class="locker-hero" style="--rarity:${RARITY_COLORS[this._outfitRarity(avatar)] || "var(--accent)"}">
           <div class="locker-hero-img">
-            ${equipped?.icon ? html`<img src=${equipped.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+            ${avatar?.icon ? html`<img src=${avatar.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
           </div>
           <div class="locker-hero-info">
-            <div class="bp-hero-count">Equipped${info.shuffle && info.shuffle !== "DISABLED" ? " · shuffle on" : ""}</div>
-            <div class="bp-hero-name">${equipped?.name || (info.equipped_id ? "Unknown outfit" : "Not available")}</div>
-            ${equipped?.rarity ? html`<div class="bp-hero-meta"><span>${this._outfitRarity(equipped)}</span></div>` : nothing}
+            <div class="bp-hero-count">Avatar${cardOverride ? " · this card uses its own skin setting" : ""}</div>
+            <div class="bp-hero-name">${avatar?.name || (avatarId ? "Unknown outfit" : "Not chosen")}</div>
+            <div class="bp-hero-meta">
+              ${avatar?.rarity ? html`<span>${this._outfitRarity(avatar)}</span>` : nothing}
+              ${avatarId
+                ? html`<button class="link-button" ?disabled=${this._loadingAction === "set_avatar"} @click=${() => this._setAvatar(null)}>Clear</button>`
+                : html`<span class="muted">Tap an outfit below to use it</span>`}
+            </div>
             <div class="bp-hero-types">
               <b>${this._num(all.length)}</b> outfits owned${unknown ? ` · ${unknown} not in the catalogue` : ""}
             </div>
@@ -1447,12 +1468,21 @@ export class FortniteActivityCard extends LitElement {
         ${shown.length
           ? html`<div class="bp-rewards locker-grid">
               ${shown.map((o) => {
-                const isEquipped = o.id?.toLowerCase() === info.equipped_id;
+                const id = String(o.id || "").toLowerCase();
+                const isAvatar = id === avatarId;
+                const selected = this._selectedOutfit === id;
                 return html`
-                  <div class="bp-reward ${isEquipped ? "equipped" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(o)] || "#9CA3AF"}" title="${o.name}${o.set ? ` · ${o.set}` : ""}">
+                  <div class="bp-reward locker-tile ${isAvatar ? "equipped" : ""} ${selected ? "selected" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(o)] || "#9CA3AF"}"
+                    title="${o.name}${o.set ? ` · ${o.set}` : ""}" role="button" tabindex="0"
+                    @click=${() => (this._selectedOutfit = selected ? null : id)}>
                     <div class="bp-reward-img locker-img">
                       ${o.small || o.icon ? html`<img src=${o.small || o.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
-                      ${isEquipped ? html`<span class="bp-cost included">Equipped</span>` : nothing}
+                      ${isAvatar ? html`<span class="bp-cost included">Avatar</span>` : nothing}
+                      ${selected && !isAvatar
+                        ? html`<button class="locker-use" ?disabled=${this._loadingAction === "set_avatar"}
+                            @click=${(e: Event) => { e.stopPropagation(); this._setAvatar(id); }}>
+                            ${this._loadingAction === "set_avatar" ? "Saving…" : "Use as avatar"}</button>`
+                        : nothing}
                     </div>
                     <span class="bp-reward-name">${o.name}</span>
                     <span class="bp-reward-type">${this._outfitRarity(o) || "Outfit"}</span>

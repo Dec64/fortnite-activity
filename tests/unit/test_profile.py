@@ -319,30 +319,6 @@ def test_parse_athena_outfits_identity_gate():
     assert parse_athena_outfits({"profileChanges": []}, SYNTH_ACCOUNT) is None
 
 
-def test_parse_locker_equipped():
-    from custom_components.fortnite_activity.profile import parse_locker_equipped
-
-    raw = {
-        "activeLoadoutGroup": {
-            "accountId": SYNTH_ACCOUNT,
-            "loadouts": {
-                "CosmeticLoadout:LoadoutSchema_Emotes": {"loadoutSlots": [{"slotTemplate": "x", "equippedItemId": "AthenaDance:EID_Synth"}]},
-                "CosmeticLoadout:LoadoutSchema_Character": {
-                    "shuffleType": "DISABLED",
-                    "loadoutSlots": [
-                        {"slotTemplate": "CosmeticLoadoutSlotTemplate:LoadoutSlot_Backpack", "equippedItemId": "AthenaBackpack:BID_Synth"},
-                        {"slotTemplate": "CosmeticLoadoutSlotTemplate:LoadoutSlot_Character", "equippedItemId": "AthenaCharacter:CID_Synth_A"},
-                    ],
-                },
-            },
-        }
-    }
-    assert parse_locker_equipped(raw, SYNTH_ACCOUNT) == {"outfit_id": "cid_synth_a", "shuffle": "DISABLED"}
-    raw["activeLoadoutGroup"]["accountId"] = "f" * 32
-    assert parse_locker_equipped(raw, SYNTH_ACCOUNT) is None
-    assert parse_locker_equipped({"unexpected": 1}, SYNTH_ACCOUNT) is None
-
-
 def test_outfit_records():
     from custom_components.fortnite_activity.profile import is_outfit_record, outfit_summary
 

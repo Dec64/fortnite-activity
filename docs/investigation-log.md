@@ -956,3 +956,9 @@ Following the user's `/plan` request and interactive alignment interview, design
 - The user approved (in chat) a read-only athena `QueryProfile` limited to owned outfit IDs, and a read-only Epic Locker v4 GET for the equipped outfit. Recorded in the capability matrix.
 - Avatar bug: `fortnite_activity/cosmetic` returned `null` for "Peely". Cause: the search response wraps a paginated result (`data.data`). The parser is now in `profile.cosmetic_items` and covered by a synthetic test. Misses are cached for 10 minutes instead of for the whole session.
 - The card avatar now uses the configured `avatar` name when set, otherwise the equipped outfit. The new **Locker** section lists owned outfits with search, rarity/A–Z sort and paging, with the equipped outfit first.
+
+### 2026-10-01 v1.10.1 Locker removed; avatar chosen from owned outfits
+
+- Live result of v1.10.0: athena gave 278 owned outfits. The outfit catalogue serves at most 100 items per page, so the 40-page cap indexed 4,000 outfits and named 209 of 278. The cap is now 90 pages, and `outfit_catalogue.capped` is recorded in diagnostics.
+- The Locker call failed with a DNS error (wrong host). The documented host is `fngw-svc-gc-livefn.ol.epicgames.com`, and it requires EOS-connect auth: an `api.epicgames.dev` token exchange using the game client's embedded credentials. The user was asked and chose to pick the avatar from owned outfits instead. The Locker code was removed.
+- New `fortnite_activity.set_avatar` service (player_id, outfit_id). The outfit must be in the owned list. The choice is stored in the integration's storage and exposed as `outfits.avatar` on the Profile sensor. The card's Locker section has a "Use as avatar" action. A skin name set on the card still overrides it.

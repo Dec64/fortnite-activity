@@ -41,7 +41,6 @@ from .profile import (
     parse_battlepass,
     parse_athena_outfits,
     parse_common_core,
-    parse_locker_equipped,
     is_outfit_record,
     outfit_summary,
     cosmetic_items,
@@ -68,7 +67,8 @@ WINDOW_LABELS = {
 }
 
 
-OUTFIT_INDEX_MAX_PAGES = 40
+# The catalogue serves at most 100 items per page; outfits currently need ~50 pages
+OUTFIT_INDEX_MAX_PAGES = 90
 
 
 class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -82,8 +82,10 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         region: str,
         lifetime_matches: Callable[[str], int],
         on_relink_required: Callable[[str, str], None] | None = None,
+        storage: Any = None,
     ) -> None:
         self.api_client = api_client
+        self.storage = storage
         self.players_config = players_config
         self.region = region
         self._lifetime_matches = lifetime_matches
@@ -369,7 +371,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_outfits(
         self, player_id: str, account_id: str, token: str, info: dict[str, Any], now: datetime
     ) -> None:
-        """Owned outfits (athena, every 6 h) and the equipped outfit (Locker, every refresh); user-approved reads."""
+        """Owned outfit IDs from athena (user-approved, every 6 h) and the avatar chosen from them."""
         outfits = dict(info.get("outfits") or {})
         key = f"athena:{player_id}"
         if self._stale(key, timedelta(hours=6), now):
@@ -391,36 +393,11 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     outfits["profile_updated"] = parsed["profile_updated"]
                 self._fetched_at[key] = now
 
-        key = f"locker:{player_id}"
-        try:
-            raw = await self.api_client.epic_locker_items(account_id, token)
-        except FortniteApiError as err:
-            if key not in self._failing:
-                _LOGGER.warning("Epic locker read for %s unavailable: %s", player_id, err)
-                self._failing.add(key)
-        else:
-            self._failing.discard(key)
-            from .diagnostics import shape_of
-
-            self.raw_shapes["locker"] = shape_of(raw)
-            equipped = parse_locker_equipped(raw, account_id)
-            raw = None
-            if equipped is None:
-                _LOGGER.warning("Epic locker response for %s failed the identity/shape check; ignored", player_id)
-            else:
-                outfits["equipped_id"] = equipped["outfit_id"]
-                outfits["shuffle"] = equipped["shuffle"]
-
-        if self.owned_outfits.get(player_id) or outfits.get("equipped_id"):
+        if self.owned_outfits.get(player_id):
             await self._ensure_outfit_index(now)
-            equipped_id = outfits.get("equipped_id")
-            meta = await self._outfit(equipped_id)
-            if meta:
-                outfits["equipped"] = {"id": equipped_id, "name": meta.get("name"), "icon": meta.get("icon"), "rarity": meta.get("rarity")}
-            else:
-                outfits["equipped"] = {"id": equipped_id, "name": None, "icon": None} if equipped_id else None
-            owned = self.owned_outfits.get(player_id, [])
+            owned = self.owned_outfits[player_id]
             outfits["named_count"] = sum(1 for i in owned if i in self.outfit_index)
+        outfits["avatar"] = await self._avatar_summary(player_id)
         info["outfits"] = outfits or None
 
     async def _ensure_outfit_index(self, now: datetime) -> None:
@@ -455,7 +432,10 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._fetched_at["outfit_index"] = now
         if index:
             self.outfit_index = index
-            self.outfit_index_info = {"outfits": len(index), "pages": pages, "type_filter": filtered, "built": now.isoformat()}
+            self.outfit_index_info = {
+                "outfits": len(index), "pages": pages, "type_filter": filtered, "built": now.isoformat(),
+                "capped": pages >= OUTFIT_INDEX_MAX_PAGES,
+            }
         else:
             self.outfit_index_info = {"outfits": 0, "pages": pages, "type_filter": filtered, "built": now.isoformat()}
 
@@ -472,6 +452,28 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 item = raw.get("data") if isinstance(raw, dict) and isinstance(raw.get("data"), dict) else raw
             self._cosmetic_lookups[outfit_id] = outfit_summary(item) if isinstance(item, dict) and item.get("name") else None
         return self._cosmetic_lookups[outfit_id]
+
+    async def _avatar_summary(self, player_id: str) -> dict[str, Any] | None:
+        outfit_id = self.storage.get_avatar(player_id) if self.storage else None
+        meta = await self._outfit(outfit_id)
+        if not outfit_id:
+            return None
+        return {"id": outfit_id, "name": (meta or {}).get("name"), "icon": (meta or {}).get("icon"), "rarity": (meta or {}).get("rarity")}
+
+    async def async_set_avatar(self, player_id: str, outfit_id: str | None) -> dict[str, Any] | None:
+        """Choose (or clear) an owned outfit as the player's avatar; persisted and pushed to entities."""
+        outfit_id = (outfit_id or "").strip().lower() or None
+        if outfit_id and outfit_id not in self.owned_outfits.get(player_id, []):
+            raise ValueError("That outfit is not in the player's owned outfits")
+        if self.storage:
+            self.storage.set_avatar(player_id, outfit_id)
+            await self.storage.async_save()
+        info = self._players.setdefault(player_id, {})
+        outfits = dict(info.get("outfits") or {})
+        outfits["avatar"] = await self._avatar_summary(player_id)
+        info["outfits"] = outfits
+        self.async_set_updated_data({pid: dict(i) for pid, i in self._players.items()})
+        return outfits["avatar"]
 
     def owned_outfit_list(self, player_id: str) -> list[dict[str, Any]]:
         """Owned outfits with catalogue metadata (unknown ids are returned with id only)."""

@@ -1434,4 +1434,24 @@ export const cardStyles = css`
     .locker-hero-img { width: 72px; height: 72px; }
     .locker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
   }
+
+  .locker-tile { cursor: pointer; }
+  .locker-tile.selected .bp-reward-img { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6); }
+  .locker-use {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 2px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #0b0f19;
+    cursor: pointer;
+  }
+  .link-button { font: inherit; font-size: 11px; background: none; border: none; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; }
+  .muted { opacity: 0.6; }
 `;

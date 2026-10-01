@@ -195,7 +195,6 @@ class ApiFortniteClient:
     # Direct Epic reads the user approved (2026-10-01). All are read-only; bodies are never logged
     # and errors carry only the status code.
     EPIC_QUERY_PROFILES = frozenset({"common_core", "athena"})
-    EPIC_FORTNITE_DEPLOYMENT = "62a9473a2dca46b29ccf17577fcf42d7"
 
     async def _epic_read(self, method: str, url: str, token: str, what: str, timeout: int = 20) -> Any:
         session = await self._get_session()
@@ -230,16 +229,6 @@ class ApiFortniteClient:
 
     async def epic_query_profile_common_core(self, account_id: str, token: str) -> Any:
         return await self.epic_query_profile(account_id, token, "common_core")
-
-    async def epic_locker_items(self, account_id: str, token: str) -> Any:
-        """Read-only Epic Locker service GET: the active loadouts (the caller keeps the equipped outfit only)."""
-        if not re.fullmatch(r"[0-9a-f]{32}", account_id):
-            raise FortniteApiError("Invalid account id for Epic locker read")
-        url = (
-            f"https://fngw-svcgate.ol.epicgames.com/api/locker/v4/{self.EPIC_FORTNITE_DEPLOYMENT}"
-            f"/account/{account_id}/items"
-        )
-        return await self._epic_read("GET", url, token, "locker")
 
     async def get_br_inventory(self, account_id: str, token: str) -> Any:
         """Battle Royale inventory; observed shape {stash: {globalcash: n}} (provider: V-Bucks)."""

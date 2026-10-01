@@ -899,36 +899,6 @@ def parse_athena_outfits(raw: Any, expected_account_id: str) -> dict[str, Any] |
     return {"ids": sorted(ids), "count": len(ids), "profile_updated": profile.get("updated")}
 
 
-def parse_locker_equipped(raw: Any, expected_account_id: str) -> dict[str, Any] | None:
-    """Equipped outfit from an Epic Locker v4 items response.
-
-    Shape (documented by the community, verified live via diagnostics shape): activeLoadoutGroup.loadouts
-    keyed by loadout schema, each with loadoutSlots[{slotTemplate, equippedItemId}]. A present accountId
-    that differs from the expected account rejects the response.
-    """
-    if not isinstance(raw, dict):
-        return None
-    group = raw.get("activeLoadoutGroup")
-    if not isinstance(group, dict):
-        return None
-    owner = group.get("accountId")
-    if owner is not None and owner != expected_account_id:
-        return None
-    loadouts = group.get("loadouts")
-    if not isinstance(loadouts, dict):
-        return None
-    for schema, loadout in loadouts.items():
-        if "character" not in str(schema).lower() or not isinstance(loadout, dict):
-            continue
-        for slot in loadout.get("loadoutSlots") or []:
-            if not isinstance(slot, dict) or "character" not in str(slot.get("slotTemplate", "")).lower():
-                continue
-            template = str(slot.get("equippedItemId") or "")
-            if template.startswith("AthenaCharacter:"):
-                return {"outfit_id": _template_suffix(template), "shuffle": loadout.get("shuffleType")}
-    return {"outfit_id": None, "shuffle": None}
-
-
 _OUTFIT_TYPES = {"outfit", "athenacharacter", "character"}
 
 

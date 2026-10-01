@@ -25,7 +25,7 @@ class FortniteStorage:
         """Initialize the storage helper."""
         self.hass = hass
         self._store = Store(hass, STORAGE_VERSION, STORAGE_KEY) if Store else None
-        self._data: dict[str, Any] = {"history": {}, "active": {}}
+        self._data: dict[str, Any] = {"history": {}, "active": {}, "avatars": {}}
 
     async def async_load(self) -> dict[str, Any]:
         """Load session history from storage."""
@@ -38,6 +38,7 @@ class FortniteStorage:
                 # v1.0.x layout stored {player_id: [sessions]} at the top level
                 data = {"history": data, "active": {}}
             data.setdefault("active", {})
+            data.setdefault("avatars", {})
             self._data = data
             return self._data
         except Exception as err:
@@ -71,3 +72,14 @@ class FortniteStorage:
             self._data["active"][player_id] = state
         else:
             self._data["active"].pop(player_id, None)
+
+    def get_avatar(self, player_id: str) -> str | None:
+        """Owned outfit id chosen as the player's avatar."""
+        return self._data["avatars"].get(player_id)
+
+    def set_avatar(self, player_id: str, outfit_id: str | None) -> None:
+        """Set (or clear) the player's avatar outfit id (caller saves)."""
+        if outfit_id:
+            self._data["avatars"][player_id] = outfit_id
+        else:
+            self._data["avatars"].pop(player_id, None)
