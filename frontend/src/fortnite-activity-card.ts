@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.7.0";
+const CARD_VERSION = "1.7.1";
 
 declare global {
   interface Window {
@@ -627,7 +627,9 @@ export class FortniteActivityCard extends LitElement {
     const avatarImg = this._avatar?.icon;
     const badgeSize = this._config.compact ? 20 : 24;
     const vbucks = this._findEntity("sensor", "vbucks");
-    const showVbucks = !this._config.hide_vbucks && vbucks && !isNaN(Number(vbucks.state));
+    // The provider's stash.globalcash read 0 for an account that should hold V-Bucks; until the source is
+    // confirmed against the in-game balance, a zero is not shown as a balance.
+    const showVbucks = !this._config.hide_vbucks && vbucks && Number(vbucks.state) > 0;
 
     return html`
       <div class="fa-header">

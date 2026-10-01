@@ -933,3 +933,8 @@ Following the user's `/plan` request and interactive alignment interview, design
 - **Observed live**: `tournamentType` values CashCup, FNCS, RankedCup, ShopCup, VictoryCup, WorkshopCup; `canLiveSpectate` true for some cash cups. UI shows Epic's type and "Spectate in-game"; FNCS gets a channel link with an explicit note that per-session broadcast is not in the data.
 - **Observed live (status-only checks)**: with the linked token, `/v2/quests/{id}` = 200, `/v2/battlepass` = 200, `/v2/fn/br-inventory/{id}` = 200 (all previously failing in research). Battle Pass catalogue now parsed per `BattlePassCatalog`; quests remain untyped, so only structure and a 3-item sample are captured in diagnostics before any UI. Inventory is not fetched or shown (V-Bucks; needs the user's say-so).
 - Trend sensors carry `state_class`; the card's Trends tab reads recorder statistics (daily, falling back to hourly while history is short).
+
+### 2026-10-01 v1.7.x V-Bucks and quest summary
+
+- **Observed live**: `/v2/fn/br-inventory/{id}` returns only `stash.globalcash = 0` for the linked account (same as the 15 Sept evidence). The account's Crew subscription makes a true zero V-Bucks balance unlikely, so `globalcash` is treated as **unverified as V-Bucks**: the sensor keeps the raw value, the card does not display a zero. Real balances are `Currency:Mtx*` items in Epic's `common_core` profile (direct `QueryProfile`), which needs a separate user decision.
+- **Observed live**: quests 850 total, 601 Active / 249 Claimed; shown as counts only. Definition-source research in `docs/quest-definition-sources.md`.
