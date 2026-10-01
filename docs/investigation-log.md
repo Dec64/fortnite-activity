@@ -950,3 +950,9 @@ Following the user's `/plan` request and interactive alignment interview, design
 - Star totals per set are summed from the reward `cost` fields. V-Bucks per set are the `quantity` of Currency rewards with the MTX icon. Claimed/owned state is still unavailable (no athena reads), and the card says so.
 - Observed: 107 of 150 rewards have icon URLs, and all 107 loaded. The earlier blank tiles came from lazy-loading inside the scroll container, not from missing data.
 - The card has new options: `sections` (any combination, in order), `default_section` and `header` (full/slim/none). The legacy `layout`/`show_tournaments` options still map to sections.
+
+### 2026-10-01 v1.10.0 Owned outfits, equipped-outfit avatar, avatar search fix
+
+- The user approved (in chat) a read-only athena `QueryProfile` limited to owned outfit IDs, and a read-only Epic Locker v4 GET for the equipped outfit. Recorded in the capability matrix.
+- Avatar bug: `fortnite_activity/cosmetic` returned `null` for "Peely". Cause: the search response wraps a paginated result (`data.data`). The parser is now in `profile.cosmetic_items` and covered by a synthetic test. Misses are cached for 10 minutes instead of for the whole session.
+- The card avatar now uses the configured `avatar` name when set, otherwise the equipped outfit. The new **Locker** section lists owned outfits with search, rarity/A–Z sort and paging, with the equipped outfit first.

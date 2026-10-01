@@ -1,6 +1,6 @@
-var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e,t)=>{for(var a=t>1?void 0:t?tt(s,e):s,i=o.length-1,r;i>=0;i--)(r=o[i])&&(a=(t?r(s,e,a):r(a))||a);return t&&a&&et(s,e,a),a};var te=globalThis,ae=te.ShadowRoot&&(te.ShadyCSS===void 0||te.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,de=Symbol(),Ae=new WeakMap,V=class{constructor(s,e,t){if(this._$cssResult$=!0,t!==de)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=s,this.t=e}get styleSheet(){let s=this.o,e=this.t;if(ae&&s===void 0){let t=e!==void 0&&e.length===1;t&&(s=Ae.get(e)),s===void 0&&((this.o=s=new CSSStyleSheet).replaceSync(this.cssText),t&&Ae.set(e,s))}return s}toString(){return this.cssText}},Me=o=>new V(typeof o=="string"?o:o+"",void 0,de),H=(o,...s)=>{let e=o.length===1?o[0]:s.reduce((t,a,i)=>t+(r=>{if(r._$cssResult$===!0)return r.cssText;if(typeof r=="number")return r;throw Error("Value passed to 'css' function must be a 'css' function result: "+r+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(a)+o[i+1],o[0]);return new V(e,o,de)},Re=(o,s)=>{if(ae)o.adoptedStyleSheets=s.map(e=>e instanceof CSSStyleSheet?e:e.styleSheet);else for(let e of s){let t=document.createElement("style"),a=te.litNonce;a!==void 0&&t.setAttribute("nonce",a),t.textContent=e.cssText,o.appendChild(t)}},pe=ae?o=>o:o=>o instanceof CSSStyleSheet?(s=>{let e="";for(let t of s.cssRules)e+=t.cssText;return Me(e)})(o):o;var{is:at,defineProperty:st,getOwnPropertyDescriptor:it,getOwnPropertyNames:rt,getOwnPropertySymbols:nt,getPrototypeOf:ot}=Object,se=globalThis,ze=se.trustedTypes,lt=ze?ze.emptyScript:"",ct=se.reactiveElementPolyfillSupport,I=(o,s)=>o,W={toAttribute(o,s){switch(s){case Boolean:o=o?lt:null;break;case Object:case Array:o=o==null?o:JSON.stringify(o)}return o},fromAttribute(o,s){let e=o;switch(s){case Boolean:e=o!==null;break;case Number:e=o===null?null:Number(o);break;case Object:case Array:try{e=JSON.parse(o)}catch{e=null}}return e}},ie=(o,s)=>!at(o,s),Fe={attribute:!0,type:String,converter:W,reflect:!1,useDefault:!1,hasChanged:ie};Symbol.metadata??=Symbol("metadata"),se.litPropertyMetadata??=new WeakMap;var M=class extends HTMLElement{static addInitializer(s){this._$Ei(),(this.l??=[]).push(s)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(s,e=Fe){if(e.state&&(e.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(s)&&((e=Object.create(e)).wrapped=!0),this.elementProperties.set(s,e),!e.noAccessor){let t=Symbol(),a=this.getPropertyDescriptor(s,t,e);a!==void 0&&st(this.prototype,s,a)}}static getPropertyDescriptor(s,e,t){let{get:a,set:i}=it(this.prototype,s)??{get(){return this[e]},set(r){this[e]=r}};return{get:a,set(r){let c=a?.call(this);i?.call(this,r),this.requestUpdate(s,c,t)},configurable:!0,enumerable:!0}}static getPropertyOptions(s){return this.elementProperties.get(s)??Fe}static _$Ei(){if(this.hasOwnProperty(I("elementProperties")))return;let s=ot(this);s.finalize(),s.l!==void 0&&(this.l=[...s.l]),this.elementProperties=new Map(s.elementProperties)}static finalize(){if(this.hasOwnProperty(I("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(I("properties"))){let e=this.properties,t=[...rt(e),...nt(e)];for(let a of t)this.createProperty(a,e[a])}let s=this[Symbol.metadata];if(s!==null){let e=litPropertyMetadata.get(s);if(e!==void 0)for(let[t,a]of e)this.elementProperties.set(t,a)}this._$Eh=new Map;for(let[e,t]of this.elementProperties){let a=this._$Eu(e,t);a!==void 0&&this._$Eh.set(a,e)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(s){let e=[];if(Array.isArray(s)){let t=new Set(s.flat(1/0).reverse());for(let a of t)e.unshift(pe(a))}else s!==void 0&&e.push(pe(s));return e}static _$Eu(s,e){let t=e.attribute;return t===!1?void 0:typeof t=="string"?t:typeof s=="string"?s.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(s=>this.enableUpdating=s),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(s=>s(this))}addController(s){(this._$EO??=new Set).add(s),this.renderRoot!==void 0&&this.isConnected&&s.hostConnected?.()}removeController(s){this._$EO?.delete(s)}_$E_(){let s=new Map,e=this.constructor.elementProperties;for(let t of e.keys())this.hasOwnProperty(t)&&(s.set(t,this[t]),delete this[t]);s.size>0&&(this._$Ep=s)}createRenderRoot(){let s=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return Re(s,this.constructor.elementStyles),s}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(s=>s.hostConnected?.())}enableUpdating(s){}disconnectedCallback(){this._$EO?.forEach(s=>s.hostDisconnected?.())}attributeChangedCallback(s,e,t){this._$AK(s,t)}_$ET(s,e){let t=this.constructor.elementProperties.get(s),a=this.constructor._$Eu(s,t);if(a!==void 0&&t.reflect===!0){let i=(t.converter?.toAttribute!==void 0?t.converter:W).toAttribute(e,t.type);this._$Em=s,i==null?this.removeAttribute(a):this.setAttribute(a,i),this._$Em=null}}_$AK(s,e){let t=this.constructor,a=t._$Eh.get(s);if(a!==void 0&&this._$Em!==a){let i=t.getPropertyOptions(a),r=typeof i.converter=="function"?{fromAttribute:i.converter}:i.converter?.fromAttribute!==void 0?i.converter:W;this._$Em=a;let c=r.fromAttribute(e,i.type);this[a]=c??this._$Ej?.get(a)??c,this._$Em=null}}requestUpdate(s,e,t,a=!1,i){if(s!==void 0){let r=this.constructor;if(a===!1&&(i=this[s]),t??=r.getPropertyOptions(s),!((t.hasChanged??ie)(i,e)||t.useDefault&&t.reflect&&i===this._$Ej?.get(s)&&!this.hasAttribute(r._$Eu(s,t))))return;this.C(s,e,t)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(s,e,{useDefault:t,reflect:a,wrapped:i},r){t&&!(this._$Ej??=new Map).has(s)&&(this._$Ej.set(s,r??e??this[s]),i!==!0||r!==void 0)||(this._$AL.has(s)||(this.hasUpdated||t||(e=void 0),this._$AL.set(s,e)),a===!0&&this._$Em!==s&&(this._$Eq??=new Set).add(s))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(e){Promise.reject(e)}let s=this.scheduleUpdate();return s!=null&&await s,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(let[a,i]of this._$Ep)this[a]=i;this._$Ep=void 0}let t=this.constructor.elementProperties;if(t.size>0)for(let[a,i]of t){let{wrapped:r}=i,c=this[a];r!==!0||this._$AL.has(a)||c===void 0||this.C(a,void 0,i,c)}}let s=!1,e=this._$AL;try{s=this.shouldUpdate(e),s?(this.willUpdate(e),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(e)):this._$EM()}catch(t){throw s=!1,this._$EM(),t}s&&this._$AE(e)}willUpdate(s){}_$AE(s){this._$EO?.forEach(e=>e.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(s)),this.updated(s)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(s){return!0}update(s){this._$Eq&&=this._$Eq.forEach(e=>this._$ET(e,this[e])),this._$EM()}updated(s){}firstUpdated(s){}};M.elementStyles=[],M.shadowRootOptions={mode:"open"},M[I("elementProperties")]=new Map,M[I("finalized")]=new Map,ct?.({ReactiveElement:M}),(se.reactiveElementVersions??=[]).push("2.1.2");var ve=globalThis,Pe=o=>o,re=ve.trustedTypes,Le=re?re.createPolicy("lit-html",{createHTML:o=>o}):void 0,Ue="$lit$",F=`lit$${Math.random().toFixed(9).slice(2)}$`,je="?"+F,dt=`<${je}>`,T=document,K=()=>T.createComment(""),G=o=>o===null||typeof o!="object"&&typeof o!="function",_e=Array.isArray,pt=o=>_e(o)||typeof o?.[Symbol.iterator]=="function",he=`[ 	
-\f\r]`,q=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,Te=/-->/g,Be=/>/g,P=RegExp(`>|${he}(?:([^\\s"'>=/]+)(${he}*=${he}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`,"g"),De=/'/g,Ne=/"/g,Ve=/^(?:script|style|textarea|title)$/i,xe=o=>(s,...e)=>({_$litType$:o,strings:s,values:e}),n=xe(1),R=xe(2),Mt=xe(3),B=Symbol.for("lit-noChange"),d=Symbol.for("lit-nothing"),Oe=new WeakMap,L=T.createTreeWalker(T,129);function He(o,s){if(!_e(o)||!o.hasOwnProperty("raw"))throw Error("invalid template strings array");return Le!==void 0?Le.createHTML(s):s}var ht=(o,s)=>{let e=o.length-1,t=[],a,i=s===2?"<svg>":s===3?"<math>":"",r=q;for(let c=0;c<e;c++){let l=o[c],h,m,u=-1,_=0;for(;_<l.length&&(r.lastIndex=_,m=r.exec(l),m!==null);)_=r.lastIndex,r===q?m[1]==="!--"?r=Te:m[1]!==void 0?r=Be:m[2]!==void 0?(Ve.test(m[2])&&(a=RegExp("</"+m[2],"g")),r=P):m[3]!==void 0&&(r=P):r===P?m[0]===">"?(r=a??q,u=-1):m[1]===void 0?u=-2:(u=r.lastIndex-m[2].length,h=m[1],r=m[3]===void 0?P:m[3]==='"'?Ne:De):r===Ne||r===De?r=P:r===Te||r===Be?r=q:(r=P,a=void 0);let f=r===P&&o[c+1].startsWith("/>")?" ":"";i+=r===q?l+dt:u>=0?(t.push(h),l.slice(0,u)+Ue+l.slice(u)+F+f):l+F+(u===-2?c:f)}return[He(o,i+(o[e]||"<?>")+(s===2?"</svg>":s===3?"</math>":"")),t]},Z=class o{constructor({strings:s,_$litType$:e},t){let a;this.parts=[];let i=0,r=0,c=s.length-1,l=this.parts,[h,m]=ht(s,e);if(this.el=o.createElement(h,t),L.currentNode=this.el.content,e===2||e===3){let u=this.el.content.firstChild;u.replaceWith(...u.childNodes)}for(;(a=L.nextNode())!==null&&l.length<c;){if(a.nodeType===1){if(a.hasAttributes())for(let u of a.getAttributeNames())if(u.endsWith(Ue)){let _=m[r++],f=a.getAttribute(u).split(F),x=/([.?@])?(.*)/.exec(_);l.push({type:1,index:i,name:x[2],strings:f,ctor:x[1]==="."?ge:x[1]==="?"?me:x[1]==="@"?be:O}),a.removeAttribute(u)}else u.startsWith(F)&&(l.push({type:6,index:i}),a.removeAttribute(u));if(Ve.test(a.tagName)){let u=a.textContent.split(F),_=u.length-1;if(_>0){a.textContent=re?re.emptyScript:"";for(let f=0;f<_;f++)a.append(u[f],K()),L.nextNode(),l.push({type:2,index:++i});a.append(u[_],K())}}}else if(a.nodeType===8)if(a.data===je)l.push({type:2,index:i});else{let u=-1;for(;(u=a.data.indexOf(F,u+1))!==-1;)l.push({type:7,index:i}),u+=F.length-1}i++}}static createElement(s,e){let t=T.createElement("template");return t.innerHTML=s,t}};function N(o,s,e=o,t){if(s===B)return s;let a=t!==void 0?e._$Co?.[t]:e._$Cl,i=G(s)?void 0:s._$litDirective$;return a?.constructor!==i&&(a?._$AO?.(!1),i===void 0?a=void 0:(a=new i(o),a._$AT(o,e,t)),t!==void 0?(e._$Co??=[])[t]=a:e._$Cl=a),a!==void 0&&(s=N(o,a._$AS(o,s.values),a,t)),s}var ue=class{constructor(s,e){this._$AV=[],this._$AN=void 0,this._$AD=s,this._$AM=e}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(s){let{el:{content:e},parts:t}=this._$AD,a=(s?.creationScope??T).importNode(e,!0);L.currentNode=a;let i=L.nextNode(),r=0,c=0,l=t[0];for(;l!==void 0;){if(r===l.index){let h;l.type===2?h=new Y(i,i.nextSibling,this,s):l.type===1?h=new l.ctor(i,l.name,l.strings,this,s):l.type===6&&(h=new fe(i,this,s)),this._$AV.push(h),l=t[++c]}r!==l?.index&&(i=L.nextNode(),r++)}return L.currentNode=T,a}p(s){let e=0;for(let t of this._$AV)t!==void 0&&(t.strings!==void 0?(t._$AI(s,t,e),e+=t.strings.length-2):t._$AI(s[e])),e++}},Y=class o{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(s,e,t,a){this.type=2,this._$AH=d,this._$AN=void 0,this._$AA=s,this._$AB=e,this._$AM=t,this.options=a,this._$Cv=a?.isConnected??!0}get parentNode(){let s=this._$AA.parentNode,e=this._$AM;return e!==void 0&&s?.nodeType===11&&(s=e.parentNode),s}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(s,e=this){s=N(this,s,e),G(s)?s===d||s==null||s===""?(this._$AH!==d&&this._$AR(),this._$AH=d):s!==this._$AH&&s!==B&&this._(s):s._$litType$!==void 0?this.$(s):s.nodeType!==void 0?this.T(s):pt(s)?this.k(s):this._(s)}O(s){return this._$AA.parentNode.insertBefore(s,this._$AB)}T(s){this._$AH!==s&&(this._$AR(),this._$AH=this.O(s))}_(s){this._$AH!==d&&G(this._$AH)?this._$AA.nextSibling.data=s:this.T(T.createTextNode(s)),this._$AH=s}$(s){let{values:e,_$litType$:t}=s,a=typeof t=="number"?this._$AC(s):(t.el===void 0&&(t.el=Z.createElement(He(t.h,t.h[0]),this.options)),t);if(this._$AH?._$AD===a)this._$AH.p(e);else{let i=new ue(a,this),r=i.u(this.options);i.p(e),this.T(r),this._$AH=i}}_$AC(s){let e=Oe.get(s.strings);return e===void 0&&Oe.set(s.strings,e=new Z(s)),e}k(s){_e(this._$AH)||(this._$AH=[],this._$AR());let e=this._$AH,t,a=0;for(let i of s)a===e.length?e.push(t=new o(this.O(K()),this.O(K()),this,this.options)):t=e[a],t._$AI(i),a++;a<e.length&&(this._$AR(t&&t._$AB.nextSibling,a),e.length=a)}_$AR(s=this._$AA.nextSibling,e){for(this._$AP?.(!1,!0,e);s!==this._$AB;){let t=Pe(s).nextSibling;Pe(s).remove(),s=t}}setConnected(s){this._$AM===void 0&&(this._$Cv=s,this._$AP?.(s))}},O=class{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(s,e,t,a,i){this.type=1,this._$AH=d,this._$AN=void 0,this.element=s,this.name=e,this._$AM=a,this.options=i,t.length>2||t[0]!==""||t[1]!==""?(this._$AH=Array(t.length-1).fill(new String),this.strings=t):this._$AH=d}_$AI(s,e=this,t,a){let i=this.strings,r=!1;if(i===void 0)s=N(this,s,e,0),r=!G(s)||s!==this._$AH&&s!==B,r&&(this._$AH=s);else{let c=s,l,h;for(s=i[0],l=0;l<i.length-1;l++)h=N(this,c[t+l],e,l),h===B&&(h=this._$AH[l]),r||=!G(h)||h!==this._$AH[l],h===d?s=d:s!==d&&(s+=(h??"")+i[l+1]),this._$AH[l]=h}r&&!a&&this.j(s)}j(s){s===d?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,s??"")}},ge=class extends O{constructor(){super(...arguments),this.type=3}j(s){this.element[this.name]=s===d?void 0:s}},me=class extends O{constructor(){super(...arguments),this.type=4}j(s){this.element.toggleAttribute(this.name,!!s&&s!==d)}},be=class extends O{constructor(s,e,t,a,i){super(s,e,t,a,i),this.type=5}_$AI(s,e=this){if((s=N(this,s,e,0)??d)===B)return;let t=this._$AH,a=s===d&&t!==d||s.capture!==t.capture||s.once!==t.once||s.passive!==t.passive,i=s!==d&&(t===d||a);a&&this.element.removeEventListener(this.name,this,t),i&&this.element.addEventListener(this.name,this,s),this._$AH=s}handleEvent(s){typeof this._$AH=="function"?this._$AH.call(this.options?.host??this.element,s):this._$AH.handleEvent(s)}},fe=class{constructor(s,e,t){this.element=s,this.type=6,this._$AN=void 0,this._$AM=e,this.options=t}get _$AU(){return this._$AM._$AU}_$AI(s){N(this,s)}};var ut=ve.litHtmlPolyfillSupport;ut?.(Z,Y),(ve.litHtmlVersions??=[]).push("3.3.3");var Ie=(o,s,e)=>{let t=e?.renderBefore??s,a=t._$litPart$;if(a===void 0){let i=e?.renderBefore??null;t._$litPart$=a=new Y(s.insertBefore(K(),i),i,void 0,e??{})}return a._$AI(o),a};var ye=globalThis,A=class extends M{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){let s=super.createRenderRoot();return this.renderOptions.renderBefore??=s.firstChild,s}update(s){let e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(s),this._$Do=Ie(e,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return B}};A._$litElement$=!0,A.finalized=!0,ye.litElementHydrateSupport?.({LitElement:A});var gt=ye.litElementPolyfillSupport;gt?.({LitElement:A});(ye.litElementVersions??=[]).push("4.2.2");var mt={attribute:!0,type:String,converter:W,reflect:!1,hasChanged:ie},bt=(o=mt,s,e)=>{let{kind:t,metadata:a}=e,i=globalThis.litPropertyMetadata.get(a);if(i===void 0&&globalThis.litPropertyMetadata.set(a,i=new Map),t==="setter"&&((o=Object.create(o)).wrapped=!0),i.set(e.name,o),t==="accessor"){let{name:r}=e;return{set(c){let l=s.get.call(this);s.set.call(this,c),this.requestUpdate(r,l,o,!0,c)},init(c){return c!==void 0&&this.C(r,void 0,o,c),c}}}if(t==="setter"){let{name:r}=e;return function(c){let l=this[r];s.call(this,c),this.requestUpdate(r,l,o,!0,c)}}throw Error("Unsupported decorator location: "+t)};function U(o){return(s,e)=>typeof e=="object"?bt(o,s,e):((t,a,i)=>{let r=a.hasOwnProperty(i);return a.constructor.createProperty(i,t),r?Object.getOwnPropertyDescriptor(a,i):void 0})(o,s,e)}function w(o){return U({...o,state:!0,attribute:!1})}var We=H`
+var ee=Object.defineProperty;var ae=Object.getOwnPropertyDescriptor;var x=(l,i,t,e)=>{for(var a=e>1?void 0:e?ae(i,t):i,s=l.length-1,r;s>=0;s--)(r=l[s])&&(a=(e?r(i,t,a):r(a))||a);return e&&a&&ee(i,t,a),a};var at=globalThis,it=at.ShadowRoot&&(at.ShadyCSS===void 0||at.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,dt=Symbol(),Rt=new WeakMap,I=class{constructor(i,t,e){if(this._$cssResult$=!0,e!==dt)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=i,this.t=t}get styleSheet(){let i=this.o,t=this.t;if(it&&i===void 0){let e=t!==void 0&&t.length===1;e&&(i=Rt.get(t)),i===void 0&&((this.o=i=new CSSStyleSheet).replaceSync(this.cssText),e&&Rt.set(t,i))}return i}toString(){return this.cssText}},zt=l=>new I(typeof l=="string"?l:l+"",void 0,dt),W=(l,...i)=>{let t=l.length===1?l[0]:i.reduce((e,a,s)=>e+(r=>{if(r._$cssResult$===!0)return r.cssText;if(typeof r=="number")return r;throw Error("Value passed to 'css' function must be a 'css' function result: "+r+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(a)+l[s+1],l[0]);return new I(t,l,dt)},Pt=(l,i)=>{if(it)l.adoptedStyleSheets=i.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(let t of i){let e=document.createElement("style"),a=at.litNonce;a!==void 0&&e.setAttribute("nonce",a),e.textContent=t.cssText,l.appendChild(e)}},pt=it?l=>l:l=>l instanceof CSSStyleSheet?(i=>{let t="";for(let e of i.cssRules)t+=e.cssText;return zt(t)})(l):l;var{is:ie,defineProperty:se,getOwnPropertyDescriptor:re,getOwnPropertyNames:ne,getOwnPropertySymbols:oe,getPrototypeOf:le}=Object,st=globalThis,Lt=st.trustedTypes,ce=Lt?Lt.emptyScript:"",de=st.reactiveElementPolyfillSupport,q=(l,i)=>l,K={toAttribute(l,i){switch(i){case Boolean:l=l?ce:null;break;case Object:case Array:l=l==null?l:JSON.stringify(l)}return l},fromAttribute(l,i){let t=l;switch(i){case Boolean:t=l!==null;break;case Number:t=l===null?null:Number(l);break;case Object:case Array:try{t=JSON.parse(l)}catch{t=null}}return t}},rt=(l,i)=>!ie(l,i),Ft={attribute:!0,type:String,converter:K,reflect:!1,useDefault:!1,hasChanged:rt};Symbol.metadata??=Symbol("metadata"),st.litPropertyMetadata??=new WeakMap;var z=class extends HTMLElement{static addInitializer(i){this._$Ei(),(this.l??=[]).push(i)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(i,t=Ft){if(t.state&&(t.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(i)&&((t=Object.create(t)).wrapped=!0),this.elementProperties.set(i,t),!t.noAccessor){let e=Symbol(),a=this.getPropertyDescriptor(i,e,t);a!==void 0&&se(this.prototype,i,a)}}static getPropertyDescriptor(i,t,e){let{get:a,set:s}=re(this.prototype,i)??{get(){return this[t]},set(r){this[t]=r}};return{get:a,set(r){let c=a?.call(this);s?.call(this,r),this.requestUpdate(i,c,e)},configurable:!0,enumerable:!0}}static getPropertyOptions(i){return this.elementProperties.get(i)??Ft}static _$Ei(){if(this.hasOwnProperty(q("elementProperties")))return;let i=le(this);i.finalize(),i.l!==void 0&&(this.l=[...i.l]),this.elementProperties=new Map(i.elementProperties)}static finalize(){if(this.hasOwnProperty(q("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(q("properties"))){let t=this.properties,e=[...ne(t),...oe(t)];for(let a of e)this.createProperty(a,t[a])}let i=this[Symbol.metadata];if(i!==null){let t=litPropertyMetadata.get(i);if(t!==void 0)for(let[e,a]of t)this.elementProperties.set(e,a)}this._$Eh=new Map;for(let[t,e]of this.elementProperties){let a=this._$Eu(t,e);a!==void 0&&this._$Eh.set(a,t)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(i){let t=[];if(Array.isArray(i)){let e=new Set(i.flat(1/0).reverse());for(let a of e)t.unshift(pt(a))}else i!==void 0&&t.push(pt(i));return t}static _$Eu(i,t){let e=t.attribute;return e===!1?void 0:typeof e=="string"?e:typeof i=="string"?i.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(i=>this.enableUpdating=i),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(i=>i(this))}addController(i){(this._$EO??=new Set).add(i),this.renderRoot!==void 0&&this.isConnected&&i.hostConnected?.()}removeController(i){this._$EO?.delete(i)}_$E_(){let i=new Map,t=this.constructor.elementProperties;for(let e of t.keys())this.hasOwnProperty(e)&&(i.set(e,this[e]),delete this[e]);i.size>0&&(this._$Ep=i)}createRenderRoot(){let i=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return Pt(i,this.constructor.elementStyles),i}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(i=>i.hostConnected?.())}enableUpdating(i){}disconnectedCallback(){this._$EO?.forEach(i=>i.hostDisconnected?.())}attributeChangedCallback(i,t,e){this._$AK(i,e)}_$ET(i,t){let e=this.constructor.elementProperties.get(i),a=this.constructor._$Eu(i,e);if(a!==void 0&&e.reflect===!0){let s=(e.converter?.toAttribute!==void 0?e.converter:K).toAttribute(t,e.type);this._$Em=i,s==null?this.removeAttribute(a):this.setAttribute(a,s),this._$Em=null}}_$AK(i,t){let e=this.constructor,a=e._$Eh.get(i);if(a!==void 0&&this._$Em!==a){let s=e.getPropertyOptions(a),r=typeof s.converter=="function"?{fromAttribute:s.converter}:s.converter?.fromAttribute!==void 0?s.converter:K;this._$Em=a;let c=r.fromAttribute(t,s.type);this[a]=c??this._$Ej?.get(a)??c,this._$Em=null}}requestUpdate(i,t,e,a=!1,s){if(i!==void 0){let r=this.constructor;if(a===!1&&(s=this[i]),e??=r.getPropertyOptions(i),!((e.hasChanged??rt)(s,t)||e.useDefault&&e.reflect&&s===this._$Ej?.get(i)&&!this.hasAttribute(r._$Eu(i,e))))return;this.C(i,t,e)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(i,t,{useDefault:e,reflect:a,wrapped:s},r){e&&!(this._$Ej??=new Map).has(i)&&(this._$Ej.set(i,r??t??this[i]),s!==!0||r!==void 0)||(this._$AL.has(i)||(this.hasUpdated||e||(t=void 0),this._$AL.set(i,t)),a===!0&&this._$Em!==i&&(this._$Eq??=new Set).add(i))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(t){Promise.reject(t)}let i=this.scheduleUpdate();return i!=null&&await i,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(let[a,s]of this._$Ep)this[a]=s;this._$Ep=void 0}let e=this.constructor.elementProperties;if(e.size>0)for(let[a,s]of e){let{wrapped:r}=s,c=this[a];r!==!0||this._$AL.has(a)||c===void 0||this.C(a,void 0,s,c)}}let i=!1,t=this._$AL;try{i=this.shouldUpdate(t),i?(this.willUpdate(t),this._$EO?.forEach(e=>e.hostUpdate?.()),this.update(t)):this._$EM()}catch(e){throw i=!1,this._$EM(),e}i&&this._$AE(t)}willUpdate(i){}_$AE(i){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(i)),this.updated(i)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(i){return!0}update(i){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM()}updated(i){}firstUpdated(i){}};z.elementStyles=[],z.shadowRootOptions={mode:"open"},z[q("elementProperties")]=new Map,z[q("finalized")]=new Map,de?.({ReactiveElement:z}),(st.reactiveElementVersions??=[]).push("2.1.2");var vt=globalThis,Tt=l=>l,nt=vt.trustedTypes,Bt=nt?nt.createPolicy("lit-html",{createHTML:l=>l}):void 0,Vt="$lit$",L=`lit$${Math.random().toFixed(9).slice(2)}$`,Ht="?"+L,pe=`<${Ht}>`,B=document,Z=()=>B.createComment(""),Q=l=>l===null||typeof l!="object"&&typeof l!="function",_t=Array.isArray,he=l=>_t(l)||typeof l?.[Symbol.iterator]=="function",ht=`[ 	
+\f\r]`,G=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,Dt=/-->/g,Ot=/>/g,F=RegExp(`>|${ht}(?:([^\\s"'>=/]+)(${ht}*=${ht}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`,"g"),Nt=/'/g,Ut=/"/g,It=/^(?:script|style|textarea|title)$/i,yt=l=>(i,...t)=>({_$litType$:l,strings:i,values:t}),n=yt(1),P=yt(2),Re=yt(3),D=Symbol.for("lit-noChange"),d=Symbol.for("lit-nothing"),jt=new WeakMap,T=B.createTreeWalker(B,129);function Wt(l,i){if(!_t(l)||!l.hasOwnProperty("raw"))throw Error("invalid template strings array");return Bt!==void 0?Bt.createHTML(i):i}var ue=(l,i)=>{let t=l.length-1,e=[],a,s=i===2?"<svg>":i===3?"<math>":"",r=G;for(let c=0;c<t;c++){let o=l[c],h,b,u=-1,_=0;for(;_<o.length&&(r.lastIndex=_,b=r.exec(o),b!==null);)_=r.lastIndex,r===G?b[1]==="!--"?r=Dt:b[1]!==void 0?r=Ot:b[2]!==void 0?(It.test(b[2])&&(a=RegExp("</"+b[2],"g")),r=F):b[3]!==void 0&&(r=F):r===F?b[0]===">"?(r=a??G,u=-1):b[1]===void 0?u=-2:(u=r.lastIndex-b[2].length,h=b[1],r=b[3]===void 0?F:b[3]==='"'?Ut:Nt):r===Ut||r===Nt?r=F:r===Dt||r===Ot?r=G:(r=F,a=void 0);let v=r===F&&l[c+1].startsWith("/>")?" ":"";s+=r===G?o+pe:u>=0?(e.push(h),o.slice(0,u)+Vt+o.slice(u)+L+v):o+L+(u===-2?c:v)}return[Wt(l,s+(l[t]||"<?>")+(i===2?"</svg>":i===3?"</math>":"")),e]},Y=class l{constructor({strings:i,_$litType$:t},e){let a;this.parts=[];let s=0,r=0,c=i.length-1,o=this.parts,[h,b]=ue(i,t);if(this.el=l.createElement(h,e),T.currentNode=this.el.content,t===2||t===3){let u=this.el.content.firstChild;u.replaceWith(...u.childNodes)}for(;(a=T.nextNode())!==null&&o.length<c;){if(a.nodeType===1){if(a.hasAttributes())for(let u of a.getAttributeNames())if(u.endsWith(Vt)){let _=b[r++],v=a.getAttribute(u).split(L),y=/([.?@])?(.*)/.exec(_);o.push({type:1,index:s,name:y[2],strings:v,ctor:y[1]==="."?gt:y[1]==="?"?mt:y[1]==="@"?bt:j}),a.removeAttribute(u)}else u.startsWith(L)&&(o.push({type:6,index:s}),a.removeAttribute(u));if(It.test(a.tagName)){let u=a.textContent.split(L),_=u.length-1;if(_>0){a.textContent=nt?nt.emptyScript:"";for(let v=0;v<_;v++)a.append(u[v],Z()),T.nextNode(),o.push({type:2,index:++s});a.append(u[_],Z())}}}else if(a.nodeType===8)if(a.data===Ht)o.push({type:2,index:s});else{let u=-1;for(;(u=a.data.indexOf(L,u+1))!==-1;)o.push({type:7,index:s}),u+=L.length-1}s++}}static createElement(i,t){let e=B.createElement("template");return e.innerHTML=i,e}};function U(l,i,t=l,e){if(i===D)return i;let a=e!==void 0?t._$Co?.[e]:t._$Cl,s=Q(i)?void 0:i._$litDirective$;return a?.constructor!==s&&(a?._$AO?.(!1),s===void 0?a=void 0:(a=new s(l),a._$AT(l,t,e)),e!==void 0?(t._$Co??=[])[e]=a:t._$Cl=a),a!==void 0&&(i=U(l,a._$AS(l,i.values),a,e)),i}var ut=class{constructor(i,t){this._$AV=[],this._$AN=void 0,this._$AD=i,this._$AM=t}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(i){let{el:{content:t},parts:e}=this._$AD,a=(i?.creationScope??B).importNode(t,!0);T.currentNode=a;let s=T.nextNode(),r=0,c=0,o=e[0];for(;o!==void 0;){if(r===o.index){let h;o.type===2?h=new X(s,s.nextSibling,this,i):o.type===1?h=new o.ctor(s,o.name,o.strings,this,i):o.type===6&&(h=new ft(s,this,i)),this._$AV.push(h),o=e[++c]}r!==o?.index&&(s=T.nextNode(),r++)}return T.currentNode=B,a}p(i){let t=0;for(let e of this._$AV)e!==void 0&&(e.strings!==void 0?(e._$AI(i,e,t),t+=e.strings.length-2):e._$AI(i[t])),t++}},X=class l{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(i,t,e,a){this.type=2,this._$AH=d,this._$AN=void 0,this._$AA=i,this._$AB=t,this._$AM=e,this.options=a,this._$Cv=a?.isConnected??!0}get parentNode(){let i=this._$AA.parentNode,t=this._$AM;return t!==void 0&&i?.nodeType===11&&(i=t.parentNode),i}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(i,t=this){i=U(this,i,t),Q(i)?i===d||i==null||i===""?(this._$AH!==d&&this._$AR(),this._$AH=d):i!==this._$AH&&i!==D&&this._(i):i._$litType$!==void 0?this.$(i):i.nodeType!==void 0?this.T(i):he(i)?this.k(i):this._(i)}O(i){return this._$AA.parentNode.insertBefore(i,this._$AB)}T(i){this._$AH!==i&&(this._$AR(),this._$AH=this.O(i))}_(i){this._$AH!==d&&Q(this._$AH)?this._$AA.nextSibling.data=i:this.T(B.createTextNode(i)),this._$AH=i}$(i){let{values:t,_$litType$:e}=i,a=typeof e=="number"?this._$AC(i):(e.el===void 0&&(e.el=Y.createElement(Wt(e.h,e.h[0]),this.options)),e);if(this._$AH?._$AD===a)this._$AH.p(t);else{let s=new ut(a,this),r=s.u(this.options);s.p(t),this.T(r),this._$AH=s}}_$AC(i){let t=jt.get(i.strings);return t===void 0&&jt.set(i.strings,t=new Y(i)),t}k(i){_t(this._$AH)||(this._$AH=[],this._$AR());let t=this._$AH,e,a=0;for(let s of i)a===t.length?t.push(e=new l(this.O(Z()),this.O(Z()),this,this.options)):e=t[a],e._$AI(s),a++;a<t.length&&(this._$AR(e&&e._$AB.nextSibling,a),t.length=a)}_$AR(i=this._$AA.nextSibling,t){for(this._$AP?.(!1,!0,t);i!==this._$AB;){let e=Tt(i).nextSibling;Tt(i).remove(),i=e}}setConnected(i){this._$AM===void 0&&(this._$Cv=i,this._$AP?.(i))}},j=class{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(i,t,e,a,s){this.type=1,this._$AH=d,this._$AN=void 0,this.element=i,this.name=t,this._$AM=a,this.options=s,e.length>2||e[0]!==""||e[1]!==""?(this._$AH=Array(e.length-1).fill(new String),this.strings=e):this._$AH=d}_$AI(i,t=this,e,a){let s=this.strings,r=!1;if(s===void 0)i=U(this,i,t,0),r=!Q(i)||i!==this._$AH&&i!==D,r&&(this._$AH=i);else{let c=i,o,h;for(i=s[0],o=0;o<s.length-1;o++)h=U(this,c[e+o],t,o),h===D&&(h=this._$AH[o]),r||=!Q(h)||h!==this._$AH[o],h===d?i=d:i!==d&&(i+=(h??"")+s[o+1]),this._$AH[o]=h}r&&!a&&this.j(i)}j(i){i===d?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,i??"")}},gt=class extends j{constructor(){super(...arguments),this.type=3}j(i){this.element[this.name]=i===d?void 0:i}},mt=class extends j{constructor(){super(...arguments),this.type=4}j(i){this.element.toggleAttribute(this.name,!!i&&i!==d)}},bt=class extends j{constructor(i,t,e,a,s){super(i,t,e,a,s),this.type=5}_$AI(i,t=this){if((i=U(this,i,t,0)??d)===D)return;let e=this._$AH,a=i===d&&e!==d||i.capture!==e.capture||i.once!==e.once||i.passive!==e.passive,s=i!==d&&(e===d||a);a&&this.element.removeEventListener(this.name,this,e),s&&this.element.addEventListener(this.name,this,i),this._$AH=i}handleEvent(i){typeof this._$AH=="function"?this._$AH.call(this.options?.host??this.element,i):this._$AH.handleEvent(i)}},ft=class{constructor(i,t,e){this.element=i,this.type=6,this._$AN=void 0,this._$AM=t,this.options=e}get _$AU(){return this._$AM._$AU}_$AI(i){U(this,i)}};var ge=vt.litHtmlPolyfillSupport;ge?.(Y,X),(vt.litHtmlVersions??=[]).push("3.3.3");var qt=(l,i,t)=>{let e=t?.renderBefore??i,a=e._$litPart$;if(a===void 0){let s=t?.renderBefore??null;e._$litPart$=a=new X(i.insertBefore(Z(),s),s,void 0,t??{})}return a._$AI(l),a};var xt=globalThis,R=class extends z{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){let i=super.createRenderRoot();return this.renderOptions.renderBefore??=i.firstChild,i}update(i){let t=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(i),this._$Do=qt(t,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return D}};R._$litElement$=!0,R.finalized=!0,xt.litElementHydrateSupport?.({LitElement:R});var me=xt.litElementPolyfillSupport;me?.({LitElement:R});(xt.litElementVersions??=[]).push("4.2.2");var be={attribute:!0,type:String,converter:K,reflect:!1,hasChanged:rt},fe=(l=be,i,t)=>{let{kind:e,metadata:a}=t,s=globalThis.litPropertyMetadata.get(a);if(s===void 0&&globalThis.litPropertyMetadata.set(a,s=new Map),e==="setter"&&((l=Object.create(l)).wrapped=!0),s.set(t.name,l),e==="accessor"){let{name:r}=t;return{set(c){let o=i.get.call(this);i.set.call(this,c),this.requestUpdate(r,o,l,!0,c)},init(c){return c!==void 0&&this.C(r,void 0,l,c),c}}}if(e==="setter"){let{name:r}=t;return function(c){let o=this[r];i.call(this,c),this.requestUpdate(r,o,l,!0,c)}}throw Error("Unsupported decorator location: "+e)};function V(l){return(i,t)=>typeof t=="object"?fe(l,i,t):((e,a,s)=>{let r=a.hasOwnProperty(s);return a.constructor.createProperty(s,e),r?Object.getOwnPropertyDescriptor(a,s):void 0})(l,i,t)}function w(l){return V({...l,state:!0,attribute:!1})}var Kt=W`
   :host {
     display: block;
     box-sizing: border-box;
@@ -1377,97 +1377,154 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
     .bp-rewards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
     .bp-stats b { font-size: 14px; }
   }
-`;var $e=[{value:"session",label:"Live / Last Session"},{value:"stats",label:"Stats & Ranks"},{value:"events",label:"Events (tournaments)"},{value:"sprites",label:"Sprites"},{value:"trends",label:"Trends"},{value:"pass",label:"Battle Pass"}],ft=o=>o.layout==="session_only"?["session"]:o.layout==="career_only"?["stats"]:o.layout==="events_only"?["events"]:$e.map(s=>s.value).filter(s=>s!=="events"||o.show_tournaments!==!1),vt=[{name:"player",label:"Tracked Player Key (e.g. player1, player2)",selector:{text:{}}},{name:"avatar",label:"Avatar skin name (e.g. Peely) \u2014 looked up in the cosmetics catalogue",selector:{text:{}}},{name:"sections",label:"Sections to show (tab order follows this list; drag to reorder)",selector:{select:{multiple:!0,reorder:!0,mode:"list",options:$e}}},{name:"default_section",label:"Section opened first",selector:{select:{mode:"dropdown",options:[{value:"auto",label:"Automatic (Live Session while playing, otherwise Stats)"},...$e]}}},{name:"header",label:"Header",selector:{select:{mode:"dropdown",options:[{value:"full",label:"Full (ranks, season, levels, platforms)"},{value:"slim",label:"Slim (name, V-Bucks, live status)"},{value:"none",label:"None"}]}}},{name:"card_style",label:"Visual Theme",selector:{select:{options:[{value:"bubble",label:"Bubble (follows your HA / Bubble Card theme)"},{value:"cyber_fortnite",label:"Cyber Fortnite (neon gradients)"},{value:"minimal",label:"Minimal (flat, no chrome)"}]}}},{name:"theme_accent",label:"Accent Tint",selector:{select:{options:[{value:"auto",label:"Inherit Theme Accent (--bubble-accent-color)"},{value:"victory_gold",label:"Victory Gold (#FFD700)"},{value:"slurp_cyan",label:"Slurp Cyan (#00E5FF)"},{value:"storm_purple",label:"Storm Purple (#A855F7)"}]}}},{name:"show_match_feed",label:"Show Match-by-Match Timeline",selector:{boolean:{}}},{name:"show_sub_buttons",label:"Show action buttons (Start/End Session, Refresh)",selector:{boolean:{}}},{name:"compact",label:"Compact mode (smaller buttons, inline stats)",selector:{boolean:{}}},{name:"events_region",label:"Default events region filter",selector:{select:{options:[{value:"EU",label:"Europe"},{value:"NA",label:"North America"},{value:"BR",label:"Brazil"},{value:"ASIA",label:"Asia"},{value:"OCE",label:"Oceania"},{value:"ME",label:"Middle East"},{value:"all",label:"All regions"}]}}},{name:"hide_vbucks",label:"Hide V-Bucks balance (e.g. on a shared/family screen)",selector:{boolean:{}}},{name:"show_platforms",label:"Show linked platform accounts (PSN / Xbox / Switch names)",selector:{boolean:{}}},{name:"max_feed_matches",label:"Max Matches in Session Feed",selector:{number:{min:3,max:20,mode:"slider"}}},{name:"hide_account_level",label:"Hide Account Level (shown only once an Epic login is available)",selector:{boolean:{}}},{name:"hide_season_level",label:"Hide Season Level (shown only once an Epic login is available)",selector:{boolean:{}}},{name:"hide_rank_progress",label:"Hide Rank Progress Bars",selector:{boolean:{}}},{name:"custom_background",label:"Custom Background Image URL",selector:{text:{}}}],X=class extends A{setConfig(s){this._config={player:"player1",header:"full",default_section:"auto",card_style:"bubble",theme_accent:"auto",show_match_feed:!0,show_sub_buttons:!0,show_platforms:!0,show_tournaments:!0,max_feed_matches:10,...s},(!Array.isArray(this._config.sections)||!this._config.sections.length)&&(this._config.sections=ft(this._config))}_valueChanged(s){if(!this._config||!this.hass)return;let e=s.target,t=s.detail?s.detail.value:e.value;this._config={...this._config,...t},delete this._config.layout,delete this._config.show_tournaments;let a=new CustomEvent("config-changed",{detail:{config:this._config},bubbles:!0,composed:!0});this.dispatchEvent(a)}render(){return!this.hass||!this._config?d:n`
+
+  /* ---- Locker ---- */
+  .locker { display: grid; gap: 10px; container-type: inline-size; }
+  .locker-hero {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--rarity) 45%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--rarity) 25%, transparent), rgba(255, 255, 255, 0.03));
+  }
+  .locker-hero-img {
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--rarity) 55%, transparent), rgba(15, 23, 42, 0.6));
+  }
+  .locker-hero-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .locker-hero-img ha-icon { --mdc-icon-size: 44px; opacity: 0.6; }
+  .locker-rarities { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .rarity-dot {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--rarity) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rarity) 70%, transparent);
+  }
+  .locker-controls { display: flex; gap: 6px; align-items: center; }
+  .locker-search {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.2);
+    color: inherit;
+  }
+  .locker-controls .mini-button { opacity: 0.75; border-color: rgba(255, 255, 255, 0.2); color: inherit; }
+  .locker-controls .mini-button.active { opacity: 1; border-color: var(--accent); color: var(--accent); }
+  .locker-img { background: linear-gradient(160deg, color-mix(in srgb, var(--rarity) 45%, transparent), rgba(30, 41, 59, 0.6)); border-color: color-mix(in srgb, var(--rarity) 50%, transparent); }
+  .locker-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .bp-reward.equipped .bp-reward-img { box-shadow: 0 0 0 2px var(--accent); }
+  .locker-pager { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12px; opacity: 0.85; }
+  .locker-pager .bp-nav[disabled] { opacity: 0.3; cursor: default; }
+  @container (max-width: 400px) {
+    .locker-hero { grid-template-columns: 72px minmax(0, 1fr); }
+    .locker-hero-img { width: 72px; height: 72px; }
+    .locker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  }
+`;var $t=[{value:"session",label:"Live / Last Session"},{value:"stats",label:"Stats & Ranks"},{value:"events",label:"Events (tournaments)"},{value:"sprites",label:"Sprites"},{value:"trends",label:"Trends"},{value:"pass",label:"Battle Pass"},{value:"locker",label:"Locker (owned outfits)"}],ve=l=>l.layout==="session_only"?["session"]:l.layout==="career_only"?["stats"]:l.layout==="events_only"?["events"]:$t.map(i=>i.value).filter(i=>i!=="events"||l.show_tournaments!==!1),_e=[{name:"player",label:"Tracked Player Key (e.g. player1, player2)",selector:{text:{}}},{name:"avatar",label:"Avatar skin name (optional; leave empty to use the equipped outfit)",selector:{text:{}}},{name:"sections",label:"Sections to show (tab order follows this list; drag to reorder)",selector:{select:{multiple:!0,reorder:!0,mode:"list",options:$t}}},{name:"default_section",label:"Section opened first",selector:{select:{mode:"dropdown",options:[{value:"auto",label:"Automatic (Live Session while playing, otherwise Stats)"},...$t]}}},{name:"header",label:"Header",selector:{select:{mode:"dropdown",options:[{value:"full",label:"Full (ranks, season, levels, platforms)"},{value:"slim",label:"Slim (name, V-Bucks, live status)"},{value:"none",label:"None"}]}}},{name:"card_style",label:"Visual Theme",selector:{select:{options:[{value:"bubble",label:"Bubble (follows your HA / Bubble Card theme)"},{value:"cyber_fortnite",label:"Cyber Fortnite (neon gradients)"},{value:"minimal",label:"Minimal (flat, no chrome)"}]}}},{name:"theme_accent",label:"Accent Tint",selector:{select:{options:[{value:"auto",label:"Inherit Theme Accent (--bubble-accent-color)"},{value:"victory_gold",label:"Victory Gold (#FFD700)"},{value:"slurp_cyan",label:"Slurp Cyan (#00E5FF)"},{value:"storm_purple",label:"Storm Purple (#A855F7)"}]}}},{name:"show_match_feed",label:"Show Match-by-Match Timeline",selector:{boolean:{}}},{name:"show_sub_buttons",label:"Show action buttons (Start/End Session, Refresh)",selector:{boolean:{}}},{name:"compact",label:"Compact mode (smaller buttons, inline stats)",selector:{boolean:{}}},{name:"events_region",label:"Default events region filter",selector:{select:{options:[{value:"EU",label:"Europe"},{value:"NA",label:"North America"},{value:"BR",label:"Brazil"},{value:"ASIA",label:"Asia"},{value:"OCE",label:"Oceania"},{value:"ME",label:"Middle East"},{value:"all",label:"All regions"}]}}},{name:"hide_vbucks",label:"Hide V-Bucks balance (e.g. on a shared/family screen)",selector:{boolean:{}}},{name:"show_platforms",label:"Show linked platform accounts (PSN / Xbox / Switch names)",selector:{boolean:{}}},{name:"max_feed_matches",label:"Max Matches in Session Feed",selector:{number:{min:3,max:20,mode:"slider"}}},{name:"hide_account_level",label:"Hide Account Level (shown only once an Epic login is available)",selector:{boolean:{}}},{name:"hide_season_level",label:"Hide Season Level (shown only once an Epic login is available)",selector:{boolean:{}}},{name:"hide_rank_progress",label:"Hide Rank Progress Bars",selector:{boolean:{}}},{name:"custom_background",label:"Custom Background Image URL",selector:{text:{}}}],J=class extends R{setConfig(i){this._config={player:"player1",header:"full",default_section:"auto",card_style:"bubble",theme_accent:"auto",show_match_feed:!0,show_sub_buttons:!0,show_platforms:!0,show_tournaments:!0,max_feed_matches:10,...i},(!Array.isArray(this._config.sections)||!this._config.sections.length)&&(this._config.sections=ve(this._config))}_valueChanged(i){if(!this._config||!this.hass)return;let t=i.target,e=i.detail?i.detail.value:t.value;this._config={...this._config,...e},delete this._config.layout,delete this._config.show_tournaments;let a=new CustomEvent("config-changed",{detail:{config:this._config},bubbles:!0,composed:!0});this.dispatchEvent(a)}render(){return!this.hass||!this._config?d:n`
       <div class="card-config">
         <ha-form
           .hass=${this.hass}
           .data=${this._config}
-          .schema=${vt}
-          .computeLabel=${s=>s.label||s.name}
+          .schema=${_e}
+          .computeLabel=${i=>i.label||i.name}
           @value-changed=${this._valueChanged}
         ></ha-form>
       </div>
-    `}static{this.styles=H`
+    `}static{this.styles=W`
     .card-config {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-  `}};y([U({attribute:!1})],X.prototype,"hass",2),y([w()],X.prototype,"_config",2);customElements.get("fortnite-activity-card-editor")||customElements.define("fortnite-activity-card-editor",X);var _t="1.9.1";window.customCards=window.customCards||[];window.customCards.push({type:"fortnite-activity-card",name:"Fortnite Activity Card",description:"Fortnite player profile, live session tracker, time-windowed stats and tournaments.",preview:!1,documentationURL:"https://github.com/Dec64/fortnite-activity"});var xt={current_session:["session"],rank_battle_royale:["battle_royale_rank"],rank_reload:["reload_rank"]},j={Bronze:["#E0A06A","#8A5429"],Silver:["#E8EDF2","#8C99A6"],Gold:["#FFE27A","#C99A12"],Platinum:["#8FF3FF","#1C9DB5"],Diamond:["#9CC2FF","#2F5FD0"],Elite:["#D9B4FF","#7B35C9"],Champion:["#FFC76B","#D9530F"],Unreal:["#FF9BD2","#7B2FF7"]},oe={Common:"#9CA3AF",Uncommon:"#22C55E",Rare:"#3B82F6",Epic:"#A855F7",Legendary:"#F59E0B",Mythic:"#FACC15"},yt={AthenaBattleStar:"Battle Star",AthenaCategoryStar:"Character Star",MtxCurrency:"V-Bucks"},qe=(o,s)=>{let e=o&&yt[o]||o||"";return s===1||!e?e:`${e}s`},Ke={FNCS:"FNCS",CashCup:"Cash Cup",RankedCup:"Ranked Cup",VictoryCup:"Victory Cup",ShopCup:"Shop Cup",WorkshopCup:"Test event"},Ge=[{key:"season_kd",label:"Season K/D",digits:2},{key:"season_win_rate",label:"Season win rate",unit:"%",digits:1},{key:"ladder_battle_royale",label:"BR ranked ladder (division \xD7 100 + progress)"},{key:"unreal_reload",label:"Reload Unreal position",lowerBetter:!0},{key:"unreal_battle_royale",label:"BR Unreal position",lowerBetter:!0},{key:"ladder_reload",label:"Reload ranked ladder"},{key:"sprites",label:"Sprite collection",unit:"%",digits:1},{key:"level",label:"Season level"},{key:"power_ranking",label:"Power Ranking position",lowerBetter:!0}],$t={reload:"mdi:reload",zero_build:"mdi:shield-outline",build:"mdi:wall"},we={player:"player1",header:"full",card_style:"bubble",theme_accent:"auto",show_match_feed:!0,show_sub_buttons:!0,show_platforms:!0,show_tournaments:!0,compact:!1,max_feed_matches:10},Ze=["session","stats","events","sprites","trends","pass"],wt={AthenaPickaxe:"Pickaxe",AthenaGlider:"Glider",AthenaDance:"Emote",AthenaItemWrap:"Wrap",AthenaLoadingScreen:"Loading Screen",CosmeticVariantToken:"Style",Currency:"Currency",HomebaseBannerIcon:"Banner",SparksSong:"Jam Track",SparksGuitar:"Instrument",AthenaSkyDiveContrail:"Contrail",CosmeticShoes:"Kicks",AthenaBackpack:"Back Bling",AthenaCharacter:"Outfit",AthenaMusicPack:"Lobby Music"},Ee=o=>String(o?.icon||"").split("/").pop()||"",Q=o=>o?.type==="Currency"&&(/MTX/i.test(Ee(o))||/v-?bucks/i.test(o?.name||"")),Se=o=>o?.type==="AthenaCharacter"||/^T_Soldier_/i.test(Ee(o)),le=o=>{if(Se(o))return"Outfit";if(Q(o))return"V-Bucks";let s=Ee(o);return o?.type==="AthenaDance"&&/Spray/i.test(s)?"Spray":o?.type==="AthenaDance"&&/Emoji|Emoticon/i.test(s)?"Emoticon":wt[o?.type]||"Cosmetic"},Ye=o=>o?.name&&!/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(o.name)?o.name:le(o),C=o=>{o.target.hidden=!0},Xe=o=>new Intl.DateTimeFormat("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:!0,timeZone:o}),J={at:0},D={at:0},ke=new Map,$=class extends A{constructor(){super(...arguments);this._config={type:"custom:fortnite-activity-card",...we};this._view=null;this._window="lifetime";this._selectedMode="all";this._loadingAction=null;this._catalog={playlists:{}};this._avatar=null;this._events={};this._filters=null;this._expandedEvent=null;this._expandedMatch=null;this._leaderboards={};this._now=Date.now();this._matchLists={};this._showAllMatches={};this._expandedSprite=null;this._spriteFilter="all";this._spriteSort="dex";this._trends={};this._pass={};this._passSet=0;this._passPage=0;this._renderedView=null;this._entityCache=new Map;this._avatarQuery=""}static get styles(){return We}setConfig(e){if(!e)throw new Error("Invalid configuration");this._config={...we,...e},this._entityCache.clear(),this._filters=null}static getConfigElement(){return document.createElement("fortnite-activity-card-editor")}static getStubConfig(){return{type:"custom:fortnite-activity-card",...we}}getCardSize(){return this._config.compact?4:6}connectedCallback(){super.connectedCallback(),this._tick=window.setInterval(()=>{this._now=Date.now(),Date.now()-D.at>10*6e4&&this._loadEvents()},3e4)}disconnectedCallback(){super.disconnectedCallback(),window.clearInterval(this._tick)}get _player(){return(this._config.player||"player1").toLowerCase()}get _sections(){let e=this._config;if(Array.isArray(e.sections)&&e.sections.length){let t=e.sections.filter(a=>Ze.includes(a));if(t.length)return[...new Set(t)]}switch(e.layout){case"session_only":return["session"];case"career_only":return["stats"];case"events_only":return["events"];default:return Ze.filter(t=>t!=="events"||e.show_tournaments!==!1)}}get _eventsEnabled(){return this._sections.includes("events")}shouldUpdate(e){if(e.size!==1||!e.has("hass"))return!0;let t=e.get("hass");if(!t||!this._entityCache.size)return!0;for(let a of this._entityCache.values())if(t.states[a]!==this.hass.states[a])return!0;return!1}updated(e){if(super.updated(e),!this.hass)return;let t=e.has("hass")&&!e.get("hass");t&&(this._loadCatalog(),this._eventsEnabled&&this._loadEvents()),(e.has("_config")||t)&&this._scheduleAvatar(),this._renderedView==="pass"&&this._loadPass(),this._renderedView==="trends"&&this._loadTrends()}async _loadCatalog(){(!J.promise||Date.now()-J.at>36e5)&&(J.at=Date.now(),J.promise=this.hass.callWS({type:"fortnite_activity/catalog",player_id:this._player}).catch(()=>({playlists:{}})));let e=await J.promise;this._catalog={season:e?.season,playlists:e?.playlists||{}}}async _loadEvents(e=!1){if(this.hass){(e||!D.promise||Date.now()-D.at>10*6e4)&&(D.at=Date.now(),D.promise=this.hass.callWS({type:"fortnite_activity/tournaments",player_id:this._player})),this._events.list||(this._events={...this._events,loading:!0});try{let t=await D.promise;this._events={list:t?.tournaments??null,defaultRegion:t?.default_region_group}}catch(t){D.promise=void 0,this._events={error:t?.message||"Could not load tournaments"}}}}_scheduleAvatar(){let e=(this._config.avatar||"").trim();if(e!==this._avatarQuery){if(this._avatarQuery=e,window.clearTimeout(this._avatarTimer),e.length<3){this._avatar=null;return}this._avatarTimer=window.setTimeout(async()=>{let t=e.toLowerCase();ke.has(t)||ke.set(t,this.hass.callWS({type:"fortnite_activity/cosmetic",query:e}).then(i=>i?.cosmetic||null).catch(()=>null));let a=await ke.get(t);this._avatarQuery===e&&(this._avatar=a)},800)}}async _loadLeaderboard(e,t){let a=`${e}|${t}`;if(!this._leaderboards[a]?.loading){this._leaderboards={...this._leaderboards,[a]:{...this._leaderboards[a],loading:!0,error:void 0}};try{let i=await this.hass.callWS({type:"fortnite_activity/leaderboard",event_id:e,window_id:t,player_id:this._player});this._leaderboards={...this._leaderboards,[a]:i?.leaderboard?{data:i.leaderboard}:{error:i?.unavailable||"Leaderboard unavailable"}}}catch(i){this._leaderboards={...this._leaderboards,[a]:{error:i?.message||"Leaderboard unavailable"}}}}}async _loadPass(){if(!(!this.hass||this._pass.loading||this._pass.error||this._pass.data!==void 0)){this._pass={loading:!0};try{let e=await this.hass.callWS({type:"fortnite_activity/battlepass",player_id:this._player});this._pass={data:e?.battlepass??null}}catch(e){this._pass={error:e?.message||"Battle Pass unavailable"}}}}async _loadTrends(){if(!this.hass||this._trends.loading||this._trends.at&&Date.now()-this._trends.at<6e5)return;let e=Ge.map(a=>this._entityId("sensor",a.key)).filter(Boolean);if(this._ensureMatches("trend:recent",{limit:30}),!e.length){this._trends={stats:{},at:Date.now()};return}this._trends={...this._trends,loading:!0};let t=(a,i)=>this.hass.callWS({type:"recorder/statistics_during_period",start_time:new Date(Date.now()-a*864e5).toISOString(),statistic_ids:e,period:i,types:["mean","min","max","state"]});try{let a=await t(30,"day"),i="day";Object.values(a||{}).every(r=>(r||[]).length<3)&&(a=await t(7,"hour"),i="hour"),this._trends={stats:a||{},at:Date.now(),period:i}}catch(a){this._trends={error:a?.message||"Statistics unavailable",at:Date.now()}}}_ensureMatches(e,t){!this.hass||this._matchLists[e]||(this._matchLists={...this._matchLists,[e]:{loading:!0}},this.hass.callWS({type:"fortnite_activity/matches",player_id:this._player,...t}).then(a=>{this._matchLists={...this._matchLists,[e]:{matches:a?.matches||[],tracked:a?.tracked_matches||0}}}).catch(a=>{this._matchLists={...this._matchLists,[e]:{error:a?.message||"Could not load matches"}}}))}_isRanked(e){return!!e.rank_delta_pct||!!e.unreal_rank_change||/habanero/i.test(e.playlist_id||"")}_findEntity(e,t){let a=this.hass?.states;if(!a)return;let i=this._player,r=`${i}:${e}:${t}`,c=this._entityCache.get(r);if(c&&a[c])return a[c];let l;for(let[h,m]of Object.entries(a))if(h.startsWith(`${e}.`)&&m.attributes?.fortnite_player_id===i&&m.attributes?.fortnite_entity_key===t){l=h;break}if(l||(l=[t,...xt[t]||[]].flatMap(u=>[`${e}.fortnite_${i}_${u}`,`${e}.fortnite_${i}_${i}_${u}`]).find(u=>a[u])),!!l)return this._entityCache.set(r,l),a[l]}async _callService(e,t={}){if(this.hass){this._loadingAction=e;try{await this.hass.callService("fortnite_activity",e,{player_id:this._player,...t}),e==="refresh_player"&&this._eventsEnabled&&this._loadEvents(!0),setTimeout(()=>{this._loadingAction=null},1500)}catch(a){this._loadingAction=null,console.error(`Error calling service fortnite_activity.${e}:`,a)}}}_setView(e){this._view=e,e==="events"&&this._loadEvents(),e==="trends"&&this._loadTrends(),e==="pass"&&this._loadPass()}_entityId(e,t){return this._findEntity(e,t)?.entity_id}_toggleEvent(e){if(this._expandedEvent===e.key){this._expandedEvent=null;return}this._expandedEvent=e.key;let t=e.windows.find(a=>this._windowState(a)==="live")||[...e.windows].reverse().find(a=>this._windowState(a)==="finished");t&&!this._leaderboards[`${e.event_id}|${t.window_id}`]&&this._loadLeaderboard(e.event_id,t.window_id)}_formatRelativeTime(e){if(!e)return"";let t=new Date(e);if(isNaN(t.getTime()))return"";let a=Math.max(1,Math.round((this._now-t.getTime())/6e4));if(a<60)return`${a}m ago`;let i=Math.round(a/60);return i<24?`${i}h ago`:`${Math.round(i/24)}d ago`}_formatDuration(e){if(!e||e<=0)return"0m";let t=Math.floor(e/60),a=Math.round(e%60);return t>0?`${t}h ${a}m`:`${a}m`}_formatSpan(e){let t=Math.max(0,Math.round(e/6e4)),a=Math.floor(t/1440),i=Math.floor(t%1440/60),r=t%60;return a>0?`${a}d ${i}h`:i>0?`${i}h ${r}m`:`${r}m`}_formatWhen(e){try{return Xe(this.hass?.config?.time_zone).format(new Date(e)).replace(/\b(am|pm)\b/i,t=>t.toLowerCase())}catch{return Xe().format(new Date(e))}}_num(e,t=0){return Number(e||0).toLocaleString("en-GB",{maximumFractionDigits:t,minimumFractionDigits:0})}_playlist(e){return e?this._catalog.playlists[e.toLowerCase()]:void 0}_windowState(e){let t=Date.parse(e.begin),a=Date.parse(e.end);return this._now>=a?"finished":this._now>=t?"live":"upcoming"}_rankBadge(e,t=30){let a=e||"Unranked",i=Object.keys(j).find(u=>a.startsWith(u));if(!i)return n`<span class="rank-badge unranked" style="width:${t}px;height:${t}px">–</span>`;let[r,c]=j[i],l=(a.match(/\b(I{1,3})$/)||[])[1]||"",h=`g-${i}-${t}`;return n`<span class="rank-badge" title=${a} style="width:${t}px;height:${t}px">
-      ${R`<svg viewBox="0 0 40 44" width=${t} height=${t} aria-hidden="true">
+  `}};x([V({attribute:!1})],J.prototype,"hass",2),x([w()],J.prototype,"_config",2);customElements.get("fortnite-activity-card-editor")||customElements.define("fortnite-activity-card-editor",J);var ye="1.10.0";window.customCards=window.customCards||[];window.customCards.push({type:"fortnite-activity-card",name:"Fortnite Activity Card",description:"Fortnite player profile, live session tracker, time-windowed stats and tournaments.",preview:!1,documentationURL:"https://github.com/Dec64/fortnite-activity"});var xe={current_session:["session"],rank_battle_royale:["battle_royale_rank"],rank_reload:["reload_rank"]},H={Bronze:["#E0A06A","#8A5429"],Silver:["#E8EDF2","#8C99A6"],Gold:["#FFE27A","#C99A12"],Platinum:["#8FF3FF","#1C9DB5"],Diamond:["#9CC2FF","#2F5FD0"],Elite:["#D9B4FF","#7B35C9"],Champion:["#FFC76B","#D9530F"],Unreal:["#FF9BD2","#7B2FF7"]},O={Common:"#9CA3AF",Uncommon:"#22C55E",Rare:"#3B82F6",Epic:"#A855F7",Legendary:"#F59E0B",Mythic:"#FACC15"},$e={AthenaBattleStar:"Battle Star",AthenaCategoryStar:"Character Star",MtxCurrency:"V-Bucks"},Gt=(l,i)=>{let t=l&&$e[l]||l||"";return i===1||!t?t:`${t}s`},Zt={FNCS:"FNCS",CashCup:"Cash Cup",RankedCup:"Ranked Cup",VictoryCup:"Victory Cup",ShopCup:"Shop Cup",WorkshopCup:"Test event"},Qt=[{key:"season_kd",label:"Season K/D",digits:2},{key:"season_win_rate",label:"Season win rate",unit:"%",digits:1},{key:"ladder_battle_royale",label:"BR ranked ladder (division \xD7 100 + progress)"},{key:"unreal_reload",label:"Reload Unreal position",lowerBetter:!0},{key:"unreal_battle_royale",label:"BR Unreal position",lowerBetter:!0},{key:"ladder_reload",label:"Reload ranked ladder"},{key:"sprites",label:"Sprite collection",unit:"%",digits:1},{key:"level",label:"Season level"},{key:"power_ranking",label:"Power Ranking position",lowerBetter:!0}],we={reload:"mdi:reload",zero_build:"mdi:shield-outline",build:"mdi:wall"},wt={player:"player1",header:"full",card_style:"bubble",theme_accent:"auto",show_match_feed:!0,show_sub_buttons:!0,show_platforms:!0,show_tournaments:!0,compact:!1,max_feed_matches:10},Yt=["session","stats","events","sprites","trends","pass","locker"],ke={AthenaPickaxe:"Pickaxe",AthenaGlider:"Glider",AthenaDance:"Emote",AthenaItemWrap:"Wrap",AthenaLoadingScreen:"Loading Screen",CosmeticVariantToken:"Style",Currency:"Currency",HomebaseBannerIcon:"Banner",SparksSong:"Jam Track",SparksGuitar:"Instrument",AthenaSkyDiveContrail:"Contrail",CosmeticShoes:"Kicks",AthenaBackpack:"Back Bling",AthenaCharacter:"Outfit",AthenaMusicPack:"Lobby Music"},Et=l=>String(l?.icon||"").split("/").pop()||"",et=l=>l?.type==="Currency"&&(/MTX/i.test(Et(l))||/v-?bucks/i.test(l?.name||"")),St=l=>l?.type==="AthenaCharacter"||/^T_Soldier_/i.test(Et(l)),lt=l=>{if(St(l))return"Outfit";if(et(l))return"V-Bucks";let i=Et(l);return l?.type==="AthenaDance"&&/Spray/i.test(i)?"Spray":l?.type==="AthenaDance"&&/Emoji|Emoticon/i.test(i)?"Emoticon":ke[l?.type]||"Cosmetic"},Xt=l=>l?.name&&!/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(l.name)?l.name:lt(l),E=l=>{l.target.hidden=!0},Jt=l=>new Intl.DateTimeFormat("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:!0,timeZone:l}),tt={at:0},N={at:0},kt=new Map,$=class extends R{constructor(){super(...arguments);this._config={type:"custom:fortnite-activity-card",...wt};this._view=null;this._window="lifetime";this._selectedMode="all";this._loadingAction=null;this._catalog={playlists:{}};this._avatar=null;this._events={};this._filters=null;this._expandedEvent=null;this._expandedMatch=null;this._leaderboards={};this._now=Date.now();this._matchLists={};this._showAllMatches={};this._expandedSprite=null;this._spriteFilter="all";this._spriteSort="dex";this._trends={};this._pass={};this._passSet=0;this._passPage=0;this._outfits={};this._outfitQuery="";this._outfitSort="rarity";this._outfitPage=0;this._renderedView=null;this._entityCache=new Map;this._avatarQuery=""}static get styles(){return Kt}setConfig(t){if(!t)throw new Error("Invalid configuration");this._config={...wt,...t},this._entityCache.clear(),this._filters=null}static getConfigElement(){return document.createElement("fortnite-activity-card-editor")}static getStubConfig(){return{type:"custom:fortnite-activity-card",...wt}}getCardSize(){return this._config.compact?4:6}connectedCallback(){super.connectedCallback(),this._tick=window.setInterval(()=>{this._now=Date.now(),Date.now()-N.at>10*6e4&&this._loadEvents()},3e4)}disconnectedCallback(){super.disconnectedCallback(),window.clearInterval(this._tick)}get _player(){return(this._config.player||"player1").toLowerCase()}get _sections(){let t=this._config;if(Array.isArray(t.sections)&&t.sections.length){let e=t.sections.filter(a=>Yt.includes(a));if(e.length)return[...new Set(e)]}switch(t.layout){case"session_only":return["session"];case"career_only":return["stats"];case"events_only":return["events"];default:return Yt.filter(e=>e!=="events"||t.show_tournaments!==!1)}}get _eventsEnabled(){return this._sections.includes("events")}shouldUpdate(t){if(t.size!==1||!t.has("hass"))return!0;let e=t.get("hass");if(!e||!this._entityCache.size)return!0;for(let a of this._entityCache.values())if(e.states[a]!==this.hass.states[a])return!0;return!1}updated(t){if(super.updated(t),!this.hass)return;let e=t.has("hass")&&!t.get("hass");e&&(this._loadCatalog(),this._eventsEnabled&&this._loadEvents()),(t.has("_config")||e)&&this._scheduleAvatar(),this._renderedView==="pass"&&this._loadPass(),this._renderedView==="locker"&&this._loadOutfits(),this._renderedView==="trends"&&this._loadTrends()}async _loadCatalog(){(!tt.promise||Date.now()-tt.at>36e5)&&(tt.at=Date.now(),tt.promise=this.hass.callWS({type:"fortnite_activity/catalog",player_id:this._player}).catch(()=>({playlists:{}})));let t=await tt.promise;this._catalog={season:t?.season,playlists:t?.playlists||{}}}async _loadEvents(t=!1){if(this.hass){(t||!N.promise||Date.now()-N.at>10*6e4)&&(N.at=Date.now(),N.promise=this.hass.callWS({type:"fortnite_activity/tournaments",player_id:this._player})),this._events.list||(this._events={...this._events,loading:!0});try{let e=await N.promise;this._events={list:e?.tournaments??null,defaultRegion:e?.default_region_group}}catch(e){N.promise=void 0,this._events={error:e?.message||"Could not load tournaments"}}}}_scheduleAvatar(){let t=(this._config.avatar||"").trim();if(t!==this._avatarQuery){if(this._avatarQuery=t,window.clearTimeout(this._avatarTimer),t.length<3){this._avatar=null;return}this._avatarTimer=window.setTimeout(async()=>{let e=t.toLowerCase();kt.has(e)||kt.set(e,this.hass.callWS({type:"fortnite_activity/cosmetic",query:t}).then(s=>s?.cosmetic||null).catch(()=>null));let a=await kt.get(e);this._avatarQuery===t&&(this._avatar=a)},800)}}async _loadLeaderboard(t,e){let a=`${t}|${e}`;if(!this._leaderboards[a]?.loading){this._leaderboards={...this._leaderboards,[a]:{...this._leaderboards[a],loading:!0,error:void 0}};try{let s=await this.hass.callWS({type:"fortnite_activity/leaderboard",event_id:t,window_id:e,player_id:this._player});this._leaderboards={...this._leaderboards,[a]:s?.leaderboard?{data:s.leaderboard}:{error:s?.unavailable||"Leaderboard unavailable"}}}catch(s){this._leaderboards={...this._leaderboards,[a]:{error:s?.message||"Leaderboard unavailable"}}}}}async _loadOutfits(){if(!(!this.hass||this._outfits.loading||this._outfits.error||this._outfits.data!==void 0)){this._outfits={loading:!0};try{this._outfits={data:await this.hass.callWS({type:"fortnite_activity/outfits",player_id:this._player})}}catch(t){this._outfits={error:t?.message||"Locker unavailable"}}}}async _loadPass(){if(!(!this.hass||this._pass.loading||this._pass.error||this._pass.data!==void 0)){this._pass={loading:!0};try{let t=await this.hass.callWS({type:"fortnite_activity/battlepass",player_id:this._player});this._pass={data:t?.battlepass??null}}catch(t){this._pass={error:t?.message||"Battle Pass unavailable"}}}}async _loadTrends(){if(!this.hass||this._trends.loading||this._trends.at&&Date.now()-this._trends.at<6e5)return;let t=Qt.map(a=>this._entityId("sensor",a.key)).filter(Boolean);if(this._ensureMatches("trend:recent",{limit:30}),!t.length){this._trends={stats:{},at:Date.now()};return}this._trends={...this._trends,loading:!0};let e=(a,s)=>this.hass.callWS({type:"recorder/statistics_during_period",start_time:new Date(Date.now()-a*864e5).toISOString(),statistic_ids:t,period:s,types:["mean","min","max","state"]});try{let a=await e(30,"day"),s="day";Object.values(a||{}).every(r=>(r||[]).length<3)&&(a=await e(7,"hour"),s="hour"),this._trends={stats:a||{},at:Date.now(),period:s}}catch(a){this._trends={error:a?.message||"Statistics unavailable",at:Date.now()}}}_ensureMatches(t,e){!this.hass||this._matchLists[t]||(this._matchLists={...this._matchLists,[t]:{loading:!0}},this.hass.callWS({type:"fortnite_activity/matches",player_id:this._player,...e}).then(a=>{this._matchLists={...this._matchLists,[t]:{matches:a?.matches||[],tracked:a?.tracked_matches||0}}}).catch(a=>{this._matchLists={...this._matchLists,[t]:{error:a?.message||"Could not load matches"}}}))}_isRanked(t){return!!t.rank_delta_pct||!!t.unreal_rank_change||/habanero/i.test(t.playlist_id||"")}_findEntity(t,e){let a=this.hass?.states;if(!a)return;let s=this._player,r=`${s}:${t}:${e}`,c=this._entityCache.get(r);if(c&&a[c])return a[c];let o;for(let[h,b]of Object.entries(a))if(h.startsWith(`${t}.`)&&b.attributes?.fortnite_player_id===s&&b.attributes?.fortnite_entity_key===e){o=h;break}if(o||(o=[e,...xe[e]||[]].flatMap(u=>[`${t}.fortnite_${s}_${u}`,`${t}.fortnite_${s}_${s}_${u}`]).find(u=>a[u])),!!o)return this._entityCache.set(r,o),a[o]}async _callService(t,e={}){if(this.hass){this._loadingAction=t;try{await this.hass.callService("fortnite_activity",t,{player_id:this._player,...e}),t==="refresh_player"&&this._eventsEnabled&&this._loadEvents(!0),setTimeout(()=>{this._loadingAction=null},1500)}catch(a){this._loadingAction=null,console.error(`Error calling service fortnite_activity.${t}:`,a)}}}_setView(t){this._view=t,t==="events"&&this._loadEvents(),t==="trends"&&this._loadTrends(),t==="pass"&&this._loadPass(),t==="locker"&&this._loadOutfits()}_entityId(t,e){return this._findEntity(t,e)?.entity_id}_toggleEvent(t){if(this._expandedEvent===t.key){this._expandedEvent=null;return}this._expandedEvent=t.key;let e=t.windows.find(a=>this._windowState(a)==="live")||[...t.windows].reverse().find(a=>this._windowState(a)==="finished");e&&!this._leaderboards[`${t.event_id}|${e.window_id}`]&&this._loadLeaderboard(t.event_id,e.window_id)}_formatRelativeTime(t){if(!t)return"";let e=new Date(t);if(isNaN(e.getTime()))return"";let a=Math.max(1,Math.round((this._now-e.getTime())/6e4));if(a<60)return`${a}m ago`;let s=Math.round(a/60);return s<24?`${s}h ago`:`${Math.round(s/24)}d ago`}_formatDuration(t){if(!t||t<=0)return"0m";let e=Math.floor(t/60),a=Math.round(t%60);return e>0?`${e}h ${a}m`:`${a}m`}_formatSpan(t){let e=Math.max(0,Math.round(t/6e4)),a=Math.floor(e/1440),s=Math.floor(e%1440/60),r=e%60;return a>0?`${a}d ${s}h`:s>0?`${s}h ${r}m`:`${r}m`}_formatWhen(t){try{return Jt(this.hass?.config?.time_zone).format(new Date(t)).replace(/\b(am|pm)\b/i,e=>e.toLowerCase())}catch{return Jt().format(new Date(t))}}_num(t,e=0){return Number(t||0).toLocaleString("en-GB",{maximumFractionDigits:e,minimumFractionDigits:0})}_playlist(t){return t?this._catalog.playlists[t.toLowerCase()]:void 0}_windowState(t){let e=Date.parse(t.begin),a=Date.parse(t.end);return this._now>=a?"finished":this._now>=e?"live":"upcoming"}_rankBadge(t,e=30){let a=t||"Unranked",s=Object.keys(H).find(u=>a.startsWith(u));if(!s)return n`<span class="rank-badge unranked" style="width:${e}px;height:${e}px">–</span>`;let[r,c]=H[s],o=(a.match(/\b(I{1,3})$/)||[])[1]||"",h=`g-${s}-${e}`;return n`<span class="rank-badge" title=${a} style="width:${e}px;height:${e}px">
+      ${P`<svg viewBox="0 0 40 44" width=${e} height=${e} aria-hidden="true">
         <defs><linearGradient id=${h} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color=${r}></stop><stop offset="1" stop-color=${c}></stop>
         </linearGradient></defs>
-        ${i==="Unreal"?R`<path d="M20 2 L37 12 L37 30 L20 42 L3 30 L3 12 Z" fill="url(#${h})" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"></path>
-                <path d="M11 17 L15 24 L20 13 L25 24 L29 17 L27 30 L13 30 Z" fill="rgba(255,255,255,0.92)"></path>`:R`<path d="M20 2 L36 8 L36 22 C36 32 28 39 20 42 C12 39 4 32 4 22 L4 8 Z" fill="url(#${h})" stroke="rgba(255,255,255,0.75)" stroke-width="1.5"></path>
+        ${s==="Unreal"?P`<path d="M20 2 L37 12 L37 30 L20 42 L3 30 L3 12 Z" fill="url(#${h})" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"></path>
+                <path d="M11 17 L15 24 L20 13 L25 24 L29 17 L27 30 L13 30 Z" fill="rgba(255,255,255,0.92)"></path>`:P`<path d="M20 2 L36 8 L36 22 C36 32 28 39 20 42 C12 39 4 32 4 22 L4 8 Z" fill="url(#${h})" stroke="rgba(255,255,255,0.75)" stroke-width="1.5"></path>
                 <path d="M20 9 L29 13 L29 22 C29 28 25 32 20 34 C15 32 11 28 11 22 L11 13 Z" fill="rgba(0,0,0,0.18)"></path>
-                <text x="20" y="27" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="sans-serif">${l}</text>`}
+                <text x="20" y="27" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="sans-serif">${o}</text>`}
       </svg>`}
-    </span>`}render(){if(!this.hass)return n`<ha-card><div class="empty">Loading Fortnite Activity...</div></ha-card>`;let e=this._player,t=this._findEntity("sensor","current_session"),a=this._findEntity("sensor","overall_stats"),i=this._findEntity("sensor","rank_battle_royale"),r=this._findEntity("sensor","rank_reload"),c=this._findEntity("sensor","level"),l=this._findEntity("binary_sensor","playing"),h=this._findEntity("sensor","profile"),m=this._findEntity("sensor","sprites"),u=this._findEntity("sensor","power_ranking"),_=!!m&&!["unavailable","unknown"].includes(m.state);if(!t&&!a&&!l)return n`<ha-card><div class="empty">
-        No Fortnite Activity entities found for player <b>${e}</b>.
+    </span>`}render(){if(!this.hass)return n`<ha-card><div class="empty">Loading Fortnite Activity...</div></ha-card>`;let t=this._player,e=this._findEntity("sensor","current_session"),a=this._findEntity("sensor","overall_stats"),s=this._findEntity("sensor","rank_battle_royale"),r=this._findEntity("sensor","rank_reload"),c=this._findEntity("sensor","level"),o=this._findEntity("binary_sensor","playing"),h=this._findEntity("sensor","profile"),b=this._findEntity("sensor","sprites"),u=this._findEntity("sensor","power_ranking"),_=!!b&&!["unavailable","unknown"].includes(b.state);if(!e&&!a&&!o)return n`<ha-card><div class="empty">
+        No Fortnite Activity entities found for player <b>${t}</b>.
         Check the card's player key matches the player ID configured in the integration.
-      </div></ha-card>`;let f=l?.state==="on"||t?.state==="active",x=t?.attributes||{},p=a?.attributes||{},g=h?.attributes||{},b={...i?.attributes||{},current_rank:i?.state},v={...r?.attributes||{},current_rank:r?.state},k=this._sections.filter(Qe=>Qe!=="sprites"||_||this._sections.length===1),E=this._config.default_section,z=f&&k.includes("session")?"session":k.includes("stats")?"stats":k[0],S=this._view??(E&&E!=="auto"&&k.includes(E)?E:z);k.includes(S)||(S=z),this._renderedView=S;let ee=this._config.header||"full",ce="",Ce={victory_gold:"#FFD700",slurp_cyan:"#00E5FF",storm_purple:"#A855F7"};Ce[this._config.theme_accent||""]&&(ce+=`--accent: ${Ce[this._config.theme_accent]};`),this._config.custom_background&&(ce+=` --card-bg: url('${this._config.custom_background}') center/cover no-repeat;`);let Je=`theme-${this._config.card_style||"bubble"}${this._config.compact?" compact":""}`;return n`
-      <ha-card class=${Je} style="${ce}">
-        ${ee==="none"?d:ee==="slim"?this._renderSlimHeader(e,f,x,g):this._renderHeader(e,f,x,p,g,c,b,v)}
-        ${this._renderButtons(S,f,k)}
-        ${S==="session"?this._renderSessionView(f,x,b):S==="events"?this._renderEventsView():S==="sprites"?this._renderSpritesView(m):S==="trends"?this._renderTrendsView():S==="pass"?this._renderPassView(c):this._renderStatsView(p,g,b,v,u)}
+      </div></ha-card>`;let v=o?.state==="on"||e?.state==="active",y=e?.attributes||{},p=a?.attributes||{},m=h?.attributes||{},f={...s?.attributes||{},current_rank:s?.state},g={...r?.attributes||{},current_rank:r?.state},k=!!h?.attributes?.outfits?.owned_count,S=this._sections.filter(Mt=>this._sections.length===1||(Mt!=="sprites"||_)&&(Mt!=="locker"||k)),C=this._config.default_section,M=v&&S.includes("session")?"session":S.includes("stats")?"stats":S[0],A=this._view??(C&&C!=="auto"&&S.includes(C)?C:M);S.includes(A)||(A=M),this._renderedView=A;let Ct=this._config.header||"full",ct="",At={victory_gold:"#FFD700",slurp_cyan:"#00E5FF",storm_purple:"#A855F7"};At[this._config.theme_accent||""]&&(ct+=`--accent: ${At[this._config.theme_accent]};`),this._config.custom_background&&(ct+=` --card-bg: url('${this._config.custom_background}') center/cover no-repeat;`);let te=`theme-${this._config.card_style||"bubble"}${this._config.compact?" compact":""}`;return n`
+      <ha-card class=${te} style="${ct}">
+        ${Ct==="none"?d:Ct==="slim"?this._renderSlimHeader(t,v,y,m):this._renderHeader(t,v,y,p,m,c,f,g)}
+        ${this._renderButtons(A,v,S)}
+        ${A==="session"?this._renderSessionView(v,y,f):A==="events"?this._renderEventsView():A==="sprites"?this._renderSpritesView(b):A==="trends"?this._renderTrendsView():A==="pass"?this._renderPassView(c):A==="locker"?this._renderLockerView(m):this._renderStatsView(p,m,f,g,u)}
       </ha-card>
-    `}_renderHeader(e,t,a,i,r,c,l,h){let m=r.display_name||e.charAt(0).toUpperCase()+e.slice(1),u=r.season||this._catalog.season,_=this._config.show_platforms!==!1?r.platforms||[]:[],f=i.metrics?.last_played,x=c?.attributes||{},p=Number(c?.state)||0,g=Number(x.account_level||0),b=this._avatar?.icon,v=this._config.compact?20:24,k=this._findEntity("sensor","vbucks"),E=!this._config.hide_vbucks&&k&&!isNaN(Number(k.state)),z=k?.attributes?.crew;return n`
+    `}_renderHeader(t,e,a,s,r,c,o,h){let b=r.display_name||t.charAt(0).toUpperCase()+t.slice(1),u=r.season||this._catalog.season,_=this._config.show_platforms!==!1?r.platforms||[]:[],v=s.metrics?.last_played,y=c?.attributes||{},p=Number(c?.state)||0,m=Number(y.account_level||0),f=this._avatarImage(r),g=this._config.compact?20:24,k=this._findEntity("sensor","vbucks"),S=!this._config.hide_vbucks&&k&&!isNaN(Number(k.state)),C=k?.attributes?.crew;return n`
       <div class="fa-header">
-        <div class="player-avatar ${b?"has-image":""}">
-          ${b?n`<img src=${b} alt=${this._avatar?.name||""} @error=${C} />`:e.slice(0,2).toUpperCase()}
+        <div class="player-avatar ${f?"has-image":""}">
+          ${f?n`<img src=${f} alt=${this._avatarName(r)} @error=${E} />`:t.slice(0,2).toUpperCase()}
         </div>
         <div class="player-info">
           <div class="name-row">
-            <h2>${m}</h2>
+            <h2>${b}</h2>
             <span class="header-ranks">
-              ${l.current_rank&&l.current_rank!=="Unranked"?this._rankBadge(l.current_rank,v):d}
-              ${h.current_rank&&h.current_rank!=="Unranked"?this._rankBadge(h.current_rank,v):d}
+              ${o.current_rank&&o.current_rank!=="Unranked"?this._rankBadge(o.current_rank,g):d}
+              ${h.current_rank&&h.current_rank!=="Unranked"?this._rankBadge(h.current_rank,g):d}
             </span>
           </div>
           <div class="player-meta">
             ${u?.number?n`<span class="level-badge">S${u.number} · ${u.days_left}d left</span>`:d}
             ${!this._config.hide_season_level&&p>0?n`<span class="level-badge">Lvl ${p}</span>`:d}
-            ${!this._config.hide_account_level&&g>0?n`<span>Acct ${g.toLocaleString()}</span>`:d}
-            ${E?n`<span class="vbucks-chip" title=${Object.entries(k.attributes?.by_kind||{}).map(([S,ee])=>`${S}: ${this._num(ee)}`).join(" \xB7 ")||"V-Bucks"}>Ⓥ ${this._num(k.state)}</span>`:d}
-            ${z?.active&&!this._config.hide_vbucks?n`<span class="crew-chip" title="Fortnite Crew${z.end_date?` \xB7 renews ${this._formatWhen(z.end_date)}`:""}">Crew</span>`:d}
-            ${f?.time&&!t?n`<span title=${f.name||""}>Played ${this._formatRelativeTime(f.time)}</span>`:d}
+            ${!this._config.hide_account_level&&m>0?n`<span>Acct ${m.toLocaleString()}</span>`:d}
+            ${S?n`<span class="vbucks-chip" title=${Object.entries(k.attributes?.by_kind||{}).map(([M,A])=>`${M}: ${this._num(A)}`).join(" \xB7 ")||"V-Bucks"}>Ⓥ ${this._num(k.state)}</span>`:d}
+            ${C?.active&&!this._config.hide_vbucks?n`<span class="crew-chip" title="Fortnite Crew${C.end_date?` \xB7 renews ${this._formatWhen(C.end_date)}`:""}">Crew</span>`:d}
+            ${v?.time&&!e?n`<span title=${v.name||""}>Played ${this._formatRelativeTime(v.time)}</span>`:d}
           </div>
           ${_.length?n`<div class="platforms">
-                ${_.map(S=>n`<span class="platform-chip" title=${S.name||S.label}>${S.label}${S.name?n` · ${S.name}`:d}</span>`)}
+                ${_.map(M=>n`<span class="platform-chip" title=${M.name||M.label}>${M.label}${M.name?n` · ${M.name}`:d}</span>`)}
               </div>`:d}
         </div>
-        <div class="status-pill ${t?"live":"idle"}">
-          ${t?n`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(a.duration_minutes||0)}</span>`:n`<span>IDLE</span>`}
+        <div class="status-pill ${e?"live":"idle"}">
+          ${e?n`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(a.duration_minutes||0)}</span>`:n`<span>IDLE</span>`}
         </div>
       </div>
       ${u?.progress_pct!==void 0&&!this._config.compact?n`<div class="season-bar" title="Season ${u.number}: ${u.progress_pct}% complete">
             <div class="season-bar-fill" style="width:${Math.min(100,u.progress_pct)}%"></div>
           </div>`:d}
-    `}_liveEventCount(){let e=this._currentFilters();return(this._events.list||[]).filter(t=>this._matchesFilters(t,e)&&t.windows.some(a=>this._windowState(a)==="live")).length}_renderSlimHeader(e,t,a,i){let r=i.display_name||e.charAt(0).toUpperCase()+e.slice(1),c=this._avatar?.icon,l=this._findEntity("sensor","vbucks"),h=!this._config.hide_vbucks&&l&&!isNaN(Number(l.state));return n`
+    `}_liveEventCount(){let t=this._currentFilters();return(this._events.list||[]).filter(e=>this._matchesFilters(e,t)&&e.windows.some(a=>this._windowState(a)==="live")).length}_avatarImage(t){return(this._config.avatar||"").trim()?this._avatar?.icon:t?.outfits?.equipped?.icon||void 0}_avatarName(t){return(this._config.avatar||"").trim()?this._avatar?.name||"":t?.outfits?.equipped?.name||""}_renderSlimHeader(t,e,a,s){let r=s.display_name||t.charAt(0).toUpperCase()+t.slice(1),c=this._avatarImage(s),o=this._findEntity("sensor","vbucks"),h=!this._config.hide_vbucks&&o&&!isNaN(Number(o.state));return n`
       <div class="fa-header slim">
         <div class="player-avatar ${c?"has-image":""}">
-          ${c?n`<img src=${c} alt="" @error=${C} />`:e.slice(0,2).toUpperCase()}
+          ${c?n`<img src=${c} alt="" @error=${E} />`:t.slice(0,2).toUpperCase()}
         </div>
         <div class="player-info">
           <div class="name-row">
             <h2>${r}</h2>
-            ${h?n`<span class="vbucks-chip">Ⓥ ${this._num(l.state)}</span>`:d}
+            ${h?n`<span class="vbucks-chip">Ⓥ ${this._num(o.state)}</span>`:d}
           </div>
         </div>
-        <div class="status-pill ${t?"live":"idle"}">
-          ${t?n`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(a.duration_minutes||0)}</span>`:n`<span>IDLE</span>`}
+        <div class="status-pill ${e?"live":"idle"}">
+          ${e?n`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(a.duration_minutes||0)}</span>`:n`<span>IDLE</span>`}
         </div>
       </div>
-    `}_renderButtons(e,t,a){let i=a.length>1,r=!this._config.sections?.length&&this._config.layout==="events_only",c=this._config.show_sub_buttons!==!1&&!r;if(!i&&!c)return d;let l=this._eventsEnabled?this._liveEventCount():0,h={session:["mdi:lightning-bolt",t?"Live Session":"Last Session"],stats:["mdi:trophy-outline","Stats"],events:["mdi:tournament","Events",l],sprites:["mdi:ghost-outline","Sprites"],trends:["mdi:chart-line","Trends"],pass:["mdi:ticket-confirmation-outline","Pass"]},m=(u,_,f,x=0)=>n`
-      <button class="bubble-sub-button ${e===u?"active":""}" @click=${()=>this._setView(u)} title=${f}>
-        <ha-icon icon=${_}></ha-icon><span class="btn-label">${f}</span>
-        ${x>0?n`<span class="notify-badge" title="${x} live">${x}</span>`:d}
+    `}_renderButtons(t,e,a){let s=a.length>1,r=!this._config.sections?.length&&this._config.layout==="events_only",c=this._config.show_sub_buttons!==!1&&!r;if(!s&&!c)return d;let o=this._eventsEnabled?this._liveEventCount():0,h={session:["mdi:lightning-bolt",e?"Live Session":"Last Session"],stats:["mdi:trophy-outline","Stats"],events:["mdi:tournament","Events",o],sprites:["mdi:ghost-outline","Sprites"],trends:["mdi:chart-line","Trends"],pass:["mdi:ticket-confirmation-outline","Pass"],locker:["mdi:hanger","Locker"]},b=(u,_,v,y=0)=>n`
+      <button class="bubble-sub-button ${t===u?"active":""}" @click=${()=>this._setView(u)} title=${v}>
+        <ha-icon icon=${_}></ha-icon><span class="btn-label">${v}</span>
+        ${y>0?n`<span class="notify-badge" title="${y} live">${y}</span>`:d}
       </button>
     `;return n`
       <div class="sub-button-row">
-        ${i?a.map(u=>m(u,h[u][0],h[u][1],h[u][2]||0)):d}
-        ${c?t?n`<button class="bubble-sub-button" title="End Session" @click=${()=>this._callService("end_session")} ?disabled=${this._loadingAction==="end_session"}>
+        ${s?a.map(u=>b(u,h[u][0],h[u][1],h[u][2]||0)):d}
+        ${c?e?n`<button class="bubble-sub-button" title="End Session" @click=${()=>this._callService("end_session")} ?disabled=${this._loadingAction==="end_session"}>
               <ha-icon icon="mdi:stop-circle-outline"></ha-icon>
               <span class="btn-label">${this._loadingAction==="end_session"?"Stopping...":"End Session"}</span>
             </button>`:n`<button class="bubble-sub-button" title="Start Session" @click=${()=>this._callService("start_session")} ?disabled=${this._loadingAction==="start_session"}>
@@ -1479,113 +1536,113 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
               <span class="btn-label">${this._loadingAction==="refresh_player"?"Refreshing...":"Refresh"}</span>
             </button>`:d}
       </div>
-    `}_renderKpis(e){if(this._config.compact){let t=[];for(let a=0;a<e.length;a+=2)t.push(e.slice(a,a+2));return n`<table class="stat-table"><tbody>
-        ${t.map(a=>n`<tr>
-          ${a.map(([i,r,c])=>n`<th>${i}</th><td class="kpi-value ${c||""}">${r}</td>`)}
+    `}_renderKpis(t){if(this._config.compact){let e=[];for(let a=0;a<t.length;a+=2)e.push(t.slice(a,a+2));return n`<table class="stat-table"><tbody>
+        ${e.map(a=>n`<tr>
+          ${a.map(([s,r,c])=>n`<th>${s}</th><td class="kpi-value ${c||""}">${r}</td>`)}
           ${a.length<2?n`<th></th><td></td>`:d}
         </tr>`)}
       </tbody></table>`}return n`<div class="kpi-row">
-      ${e.map(([t,a,i])=>n`<div class="kpi-chip"><span class="kpi-label">${t}</span><span class="kpi-value ${i||""}">${a}</span></div>`)}
-    </div>`}_renderRank(e,t,a,i){let r=t.current_rank||"Unranked",c=Number(t.progress_pct||0),l=r.startsWith("Unreal");return n`
+      ${t.map(([e,a,s])=>n`<div class="kpi-chip"><span class="kpi-label">${e}</span><span class="kpi-value ${s||""}">${a}</span></div>`)}
+    </div>`}_renderRank(t,e,a,s){let r=e.current_rank||"Unranked",c=Number(e.progress_pct||0),o=r.startsWith("Unreal");return n`
       <div class="rank-section">
         <div class="rank-header">
-          <span class="rank-title">${this._rankBadge(r,this._config.compact?26:34)}<span>${e}</span></span>
-          <span class="rank-name" style="color: ${(j[Object.keys(j).find(h=>r.startsWith(h))||""]||["var(--secondary-text-color)"])[0]}">${r}</span>
+          <span class="rank-title">${this._rankBadge(r,this._config.compact?26:34)}<span>${t}</span></span>
+          <span class="rank-name" style="color: ${(H[Object.keys(H).find(h=>r.startsWith(h))||""]||["var(--secondary-text-color)"])[0]}">${r}</span>
         </div>
-        ${l?n`<div class="unreal-position">
-              <span class="unreal-number">${t.unreal_rank?`#${this._num(t.unreal_rank)}`:"Unreal"}</span>
-              ${i?n`<span class="rank-delta-badge ${i>0?"pos":"neg"}">${i>0?"\u25B2":"\u25BC"} ${this._num(Math.abs(i))} places</span>`:d}
+        ${o?n`<div class="unreal-position">
+              <span class="unreal-number">${e.unreal_rank?`#${this._num(e.unreal_rank)}`:"Unreal"}</span>
+              ${s?n`<span class="rank-delta-badge ${s>0?"pos":"neg"}">${s>0?"\u25B2":"\u25BC"} ${this._num(Math.abs(s))} places</span>`:d}
             </div>`:this._config.hide_rank_progress?d:n`<div class="progress-bar-bg">
                 <div class="progress-bar-fill" style="width: ${Math.min(100,Math.max(0,c))}%;"></div>
               </div>`}
         <div class="rank-meta">
-          <span>${l?"Unreal leaderboard position":`${c}% to promotion`}</span>
+          <span>${o?"Unreal leaderboard position":`${c}% to promotion`}</span>
           <span>${a}</span>
         </div>
       </div>
-    `}_renderSessionView(e,t,a){let i=Number(t.net_rank_delta_pct||0),r=f=>f>=0?`+${f}%`:`${f}%`,c=t.session_id,l=c?`session:${c}:${t.matches_played||0}`:"";l&&this._config.show_match_feed!==!1&&this._ensureMatches(l,{session_id:c});let m=(l?this._matchLists[l]?.matches:void 0)||t.recent_matches||[],u=m.filter(f=>this._isRanked(f)),_=u.filter(f=>f.rank_track===a.game_mode&&typeof f.unreal_rank_change=="number").reduce((f,x)=>f+(x.unreal_rank_change||0),0);return n`
-      ${this._renderKpis([["Matches",t.matches_played||0,"cyan"],["Wins",`${t.wins||0} \u{1F3C6}`,"gold"],["Kills",t.kills||0],["K/D",t.kd_ratio||0],...u.length?[["Rank Net",r(i),i>=0?"positive":"negative"]]:[]])}
+    `}_renderSessionView(t,e,a){let s=Number(e.net_rank_delta_pct||0),r=v=>v>=0?`+${v}%`:`${v}%`,c=e.session_id,o=c?`session:${c}:${e.matches_played||0}`:"";o&&this._config.show_match_feed!==!1&&this._ensureMatches(o,{session_id:c});let b=(o?this._matchLists[o]?.matches:void 0)||e.recent_matches||[],u=b.filter(v=>this._isRanked(v)),_=u.filter(v=>v.rank_track===a.game_mode&&typeof v.unreal_rank_change=="number").reduce((v,y)=>v+(y.unreal_rank_change||0),0);return n`
+      ${this._renderKpis([["Matches",e.matches_played||0,"cyan"],["Wins",`${e.wins||0} \u{1F3C6}`,"gold"],["Kills",e.kills||0],["K/D",e.kd_ratio||0],...u.length?[["Rank Net",r(s),s>=0?"positive":"negative"]]:[]])}
 
-      ${u.length?this._renderRank("Battle Royale Ranked",a,`${i>=0?"\u25B2":"\u25BC"} ${r(i)} this session`,_||null):d}
+      ${u.length?this._renderRank("Battle Royale Ranked",a,`${s>=0?"\u25B2":"\u25BC"} ${r(s)} this session`,_||null):d}
 
       ${this._config.show_match_feed!==!1?n`
             <div class="match-feed-header">
-              <span>Match Feed (${t.matches_played||m.length} ${(t.matches_played||m.length)===1?"match":"matches"})</span>
-              ${e?n`<span class="tracking-live">Tracking Live</span>`:d}
+              <span>Match Feed (${e.matches_played||b.length} ${(e.matches_played||b.length)===1?"match":"matches"})</span>
+              ${t?n`<span class="tracking-live">Tracking Live</span>`:d}
             </div>
-            ${this._renderMatchList(l||"session",m,n`No matches recorded in this session yet.<br />
+            ${this._renderMatchList(o||"session",b,n`No matches recorded in this session yet.<br />
                 <small>Matches appear here once Fortnite publishes the finished game's stats.</small>`)}
           `:d}
-    `}_renderMatchList(e,t,a){let i=this._config.max_feed_matches||10,r=this._showAllMatches[e],c=r?t:t.slice(0,i);return n`
+    `}_renderMatchList(t,e,a){let s=this._config.max_feed_matches||10,r=this._showAllMatches[t],c=r?e:e.slice(0,s);return n`
       <div class="match-list">
-        ${c.length?c.map(l=>this._renderMatch(l)):n`<div class="empty">${a}</div>`}
-        ${t.length>i?n`<button class="mini-button show-more" @click=${()=>this._showAllMatches={...this._showAllMatches,[e]:!r}}>
-              ${r?"Show fewer":`Show all ${t.length}`}
+        ${c.length?c.map(o=>this._renderMatch(o)):n`<div class="empty">${a}</div>`}
+        ${e.length>s?n`<button class="mini-button show-more" @click=${()=>this._showAllMatches={...this._showAllMatches,[t]:!r}}>
+              ${r?"Show fewer":`Show all ${e.length}`}
             </button>`:d}
       </div>
-    `}_renderMatch(e){let t=this._playlist(e.playlist_id),a=t?.image,i=`${e.timestamp}|${e.playlist_id}`,r=this._expandedMatch===i,c=(e.match_count||1)>1,l=this._isRanked(e),h=(m,u)=>u==null||u===""?d:n`<div class="detail"><span>${m}</span><b>${u}</b></div>`;return n`
-      <div class="match-card ${e.is_victory?"victory":""} ${r?"expanded":""}"
-        @click=${()=>this._expandedMatch=r?null:i}>
+    `}_renderMatch(t){let e=this._playlist(t.playlist_id),a=e?.image,s=`${t.timestamp}|${t.playlist_id}`,r=this._expandedMatch===s,c=(t.match_count||1)>1,o=this._isRanked(t),h=(b,u)=>u==null||u===""?d:n`<div class="detail"><span>${b}</span><b>${u}</b></div>`;return n`
+      <div class="match-card ${t.is_victory?"victory":""} ${r?"expanded":""}"
+        @click=${()=>this._expandedMatch=r?null:s}>
         <div class="match-row">
-          ${a?n`<img class="match-art" src=${a} alt="" loading="lazy" @error=${C} />`:d}
+          ${a?n`<img class="match-art" src=${a} alt="" loading="lazy" @error=${E} />`:d}
           <div class="match-left">
             <div class="match-headline">
-              <span class="match-num">#${e.match_number}${(e.match_count||1)>1?` \xD7${e.match_count}`:""}</span>
-              <span class="placement-badge ${e.is_victory?"win":""}">${e.placement_text}</span>
+              <span class="match-num">#${t.match_number}${(t.match_count||1)>1?` \xD7${t.match_count}`:""}</span>
+              <span class="placement-badge ${t.is_victory?"win":""}">${t.placement_text}</span>
             </div>
-            <span class="match-mode">${e.mode_name} • ${this._formatRelativeTime(e.timestamp)}</span>
+            <span class="match-mode">${t.mode_name} • ${this._formatRelativeTime(t.timestamp)}</span>
           </div>
           <div class="match-right">
-            <span class="kills-badge"><ha-icon icon="mdi:skull-outline" style="--mdc-icon-size: 16px;"></ha-icon>${e.kills}</span>
-            ${e.rank_delta_pct&&this._isRanked(e)?n`<span class="rank-delta-badge ${e.rank_delta_pct>=0?"pos":"neg"}">
-                  ${e.rank_delta_pct>=0?`+${e.rank_delta_pct}%`:`${e.rank_delta_pct}%`}
+            <span class="kills-badge"><ha-icon icon="mdi:skull-outline" style="--mdc-icon-size: 16px;"></ha-icon>${t.kills}</span>
+            ${t.rank_delta_pct&&this._isRanked(t)?n`<span class="rank-delta-badge ${t.rank_delta_pct>=0?"pos":"neg"}">
+                  ${t.rank_delta_pct>=0?`+${t.rank_delta_pct}%`:`${t.rank_delta_pct}%`}
                 </span>`:d}
           </div>
           <ha-icon class="chevron" icon=${r?"mdi:chevron-up":"mdi:chevron-down"}></ha-icon>
         </div>
-        ${r?n`<div class="match-details" @click=${m=>m.stopPropagation()}>
-              ${a?n`<img class="detail-art" src=${a} alt="" @error=${C} />`:d}
-              ${t?.description?n`<p class="detail-desc">${t.description}</p>`:d}
+        ${r?n`<div class="match-details" @click=${b=>b.stopPropagation()}>
+              ${a?n`<img class="detail-art" src=${a} alt="" @error=${E} />`:d}
+              ${e?.description?n`<p class="detail-desc">${e.description}</p>`:d}
               <div class="detail-grid">
-                ${h("Finished",this._formatWhen(e.timestamp))}
-                ${h("Mode",e.mode_name)}
-                ${h("Placement",e.placement_text)}
-                ${h("Kills",e.kills)}
-                ${c?h("Games",e.match_count):d}
-                ${c&&e.wins?h("Victories",e.wins):d}
-                ${h("Time played",e.minutes?this._formatDuration(e.minutes):void 0)}
-                ${h("Score",e.score?this._num(e.score):void 0)}
-                ${h("Players outlived",e.players_outlived?this._num(e.players_outlived):void 0)}
-                ${l?n`
-                      ${h("Ranked track",e.rank_track)}
-                      ${h("Rank after",e.unreal_rank?`${e.current_rank} #${this._num(e.unreal_rank)}`:e.current_rank)}
-                      ${h("Rank change",e.rank_delta_pct?`${e.rank_delta_pct>0?"+":""}${e.rank_delta_pct}%`:void 0)}
-                      ${h("Unreal places",e.unreal_rank_change?`${e.unreal_rank_change>0?"\u25B2":"\u25BC"} ${this._num(Math.abs(e.unreal_rank_change))}`:void 0)}`:d}
+                ${h("Finished",this._formatWhen(t.timestamp))}
+                ${h("Mode",t.mode_name)}
+                ${h("Placement",t.placement_text)}
+                ${h("Kills",t.kills)}
+                ${c?h("Games",t.match_count):d}
+                ${c&&t.wins?h("Victories",t.wins):d}
+                ${h("Time played",t.minutes?this._formatDuration(t.minutes):void 0)}
+                ${h("Score",t.score?this._num(t.score):void 0)}
+                ${h("Players outlived",t.players_outlived?this._num(t.players_outlived):void 0)}
+                ${o?n`
+                      ${h("Ranked track",t.rank_track)}
+                      ${h("Rank after",t.unreal_rank?`${t.current_rank} #${this._num(t.unreal_rank)}`:t.current_rank)}
+                      ${h("Rank change",t.rank_delta_pct?`${t.rank_delta_pct>0?"+":""}${t.rank_delta_pct}%`:void 0)}
+                      ${h("Unreal places",t.unreal_rank_change?`${t.unreal_rank_change>0?"\u25B2":"\u25BC"} ${this._num(Math.abs(t.unreal_rank_change))}`:void 0)}`:d}
               </div>
-              ${(e.match_count||1)>1?n`<small class="muted">Several games finished between polls; totals are combined.</small>`:d}
+              ${(t.match_count||1)>1?n`<small class="muted">Several games finished between polls; totals are combined.</small>`:d}
             </div>`:d}
       </div>
-    `}_renderStatsView(e,t,a,i,r){let c=t.windows||{},l=t.window_labels||{},h=["lifetime",...["season","week","today"].filter(E=>c[E])],m=h.includes(this._window)?this._window:"lifetime",u={lifetime:"Lifetime",season:"Season",week:"7 Days",today:"Today"},_=e.metrics||{},f={matches:e.total_matches||0,kills:e.total_kills||0,wins:e.total_wins||0,kd:e.kd_ratio||0,win_rate:e.win_rate_pct||0,players_outlived:e.players_outlived||0,hours_played:_.hours_played,favourite_mode:_.favourite_mode,modes:e.modes||{}},x=m==="lifetime"?f:c[m],p=this._selectedMode!=="all"?x.modes?.[this._selectedMode]:null,g=p&&p.matches!==void 0?p:x,b=g.minutes!==void 0?Math.round(g.minutes/60*10)/10:x.hours_played,v=x.favourite_mode,k=(E,z)=>n`
-      <button class="mode-tab ${this._selectedMode===E?"active":""}" @click=${()=>this._selectedMode=E}>${z}</button>
+    `}_renderStatsView(t,e,a,s,r){let c=e.windows||{},o=e.window_labels||{},h=["lifetime",...["season","week","today"].filter(S=>c[S])],b=h.includes(this._window)?this._window:"lifetime",u={lifetime:"Lifetime",season:"Season",week:"7 Days",today:"Today"},_=t.metrics||{},v={matches:t.total_matches||0,kills:t.total_kills||0,wins:t.total_wins||0,kd:t.kd_ratio||0,win_rate:t.win_rate_pct||0,players_outlived:t.players_outlived||0,hours_played:_.hours_played,favourite_mode:_.favourite_mode,modes:t.modes||{}},y=b==="lifetime"?v:c[b],p=this._selectedMode!=="all"?y.modes?.[this._selectedMode]:null,m=p&&p.matches!==void 0?p:y,f=m.minutes!==void 0?Math.round(m.minutes/60*10)/10:y.hours_played,g=y.favourite_mode,k=(S,C)=>n`
+      <button class="mode-tab ${this._selectedMode===S?"active":""}" @click=${()=>this._selectedMode=S}>${C}</button>
     `;return n`
       <div class="tab-rows">
         ${h.length>1?n`<div class="mode-tabs">
-              ${h.map(E=>n`<button class="mode-tab ${m===E?"active":""}" title=${l[E]||""}
-                  @click=${()=>this._window=E}>${u[E]}</button>`)}
+              ${h.map(S=>n`<button class="mode-tab ${b===S?"active":""}" title=${o[S]||""}
+                  @click=${()=>this._window=S}>${u[S]}</button>`)}
             </div>`:d}
         <div class="mode-tabs">
           ${k("all","Overall")} ${k("zero_build","Zero Build")} ${k("build","Build")} ${k("reload","Reload")}
         </div>
       </div>
 
-      ${this._renderKpis([["Win Rate",`${g.win_rate||0}%`,"cyan"],["K/D",g.kd||0],["Wins",n`${this._num(g.wins)} 🏆`,"gold"],["Matches",this._num(g.matches)],["Kills",this._num(g.kills)],["Outlived",this._num(g.players_outlived)],["Kills/Match",g.matches?this._num(g.kills/g.matches,2):0],...b!==void 0?[["Hours",this._num(b,1)]]:[]])}
+      ${this._renderKpis([["Win Rate",`${m.win_rate||0}%`,"cyan"],["K/D",m.kd||0],["Wins",n`${this._num(m.wins)} 🏆`,"gold"],["Matches",this._num(m.matches)],["Kills",this._num(m.kills)],["Outlived",this._num(m.players_outlived)],["Kills/Match",m.matches?this._num(m.kills/m.matches,2):0],...f!==void 0?[["Hours",this._num(f,1)]]:[]])}
 
-      ${m==="lifetime"&&this._selectedMode==="all"?this._renderLifetimeExtras(e):d}
-      ${v?this._renderFavourite(v,m!=="lifetime"?u[m]:""):d}
-      ${m!=="lifetime"&&x?.since?this._renderWindowMatches(m,u[m],x):d}
+      ${b==="lifetime"&&this._selectedMode==="all"?this._renderLifetimeExtras(t):d}
+      ${g?this._renderFavourite(g,b!=="lifetime"?u[b]:""):d}
+      ${b!=="lifetime"&&y?.since?this._renderWindowMatches(b,u[b],y):d}
 
       ${this._renderRank("Battle Royale",a,`Peak: ${a.highest_rank||a.current_rank||"Unranked"}`)}
-      ${this._renderRank("Reload",i,`Peak: ${i.highest_rank||i.current_rank||"Unranked"}`)}
+      ${this._renderRank("Reload",s,`Peak: ${s.highest_rank||s.current_rank||"Unranked"}`)}
       ${this._renderOtherTracks(a)}
       ${r&&!["unavailable","unknown"].includes(r.state)?n`<div class="rank-section power-ranking">
             <div class="rank-header">
@@ -1595,117 +1652,161 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
             <div class="rank-meta"><span>${this._num(r.attributes?.points)} points${r.attributes?.counting_events!=null?` \xB7 ${r.attributes.counting_events} counting events`:""}</span>
               <span>${r.attributes?.peak_pr!=null?`Peak PR ${this._num(r.attributes.peak_pr)}`:"Competitive (tournaments)"}${r.attributes?.delta_pr?` \xB7 ${r.attributes.delta_pr>0?"\u25B2":"\u25BC"} ${this._num(Math.abs(r.attributes.delta_pr))}`:""}</span></div>
           </div>`:d}
-      ${t.epic_link==="relink_required"?n`<div class="notice">Epic sign-in expired — Sprites, level and Power Ranking are paused.
+      ${e.epic_link==="relink_required"?n`<div class="notice">Epic sign-in expired — Sprites, level and Power Ranking are paused.
             Re-link via Settings › Devices &amp; services › Fortnite Activity › Configure.</div>`:d}
-    `}_renderOtherTracks(e){let t=(e.all_tracks||[]).filter(a=>!["Battle Royale","Reload Build"].includes(a.game_mode)&&a.current_rank&&a.current_rank!=="Unranked");return t.length?n`<div class="split-section">
+    `}_renderOtherTracks(t){let e=(t.all_tracks||[]).filter(a=>!["Battle Royale","Reload Build"].includes(a.game_mode)&&a.current_rank&&a.current_rank!=="Unranked");return e.length?n`<div class="split-section">
       <div class="section-title">Other ranked tracks</div>
-      ${t.map(a=>n`
+      ${e.map(a=>n`
         <div class="track-row">
           ${this._rankBadge(a.current_rank,22)}
           <span class="variant-name">${a.game_mode}</span>
-          <span style="color:${(j[Object.keys(j).find(i=>a.current_rank.startsWith(i))||""]||["inherit"])[0]}">${a.current_rank}${a.unreal_rank?` #${this._num(a.unreal_rank)}`:""}</span>
+          <span style="color:${(H[Object.keys(H).find(s=>a.current_rank.startsWith(s))||""]||["inherit"])[0]}">${a.current_rank}${a.unreal_rank?` #${this._num(a.unreal_rank)}`:""}</span>
           <span class="muted">${a.current_rank.startsWith("Unreal")?"":`${a.progress_pct}%`}</span>
         </div>`)}
-    </div>`:d}_lineChart(e,t,a){let l=e.map(v=>v.v),h=Math.min(...l),m=Math.max(...l),u=m-h||Math.abs(m)||1,_=e[0].t,f=e[e.length-1].t||_+1,x=v=>6+(v-_)/(f-_||1)*308,p=v=>84-(v-h)/u*78,g=e.map((v,k)=>`${k?"L":"M"}${x(v.t).toFixed(1)},${p(v.v).toFixed(1)}`).join(" "),b=v=>new Date(v).toLocaleString("en-GB",a==="hour"?{day:"numeric",month:"short",hour:"numeric",hour12:!0}:{day:"numeric",month:"short"});return n`<svg class="trend-svg" viewBox="0 0 ${320} ${90}" preserveAspectRatio="none" role="img">
-      ${R`<line x1="${6}" x2="${314}" y1="${84}" y2="${84}" class="trend-base"></line>
-        <path d="${g}" class="trend-line"></path>
-        ${e.map(v=>R`<g class="trend-pt"><circle cx="${x(v.t)}" cy="${p(v.v)}" r="7" class="trend-hit"></circle><circle cx="${x(v.t)}" cy="${p(v.v)}" r="2.5" class="trend-dot"></circle><title>${b(v.t)}: ${t(v.v)}</title></g>`)}`}
-    </svg>`}_renderKillsChart(){let t=[...this._matchLists["trend:recent"]?.matches||[]].reverse();if(!t.length)return n`<div class="empty">No tracked games yet — they appear after a tracked session.</div>`;let a=320,i=100,r=4,c=Math.max(4,...t.map(h=>h.kills||0)),l=(a-2*r)/t.length;return n`<svg class="trend-svg" viewBox="0 0 ${a} ${i+12}" preserveAspectRatio="none" role="img">
-      ${R`${t.map((h,m)=>{let u=Math.max(2,(h.kills||0)/c*(i-14)),_=r+m*l+1;return R`<g><rect x="${_}" y="${i-u}" width="${Math.max(2,l-2)}" height="${u}" rx="2" class="kill-bar"></rect>
-          ${h.is_victory?R`<text x="${_+(l-2)/2}" y="${i-u-3}" text-anchor="middle" class="win-mark">★</text>`:d}
-          <rect x="${_-1}" y="0" width="${l}" height="${i}" fill="transparent"><title>${this._formatWhen(h.timestamp)} · ${h.mode_name}: ${h.kills} kills · ${h.placement_text}</title></rect></g>`})}
-      <line x1="${r}" x2="${a-r}" y1="${i}" y2="${i}" class="trend-base"></line>`}
+    </div>`:d}_lineChart(t,e,a){let o=t.map(g=>g.v),h=Math.min(...o),b=Math.max(...o),u=b-h||Math.abs(b)||1,_=t[0].t,v=t[t.length-1].t||_+1,y=g=>6+(g-_)/(v-_||1)*308,p=g=>84-(g-h)/u*78,m=t.map((g,k)=>`${k?"L":"M"}${y(g.t).toFixed(1)},${p(g.v).toFixed(1)}`).join(" "),f=g=>new Date(g).toLocaleString("en-GB",a==="hour"?{day:"numeric",month:"short",hour:"numeric",hour12:!0}:{day:"numeric",month:"short"});return n`<svg class="trend-svg" viewBox="0 0 ${320} ${90}" preserveAspectRatio="none" role="img">
+      ${P`<line x1="${6}" x2="${314}" y1="${84}" y2="${84}" class="trend-base"></line>
+        <path d="${m}" class="trend-line"></path>
+        ${t.map(g=>P`<g class="trend-pt"><circle cx="${y(g.t)}" cy="${p(g.v)}" r="7" class="trend-hit"></circle><circle cx="${y(g.t)}" cy="${p(g.v)}" r="2.5" class="trend-dot"></circle><title>${f(g.t)}: ${e(g.v)}</title></g>`)}`}
+    </svg>`}_renderKillsChart(){let e=[...this._matchLists["trend:recent"]?.matches||[]].reverse();if(!e.length)return n`<div class="empty">No tracked games yet — they appear after a tracked session.</div>`;let a=320,s=100,r=4,c=Math.max(4,...e.map(h=>h.kills||0)),o=(a-2*r)/e.length;return n`<svg class="trend-svg" viewBox="0 0 ${a} ${s+12}" preserveAspectRatio="none" role="img">
+      ${P`${e.map((h,b)=>{let u=Math.max(2,(h.kills||0)/c*(s-14)),_=r+b*o+1;return P`<g><rect x="${_}" y="${s-u}" width="${Math.max(2,o-2)}" height="${u}" rx="2" class="kill-bar"></rect>
+          ${h.is_victory?P`<text x="${_+(o-2)/2}" y="${s-u-3}" text-anchor="middle" class="win-mark">★</text>`:d}
+          <rect x="${_-1}" y="0" width="${o}" height="${s}" fill="transparent"><title>${this._formatWhen(h.timestamp)} · ${h.mode_name}: ${h.kills} kills · ${h.placement_text}</title></rect></g>`})}
+      <line x1="${r}" x2="${a-r}" y1="${s}" y2="${s}" class="trend-base"></line>`}
     </svg>
-    <div class="rank-meta"><span>Oldest → newest · ★ = Victory Royale</span><span>Max ${c} kills</span></div>`}_renderTrendsView(){let e=this._trends,t=Ge.map(a=>{let i=this._entityId("sensor",a.key);if(!i)return d;let r=((e.stats||{})[i]||[]).map(f=>({t:typeof f.start=="number"?f.start:Date.parse(f.start),v:f.mean??f.state??f.max})).filter(f=>typeof f.v=="number"),c=this.hass.states[i];if(!r.length&&(!c||["unavailable","unknown"].includes(c.state)))return d;let l=f=>`${this._num(f,a.digits||0)}${a.unit||""}`,h=r[0]?.v,m=r[r.length-1]?.v,u=r.length>1?m-h:null,_=u==null||u===0?"":u>0!=!!a.lowerBetter?"positive":"negative";return n`<div class="trend-card">
+    <div class="rank-meta"><span>Oldest → newest · ★ = Victory Royale</span><span>Max ${c} kills</span></div>`}_renderTrendsView(){let t=this._trends,e=Qt.map(a=>{let s=this._entityId("sensor",a.key);if(!s)return d;let r=((t.stats||{})[s]||[]).map(v=>({t:typeof v.start=="number"?v.start:Date.parse(v.start),v:v.mean??v.state??v.max})).filter(v=>typeof v.v=="number"),c=this.hass.states[s];if(!r.length&&(!c||["unavailable","unknown"].includes(c.state)))return d;let o=v=>`${this._num(v,a.digits||0)}${a.unit||""}`,h=r[0]?.v,b=r[r.length-1]?.v,u=r.length>1?b-h:null,_=u==null||u===0?"":u>0!=!!a.lowerBetter?"positive":"negative";return n`<div class="trend-card">
         <div class="rank-header">
           <span class="rank-title"><span>${a.label}</span></span>
-          <span class="kpi-value ${_}">${c&&!isNaN(Number(c.state))?l(Number(c.state)):"\u2014"}</span>
+          <span class="kpi-value ${_}">${c&&!isNaN(Number(c.state))?o(Number(c.state)):"\u2014"}</span>
         </div>
-        ${r.length>1?this._lineChart(r,l,e.period||"day"):n`<div class="collecting">Collecting history — the chart fills in as Home Assistant records it.</div>`}
+        ${r.length>1?this._lineChart(r,o,t.period||"day"):n`<div class="collecting">Collecting history — the chart fills in as Home Assistant records it.</div>`}
         <div class="rank-meta">
-          <span>${r.length>1?`${u>=0?"\u25B2":"\u25BC"} ${l(Math.abs(u))} over ${r.length} ${e.period==="hour"?"hours":"days"}`:""}</span>
+          <span>${r.length>1?`${u>=0?"\u25B2":"\u25BC"} ${o(Math.abs(u))} over ${r.length} ${t.period==="hour"?"hours":"days"}`:""}</span>
           <span>${a.lowerBetter?"lower is better":""}</span>
         </div>
       </div>`});return n`
       <div class="section-title">Kills per tracked game (last 30)</div>
       ${this._renderKillsChart()}
-      ${e.loading&&!e.stats?n`<div class="empty">Loading history…</div>`:d}
-      ${e.error?n`<div class="empty">${e.error}</div>`:d}
-      <div class="trend-grid">${t}</div>
-    `}_passSets(e){let t=[],a=new Map;for(let i of e.pages||[]){let r=String(i.track||"").replace(/Bonus$/,"")||"Pass";a.has(r)||(a.set(r,[]),t.push(r)),a.get(r).push(i)}return t.map((i,r)=>{let c=a.get(i),l=c.flatMap(p=>p.rewards||[]),h=l.find(Se)||null,m=h?.icon||l.find(p=>p.icon&&!Q(p)&&p.type!=="HomebaseBannerIcon")?.icon||null,u={},_={},f=new Map,x=0;for(let p of c){let g=/Bonus$/.test(p.track||"");for(let b of p.rewards||[]){if(typeof b.cost=="number"&&b.cost>0&&b.price_row!=="Included"){let k=g?_:u;k[b.currency||""]=(k[b.currency||""]||0)+b.cost}Q(b)&&(x+=Number(b.quantity)||0);let v=le(b);v!=="V-Bucks"&&f.set(v,(f.get(v)||0)+1)}}return{key:i,title:h?.name&&!/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(h.name)?h.name:`Set ${r+1}`,outfit:h,hero:m,pages:c.map(p=>{let g=/Bonus$/.test(p.track||"");return{label:`${g?"Bonus":"Page"} ${p.page}`,bonus:g,rewards:p.rewards||[]}}),rewardCount:l.length,baseCost:u,bonusCost:_,vbucks:x,types:[...f.entries()].sort((p,g)=>g[1]-p[1])}})}_costText(e){return Object.entries(e).map(([t,a])=>`${this._num(a)} ${qe(t,a)}`).join(" + ")}_passCostBadge(e){if(e.price_row==="Included"||e.cost===0)return n`<span class="bp-cost included" title="Included with the pass">Included</span>`;if(typeof e.cost!="number")return d;let t=e.currency==="AthenaCategoryStar";return n`<span class="bp-cost ${t?"character":""}" title="${e.cost} ${qe(e.currency,e.cost)}">
-      <ha-icon icon=${t?"mdi:account-star":"mdi:star"}></ha-icon>${e.cost}</span>`}_goPassSet(e,t){this._passSet=(e+t)%t,this._passPage=0}_renderPassView(e){let t=this._pass;if(t.loading||t.data===void 0&&!t.error)return n`<div class="empty">Loading Battle Pass…</div>`;if(t.error)return n`<div class="empty">${t.error}</div>`;if(!t.data||!t.data.pages?.length)return n`<div class="empty">The Battle Pass catalogue is not available right now.</div>`;let a=t.data,i=this._passSets(a),r=Math.min(this._passSet,i.length-1),c=i[r],l=Math.min(this._passPage,c.pages.length-1),h=c.pages[l],m=this._findEntity("sensor","profile")?.attributes?.season||this._catalog.season,u=Number(e?.state)||null,_=i.reduce((b,v)=>b+v.vbucks,0),f=i.filter(b=>b.outfit).length,x={};for(let b of i)for(let[v,k]of Object.entries(b.baseCost))x[v]=(x[v]||0)+k;let p=this._findEntity("sensor","profile")?.attributes?.quests,g=(b,v)=>v>1&&!/s$/.test(b)?`${b}s`:b;return n`
+      ${t.loading&&!t.stats?n`<div class="empty">Loading history…</div>`:d}
+      ${t.error?n`<div class="empty">${t.error}</div>`:d}
+      <div class="trend-grid">${e}</div>
+    `}_passSets(t){let e=[],a=new Map;for(let s of t.pages||[]){let r=String(s.track||"").replace(/Bonus$/,"")||"Pass";a.has(r)||(a.set(r,[]),e.push(r)),a.get(r).push(s)}return e.map((s,r)=>{let c=a.get(s),o=c.flatMap(p=>p.rewards||[]),h=o.find(St)||null,b=h?.icon||o.find(p=>p.icon&&!et(p)&&p.type!=="HomebaseBannerIcon")?.icon||null,u={},_={},v=new Map,y=0;for(let p of c){let m=/Bonus$/.test(p.track||"");for(let f of p.rewards||[]){if(typeof f.cost=="number"&&f.cost>0&&f.price_row!=="Included"){let k=m?_:u;k[f.currency||""]=(k[f.currency||""]||0)+f.cost}et(f)&&(y+=Number(f.quantity)||0);let g=lt(f);g!=="V-Bucks"&&v.set(g,(v.get(g)||0)+1)}}return{key:s,title:h?.name&&!/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(h.name)?h.name:`Set ${r+1}`,outfit:h,hero:b,pages:c.map(p=>{let m=/Bonus$/.test(p.track||"");return{label:`${m?"Bonus":"Page"} ${p.page}`,bonus:m,rewards:p.rewards||[]}}),rewardCount:o.length,baseCost:u,bonusCost:_,vbucks:y,types:[...v.entries()].sort((p,m)=>m[1]-p[1])}})}_costText(t){return Object.entries(t).map(([e,a])=>`${this._num(a)} ${Gt(e,a)}`).join(" + ")}_passCostBadge(t){if(t.price_row==="Included"||t.cost===0)return n`<span class="bp-cost included" title="Included with the pass">Included</span>`;if(typeof t.cost!="number")return d;let e=t.currency==="AthenaCategoryStar";return n`<span class="bp-cost ${e?"character":""}" title="${t.cost} ${Gt(t.currency,t.cost)}">
+      <ha-icon icon=${e?"mdi:account-star":"mdi:star"}></ha-icon>${t.cost}</span>`}_goPassSet(t,e){this._passSet=(t+e)%e,this._passPage=0}_renderPassView(t){let e=this._pass;if(e.loading||e.data===void 0&&!e.error)return n`<div class="empty">Loading Battle Pass…</div>`;if(e.error)return n`<div class="empty">${e.error}</div>`;if(!e.data||!e.data.pages?.length)return n`<div class="empty">The Battle Pass catalogue is not available right now.</div>`;let a=e.data,s=this._passSets(a),r=Math.min(this._passSet,s.length-1),c=s[r],o=Math.min(this._passPage,c.pages.length-1),h=c.pages[o],b=this._findEntity("sensor","profile")?.attributes?.season||this._catalog.season,u=Number(t?.state)||null,_=s.reduce((f,g)=>f+g.vbucks,0),v=s.filter(f=>f.outfit).length,y={};for(let f of s)for(let[g,k]of Object.entries(f.baseCost))y[g]=(y[g]||0)+k;let p=this._findEntity("sensor","profile")?.attributes?.quests,m=(f,g)=>g>1&&!/s$/.test(f)?`${f}s`:f;return n`
       <div class="bp">
         <div class="bp-summary">
           <div class="bp-summary-title">
             <ha-icon icon="mdi:ticket-confirmation-outline"></ha-icon>
             <span>Season ${a.season} Battle Pass</span>
-            ${m?.days_left!=null?n`<span class="bp-days">${m.days_left}d left</span>`:d}
+            ${b?.days_left!=null?n`<span class="bp-days">${b.days_left}d left</span>`:d}
           </div>
           <div class="bp-stats">
-            <div><b>${i.length}</b><span>sets</span></div>
-            <div><b>${f}</b><span>outfits</span></div>
-            <div><b>${a.reward_count??i.reduce((b,v)=>b+v.rewardCount,0)}</b><span>rewards</span></div>
+            <div><b>${s.length}</b><span>sets</span></div>
+            <div><b>${v}</b><span>outfits</span></div>
+            <div><b>${a.reward_count??s.reduce((f,g)=>f+g.rewardCount,0)}</b><span>rewards</span></div>
             ${_?n`<div class="gold"><b>${this._num(_)}</b><span>V-Bucks</span></div>`:d}
             ${u?n`<div><b>${u}</b><span>level</span></div>`:d}
           </div>
         </div>
 
         <div class="bp-strip" role="tablist">
-          ${i.map((b,v)=>n`
-            <button class="bp-thumb ${v===r?"active":""}" role="tab" aria-selected=${v===r?"true":"false"} title=${b.title}
-              @click=${()=>this._goPassSet(v,i.length)}>
-              ${b.hero?n`<img src=${b.hero} alt="" @error=${C} />`:n`<ha-icon icon="mdi:account"></ha-icon>`}
+          ${s.map((f,g)=>n`
+            <button class="bp-thumb ${g===r?"active":""}" role="tab" aria-selected=${g===r?"true":"false"} title=${f.title}
+              @click=${()=>this._goPassSet(g,s.length)}>
+              ${f.hero?n`<img src=${f.hero} alt="" @error=${E} />`:n`<ha-icon icon="mdi:account"></ha-icon>`}
             </button>`)}
         </div>
 
         <div class="bp-set">
           <div class="bp-hero">
-            <button class="bp-nav" title="Previous set" @click=${()=>this._goPassSet(r-1,i.length)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
+            <button class="bp-nav" title="Previous set" @click=${()=>this._goPassSet(r-1,s.length)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
             <div class="bp-hero-img">
-              ${c.hero?n`<img src=${c.hero} alt="" @error=${C} />`:n`<ha-icon icon="mdi:account"></ha-icon>`}
+              ${c.hero?n`<img src=${c.hero} alt="" @error=${E} />`:n`<ha-icon icon="mdi:account"></ha-icon>`}
             </div>
             <div class="bp-hero-info">
-              <div class="bp-hero-count">Set ${r+1} of ${i.length}</div>
+              <div class="bp-hero-count">Set ${r+1} of ${s.length}</div>
               <div class="bp-hero-name">${c.title}</div>
               <div class="bp-hero-meta">
                 ${Object.keys(c.baseCost).length?n`<span title="Stars to unlock every base page reward">${this._costText(c.baseCost)}</span>`:d}
                 ${Object.keys(c.bonusCost).length?n`<span title="Bonus pages">Bonus: ${this._costText(c.bonusCost)}</span>`:d}
                 ${c.vbucks?n`<span class="gold">Ⓥ ${this._num(c.vbucks)}</span>`:d}
               </div>
-              <div class="bp-hero-types">${c.types.map(([b,v])=>`${v} ${g(b,v)}`).join(" \xB7 ")}</div>
+              <div class="bp-hero-types">${c.types.map(([f,g])=>`${g} ${m(f,g)}`).join(" \xB7 ")}</div>
             </div>
-            <button class="bp-nav" title="Next set" @click=${()=>this._goPassSet(r+1,i.length)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+            <button class="bp-nav" title="Next set" @click=${()=>this._goPassSet(r+1,s.length)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
           </div>
 
           ${c.pages.length>1?n`<div class="bp-pages">
-                ${c.pages.map((b,v)=>n`
-                  <button class="mini-button ${v===l?"active":""} ${b.bonus?"bonus":""}" @click=${()=>this._passPage=v}>
-                    ${b.label}<span class="bp-page-count">${b.rewards.length}</span>
+                ${c.pages.map((f,g)=>n`
+                  <button class="mini-button ${g===o?"active":""} ${f.bonus?"bonus":""}" @click=${()=>this._passPage=g}>
+                    ${f.label}<span class="bp-page-count">${f.rewards.length}</span>
                   </button>`)}
               </div>`:d}
 
           <div class="bp-rewards">
-            ${h.rewards.map(b=>n`
-              <div class="bp-reward ${Q(b)?"vbucks":""} ${Se(b)?"outfit":""}" title="${Ye(b)} · ${le(b)}">
+            ${h.rewards.map(f=>n`
+              <div class="bp-reward ${et(f)?"vbucks":""} ${St(f)?"outfit":""}" title="${Xt(f)} · ${lt(f)}">
                 <div class="bp-reward-img">
-                  ${b.icon?n`<img src=${b.icon} alt="" @error=${C} />`:n`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
-                  ${this._passCostBadge(b)}
+                  ${f.icon?n`<img src=${f.icon} alt="" @error=${E} />`:n`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
+                  ${this._passCostBadge(f)}
                 </div>
-                <span class="bp-reward-name">${Q(b)&&b.quantity?`${this._num(b.quantity)} V-Bucks`:Ye(b)}</span>
-                <span class="bp-reward-type">${le(b)}</span>
+                <span class="bp-reward-name">${et(f)&&f.quantity?`${this._num(f.quantity)} V-Bucks`:Xt(f)}</span>
+                <span class="bp-reward-type">${lt(f)}</span>
               </div>`)}
           </div>
         </div>
 
         <div class="bp-note">
-          ${Object.keys(x).length?n`<span>All base pages: ${this._costText(x)}</span>`:d}
+          ${Object.keys(y).length?n`<span>All base pages: ${this._costText(y)}</span>`:d}
           <span>Claimed rewards are not available from this data source.</span>
           ${p?n`<span title="Epic's quest data has no names or targets; only states are counted">Quests on record: ${this._num(p.total)}</span>`:d}
         </div>
       </div>
-    `}_spriteCurve(e){let t=[...e.level_curve||[]].filter(i=>typeof i.level=="number"&&typeof i.xp=="number").sort((i,r)=>i.level-r.level),a=[];for(let i of t){if(a.length&&i.xp<a[a.length-1][1])break;a.push([i.level,i.xp])}return a.length>=2?a:[]}_spriteLevel(e,t){if(typeof e!="number"||!t.length)return null;let a=0;t.forEach(([,l],h)=>{e>=l&&(a=h)});let[i]=t[a],r=t[t.length-1],c=t[a+1];return{level:i,maxLevel:r[0],maxXp:r[1],next:c?c[1]:null,toMax:Math.max(0,r[1]-e),atMax:a===t.length-1}}_renderSpritesView(e){let t=e?.attributes||{},a=this._spriteCurve(t),i=t.families||[],r=Number(e?.state||0),c=Number(t.owned_variants||0),l=["Common","Uncommon","Rare","Epic","Legendary","Mythic"],m=[...i.filter(p=>this._spriteFilter==="missing"?p.owned_variants<p.total_variants:this._spriteFilter==="unmastered"?p.variants.some(g=>g.owned&&!g.mastered):this._spriteFilter==="complete"?p.complete:!0)].sort((p,g)=>this._spriteSort==="rarity"?l.indexOf(g.rarity)-l.indexOf(p.rarity)||(p.dex??0)-(g.dex??0):this._spriteSort==="progress"&&g.owned_variants/g.total_variants-p.owned_variants/p.total_variants||(p.dex??0)-(g.dex??0)),u=i.flatMap(p=>p.variants.filter(g=>!g.owned&&g.drop_chance_pct).map(g=>({f:p,v:g}))).sort((p,g)=>g.v.drop_chance_pct-p.v.drop_chance_pct||l.indexOf(p.f.rarity)-l.indexOf(g.f.rarity)).slice(0,6),_=a.length?i.flatMap(p=>p.variants.filter(g=>g.owned&&typeof g.xp=="number"&&g.xp>0).map(g=>({f:p,v:g,lv:this._spriteLevel(g.xp,a)}))).filter(p=>p.lv&&!p.lv.atMax).sort((p,g)=>p.lv.toMax-g.lv.toMax).slice(0,6):[],f=(p,g)=>n`
-      <button class="mode-tab ${this._spriteFilter===p?"active":""}" @click=${()=>this._spriteFilter=p}>${g}</button>`,x=(p,g)=>n`
-      <button class="mode-tab ${this._spriteSort===p?"active":""}" @click=${()=>this._spriteSort=p}>${g}</button>`;return n`
+    `}_outfitRarity(t){let e=String(t?.rarity||"");return e?e.charAt(0).toUpperCase()+e.slice(1).toLowerCase():""}_renderLockerView(t){let e=t.outfits||{},a=e.equipped,s=this._outfits;if(s.loading||s.data===void 0&&!s.error)return n`<div class="empty">Loading locker…</div>`;if(s.error)return n`<div class="empty">${s.error}</div>`;let r=s.data?.outfits||[];if(!r.length)return n`<div class="empty">No owned outfits yet. They appear once the linked Epic account's profile has been read (every 6 hours).</div>`;let c=["Mythic","Legendary","Epic","Rare","Uncommon","Common"],o=r.filter(g=>g.name),h=r.length-o.length,b=this._outfitQuery.trim().toLowerCase(),_=[...o.filter(g=>!b||String(g.name).toLowerCase().includes(b)||String(g.set||"").toLowerCase().includes(b))].sort((g,k)=>{if(g.id?.toLowerCase()===e.equipped_id)return-1;if(k.id?.toLowerCase()===e.equipped_id)return 1;if(this._outfitSort==="rarity"){let S=c.indexOf(this._outfitRarity(g)),C=c.indexOf(this._outfitRarity(k));return(S<0?99:S)-(C<0?99:C)||String(g.name).localeCompare(String(k.name))}return String(g.name).localeCompare(String(k.name))}),v=this._config.compact?18:24,y=Math.max(1,Math.ceil(_.length/v)),p=Math.min(this._outfitPage,y-1),m=_.slice(p*v,p*v+v),f=new Map;for(let g of o)f.set(this._outfitRarity(g)||"Other",(f.get(this._outfitRarity(g)||"Other")||0)+1);return n`
+      <div class="locker">
+        <div class="locker-hero" style="--rarity:${O[this._outfitRarity(a)]||"var(--accent)"}">
+          <div class="locker-hero-img">
+            ${a?.icon?n`<img src=${a.icon} alt="" @error=${E} />`:n`<ha-icon icon="mdi:account"></ha-icon>`}
+          </div>
+          <div class="locker-hero-info">
+            <div class="bp-hero-count">Equipped${e.shuffle&&e.shuffle!=="DISABLED"?" \xB7 shuffle on":""}</div>
+            <div class="bp-hero-name">${a?.name||(e.equipped_id?"Unknown outfit":"Not available")}</div>
+            ${a?.rarity?n`<div class="bp-hero-meta"><span>${this._outfitRarity(a)}</span></div>`:d}
+            <div class="bp-hero-types">
+              <b>${this._num(r.length)}</b> outfits owned${h?` \xB7 ${h} not in the catalogue`:""}
+            </div>
+            <div class="locker-rarities">
+              ${c.filter(g=>f.get(g)).map(g=>n`<span class="rarity-dot" style="--rarity:${O[g]}" title=${g}>${f.get(g)}</span>`)}
+            </div>
+          </div>
+        </div>
+
+        <div class="locker-controls">
+          <input class="locker-search" type="search" placeholder="Search outfits or sets" .value=${this._outfitQuery}
+            @input=${g=>{this._outfitQuery=g.target.value,this._outfitPage=0}} />
+          <button class="mini-button ${this._outfitSort==="rarity"?"active":""}" @click=${()=>{this._outfitSort="rarity",this._outfitPage=0}}>Rarity</button>
+          <button class="mini-button ${this._outfitSort==="name"?"active":""}" @click=${()=>{this._outfitSort="name",this._outfitPage=0}}>A–Z</button>
+        </div>
+
+        ${m.length?n`<div class="bp-rewards locker-grid">
+              ${m.map(g=>{let k=g.id?.toLowerCase()===e.equipped_id;return n`
+                  <div class="bp-reward ${k?"equipped":""}" style="--rarity:${O[this._outfitRarity(g)]||"#9CA3AF"}" title="${g.name}${g.set?` \xB7 ${g.set}`:""}">
+                    <div class="bp-reward-img locker-img">
+                      ${g.small||g.icon?n`<img src=${g.small||g.icon} alt="" loading="lazy" @error=${E} />`:n`<ha-icon icon="mdi:account"></ha-icon>`}
+                      ${k?n`<span class="bp-cost included">Equipped</span>`:d}
+                    </div>
+                    <span class="bp-reward-name">${g.name}</span>
+                    <span class="bp-reward-type">${this._outfitRarity(g)||"Outfit"}</span>
+                  </div>`})}
+            </div>`:n`<div class="empty">No outfits match “${this._outfitQuery}”.</div>`}
+
+        ${y>1?n`<div class="locker-pager">
+              <button class="bp-nav" title="Previous page" ?disabled=${p===0} @click=${()=>this._outfitPage=p-1}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
+              <span>Page ${p+1} of ${y} · ${_.length} outfits</span>
+              <button class="bp-nav" title="Next page" ?disabled=${p>=y-1} @click=${()=>this._outfitPage=p+1}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+            </div>`:d}
+      </div>
+    `}_spriteCurve(t){let e=[...t.level_curve||[]].filter(s=>typeof s.level=="number"&&typeof s.xp=="number").sort((s,r)=>s.level-r.level),a=[];for(let s of e){if(a.length&&s.xp<a[a.length-1][1])break;a.push([s.level,s.xp])}return a.length>=2?a:[]}_spriteLevel(t,e){if(typeof t!="number"||!e.length)return null;let a=0;e.forEach(([,o],h)=>{t>=o&&(a=h)});let[s]=e[a],r=e[e.length-1],c=e[a+1];return{level:s,maxLevel:r[0],maxXp:r[1],next:c?c[1]:null,toMax:Math.max(0,r[1]-t),atMax:a===e.length-1}}_renderSpritesView(t){let e=t?.attributes||{},a=this._spriteCurve(e),s=e.families||[],r=Number(t?.state||0),c=Number(e.owned_variants||0),o=["Common","Uncommon","Rare","Epic","Legendary","Mythic"],b=[...s.filter(p=>this._spriteFilter==="missing"?p.owned_variants<p.total_variants:this._spriteFilter==="unmastered"?p.variants.some(m=>m.owned&&!m.mastered):this._spriteFilter==="complete"?p.complete:!0)].sort((p,m)=>this._spriteSort==="rarity"?o.indexOf(m.rarity)-o.indexOf(p.rarity)||(p.dex??0)-(m.dex??0):this._spriteSort==="progress"&&m.owned_variants/m.total_variants-p.owned_variants/p.total_variants||(p.dex??0)-(m.dex??0)),u=s.flatMap(p=>p.variants.filter(m=>!m.owned&&m.drop_chance_pct).map(m=>({f:p,v:m}))).sort((p,m)=>m.v.drop_chance_pct-p.v.drop_chance_pct||o.indexOf(p.f.rarity)-o.indexOf(m.f.rarity)).slice(0,6),_=a.length?s.flatMap(p=>p.variants.filter(m=>m.owned&&typeof m.xp=="number"&&m.xp>0).map(m=>({f:p,v:m,lv:this._spriteLevel(m.xp,a)}))).filter(p=>p.lv&&!p.lv.atMax).sort((p,m)=>p.lv.toMax-m.lv.toMax).slice(0,6):[],v=(p,m)=>n`
+      <button class="mode-tab ${this._spriteFilter===p?"active":""}" @click=${()=>this._spriteFilter=p}>${m}</button>`,y=(p,m)=>n`
+      <button class="mode-tab ${this._spriteSort===p?"active":""}" @click=${()=>this._spriteSort=p}>${m}</button>`;return n`
       <div class="rank-section sprite-summary">
         <div class="sprite-ring" style="--pct:${Math.min(100,r)}">
           <span>${Math.round(r)}%</span>
@@ -1713,21 +1814,21 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
         <div class="sprite-summary-main">
           <div class="rank-header">
             <span class="rank-title"><span>Sprite collection</span></span>
-            <span class="muted">Game update ${t.version||"?"}</span>
+            <span class="muted">Game update ${e.version||"?"}</span>
           </div>
           <div class="sprite-stats">
-            <span><b>${c}</b>/${t.total_variants} variants</span>
-            <span><b>${t.owned_families}</b>/${t.total_families} sprites</span>
-            <span><b>${t.complete_families??0}</b> full sets</span>
-            <span>★ <b>${t.mastered_variants||0}</b>/${c} mastered</span>
+            <span><b>${c}</b>/${e.total_variants} variants</span>
+            <span><b>${e.owned_families}</b>/${e.total_families} sprites</span>
+            <span><b>${e.complete_families??0}</b> full sets</span>
+            <span>★ <b>${e.mastered_variants||0}</b>/${c} mastered</span>
           </div>
-          ${t.equipped?n`<div class="rank-meta"><span>Equipped: <b>${t.equipped.variant}</b></span></div>`:d}
+          ${e.equipped?n`<div class="rank-meta"><span>Equipped: <b>${e.equipped.variant}</b></span></div>`:d}
         </div>
       </div>
 
-      ${(t.versions||[]).length>1?n`<div class="split-section">
-            <div class="section-title">By game update${t.cumulative?n` · all-time ${t.cumulative.owned_variants}/${t.cumulative.total_variants}`:d}</div>
-            ${t.versions.map(p=>n`
+      ${(e.versions||[]).length>1?n`<div class="split-section">
+            <div class="section-title">By game update${e.cumulative?n` · all-time ${e.cumulative.owned_variants}/${e.cumulative.total_variants}`:d}</div>
+            ${e.versions.map(p=>n`
               <div class="version-row ${p.current?"current":""}">
                 <span>${p.version}${p.current?" (now)":""}</span>
                 <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100,p.completion_pct)}%"></div></div>
@@ -1738,13 +1839,13 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
       ${_.length?n`<div class="split-section">
             <div class="section-title">Closest to mastering (current copy, level ${a[a.length-1][0]} = ${this._num(a[a.length-1][1])} XP)</div>
             <div class="master-list">
-              ${_.map(({f:p,v:g,lv:b})=>n`
-                <div class="master-row" style="--rarity:${oe[p.rarity]||"#9CA3AF"}" @click=${()=>this._expandedSprite=p.id}>
-                  ${g.icon?n`<img src=${g.icon} alt="" @error=${C} />`:d}
-                  <span class="variant-name">${p.name.replace(/ Sprite$/,"")}${g.label!=="Base"?` \xB7 ${g.label}`:""}</span>
-                  <span>Lv ${b.level}</span>
-                  <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100,g.xp/b.maxXp*100)}%"></div></div>
-                  <span class="muted">${this._num(b.toMax)} XP to go</span>
+              ${_.map(({f:p,v:m,lv:f})=>n`
+                <div class="master-row" style="--rarity:${O[p.rarity]||"#9CA3AF"}" @click=${()=>this._expandedSprite=p.id}>
+                  ${m.icon?n`<img src=${m.icon} alt="" @error=${E} />`:d}
+                  <span class="variant-name">${p.name.replace(/ Sprite$/,"")}${m.label!=="Base"?` \xB7 ${m.label}`:""}</span>
+                  <span>Lv ${f.level}</span>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100,m.xp/f.maxXp*100)}%"></div></div>
+                  <span class="muted">${this._num(f.toMax)} XP to go</span>
                 </div>`)}
             </div>
           </div>`:d}
@@ -1752,79 +1853,79 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
       ${u.length?n`<div class="split-section">
             <div class="section-title">Next to hunt (highest drop chance)</div>
             <div class="hunt-row">
-              ${u.map(({f:p,v:g})=>n`
-                <div class="hunt-item" style="--rarity:${oe[p.rarity]||"#9CA3AF"}" title="${g.name}" @click=${()=>this._expandedSprite=p.id}>
-                  ${g.icon?n`<img src=${g.icon} alt="" @error=${C} />`:d}
-                  <span>${g.label==="Base"?p.name.replace(/ Sprite$/,""):`${g.label} ${p.name.replace(/ Sprite$/,"")}`}</span>
-                  <small>${g.drop_chance_pct}%</small>
+              ${u.map(({f:p,v:m})=>n`
+                <div class="hunt-item" style="--rarity:${O[p.rarity]||"#9CA3AF"}" title="${m.name}" @click=${()=>this._expandedSprite=p.id}>
+                  ${m.icon?n`<img src=${m.icon} alt="" @error=${E} />`:d}
+                  <span>${m.label==="Base"?p.name.replace(/ Sprite$/,""):`${m.label} ${p.name.replace(/ Sprite$/,"")}`}</span>
+                  <small>${m.drop_chance_pct}%</small>
                 </div>`)}
             </div>
           </div>`:d}
 
       <div class="tab-rows">
-        <div class="mode-tabs">${f("all","All")} ${f("missing","Missing")} ${f("unmastered","To master")} ${f("complete","Full sets")}</div>
-        <div class="mode-tabs">${x("dex","Dex")} ${x("rarity","Rarity")} ${x("progress","Progress")}</div>
+        <div class="mode-tabs">${v("all","All")} ${v("missing","Missing")} ${v("unmastered","To master")} ${v("complete","Full sets")}</div>
+        <div class="mode-tabs">${y("dex","Dex")} ${y("rarity","Rarity")} ${y("progress","Progress")}</div>
       </div>
 
       <div class="sprite-grid">
-        ${m.length?m.map(p=>{let g=this._expandedSprite===p.id;return n`
-                <div class="sprite-card ${p.owned?"":"missing"} ${g?"open":""} ${p.complete?"complete":""}"
-                  style="--rarity:${oe[p.rarity]||"#9CA3AF"}" @click=${()=>this._expandedSprite=g?null:p.id}>
-                  ${p.icon?n`<img src=${p.icon} alt="" @error=${C} />`:n`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+        ${b.length?b.map(p=>{let m=this._expandedSprite===p.id;return n`
+                <div class="sprite-card ${p.owned?"":"missing"} ${m?"open":""} ${p.complete?"complete":""}"
+                  style="--rarity:${O[p.rarity]||"#9CA3AF"}" @click=${()=>this._expandedSprite=m?null:p.id}>
+                  ${p.icon?n`<img src=${p.icon} alt="" @error=${E} />`:n`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
                   <span class="sprite-name">${p.name.replace(/ Sprite$/,"")}</span>
                   <span class="sprite-count">${p.owned_variants}/${p.total_variants}${p.mastered?n` · ★${p.mastered}`:d}</span>
                   <span class="sprite-dots">
-                    ${(p.variants||[]).map(b=>n`<i class="dot ${b.owned?"owned":""} ${b.mastered?"mastered":""}" title=${b.label}></i>`)}
+                    ${(p.variants||[]).map(f=>n`<i class="dot ${f.owned?"owned":""} ${f.mastered?"mastered":""}" title=${f.label}></i>`)}
                   </span>
                 </div>
-                ${g?this._renderSpriteDetail(p):d}`}):n`<div class="empty">Nothing matches this filter.</div>`}
+                ${m?this._renderSpriteDetail(p):d}`}):n`<div class="empty">Nothing matches this filter.</div>`}
       </div>
-    `}_variantPerks(e){let t=new Set,a=(e.variants||[]).flatMap(i=>(i.boons||[]).filter(r=>r.name&&r.name!==e.name&&!t.has(r.name)&&t.add(r.name)).map(r=>({variant:i.label,...r})));return a.length?n`<div class="perk-list">
+    `}_variantPerks(t){let e=new Set,a=(t.variants||[]).flatMap(s=>(s.boons||[]).filter(r=>r.name&&r.name!==t.name&&!e.has(r.name)&&e.add(r.name)).map(r=>({variant:s.label,...r})));return a.length?n`<div class="perk-list">
       <div class="section-title">Variant perks</div>
-      ${a.map(i=>n`<div class="detail-line"><b>${i.variant}</b>${i.name!==i.variant?n`<span>${i.name}</span>`:d}</div>
-        ${i.description?n`<div class="perk-desc">${i.description}</div>`:d}`)}
-    </div>`:d}_renderSpriteDetail(e){let t=this._spriteCurve(this._findEntity("sensor","sprites")?.attributes||{});return n`
-      <div class="sprite-detail" style="--rarity:${oe[e.rarity]||"#9CA3AF"}">
+      ${a.map(s=>n`<div class="detail-line"><b>${s.variant}</b>${s.name!==s.variant?n`<span>${s.name}</span>`:d}</div>
+        ${s.description?n`<div class="perk-desc">${s.description}</div>`:d}`)}
+    </div>`:d}_renderSpriteDetail(t){let e=this._spriteCurve(this._findEntity("sensor","sprites")?.attributes||{});return n`
+      <div class="sprite-detail" style="--rarity:${O[t.rarity]||"#9CA3AF"}">
         <div class="sprite-detail-head">
-          ${e.icon_large||e.icon?n`<img src=${e.icon_large||e.icon} alt="" @error=${C} />`:d}
+          ${t.icon_large||t.icon?n`<img src=${t.icon_large||t.icon} alt="" @error=${E} />`:d}
           <div>
-            <b>${e.name}</b> <span class="tag rarity-tag">${e.rarity||""}</span>
-            ${e.description?n`<p class="detail-desc">${e.description}</p>`:d}
-            ${e.hint?n`<p class="detail-desc hint">📍 ${e.hint}</p>`:d}
+            <b>${t.name}</b> <span class="tag rarity-tag">${t.rarity||""}</span>
+            ${t.description?n`<p class="detail-desc">${t.description}</p>`:d}
+            ${t.hint?n`<p class="detail-desc hint">📍 ${t.hint}</p>`:d}
 
           </div>
         </div>
-        ${this._variantPerks(e)}
+        ${this._variantPerks(t)}
         <div class="variant-tiles">
-          ${(e.variants||[]).map(a=>n`
+          ${(t.variants||[]).map(a=>n`
             <div class="variant-tile ${a.owned?"":"missing"} ${a.mastered?"mastered":""}" title=${a.name}>
-              ${a.icon?n`<img src=${a.icon} alt="" @error=${C} />`:d}
+              ${a.icon?n`<img src=${a.icon} alt="" @error=${E} />`:d}
               <span class="variant-name">${a.label}</span>
               <span class="variant-status">
-                ${a.owned?(()=>{let i=this._spriteLevel(a.xp,t),r=i?i.atMax?`Lv ${i.level}${a.xp>i.maxXp?"+":""}`:`Lv ${i.level} \xB7 ${this._num(a.xp)}/${this._num(i.next)}`:a.xp?`${this._num(a.xp)} XP`:"Owned";return n`${r}${a.count>1?` \xB7 \xD7${a.count}`:""}${a.mastered?n` <span title="Mastered at some point (collection record)">★</span>`:d}`})():a.drop_chance_pct!=null?`Missing \xB7 ${a.drop_chance_pct}%`:"Missing \xB7 special"}
+                ${a.owned?(()=>{let s=this._spriteLevel(a.xp,e),r=s?s.atMax?`Lv ${s.level}${a.xp>s.maxXp?"+":""}`:`Lv ${s.level} \xB7 ${this._num(a.xp)}/${this._num(s.next)}`:a.xp?`${this._num(a.xp)} XP`:"Owned";return n`${r}${a.count>1?` \xB7 \xD7${a.count}`:""}${a.mastered?n` <span title="Mastered at some point (collection record)">★</span>`:d}`})():a.drop_chance_pct!=null?`Missing \xB7 ${a.drop_chance_pct}%`:"Missing \xB7 special"}
               </span>
             </div>`)}
         </div>
       </div>
-    `}_renderWindowMatches(e,t,a){let i=`window:${e}:${a.since}:${a.matches}`;this._ensureMatches(i,{since:a.since});let r=this._matchLists[i],c=r?.matches||[],l=r?.tracked??0,h=a.matches||0;return n`
+    `}_renderWindowMatches(t,e,a){let s=`window:${t}:${a.since}:${a.matches}`;this._ensureMatches(s,{since:a.since});let r=this._matchLists[s],c=r?.matches||[],o=r?.tracked??0,h=a.matches||0;return n`
       <div class="match-feed-header">
-        <span>${t} matches (${l}${h>l?` of ${h}`:""})</span>
-        ${h>l?n`<span class="muted" title="Only games the tracker saw finish are listed; the stats API has no per-match history">tracked only</span>`:d}
+        <span>${e} matches (${o}${h>o?` of ${h}`:""})</span>
+        ${h>o?n`<span class="muted" title="Only games the tracker saw finish are listed; the stats API has no per-match history">tracked only</span>`:d}
       </div>
-      ${r?.loading?n`<div class="empty">Loading matches…</div>`:this._renderMatchList(i,c,n`No tracked matches in this window.<br />
+      ${r?.loading?n`<div class="empty">Loading matches…</div>`:this._renderMatchList(s,c,n`No tracked matches in this window.<br />
             <small>Games are recorded while a session is being tracked.</small>`)}
-    `}_renderFavourite(e,t){let a=this._playlist(e.playlist_id),i=a?.image,r=/ropesmile|reload/i.test(e.playlist_id+e.name)?"reload":/nobuild|zero build/i.test(e.playlist_id+e.name)?"zero_build":"build";return n`
-      <div class="feature-card ${i?"":`no-art art-${r}`}">
+    `}_renderFavourite(t,e){let a=this._playlist(t.playlist_id),s=a?.image,r=/ropesmile|reload/i.test(t.playlist_id+t.name)?"reload":/nobuild|zero build/i.test(t.playlist_id+t.name)?"zero_build":"build";return n`
+      <div class="feature-card ${s?"":`no-art art-${r}`}">
         <div class="feature-text">
-          <span class="feature-label">Favourite mode${t?` \xB7 ${t}`:""}</span>
-          <span class="feature-value">${a?.name||e.name}</span>
-          <span class="feature-sub">${this._num(e.matches)} matches</span>
+          <span class="feature-label">Favourite mode${e?` \xB7 ${e}`:""}</span>
+          <span class="feature-value">${a?.name||t.name}</span>
+          <span class="feature-sub">${this._num(t.matches)} matches</span>
         </div>
-        ${i?n`<img class="feature-art" src=${i} alt="" @error=${C} />`:n`<ha-icon class="feature-icon" icon=${$t[r]}></ha-icon>`}
+        ${s?n`<img class="feature-art" src=${s} alt="" @error=${E} />`:n`<ha-icon class="feature-icon" icon=${we[r]}></ha-icon>`}
       </div>
-    `}_renderLifetimeExtras(e){let t=e.metrics||{},a=Object.values(e.inputs||{}).filter(r=>r.share_pct>=1),i=e.team_sizes||{};return n`
+    `}_renderLifetimeExtras(t){let e=t.metrics||{},a=Object.values(t.inputs||{}).filter(r=>r.share_pct>=1),s=t.team_sizes||{};return n`
       <div class="secondary">
-        ${this._renderKpis([["Kills/Min",t.kills_per_minute??0],["Avg Match",`${t.avg_match_minutes??0}m`],["Score/Match",this._num(t.score_per_match)],["Solo Top 10",`${t.solo_top10_rate??0}%`],["Solo Top 25",`${t.solo_top25_rate??0}%`]])}
+        ${this._renderKpis([["Kills/Min",e.kills_per_minute??0],["Avg Match",`${e.avg_match_minutes??0}m`],["Score/Match",this._num(e.score_per_match)],["Solo Top 10",`${e.solo_top10_rate??0}%`],["Solo Top 25",`${e.solo_top25_rate??0}%`]])}
       </div>
 
       ${a.length>1?n`<div class="split-section">
@@ -1837,22 +1938,22 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
             </div>
           </div>`:d}
 
-      ${Object.keys(i).length?n`<div class="size-table">
-            ${["solo","duo","trio","squad"].filter(r=>i[r]).map(r=>n`<div class="size-row">
+      ${Object.keys(s).length?n`<div class="size-table">
+            ${["solo","duo","trio","squad"].filter(r=>s[r]).map(r=>n`<div class="size-row">
                 <span class="size-name">${r.charAt(0).toUpperCase()+r.slice(1)}</span>
-                <span>${this._num(i[r].matches)} m</span>
-                <span>${i[r].win_rate}% win</span>
-                <span>${i[r].kd} K/D</span>
+                <span>${this._num(s[r].matches)} m</span>
+                <span>${s[r].win_rate}% win</span>
+                <span>${s[r].kd} K/D</span>
               </div>`)}
           </div>`:d}
-    `}_defaultFilters(){return{region:this._config.events_region||this._events.defaultRegion||"EU",type:"all",mode:"all",team:"all",platform:"all"}}_currentFilters(){return this._filters||this._defaultFilters()}_matchesFilters(e,t){return!(t.region!=="all"&&e.region_group!==t.region||t.type!=="all"&&e.tournament_type!==t.type||(t.mode==="Ranked"?!e.ranked:t.mode!=="all"&&e.mode!==t.mode)||t.team!=="all"&&e.team!==t.team||t.platform!=="all"&&!(e.platform_groups||[]).includes(t.platform))}_setFilter(e,t){this._filters={...this._currentFilters(),[e]:t}}_renderEventsView(){let e=this._events;if(e.loading&&!e.list)return n`<div class="empty">Loading tournaments…</div>`;if(e.error)return n`<div class="empty">${e.error}</div>`;if(e.list===null)return n`<div class="empty">Tournament schedule is not available right now.</div>`;let t=e.list||[],a=this._currentFilters(),i=[...new Set(t.map(l=>l.region_group))].sort(),r=t.filter(l=>this._matchesFilters(l,a)).filter(l=>l.windows.some(h=>this._windowState(h)!=="finished")||this._expandedEvent===l.key),c=(l,h)=>n`
-      <select class="filter-select" .value=${a[l]} @change=${m=>this._setFilter(l,m.target.value)}>
-        ${h.map(([m,u])=>n`<option value=${m} ?selected=${a[l]===m}>${u}</option>`)}
+    `}_defaultFilters(){return{region:this._config.events_region||this._events.defaultRegion||"EU",type:"all",mode:"all",team:"all",platform:"all"}}_currentFilters(){return this._filters||this._defaultFilters()}_matchesFilters(t,e){return!(e.region!=="all"&&t.region_group!==e.region||e.type!=="all"&&t.tournament_type!==e.type||(e.mode==="Ranked"?!t.ranked:e.mode!=="all"&&t.mode!==e.mode)||e.team!=="all"&&t.team!==e.team||e.platform!=="all"&&!(t.platform_groups||[]).includes(e.platform))}_setFilter(t,e){this._filters={...this._currentFilters(),[t]:e}}_renderEventsView(){let t=this._events;if(t.loading&&!t.list)return n`<div class="empty">Loading tournaments…</div>`;if(t.error)return n`<div class="empty">${t.error}</div>`;if(t.list===null)return n`<div class="empty">Tournament schedule is not available right now.</div>`;let e=t.list||[],a=this._currentFilters(),s=[...new Set(e.map(o=>o.region_group))].sort(),r=e.filter(o=>this._matchesFilters(o,a)).filter(o=>o.windows.some(h=>this._windowState(h)!=="finished")||this._expandedEvent===o.key),c=(o,h)=>n`
+      <select class="filter-select" .value=${a[o]} @change=${b=>this._setFilter(o,b.target.value)}>
+        ${h.map(([b,u])=>n`<option value=${b} ?selected=${a[o]===b}>${u}</option>`)}
       </select>
     `;return n`
       <div class="event-filters">
-        ${c("region",[["all","All regions"],...i.map(l=>[l,l])])}
-        ${c("type",[["all","Type"],...[...new Set(t.map(l=>l.tournament_type).filter(Boolean))].map(l=>[l,Ke[l]||l])])}
+        ${c("region",[["all","All regions"],...s.map(o=>[o,o])])}
+        ${c("type",[["all","Type"],...[...new Set(e.map(o=>o.tournament_type).filter(Boolean))].map(o=>[o,Zt[o]||o])])}
         ${c("mode",[["all","Mode"],["Battle Royale","Battle Royale"],["Zero Build","Zero Build"],["Reload","Reload"],["Ranked","Ranked cups"]])}
         ${c("team",[["all","Team"],["Solo","Solo"],["Duos","Duos"],["Trios","Trios"],["Squads","Squads"]])}
         ${c("platform",[["all","Platform"],["PC","PC"],["Console","Console"],["Mobile","Mobile"]])}
@@ -1865,52 +1966,52 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
         <span class="muted">UK time · schedule only</span>
       </div>
       <div class="match-list events">
-        ${r.length?r.map(l=>this._renderEvent(l)):n`<div class="empty">No tournaments match these filters.</div>`}
+        ${r.length?r.map(o=>this._renderEvent(o)):n`<div class="empty">No tournaments match these filters.</div>`}
       </div>
-    `}_eventTiming(e){let t=e.windows.find(c=>this._windowState(c)==="live");if(t)return{text:`Live now \xB7 ends in ${this._formatSpan(Date.parse(t.end)-this._now)}`,live:!0,soon:!1};let a=e.windows.find(c=>this._windowState(c)==="upcoming");if(!a)return{text:"Finished",live:!1,soon:!1};let i=Date.parse(a.begin)-this._now,r=i<7*864e5;return{text:`${this._formatWhen(a.begin)}${a.label?` \xB7 ${a.label}`:""}${r?` \xB7 in ${this._formatSpan(i)}`:""}`,live:!1,soon:r}}_renderEvent(e){let t=this._eventTiming(e),a=this._expandedEvent===e.key,i=e.tournament_type?Ke[e.tournament_type]||e.tournament_type:null,r=[e.mode,e.team,e.ranked&&e.tournament_type!=="RankedCup"?"Ranked":null,...e.platform_groups||[],e.region].filter(Boolean);return n`
-      <div class="event-card ${t.live?"live":""} ${a?"expanded":""} ${e.tournament_type==="FNCS"?"featured":""}">
-        <div class="event-row" @click=${()=>this._toggleEvent(e)}>
-          ${e.poster?n`<img class="event-art" src=${e.poster} alt="" loading="lazy" @error=${C} />`:d}
+    `}_eventTiming(t){let e=t.windows.find(c=>this._windowState(c)==="live");if(e)return{text:`Live now \xB7 ends in ${this._formatSpan(Date.parse(e.end)-this._now)}`,live:!0,soon:!1};let a=t.windows.find(c=>this._windowState(c)==="upcoming");if(!a)return{text:"Finished",live:!1,soon:!1};let s=Date.parse(a.begin)-this._now,r=s<7*864e5;return{text:`${this._formatWhen(a.begin)}${a.label?` \xB7 ${a.label}`:""}${r?` \xB7 in ${this._formatSpan(s)}`:""}`,live:!1,soon:r}}_renderEvent(t){let e=this._eventTiming(t),a=this._expandedEvent===t.key,s=t.tournament_type?Zt[t.tournament_type]||t.tournament_type:null,r=[t.mode,t.team,t.ranked&&t.tournament_type!=="RankedCup"?"Ranked":null,...t.platform_groups||[],t.region].filter(Boolean);return n`
+      <div class="event-card ${e.live?"live":""} ${a?"expanded":""} ${t.tournament_type==="FNCS"?"featured":""}">
+        <div class="event-row" @click=${()=>this._toggleEvent(t)}>
+          ${t.poster?n`<img class="event-art" src=${t.poster} alt="" loading="lazy" @error=${E} />`:d}
           <div class="match-left">
             <div class="match-headline">
-              <span class="event-name">${e.name}</span>
-              ${t.live?n`<span class="placement-badge win">LIVE</span>`:d}
+              <span class="event-name">${t.name}</span>
+              ${e.live?n`<span class="placement-badge win">LIVE</span>`:d}
             </div>
-            <span class="match-mode ${t.soon?"soon":""}">${t.text}</span>
+            <span class="match-mode ${e.soon?"soon":""}">${e.text}</span>
             <div class="tag-row">
-              ${i?n`<span class="tag type-tag ${e.tournament_type==="FNCS"?"fncs":""}">${i}</span>`:d}
-              ${e.can_spectate?n`<span class="tag spectate-tag" title="Epic allows spectating this session inside Fortnite">👁 Spectate in-game</span>`:d}
+              ${s?n`<span class="tag type-tag ${t.tournament_type==="FNCS"?"fncs":""}">${s}</span>`:d}
+              ${t.can_spectate?n`<span class="tag spectate-tag" title="Epic allows spectating this session inside Fortnite">👁 Spectate in-game</span>`:d}
               ${r.map(c=>n`<span class="tag">${c}</span>`)}
             </div>
           </div>
           <ha-icon class="chevron" icon=${a?"mdi:chevron-up":"mdi:chevron-down"}></ha-icon>
         </div>
-        ${a?this._renderEventDetails(e):d}
+        ${a?this._renderEventDetails(t):d}
       </div>
-    `}_renderEventDetails(e){let t=e.loading_screen||e.poster;return n`
+    `}_renderEventDetails(t){let e=t.loading_screen||t.poster;return n`
       <div class="event-details">
-        ${t?n`<img class="event-hero" src=${t} alt="" @error=${C} />`:d}
-        ${e.subtitle&&e.subtitle!==e.name?n`<div class="detail-sub">${e.subtitle}</div>`:d}
-        ${e.description?n`<p class="detail-desc">${e.description}</p>`:d}
-        ${e.schedule_info?n`<p class="detail-desc muted">${e.schedule_info}</p>`:d}
-        ${e.platform_groups?.length?n`<div class="detail-line"><span>Platforms</span><b>${e.platform_groups.join(", ")}</b></div>`:d}
-        <div class="detail-line"><span>Region</span><b>${e.region}</b></div>
-        ${e.min_account_level?n`<div class="detail-line"><span>Minimum account level</span><b>${e.min_account_level}</b></div>`:d}
-        ${e.tournament_type==="FNCS"?n`<div class="detail-line"><span>Official coverage</span>
+        ${e?n`<img class="event-hero" src=${e} alt="" @error=${E} />`:d}
+        ${t.subtitle&&t.subtitle!==t.name?n`<div class="detail-sub">${t.subtitle}</div>`:d}
+        ${t.description?n`<p class="detail-desc">${t.description}</p>`:d}
+        ${t.schedule_info?n`<p class="detail-desc muted">${t.schedule_info}</p>`:d}
+        ${t.platform_groups?.length?n`<div class="detail-line"><span>Platforms</span><b>${t.platform_groups.join(", ")}</b></div>`:d}
+        <div class="detail-line"><span>Region</span><b>${t.region}</b></div>
+        ${t.min_account_level?n`<div class="detail-line"><span>Minimum account level</span><b>${t.min_account_level}</b></div>`:d}
+        ${t.tournament_type==="FNCS"?n`<div class="detail-line"><span>Official coverage</span>
               <a href="https://www.twitch.tv/fortnite" target="_blank" rel="noopener">Fortnite on Twitch ↗</a></div>
               <div class="perk-desc">Epic streams major FNCS rounds on its official channels; this schedule does not say which sessions are broadcast.</div>`:d}
 
         <div class="section-title">Sessions</div>
         <div class="window-list">
-          ${e.windows.map(a=>{let i=this._windowState(a),r=`${e.event_id}|${a.window_id}`,c=this._leaderboards[r],l=Date.parse(a.begin)-this._now;return n`
-              <div class="window-row ${i}">
+          ${t.windows.map(a=>{let s=this._windowState(a),r=`${t.event_id}|${a.window_id}`,c=this._leaderboards[r],o=Date.parse(a.begin)-this._now;return n`
+              <div class="window-row ${s}">
                 <div class="window-main">
                   <span class="window-label">${a.label||"Session"}</span>
                   <span class="window-time">${this._formatWhen(a.begin)} – ${this._formatWhen(a.end).split(", ").pop()}</span>
-                  <span class="window-status ${i}">
-                    ${i==="live"?`Live \xB7 ${this._formatSpan(Date.parse(a.end)-this._now)} left`:i==="finished"?"Finished":l<7*864e5?`in ${this._formatSpan(l)}`:"Upcoming"}
+                  <span class="window-status ${s}">
+                    ${s==="live"?`Live \xB7 ${this._formatSpan(Date.parse(a.end)-this._now)} left`:s==="finished"?"Finished":o<7*864e5?`in ${this._formatSpan(o)}`:"Upcoming"}
                   </span>
-                  ${i!=="upcoming"?n`<button class="mini-button" @click=${()=>this._loadLeaderboard(e.event_id,a.window_id)}>
+                  ${s!=="upcoming"?n`<button class="mini-button" @click=${()=>this._loadLeaderboard(t.event_id,a.window_id)}>
                         ${c?.loading?"Loading\u2026":c?.data?"Refresh":"Leaderboard"}
                       </button>`:d}
                 </div>
@@ -1919,20 +2020,20 @@ var et=Object.defineProperty;var tt=Object.getOwnPropertyDescriptor;var y=(o,s,e
             `})}
         </div>
       </div>
-    `}_renderLeaderboard(e){if(e.error)return n`<div class="lb-note">${e.error}</div>`;if(!e.data)return e.loading?n`<div class="lb-note">Loading leaderboard…</div>`:d;let t=e.data,a=(i,r=!1)=>n`
+    `}_renderLeaderboard(t){if(t.error)return n`<div class="lb-note">${t.error}</div>`;if(!t.data)return t.loading?n`<div class="lb-note">Loading leaderboard…</div>`:d;let e=t.data,a=(s,r=!1)=>n`
       <div class="lb-row ${r?"you":""}">
-        <span class="lb-rank">#${this._num(i.rank)}</span>
-        <span class="lb-names">${r?"You \xB7 ":""}${(i.names||[]).join(", ")||"\u2014"}</span>
-        <span class="lb-points">${this._num(i.points)} pts</span>
-        <span class="lb-extra">${i.matches}m · ${i.wins}W · ${i.elims}E</span>
+        <span class="lb-rank">#${this._num(s.rank)}</span>
+        <span class="lb-names">${r?"You \xB7 ":""}${(s.names||[]).join(", ")||"\u2014"}</span>
+        <span class="lb-points">${this._num(s.points)} pts</span>
+        <span class="lb-extra">${s.matches}m · ${s.wins}W · ${s.elims}E</span>
       </div>
     `;return n`
       <div class="leaderboard">
-        ${t.player&&!t.entries.some(i=>i.is_player)?a(t.player,!0):d}
-        ${t.entries.length?t.entries.map(i=>a(i,i.is_player)):n`<div class="lb-note">No scores yet.</div>`}
-        ${t.updated?n`<div class="lb-note">Updated ${this._formatRelativeTime(t.updated)}${t.total_pages?` \xB7 ${t.total_pages} pages`:""}</div>`:d}
+        ${e.player&&!e.entries.some(s=>s.is_player)?a(e.player,!0):d}
+        ${e.entries.length?e.entries.map(s=>a(s,s.is_player)):n`<div class="lb-note">No scores yet.</div>`}
+        ${e.updated?n`<div class="lb-note">Updated ${this._formatRelativeTime(e.updated)}${e.total_pages?` \xB7 ${e.total_pages} pages`:""}</div>`:d}
       </div>
-    `}};y([U({attribute:!1})],$.prototype,"hass",2),y([w()],$.prototype,"_config",2),y([w()],$.prototype,"_view",2),y([w()],$.prototype,"_window",2),y([w()],$.prototype,"_selectedMode",2),y([w()],$.prototype,"_loadingAction",2),y([w()],$.prototype,"_catalog",2),y([w()],$.prototype,"_avatar",2),y([w()],$.prototype,"_events",2),y([w()],$.prototype,"_filters",2),y([w()],$.prototype,"_expandedEvent",2),y([w()],$.prototype,"_expandedMatch",2),y([w()],$.prototype,"_leaderboards",2),y([w()],$.prototype,"_now",2),y([w()],$.prototype,"_matchLists",2),y([w()],$.prototype,"_showAllMatches",2),y([w()],$.prototype,"_expandedSprite",2),y([w()],$.prototype,"_spriteFilter",2),y([w()],$.prototype,"_spriteSort",2),y([w()],$.prototype,"_trends",2),y([w()],$.prototype,"_pass",2),y([w()],$.prototype,"_passSet",2),y([w()],$.prototype,"_passPage",2);customElements.get("fortnite-activity-card")||customElements.define("fortnite-activity-card",$);console.info(`%c FORTNITE-ACTIVITY-CARD %c v${_t} `,"background:#7928CA;color:#fff;font-weight:700","background:#00E5FF;color:#000");export{$ as FortniteActivityCard};
+    `}};x([V({attribute:!1})],$.prototype,"hass",2),x([w()],$.prototype,"_config",2),x([w()],$.prototype,"_view",2),x([w()],$.prototype,"_window",2),x([w()],$.prototype,"_selectedMode",2),x([w()],$.prototype,"_loadingAction",2),x([w()],$.prototype,"_catalog",2),x([w()],$.prototype,"_avatar",2),x([w()],$.prototype,"_events",2),x([w()],$.prototype,"_filters",2),x([w()],$.prototype,"_expandedEvent",2),x([w()],$.prototype,"_expandedMatch",2),x([w()],$.prototype,"_leaderboards",2),x([w()],$.prototype,"_now",2),x([w()],$.prototype,"_matchLists",2),x([w()],$.prototype,"_showAllMatches",2),x([w()],$.prototype,"_expandedSprite",2),x([w()],$.prototype,"_spriteFilter",2),x([w()],$.prototype,"_spriteSort",2),x([w()],$.prototype,"_trends",2),x([w()],$.prototype,"_pass",2),x([w()],$.prototype,"_passSet",2),x([w()],$.prototype,"_passPage",2),x([w()],$.prototype,"_outfits",2),x([w()],$.prototype,"_outfitQuery",2),x([w()],$.prototype,"_outfitSort",2),x([w()],$.prototype,"_outfitPage",2);customElements.get("fortnite-activity-card")||customElements.define("fortnite-activity-card",$);console.info(`%c FORTNITE-ACTIVITY-CARD %c v${ye} `,"background:#7928CA;color:#fff;font-weight:700","background:#00E5FF;color:#000");export{$ as FortniteActivityCard};
 /*! Bundled license information:
 
 @lit/reactive-element/css-tag.js:

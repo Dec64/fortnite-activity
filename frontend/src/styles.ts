@@ -1377,4 +1377,61 @@ export const cardStyles = css`
     .bp-rewards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
     .bp-stats b { font-size: 14px; }
   }
+
+  /* ---- Locker ---- */
+  .locker { display: grid; gap: 10px; container-type: inline-size; }
+  .locker-hero {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--rarity) 45%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--rarity) 25%, transparent), rgba(255, 255, 255, 0.03));
+  }
+  .locker-hero-img {
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--rarity) 55%, transparent), rgba(15, 23, 42, 0.6));
+  }
+  .locker-hero-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .locker-hero-img ha-icon { --mdc-icon-size: 44px; opacity: 0.6; }
+  .locker-rarities { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .rarity-dot {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--rarity) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rarity) 70%, transparent);
+  }
+  .locker-controls { display: flex; gap: 6px; align-items: center; }
+  .locker-search {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.2);
+    color: inherit;
+  }
+  .locker-controls .mini-button { opacity: 0.75; border-color: rgba(255, 255, 255, 0.2); color: inherit; }
+  .locker-controls .mini-button.active { opacity: 1; border-color: var(--accent); color: var(--accent); }
+  .locker-img { background: linear-gradient(160deg, color-mix(in srgb, var(--rarity) 45%, transparent), rgba(30, 41, 59, 0.6)); border-color: color-mix(in srgb, var(--rarity) 50%, transparent); }
+  .locker-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .bp-reward.equipped .bp-reward-img { box-shadow: 0 0 0 2px var(--accent); }
+  .locker-pager { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12px; opacity: 0.85; }
+  .locker-pager .bp-nav[disabled] { opacity: 0.3; cursor: default; }
+  @container (max-width: 400px) {
+    .locker-hero { grid-template-columns: 72px minmax(0, 1fr); }
+    .locker-hero-img { width: 72px; height: 72px; }
+    .locker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  }
 `;

@@ -39,7 +39,12 @@ from .profile import (
     parse_external_auths,
     parse_playlists,
     parse_battlepass,
+    parse_athena_outfits,
     parse_common_core,
+    parse_locker_equipped,
+    is_outfit_record,
+    outfit_summary,
+    cosmetic_items,
     parse_inventory,
     parse_power_ranking,
     parse_season,
@@ -61,6 +66,9 @@ WINDOW_LABELS = {
     "week": "Last 7 days",
     "season": "This season",
 }
+
+
+OUTFIT_INDEX_MAX_PAGES = 40
 
 
 class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -97,6 +105,11 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.quest_debug: dict[str, Any] = {}
         # Key/type skeletons of the latest responses, for diagnostics (never values)
         self.raw_shapes: dict[str, Any] = {}
+        # Owned outfit IDs per player (athena, user-approved) and the public outfit catalogue used to name them
+        self.owned_outfits: dict[str, list[str]] = {}
+        self.outfit_index: dict[str, dict[str, Any]] = {}
+        self.outfit_index_info: dict[str, Any] = {}
+        self._cosmetic_lookups: dict[str, dict[str, Any] | None] = {}
 
         # Epic player tokens for players who linked their account (device auth)
         self.token_managers: dict[str, EpicTokenManager] = {}
@@ -326,6 +339,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 info["wallet"] = parsed_cc
             raw_cc = None
 
+        await self._async_update_outfits(player_id, account_id, token, info, now)
+
         ok, raw = await self._guarded(f"level:{player_id}", lambda: self.api_client.get_raw_level(account_id, token))
         if ok:
             info["level"] = ApiFortniteClient.parse_level(raw)
@@ -350,6 +365,117 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if cumulative:
                     info["sprites"] = {**(info.get("sprites") or {}), "cumulative": cumulative}
                 self._fetched_at[key] = now
+
+    async def _async_update_outfits(
+        self, player_id: str, account_id: str, token: str, info: dict[str, Any], now: datetime
+    ) -> None:
+        """Owned outfits (athena, every 6 h) and the equipped outfit (Locker, every refresh); user-approved reads."""
+        outfits = dict(info.get("outfits") or {})
+        key = f"athena:{player_id}"
+        if self._stale(key, timedelta(hours=6), now):
+            try:
+                raw = await self.api_client.epic_query_profile(account_id, token, "athena")
+            except FortniteApiError as err:
+                if key not in self._failing:
+                    _LOGGER.warning("Epic athena read for %s unavailable: %s", player_id, err)
+                    self._failing.add(key)
+            else:
+                self._failing.discard(key)
+                parsed = parse_athena_outfits(raw, account_id)
+                raw = None  # only the outfit IDs are kept
+                if parsed is None:
+                    _LOGGER.warning("Epic athena response for %s failed the identity/shape check; ignored", player_id)
+                else:
+                    self.owned_outfits[player_id] = parsed["ids"]
+                    outfits["owned_count"] = parsed["count"]
+                    outfits["profile_updated"] = parsed["profile_updated"]
+                self._fetched_at[key] = now
+
+        key = f"locker:{player_id}"
+        try:
+            raw = await self.api_client.epic_locker_items(account_id, token)
+        except FortniteApiError as err:
+            if key not in self._failing:
+                _LOGGER.warning("Epic locker read for %s unavailable: %s", player_id, err)
+                self._failing.add(key)
+        else:
+            self._failing.discard(key)
+            from .diagnostics import shape_of
+
+            self.raw_shapes["locker"] = shape_of(raw)
+            equipped = parse_locker_equipped(raw, account_id)
+            raw = None
+            if equipped is None:
+                _LOGGER.warning("Epic locker response for %s failed the identity/shape check; ignored", player_id)
+            else:
+                outfits["equipped_id"] = equipped["outfit_id"]
+                outfits["shuffle"] = equipped["shuffle"]
+
+        if self.owned_outfits.get(player_id) or outfits.get("equipped_id"):
+            await self._ensure_outfit_index(now)
+            equipped_id = outfits.get("equipped_id")
+            meta = await self._outfit(equipped_id)
+            if meta:
+                outfits["equipped"] = {"id": equipped_id, "name": meta.get("name"), "icon": meta.get("icon"), "rarity": meta.get("rarity")}
+            else:
+                outfits["equipped"] = {"id": equipped_id, "name": None, "icon": None} if equipped_id else None
+            owned = self.owned_outfits.get(player_id, [])
+            outfits["named_count"] = sum(1 for i in owned if i in self.outfit_index)
+        info["outfits"] = outfits or None
+
+    async def _ensure_outfit_index(self, now: datetime) -> None:
+        """Daily: outfit names/images from the public catalogue, keyed by lower-case id."""
+        if not self._stale("outfit_index", timedelta(hours=CATALOGUE_REFRESH_HOURS), now):
+            return
+        index: dict[str, dict[str, Any]] = {}
+        pages = 0
+        filtered = True
+        for cosmetic_type in ("outfit", None):
+            page, total_pages = 1, 1
+            while page <= total_pages and pages < OUTFIT_INDEX_MAX_PAGES:
+                ok, raw = await self._guarded(
+                    "outfit_index", lambda pg=page, ct=cosmetic_type: self.api_client.get_cosmetics_page(pg, 1000, ct)
+                )
+                pages += 1
+                if not ok:
+                    break
+                items = cosmetic_items(raw)
+                body = raw.get("data") if isinstance(raw, dict) and isinstance(raw.get("data"), dict) else raw
+                total_pages = int(body.get("totalPages") or 1) if isinstance(body, dict) else 1
+                for item in items:
+                    if is_outfit_record(item) and item.get("id"):
+                        index[str(item["id"]).lower()] = outfit_summary(item)
+                if not items:
+                    break
+                page += 1
+            if index:
+                break
+            filtered = False  # the type filter matched nothing; retry unfiltered
+        # Mark the attempt either way so a failing catalogue is retried daily, not every refresh
+        self._fetched_at["outfit_index"] = now
+        if index:
+            self.outfit_index = index
+            self.outfit_index_info = {"outfits": len(index), "pages": pages, "type_filter": filtered, "built": now.isoformat()}
+        else:
+            self.outfit_index_info = {"outfits": 0, "pages": pages, "type_filter": filtered, "built": now.isoformat()}
+
+    async def _outfit(self, outfit_id: str | None) -> dict[str, Any] | None:
+        """Name/image for one outfit id: catalogue index first, then a single cached lookup."""
+        if not outfit_id:
+            return None
+        if outfit_id in self.outfit_index:
+            return self.outfit_index[outfit_id]
+        if outfit_id not in self._cosmetic_lookups:
+            ok, raw = await self._guarded("cosmetic", lambda: self.api_client.get_cosmetic(outfit_id))
+            item = None
+            if ok:
+                item = raw.get("data") if isinstance(raw, dict) and isinstance(raw.get("data"), dict) else raw
+            self._cosmetic_lookups[outfit_id] = outfit_summary(item) if isinstance(item, dict) and item.get("name") else None
+        return self._cosmetic_lookups[outfit_id]
+
+    def owned_outfit_list(self, player_id: str) -> list[dict[str, Any]]:
+        """Owned outfits with catalogue metadata (unknown ids are returned with id only)."""
+        return [self.outfit_index.get(i) or {"id": i, "name": None} for i in self.owned_outfits.get(player_id, [])]
 
     def playlist_info(self, playlist_id: str) -> dict[str, Any] | None:
         """Look up catalogue name/image for a stats playlist id."""

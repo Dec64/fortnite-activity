@@ -9,6 +9,7 @@ const SECTION_OPTIONS = [
   { value: "sprites", label: "Sprites" },
   { value: "trends", label: "Trends" },
   { value: "pass", label: "Battle Pass" },
+  { value: "locker", label: "Locker (owned outfits)" },
 ];
 
 // Same mapping as the card uses for configs saved before `sections` existed
@@ -27,7 +28,7 @@ const SCHEMA = [
   },
   {
     name: "avatar",
-    label: "Avatar skin name (e.g. Peely) — looked up in the cosmetics catalogue",
+    label: "Avatar skin name (optional; leave empty to use the equipped outfit)",
     selector: { text: {} },
   },
   {

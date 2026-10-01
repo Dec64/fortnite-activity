@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.9.1";
+const CARD_VERSION = "1.10.0";
 
 declare global {
   interface Window {
@@ -106,8 +106,8 @@ const DEFAULTS: Partial<FortniteCardConfig> = {
   max_feed_matches: 10,
 };
 
-type View = "session" | "stats" | "events" | "sprites" | "trends" | "pass";
-const ALL_SECTIONS: View[] = ["session", "stats", "events", "sprites", "trends", "pass"];
+type View = "session" | "stats" | "events" | "sprites" | "trends" | "pass" | "locker";
+const ALL_SECTIONS: View[] = ["session", "stats", "events", "sprites", "trends", "pass", "locker"];
 
 // Readable labels for Battle Pass reward item types (the provider's type field)
 const REWARD_TYPES: Record<string, string> = {
@@ -214,6 +214,10 @@ export class FortniteActivityCard extends LitElement {
   @state() private _pass: { loading?: boolean; data?: any; error?: string } = {};
   @state() private _passSet = 0;
   @state() private _passPage = 0;
+  @state() private _outfits: { loading?: boolean; data?: any; error?: string } = {};
+  @state() private _outfitQuery = "";
+  @state() private _outfitSort: "rarity" | "name" = "rarity";
+  @state() private _outfitPage = 0;
   private _renderedView: View | null = null;
 
   private _entityCache = new Map<string, string>();
@@ -315,6 +319,7 @@ export class FortniteActivityCard extends LitElement {
     }
     // A section can open without a tab click (default section / single-section card)
     if (this._renderedView === "pass") this._loadPass();
+    if (this._renderedView === "locker") this._loadOutfits();
     if (this._renderedView === "trends") this._loadTrends();
   }
 
@@ -388,6 +393,16 @@ export class FortniteActivityCard extends LitElement {
       };
     } catch (err: any) {
       this._leaderboards = { ...this._leaderboards, [key]: { error: err?.message || "Leaderboard unavailable" } };
+    }
+  }
+
+  private async _loadOutfits(): Promise<void> {
+    if (!this.hass || this._outfits.loading || this._outfits.error || this._outfits.data !== undefined) return;
+    this._outfits = { loading: true };
+    try {
+      this._outfits = { data: await this.hass.callWS({ type: "fortnite_activity/outfits", player_id: this._player }) };
+    } catch (err: any) {
+      this._outfits = { error: err?.message || "Locker unavailable" };
     }
   }
 
@@ -515,6 +530,7 @@ export class FortniteActivityCard extends LitElement {
     if (view === "events") this._loadEvents();
     if (view === "trends") this._loadTrends();
     if (view === "pass") this._loadPass();
+    if (view === "locker") this._loadOutfits();
   }
 
   private _entityId(domain: string, key: string): string | undefined {
@@ -653,7 +669,10 @@ export class FortniteActivityCard extends LitElement {
     const reloadRankAttrs = { ...(reloadRankSensor?.attributes || {}), current_rank: reloadRankSensor?.state };
 
     // Sprites need the linked Epic account; drop the tab when there is no data
-    const sections = this._sections.filter((s) => s !== "sprites" || hasSprites || this._sections.length === 1);
+    const hasOutfits = !!profileSensor?.attributes?.outfits?.owned_count;
+    const sections = this._sections.filter(
+      (s) => this._sections.length === 1 || (s !== "sprites" || hasSprites) && (s !== "locker" || hasOutfits),
+    );
     const preferred = this._config.default_section;
     const autoView: View = isPlaying && sections.includes("session") ? "session" : sections.includes("stats") ? "stats" : sections[0];
     let view: View = this._view ?? (preferred && preferred !== "auto" && sections.includes(preferred as View) ? (preferred as View) : autoView);
@@ -687,7 +706,9 @@ export class FortniteActivityCard extends LitElement {
                 ? this._renderTrendsView()
                 : view === "pass"
                   ? this._renderPassView(levelSensor)
-                  : this._renderStatsView(statsAttrs, profileAttrs, brRankAttrs, reloadRankAttrs, powerSensor)}
+                  : view === "locker"
+                    ? this._renderLockerView(profileAttrs)
+                    : this._renderStatsView(statsAttrs, profileAttrs, brRankAttrs, reloadRankAttrs, powerSensor)}
       </ha-card>
     `;
   }
@@ -704,7 +725,7 @@ export class FortniteActivityCard extends LitElement {
     // Level needs the linked Epic account. (sNN_social_bp_level in stats is not a plain level: 32179 vs 322.)
     const seasonLevel = Number(levelSensor?.state) || 0;
     const accountLevel = Number(levelAttrs.account_level || 0);
-    const avatarImg = this._avatar?.icon;
+    const avatarImg = this._avatarImage(profileAttrs);
     const badgeSize = this._config.compact ? 20 : 24;
     const vbucks = this._findEntity("sensor", "vbucks");
     // V-Bucks come from Epic's common_core profile (read-only), current platform + Shared
@@ -714,7 +735,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="fa-header">
         <div class="player-avatar ${avatarImg ? "has-image" : ""}">
-          ${avatarImg ? html`<img src=${avatarImg} alt=${this._avatar?.name || ""} @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
+          ${avatarImg ? html`<img src=${avatarImg} alt=${this._avatarName(profileAttrs)} @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
         </div>
         <div class="player-info">
           <div class="name-row">
@@ -765,10 +786,21 @@ export class FortniteActivityCard extends LitElement {
     ).length;
   }
 
+  /** Configured avatar skin (by name) wins; otherwise the outfit equipped in the linked account's locker. */
+  private _avatarImage(profileAttrs: any): string | undefined {
+    if ((this._config.avatar || "").trim()) return this._avatar?.icon;
+    return profileAttrs?.outfits?.equipped?.icon || undefined;
+  }
+
+  private _avatarName(profileAttrs: any): string {
+    if ((this._config.avatar || "").trim()) return this._avatar?.name || "";
+    return profileAttrs?.outfits?.equipped?.name || "";
+  }
+
   /** One-line header for single-section cards: avatar, name, V-Bucks, live state. */
   private _renderSlimHeader(player: string, isPlaying: boolean, sessionAttrs: any, profileAttrs: any) {
     const displayName = profileAttrs.display_name || player.charAt(0).toUpperCase() + player.slice(1);
-    const avatarImg = this._avatar?.icon;
+    const avatarImg = this._avatarImage(profileAttrs);
     const vbucks = this._findEntity("sensor", "vbucks");
     const showVbucks = !this._config.hide_vbucks && vbucks && !isNaN(Number(vbucks.state));
     return html`
@@ -805,6 +837,7 @@ export class FortniteActivityCard extends LitElement {
       sprites: ["mdi:ghost-outline", "Sprites"],
       trends: ["mdi:chart-line", "Trends"],
       pass: ["mdi:ticket-confirmation-outline", "Pass"],
+      locker: ["mdi:hanger", "Locker"],
     };
     const tab = (id: View, icon: string, label: string, badge = 0) => html`
       <button class="bubble-sub-button ${view === id ? "active" : ""}" @click=${() => this._setView(id)} title=${label}>
@@ -1341,6 +1374,100 @@ export class FortniteActivityCard extends LitElement {
           <span>Claimed rewards are not available from this data source.</span>
           ${quests ? html`<span title="Epic's quest data has no names or targets; only states are counted">Quests on record: ${this._num(quests.total)}</span>` : nothing}
         </div>
+      </div>
+    `;
+  }
+
+
+  // ---- locker (owned outfits) -------------------------------------------------
+
+  private _outfitRarity(o: any): string {
+    const r = String(o?.rarity || "");
+    return r ? r.charAt(0).toUpperCase() + r.slice(1).toLowerCase() : "";
+  }
+
+  private _renderLockerView(profileAttrs: any) {
+    const info = profileAttrs.outfits || {};
+    const equipped = info.equipped;
+    const st = this._outfits;
+    if (st.loading || (st.data === undefined && !st.error)) return html`<div class="empty">Loading locker…</div>`;
+    if (st.error) return html`<div class="empty">${st.error}</div>`;
+    const all: any[] = st.data?.outfits || [];
+    if (!all.length) {
+      return html`<div class="empty">No owned outfits yet. They appear once the linked Epic account's profile has been read (every 6 hours).</div>`;
+    }
+    const rarityOrder = ["Mythic", "Legendary", "Epic", "Rare", "Uncommon", "Common"];
+    const known = all.filter((o) => o.name);
+    const unknown = all.length - known.length;
+    const q = this._outfitQuery.trim().toLowerCase();
+    const filtered = known.filter((o) => !q || String(o.name).toLowerCase().includes(q) || String(o.set || "").toLowerCase().includes(q));
+    const sorted = [...filtered].sort((a, b) => {
+      if (a.id?.toLowerCase() === info.equipped_id) return -1;
+      if (b.id?.toLowerCase() === info.equipped_id) return 1;
+      if (this._outfitSort === "rarity") {
+        const ra = rarityOrder.indexOf(this._outfitRarity(a));
+        const rb = rarityOrder.indexOf(this._outfitRarity(b));
+        return (ra < 0 ? 99 : ra) - (rb < 0 ? 99 : rb) || String(a.name).localeCompare(String(b.name));
+      }
+      return String(a.name).localeCompare(String(b.name));
+    });
+    const perPage = this._config.compact ? 18 : 24;
+    const pages = Math.max(1, Math.ceil(sorted.length / perPage));
+    const page = Math.min(this._outfitPage, pages - 1);
+    const shown = sorted.slice(page * perPage, page * perPage + perPage);
+    const byRarity = new Map<string, number>();
+    for (const o of known) byRarity.set(this._outfitRarity(o) || "Other", (byRarity.get(this._outfitRarity(o) || "Other") || 0) + 1);
+
+    return html`
+      <div class="locker">
+        <div class="locker-hero" style="--rarity:${RARITY_COLORS[this._outfitRarity(equipped)] || "var(--accent)"}">
+          <div class="locker-hero-img">
+            ${equipped?.icon ? html`<img src=${equipped.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+          </div>
+          <div class="locker-hero-info">
+            <div class="bp-hero-count">Equipped${info.shuffle && info.shuffle !== "DISABLED" ? " · shuffle on" : ""}</div>
+            <div class="bp-hero-name">${equipped?.name || (info.equipped_id ? "Unknown outfit" : "Not available")}</div>
+            ${equipped?.rarity ? html`<div class="bp-hero-meta"><span>${this._outfitRarity(equipped)}</span></div>` : nothing}
+            <div class="bp-hero-types">
+              <b>${this._num(all.length)}</b> outfits owned${unknown ? ` · ${unknown} not in the catalogue` : ""}
+            </div>
+            <div class="locker-rarities">
+              ${rarityOrder.filter((r) => byRarity.get(r)).map((r) => html`<span class="rarity-dot" style="--rarity:${RARITY_COLORS[r]}" title=${r}>${byRarity.get(r)}</span>`)}
+            </div>
+          </div>
+        </div>
+
+        <div class="locker-controls">
+          <input class="locker-search" type="search" placeholder="Search outfits or sets" .value=${this._outfitQuery}
+            @input=${(e: any) => { this._outfitQuery = e.target.value; this._outfitPage = 0; }} />
+          <button class="mini-button ${this._outfitSort === "rarity" ? "active" : ""}" @click=${() => { this._outfitSort = "rarity"; this._outfitPage = 0; }}>Rarity</button>
+          <button class="mini-button ${this._outfitSort === "name" ? "active" : ""}" @click=${() => { this._outfitSort = "name"; this._outfitPage = 0; }}>A–Z</button>
+        </div>
+
+        ${shown.length
+          ? html`<div class="bp-rewards locker-grid">
+              ${shown.map((o) => {
+                const isEquipped = o.id?.toLowerCase() === info.equipped_id;
+                return html`
+                  <div class="bp-reward ${isEquipped ? "equipped" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(o)] || "#9CA3AF"}" title="${o.name}${o.set ? ` · ${o.set}` : ""}">
+                    <div class="bp-reward-img locker-img">
+                      ${o.small || o.icon ? html`<img src=${o.small || o.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+                      ${isEquipped ? html`<span class="bp-cost included">Equipped</span>` : nothing}
+                    </div>
+                    <span class="bp-reward-name">${o.name}</span>
+                    <span class="bp-reward-type">${this._outfitRarity(o) || "Outfit"}</span>
+                  </div>`;
+              })}
+            </div>`
+          : html`<div class="empty">No outfits match “${this._outfitQuery}”.</div>`}
+
+        ${pages > 1
+          ? html`<div class="locker-pager">
+              <button class="bp-nav" title="Previous page" ?disabled=${page === 0} @click=${() => (this._outfitPage = page - 1)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
+              <span>Page ${page + 1} of ${pages} · ${sorted.length} outfits</span>
+              <button class="bp-nav" title="Next page" ?disabled=${page >= pages - 1} @click=${() => (this._outfitPage = page + 1)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+            </div>`
+          : nothing}
       </div>
     `;
   }

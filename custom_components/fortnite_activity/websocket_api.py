@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 try:
@@ -56,7 +57,7 @@ except ImportError:
 
 from .api.api_fortnite import FortniteApiError
 from .const import CONF_ACCOUNT_ID, CONF_PLAYER_ID, DOMAIN
-from .profile import REGION_GROUPS, parse_leaderboard
+from .profile import REGION_GROUPS, cosmetic_items, parse_leaderboard
 from .coordinator import FortniteDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -76,6 +77,7 @@ def async_setup_websocket_api(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_get_leaderboard)
     websocket_api.async_register_command(hass, ws_get_matches)
     websocket_api.async_register_command(hass, ws_get_battlepass)
+    websocket_api.async_register_command(hass, ws_get_outfits)
 
 
 def _get_coordinator(hass: HomeAssistant, player_id: str | None = None) -> FortniteDataUpdateCoordinator | None:
@@ -242,7 +244,17 @@ async def ws_get_tournaments(
     )
 
 
-_COSMETIC_CACHE: dict[str, dict[str, Any] | None] = {}
+_COSMETIC_CACHE: dict[str, tuple[float, dict[str, Any] | None]] = {}
+COSMETIC_MISS_SECONDS = 600
+
+
+def _shape(raw: Any) -> Any:
+    """Key/type outline of a public catalogue response (no values) for troubleshooting."""
+    if isinstance(raw, dict):
+        return {k: type(v).__name__ if not isinstance(v, dict) else _shape(v) for k, v in list(raw.items())[:12]}
+    if isinstance(raw, list):
+        return [f"list[{len(raw)}]", _shape(raw[0]) if raw else None]
+    return type(raw).__name__
 
 
 def _cosmetic_summary(item: dict[str, Any]) -> dict[str, Any]:
@@ -272,21 +284,38 @@ async def ws_find_cosmetic(
     """Resolve a cosmetic name (e.g. a skin chosen as avatar) to images; cached per query."""
     query = msg["query"].strip()
     cache_key = f"{msg['cosmetic_type']}:{query.lower()}"
-    if cache_key not in _COSMETIC_CACHE:
-        coordinator = _get_coordinator(hass)
-        if not coordinator:
-            connection.send_error(msg["id"], "not_found", "Fortnite Activity is not set up")
-            return
+    cached = _COSMETIC_CACHE.get(cache_key)
+    # Hits are kept for the session; misses are retried after a while
+    if cached and (cached[1] is not None or time.monotonic() - cached[0] < COSMETIC_MISS_SECONDS):
+        connection.send_result(msg["id"], {"query": query, "cosmetic": cached[1]})
+        return
+    coordinator = _get_coordinator(hass)
+    if not coordinator:
+        connection.send_error(msg["id"], "not_found", "Fortnite Activity is not set up")
+        return
+    shape = None
+    items: list[dict[str, Any]] = []
+    # The type filter value is not documented; fall back to an unfiltered search
+    for cosmetic_type in dict.fromkeys([msg["cosmetic_type"] or None, None]):
         try:
-            raw = await coordinator.api_client.search_cosmetics(query, msg["cosmetic_type"] or None)
+            raw = await coordinator.api_client.search_cosmetics(query, cosmetic_type)
         except FortniteApiError as err:
             connection.send_error(msg["id"], "api_error", str(err))
             return
-        items = [i for i in (raw.get("data") if isinstance(raw, dict) else raw) or [] if isinstance(i, dict)]
-        exact = next((i for i in items if str(i.get("name", "")).lower() == query.lower()), None)
-        best = exact or (items[0] if items else None)
-        _COSMETIC_CACHE[cache_key] = _cosmetic_summary(best) if best else None
-    connection.send_result(msg["id"], {"query": query, "cosmetic": _COSMETIC_CACHE[cache_key]})
+        items = cosmetic_items(raw)
+        if items:
+            break
+        shape = _shape(raw)
+    exact = [i for i in items if str(i.get("name", "")).lower() == query.lower()]
+    # Prefer an exact-name outfit, then any exact name, then the first result
+    best = next((i for i in exact if "outfit" in str(i.get("type", "")).lower() or "character" in str(i.get("type", "")).lower()), None)
+    best = best or (exact[0] if exact else None) or (items[0] if items else None)
+    summary = _cosmetic_summary(best) if best else None
+    _COSMETIC_CACHE[cache_key] = (time.monotonic(), summary)
+    result: dict[str, Any] = {"query": query, "cosmetic": summary}
+    if summary is None:
+        result["response_shape"] = shape
+    connection.send_result(msg["id"], result)
 
 
 _LEADERBOARD_CACHE: dict[tuple[str, str, str | None], tuple[float, Any]] = {}
@@ -421,3 +450,33 @@ async def ws_get_battlepass(
     """Current Battle Pass catalogue (pages and rewards). Personal claim status is not available."""
     profile = _profile(hass, msg.get("player_id"))
     connection.send_result(msg["id"], {"battlepass": profile.battlepass if profile else None})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "fortnite_activity/outfits",
+        vol.Optional("player_id"): str,
+    }
+)
+@websocket_api.async_response
+async def ws_get_outfits(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Owned outfits (from the linked account's athena profile) joined to public catalogue names/images."""
+    player_id = (msg.get("player_id") or "").lower() or None
+    profile = _profile(hass, player_id)
+    if not profile:
+        connection.send_result(msg["id"], {"outfits": None})
+        return
+    pid = player_id or next(iter(profile.owned_outfits), None)
+    info = ((profile.data or {}).get(pid) or {}).get("outfits") or {} if pid else {}
+    connection.send_result(
+        msg["id"],
+        {
+            "outfits": profile.owned_outfit_list(pid) if pid and pid in profile.owned_outfits else None,
+            "equipped_id": info.get("equipped_id"),
+            "catalogue": profile.outfit_index_info,
+        },
+    )

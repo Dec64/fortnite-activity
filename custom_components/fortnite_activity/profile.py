@@ -847,3 +847,108 @@ def parse_common_core(raw: Any, expected_account_id: str) -> dict[str, Any] | No
         "crew": crew,
         "profile_updated": profile.get("updated"),
     }
+
+
+def cosmetic_items(raw: Any) -> list[dict[str, Any]]:
+    """Cosmetic records from a search response, whatever wrapper the provider used.
+
+    Observed/possible shapes: a list, {data: [...]}, or a wrapped paginated result {data: {data: [...]}}.
+    """
+    value = raw
+    for _ in range(3):
+        if isinstance(value, list):
+            return [i for i in value if isinstance(i, dict)]
+        if not isinstance(value, dict):
+            return []
+        nxt = next((value[k] for k in ("data", "items", "results", "cosmetics") if k in value), None)
+        if nxt is None:
+            return []
+        value = nxt
+    return []
+
+
+def _template_suffix(template: str) -> str | None:
+    """'AthenaCharacter:CID_028_Athena_Commando_F' -> 'cid_028_athena_commando_f'."""
+    if ":" not in template:
+        return None
+    suffix = template.split(":", 1)[1].strip().lower()
+    return suffix or None
+
+
+def parse_athena_outfits(raw: Any, expected_account_id: str) -> dict[str, Any] | None:
+    """Owned outfit IDs from an athena QueryProfile response (user-approved: outfit IDs only).
+
+    Returns None unless the profile belongs to the expected account (identity gate). Nothing else
+    from the profile (items, stats, quests, variants) is kept.
+    """
+    if not isinstance(raw, dict):
+        return None
+    changes = raw.get("profileChanges") or []
+    profile = next((c.get("profile") for c in changes if isinstance(c, dict) and isinstance(c.get("profile"), dict)), None)
+    if not profile or profile.get("accountId") != expected_account_id or profile.get("profileId") != "athena":
+        return None
+    ids: set[str] = set()
+    for item in (profile.get("items") or {}).values():
+        if not isinstance(item, dict):
+            continue
+        template = str(item.get("templateId") or "")
+        if template.startswith("AthenaCharacter:"):
+            suffix = _template_suffix(template)
+            if suffix:
+                ids.add(suffix)
+    return {"ids": sorted(ids), "count": len(ids), "profile_updated": profile.get("updated")}
+
+
+def parse_locker_equipped(raw: Any, expected_account_id: str) -> dict[str, Any] | None:
+    """Equipped outfit from an Epic Locker v4 items response.
+
+    Shape (documented by the community, verified live via diagnostics shape): activeLoadoutGroup.loadouts
+    keyed by loadout schema, each with loadoutSlots[{slotTemplate, equippedItemId}]. A present accountId
+    that differs from the expected account rejects the response.
+    """
+    if not isinstance(raw, dict):
+        return None
+    group = raw.get("activeLoadoutGroup")
+    if not isinstance(group, dict):
+        return None
+    owner = group.get("accountId")
+    if owner is not None and owner != expected_account_id:
+        return None
+    loadouts = group.get("loadouts")
+    if not isinstance(loadouts, dict):
+        return None
+    for schema, loadout in loadouts.items():
+        if "character" not in str(schema).lower() or not isinstance(loadout, dict):
+            continue
+        for slot in loadout.get("loadoutSlots") or []:
+            if not isinstance(slot, dict) or "character" not in str(slot.get("slotTemplate", "")).lower():
+                continue
+            template = str(slot.get("equippedItemId") or "")
+            if template.startswith("AthenaCharacter:"):
+                return {"outfit_id": _template_suffix(template), "shuffle": loadout.get("shuffleType")}
+    return {"outfit_id": None, "shuffle": None}
+
+
+_OUTFIT_TYPES = {"outfit", "athenacharacter", "character"}
+
+
+def is_outfit_record(item: dict[str, Any]) -> bool:
+    item_type = item.get("type")
+    if isinstance(item_type, dict):  # some catalogues use {value, displayValue}
+        item_type = item_type.get("value")
+    return str(item_type or "").lower() in _OUTFIT_TYPES or str(item.get("id") or "").lower().startswith(("cid_", "character_"))
+
+
+def outfit_summary(item: dict[str, Any]) -> dict[str, Any]:
+    images = item.get("images") if isinstance(item.get("images"), dict) else {}
+    rarity = item.get("rarity")
+    if isinstance(rarity, dict):
+        rarity = rarity.get("displayValue") or rarity.get("value")
+    return {
+        "id": item.get("id"),
+        "name": item.get("name"),
+        "rarity": rarity,
+        "set": item.get("set") if isinstance(item.get("set"), str) else None,
+        "icon": images.get("icon") or images.get("smallIcon") or item.get("icon"),
+        "small": images.get("smallIcon") or images.get("icon") or item.get("icon"),
+    }

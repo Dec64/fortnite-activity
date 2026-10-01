@@ -49,3 +49,12 @@ Primary sources: [saved OpenAPI](../evidence/sanitized/specifications/api-fortni
 | V-Bucks balance, Crew status | Yes (after Epic link) | Epic common_core QueryProfile (read-only, user-approved) | Provider br-inventory `globalcash` read 0; not used |
 | Quest summary | Counts by state only | Key + player token | No names/targets in payload; FortniteAPI.io closed |
 | Battle Pass catalogue | Yes | Key | 150 rewards S42; claims not available |
+
+## v1.10.0 owned outfits and equipped outfit (2026-10-01, user-approved)
+
+| Capability | Source | Status | Notes |
+| --- | --- | --- | --- |
+| Owned outfits | Direct Epic `QueryProfile` athena (read-only, every 6 h) | Implemented; live verification pending | Only `AthenaCharacter:` template IDs are kept (lower-cased); the rest of the profile is discarded immediately. Identity gate on `accountId` and `profileId`. Base ownership only; styles are not interpreted. |
+| Equipped outfit (avatar) | Epic Locker service v4 GET `activeLoadoutGroup` (read-only, every 30 min) | Implemented; response shape **unverified** (community-documented); the key/type shape is recorded in diagnostics `response_shapes.locker` | The Character loadout slot's `equippedItemId` is the only value kept. A present `accountId` that differs from the expected account rejects the response. |
+| Outfit names/images | api-fortnite `/v2/cosmetics/all?type=outfit` (daily, ≤40 pages) plus `/v2/cosmetics/{id}` fallback | Implemented; whether the type filter works is recorded in `outfit_catalogue.type_filter` | IDs are joined case-insensitively. Outfits missing from the catalogue are counted, not named. |
+| Avatar search fix | `/v2/cosmetics/search` | Fixed | The response is `{status, data:{page,…, data:[…]}}` (sanitized evidence 2026-09-14); the old parser read one level only, so the avatar always fell back to initials. |

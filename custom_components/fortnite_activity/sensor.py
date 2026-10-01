@@ -322,6 +322,8 @@ class FortniteProfileSensor(FortniteEntity, SensorEntity):
             "capabilities": (self.coordinator.capabilities or {}).get(self.player_id),
             # State counts only: the quests payload has no names, targets or rewards
             "quests": self.player_data.get("quests"),
+            # Equipped outfit (Epic Locker) and owned-outfit count (Epic athena); the list is served over websocket
+            "outfits": self.player_data.get("outfits"),
         }
 
 

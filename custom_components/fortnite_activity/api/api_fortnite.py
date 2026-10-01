@@ -192,31 +192,54 @@ class ApiFortniteClient:
         query = f"?{urlencode({'season': season})}" if season else ""
         return await self._request(f"/v2/battlepass{query}")
 
-    async def epic_query_profile_common_core(self, account_id: str, token: str) -> Any:
-        """Read-only Epic QueryProfile for common_core (user-approved 2026-10-01 for V-Bucks/Crew).
+    # Direct Epic reads the user approved (2026-10-01). All are read-only; bodies are never logged
+    # and errors carry only the status code.
+    EPIC_QUERY_PROFILES = frozenset({"common_core", "athena"})
+    EPIC_FORTNITE_DEPLOYMENT = "62a9473a2dca46b29ccf17577fcf42d7"
 
-        Only this profile is allowed; QueryProfile retrieves state and changes nothing. The body is
-        never logged and errors carry only the status code.
-        """
-        if not re.fullmatch(r"[0-9a-f]{32}", account_id):
-            raise FortniteApiError("Invalid account id for Epic profile read")
+    async def _epic_read(self, method: str, url: str, token: str, what: str, timeout: int = 20) -> Any:
         session = await self._get_session()
-        url = (
-            "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/"
-            f"{account_id}/client/QueryProfile?profileId=common_core&rvn=-1"
-        )
+        kwargs: dict[str, Any] = {
+            "headers": {"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            "timeout": aiohttp.ClientTimeout(total=timeout),
+        }
+        if method == "POST":
+            kwargs["json"] = {}
         try:
-            async with session.post(
-                url,
-                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-                json={},
-                timeout=aiohttp.ClientTimeout(total=20),
-            ) as resp:
+            async with session.request(method, url, **kwargs) as resp:
                 if resp.status != 200:
-                    raise FortniteApiError(f"Epic profile read failed (HTTP {resp.status})", resp.status)
+                    raise FortniteApiError(f"Epic {what} read failed (HTTP {resp.status})", resp.status)
                 return await resp.json(content_type=None)
         except (aiohttp.ClientError, TimeoutError) as err:
-            raise FortniteApiError(f"Epic profile read connection error: {type(err).__name__}") from None
+            raise FortniteApiError(f"Epic {what} read connection error: {type(err).__name__}") from None
+
+    async def epic_query_profile(self, account_id: str, token: str, profile_id: str) -> Any:
+        """Read-only Epic QueryProfile (POST retrieves state and changes nothing) for an approved profile.
+
+        common_core: V-Bucks/Crew. athena: only owned outfit IDs are kept by the caller.
+        """
+        if profile_id not in self.EPIC_QUERY_PROFILES:
+            raise FortniteApiError("Epic profile not approved")
+        if not re.fullmatch(r"[0-9a-f]{32}", account_id):
+            raise FortniteApiError("Invalid account id for Epic profile read")
+        url = (
+            "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/"
+            f"{account_id}/client/QueryProfile?profileId={profile_id}&rvn=-1"
+        )
+        return await self._epic_read("POST", url, token, f"{profile_id} profile", timeout=40 if profile_id == "athena" else 20)
+
+    async def epic_query_profile_common_core(self, account_id: str, token: str) -> Any:
+        return await self.epic_query_profile(account_id, token, "common_core")
+
+    async def epic_locker_items(self, account_id: str, token: str) -> Any:
+        """Read-only Epic Locker service GET: the active loadouts (the caller keeps the equipped outfit only)."""
+        if not re.fullmatch(r"[0-9a-f]{32}", account_id):
+            raise FortniteApiError("Invalid account id for Epic locker read")
+        url = (
+            f"https://fngw-svcgate.ol.epicgames.com/api/locker/v4/{self.EPIC_FORTNITE_DEPLOYMENT}"
+            f"/account/{account_id}/items"
+        )
+        return await self._epic_read("GET", url, token, "locker")
 
     async def get_br_inventory(self, account_id: str, token: str) -> Any:
         """Battle Royale inventory; observed shape {stash: {globalcash: n}} (provider: V-Bucks)."""
@@ -281,6 +304,17 @@ class ApiFortniteClient:
         return await self._request(
             f"/v2/events/{quote(event_id, safe='')}/windows/{quote(window_id, safe='')}/leaderboard?page={int(page)}"
         )
+
+    async def get_cosmetics_page(self, page: int, page_size: int = 1000, cosmetic_type: str | None = "outfit") -> Any:
+        """One page of the public cosmetic catalogue (used to name owned outfits)."""
+        params: dict[str, Any] = {"page": page, "pageSize": page_size, "lang": "en"}
+        if cosmetic_type:
+            params["type"] = cosmetic_type
+        return await self._request(f"/v2/cosmetics/all?{urlencode(params)}")
+
+    async def get_cosmetic(self, cosmetic_id: str) -> Any:
+        """A single public cosmetic by id."""
+        return await self._request(f"/v2/cosmetics/{quote(cosmetic_id, safe='')}?lang=en")
 
     async def search_cosmetics(self, query: str, cosmetic_type: str | None = "outfit") -> Any:
         """Search the public cosmetic catalogue by name."""

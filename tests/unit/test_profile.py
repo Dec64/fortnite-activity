@@ -268,3 +268,85 @@ class TestCommonCore(unittest.TestCase):
 
         self.assertIsNone(parse_common_core(self._profile("b" * 32), self.ACC))
         self.assertIsNone(parse_common_core({"bad": 1}, self.ACC))
+
+
+def test_cosmetic_items_handles_wrappers():
+    from custom_components.fortnite_activity.profile import cosmetic_items
+
+    item = {"id": "CID_SYNTH_001", "name": "Synthetic Hero", "type": "outfit", "images": {"icon": "https://example.invalid/i.png"}}
+    assert cosmetic_items([item]) == [item]
+    assert cosmetic_items({"data": [item]}) == [item]
+    assert cosmetic_items({"success": True, "data": {"page": 1, "total": 1, "data": [item]}}) == [item]
+    assert cosmetic_items({"data": None}) == []
+    assert cosmetic_items("nope") == []
+
+
+SYNTH_ACCOUNT = "0123456789abcdef0123456789abcdef"
+
+
+def _athena(account=SYNTH_ACCOUNT, profile_id="athena"):
+    return {
+        "profileChanges": [
+            {
+                "profile": {
+                    "accountId": account,
+                    "profileId": profile_id,
+                    "updated": "2026-10-01T00:00:00Z",
+                    "items": {
+                        "guid-1": {"templateId": "AthenaCharacter:CID_Synth_A", "attributes": {"variants": []}},
+                        "guid-2": {"templateId": "AthenaCharacter:Character_SynthB"},
+                        "guid-3": {"templateId": "AthenaPickaxe:Pickaxe_Synth"},
+                        "guid-4": {"templateId": "AthenaCharacter:CID_Synth_A"},
+                    },
+                }
+            }
+        ]
+    }
+
+
+def test_parse_athena_outfits_keeps_only_outfit_ids():
+    from custom_components.fortnite_activity.profile import parse_athena_outfits
+
+    parsed = parse_athena_outfits(_athena(), SYNTH_ACCOUNT)
+    assert parsed == {"ids": ["character_synthb", "cid_synth_a"], "count": 2, "profile_updated": "2026-10-01T00:00:00Z"}
+
+
+def test_parse_athena_outfits_identity_gate():
+    from custom_components.fortnite_activity.profile import parse_athena_outfits
+
+    assert parse_athena_outfits(_athena(account="f" * 32), SYNTH_ACCOUNT) is None
+    assert parse_athena_outfits(_athena(profile_id="common_core"), SYNTH_ACCOUNT) is None
+    assert parse_athena_outfits({"profileChanges": []}, SYNTH_ACCOUNT) is None
+
+
+def test_parse_locker_equipped():
+    from custom_components.fortnite_activity.profile import parse_locker_equipped
+
+    raw = {
+        "activeLoadoutGroup": {
+            "accountId": SYNTH_ACCOUNT,
+            "loadouts": {
+                "CosmeticLoadout:LoadoutSchema_Emotes": {"loadoutSlots": [{"slotTemplate": "x", "equippedItemId": "AthenaDance:EID_Synth"}]},
+                "CosmeticLoadout:LoadoutSchema_Character": {
+                    "shuffleType": "DISABLED",
+                    "loadoutSlots": [
+                        {"slotTemplate": "CosmeticLoadoutSlotTemplate:LoadoutSlot_Backpack", "equippedItemId": "AthenaBackpack:BID_Synth"},
+                        {"slotTemplate": "CosmeticLoadoutSlotTemplate:LoadoutSlot_Character", "equippedItemId": "AthenaCharacter:CID_Synth_A"},
+                    ],
+                },
+            },
+        }
+    }
+    assert parse_locker_equipped(raw, SYNTH_ACCOUNT) == {"outfit_id": "cid_synth_a", "shuffle": "DISABLED"}
+    raw["activeLoadoutGroup"]["accountId"] = "f" * 32
+    assert parse_locker_equipped(raw, SYNTH_ACCOUNT) is None
+    assert parse_locker_equipped({"unexpected": 1}, SYNTH_ACCOUNT) is None
+
+
+def test_outfit_records():
+    from custom_components.fortnite_activity.profile import is_outfit_record, outfit_summary
+
+    item = {"id": "CID_Synth_A", "type": "outfit", "name": "Synth A", "rarity": "Epic", "images": {"icon": "https://example.invalid/a.png"}}
+    assert is_outfit_record(item)
+    assert not is_outfit_record({"id": "BID_Synth", "type": "backpack"})
+    assert outfit_summary(item)["icon"] == "https://example.invalid/a.png"

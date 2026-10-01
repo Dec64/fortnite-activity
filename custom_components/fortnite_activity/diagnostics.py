@@ -71,6 +71,13 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "sprites_current": {k: v for k, v in current.items() if k != "families"},
             "sprite_families": len(current.get("families") or []),
             "sprites_with_icons": sum(1 for f in current.get("families") or [] if f.get("icon")),
+            # Counts and presence only; outfit IDs are not included
+            "outfits": {
+                k: v for k, v in (data.get("outfits") or {}).items() if k in ("owned_count", "named_count", "shuffle", "profile_updated")
+            } | {
+                "equipped_known": bool(((data.get("outfits") or {}).get("equipped") or {}).get("name")),
+                "equipped_present": bool((data.get("outfits") or {}).get("equipped_id")),
+            },
         }
     return async_redact_data(
         {
@@ -91,6 +98,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
                     | {"page_tracks": sorted({str(p.get("track")) for p in (getattr(profile, "battlepass", None) or {}).get("pages", [])})}
                 ) if getattr(profile, "battlepass", None) else None,
                 "quest_debug": getattr(profile, "quest_debug", {}),
+                "outfit_catalogue": getattr(profile, "outfit_index_info", {}),
                 "sprite_level_curve_raw": ((getattr(profile, "sprite_catalogue", None) or {}).get("level_curve_raw")),
                 "tournament_classification": sorted({
                     f"{e.get('tournament_type')}|{e.get('event_group')}|spectate={e.get('can_spectate')}|{e.get('name')}"
