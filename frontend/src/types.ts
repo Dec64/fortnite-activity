@@ -5,6 +5,12 @@
 export interface FortniteCardConfig {
   type: string;
   player?: string;
+  /** Sections to show, in tab order: session, stats, events, sprites, trends, pass. */
+  sections?: string[];
+  /** Section opened first; "auto" = live session while playing, otherwise stats/first. */
+  default_section?: string;
+  header?: "full" | "slim" | "none";
+  /** Legacy (pre-1.9) layout; used only when `sections` is not set. */
   layout?: "auto" | "session_only" | "career_only" | "events_only";
   card_style?: "bubble" | "cyber_fortnite" | "minimal";
   theme_accent?: "auto" | "victory_gold" | "slurp_cyan" | "storm_purple";

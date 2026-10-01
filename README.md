@@ -88,11 +88,15 @@ Click **Configure** on the integration card to adjust:
 2. Search for **Fortnite Activity Card**.
 3. Use the visual controls to customize:
    - **Tracked Player**: `player1`, `player2`, etc.
-   - **Card Layout**: `Adaptive` (Live Session when playing, Recap when idle), `Live Session Only`, or `Career & Ranks Only`.
+   - **Sections**: pick any combination of Live/Last Session, Stats & Ranks, Events, Sprites, Trends and Battle Pass; drag to set the tab order. With one section the tab bar is hidden.
+   - **Section opened first**: Automatic (Live Session while playing, otherwise Stats) or a fixed section.
+   - **Header**: `Full`, `Slim` (name, V-Bucks, live status) or `None`.
    - **Visual Theme**: `Bubble Card` (sleek pills & theme vars), `Cyber Fortnite`, or `Minimal`.
    - **Accent Tint**: `Inherit Theme Accent`, `Victory Gold`, `Slurp Cyan`, or `Storm Purple`.
    - **Match Feed**: Toggle match feed visibility and set maximum games shown.
-   - **Sub-Buttons**: Toggle quick action buttons (`Start/End Session`, `Refresh`).
+   - **Action buttons**: Toggle `Start/End Session` and `Refresh`.
+
+Cards saved before 1.9 with `layout:` (`auto`, `session_only`, `career_only`, `events_only`) keep working; `sections:` takes over once set.
 
 ### YAML Examples
 
@@ -100,12 +104,28 @@ Click **Configure** on the integration card to adjust:
 ```yaml
 type: custom:fortnite-activity-card
 player: player1
-layout: auto
 card_style: bubble
 theme_accent: auto
 show_match_feed: true
 show_sub_buttons: true
 max_feed_matches: 10
+```
+
+#### Battle Pass only
+```yaml
+type: custom:fortnite-activity-card
+player: player1
+sections: [pass]
+header: slim
+show_sub_buttons: false
+```
+
+#### Pick and order sections
+```yaml
+type: custom:fortnite-activity-card
+player: player1
+sections: [session, stats, events]
+default_section: auto
 ```
 
 #### Inside a Bubble Card Room Pop-up
@@ -119,7 +139,6 @@ cards:
     icon: mdi:controller
   - type: custom:fortnite-activity-card
     player: player1
-    layout: auto
     card_style: bubble
 ```
 

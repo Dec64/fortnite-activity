@@ -1234,4 +1234,141 @@ export const cardStyles = css`
     color: #FDE68A;
     font-weight: 700;
   }
+
+  /* ---- Slim header (single-section cards) ---- */
+  .fa-header.slim { margin-bottom: 10px; }
+  .fa-header.slim .player-avatar { width: 32px; height: 32px; font-size: 13px; }
+  .fa-header.slim .player-info h2 { font-size: 15px; }
+  .fa-header.slim .name-row { gap: 8px; }
+
+  /* ---- Battle Pass ---- */
+  .bp { display: grid; gap: 10px; }
+  .bp-summary {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, transparent), rgba(121, 40, 202, 0.22)),
+      rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .bp-summary-title { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+  .bp-summary-title ha-icon { --mdc-icon-size: 20px; color: var(--accent); }
+  .bp-days { margin-left: auto; font-size: 11px; font-weight: 700; opacity: 0.8; }
+  .bp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 6px; margin-top: 10px; }
+  .bp-stats > div { display: flex; flex-direction: column; align-items: center; padding: 4px 2px; border-radius: 10px; background: rgba(0, 0, 0, 0.18); }
+  .bp-stats b { font-size: 16px; line-height: 1.2; }
+  .bp-stats span { font-size: 10px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.04em; }
+  .bp .gold, .bp .gold b { color: #FCD34D; }
+
+  .bp-strip { display: flex; gap: 6px; overflow-x: auto; padding: 2px; scrollbar-width: thin; }
+  .bp-thumb {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s, border-color 0.15s, transform 0.15s;
+    color: inherit;
+  }
+  .bp-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .bp-thumb:hover { opacity: 0.9; }
+  .bp-thumb.active { opacity: 1; border-color: var(--accent); transform: scale(1.05); }
+
+  .bp-set {
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px;
+    display: grid;
+    gap: 10px;
+  }
+  .bp-hero { display: grid; grid-template-columns: auto 84px minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+  .bp-hero-img {
+    width: 84px;
+    height: 84px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--accent) 45%, transparent), rgba(121, 40, 202, 0.35));
+  }
+  .bp-hero-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .bp-hero-img ha-icon { --mdc-icon-size: 40px; opacity: 0.6; }
+  .bp-hero-count { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.65; }
+  .bp-hero-name { font-size: 18px; font-weight: 800; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bp-hero-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; font-weight: 600; margin-top: 2px; }
+  .bp-hero-types { font-size: 11px; opacity: 0.7; margin-top: 3px; }
+  .bp-nav {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: inherit;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    cursor: pointer;
+  }
+  .bp-nav:hover { border-color: var(--accent); color: var(--accent); }
+  .bp-nav ha-icon { --mdc-icon-size: 20px; }
+
+  .bp-pages { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bp-pages .mini-button { display: inline-flex; align-items: center; gap: 6px; opacity: 0.75; border-color: rgba(255, 255, 255, 0.2); color: inherit; }
+  .bp-pages .mini-button.bonus { border-style: dashed; }
+  .bp-pages .mini-button.active { opacity: 1; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+  .bp-page-count { font-size: 10px; opacity: 0.7; }
+
+  .bp-rewards { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .bp-reward { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .bp-reward-img {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(160deg, rgba(96, 165, 250, 0.28), rgba(30, 41, 59, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .bp-reward.outfit .bp-reward-img { background: linear-gradient(160deg, rgba(168, 85, 247, 0.45), rgba(30, 41, 59, 0.6)); border-color: rgba(168, 85, 247, 0.6); }
+  .bp-reward.vbucks .bp-reward-img { background: linear-gradient(160deg, rgba(252, 211, 77, 0.35), rgba(30, 41, 59, 0.6)); border-color: rgba(252, 211, 77, 0.6); }
+  .bp-reward-img img { width: 86%; height: 86%; object-fit: contain; }
+  .bp-reward.outfit .bp-reward-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .bp-reward-img > ha-icon { --mdc-icon-size: 34px; opacity: 0.5; }
+  .bp-cost {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 6px 1px 4px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    background: rgba(0, 0, 0, 0.6);
+    color: #FDE68A;
+  }
+  .bp-cost ha-icon { --mdc-icon-size: 12px; }
+  .bp-cost.character { color: #C4B5FD; }
+  .bp-cost.included { color: #6EE7B7; padding: 1px 6px; font-size: 10px; }
+  .bp-reward-name { font-size: 12px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bp-reward-type { font-size: 10px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.04em; }
+  .bp-note { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; opacity: 0.6; }
+
+  ha-card.compact .bp-rewards { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 6px; }
+  ha-card.compact .bp-hero { grid-template-columns: auto 64px minmax(0, 1fr) auto; }
+  ha-card.compact .bp-hero-img { width: 64px; height: 64px; }
+  ha-card.compact .bp-hero-name { font-size: 16px; }
+  @media (max-width: 420px) {
+    .bp-hero { grid-template-columns: 64px minmax(0, 1fr); }
+    .bp-hero-img { width: 64px; height: 64px; }
+    .bp-nav { display: none; }
+  }
 `;

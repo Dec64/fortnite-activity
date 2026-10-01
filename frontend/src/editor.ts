@@ -2,6 +2,23 @@ import { LitElement, html, css, nothing } from "lit";
 import { property, state, customElement } from "lit/decorators.js";
 import { FortniteCardConfig } from "./types";
 
+const SECTION_OPTIONS = [
+  { value: "session", label: "Live / Last Session" },
+  { value: "stats", label: "Stats & Ranks" },
+  { value: "events", label: "Events (tournaments)" },
+  { value: "sprites", label: "Sprites" },
+  { value: "trends", label: "Trends" },
+  { value: "pass", label: "Battle Pass" },
+];
+
+// Same mapping as the card uses for configs saved before `sections` existed
+const legacySections = (c: FortniteCardConfig): string[] => {
+  if (c.layout === "session_only") return ["session"];
+  if (c.layout === "career_only") return ["stats"];
+  if (c.layout === "events_only") return ["events"];
+  return SECTION_OPTIONS.map((o) => o.value).filter((s) => s !== "events" || c.show_tournaments !== false);
+};
+
 const SCHEMA = [
   {
     name: "player",
@@ -14,15 +31,30 @@ const SCHEMA = [
     selector: { text: {} },
   },
   {
-    name: "layout",
-    label: "Card Layout Mode",
+    name: "sections",
+    label: "Sections to show (tab order follows this list; drag to reorder)",
+    selector: { select: { multiple: true, reorder: true, mode: "list", options: SECTION_OPTIONS } },
+  },
+  {
+    name: "default_section",
+    label: "Section opened first",
     selector: {
       select: {
+        mode: "dropdown",
+        options: [{ value: "auto", label: "Automatic (Live Session while playing, otherwise Stats)" }, ...SECTION_OPTIONS],
+      },
+    },
+  },
+  {
+    name: "header",
+    label: "Header",
+    selector: {
+      select: {
+        mode: "dropdown",
         options: [
-          { value: "auto", label: "Adaptive (Session when playing, Stats when idle, Events tab)" },
-          { value: "session_only", label: "Live Session & Match Feed Only" },
-          { value: "career_only", label: "Overall Career & Ranks Only" },
-          { value: "events_only", label: "Tournaments / Events Only" },
+          { value: "full", label: "Full (ranks, season, levels, platforms)" },
+          { value: "slim", label: "Slim (name, V-Bucks, live status)" },
+          { value: "none", label: "None" },
         ],
       },
     },
@@ -61,7 +93,7 @@ const SCHEMA = [
   },
   {
     name: "show_sub_buttons",
-    label: "Show Quick Action Sub-Buttons (Start/End Session, Refresh)",
+    label: "Show action buttons (Start/End Session, Refresh)",
     selector: { boolean: {} },
   },
   {
@@ -94,11 +126,6 @@ const SCHEMA = [
   {
     name: "show_platforms",
     label: "Show linked platform accounts (PSN / Xbox / Switch names)",
-    selector: { boolean: {} },
-  },
-  {
-    name: "show_tournaments",
-    label: "Show Events (tournament schedule) tab",
     selector: { boolean: {} },
   },
   {
@@ -135,7 +162,8 @@ export class FortniteActivityCardEditor extends LitElement {
   public setConfig(config: FortniteCardConfig): void {
     this._config = {
       player: "player1",
-      layout: "auto",
+      header: "full",
+      default_section: "auto",
       card_style: "bubble",
       theme_accent: "auto",
       show_match_feed: true,
@@ -145,6 +173,9 @@ export class FortniteActivityCardEditor extends LitElement {
       max_feed_matches: 10,
       ...config,
     };
+    if (!Array.isArray(this._config.sections) || !this._config.sections.length) {
+      this._config.sections = legacySections(this._config);
+    }
   }
 
   private _valueChanged(ev: CustomEvent): void {
@@ -155,6 +186,9 @@ export class FortniteActivityCardEditor extends LitElement {
       ...this._config,
       ...value,
     };
+    // `sections` replaces the legacy layout / events toggle once the card is saved from the editor
+    delete (this._config as any).layout;
+    delete (this._config as any).show_tournaments;
 
     const event = new CustomEvent("config-changed", {
       detail: { config: this._config },

@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.8.0";
+const CARD_VERSION = "1.9.0";
 
 declare global {
   interface Window {
@@ -95,7 +95,7 @@ const MODE_ICONS: Record<string, string> = {
 
 const DEFAULTS: Partial<FortniteCardConfig> = {
   player: "player1",
-  layout: "auto",
+  header: "full",
   card_style: "bubble",
   theme_accent: "auto",
   show_match_feed: true,
@@ -107,6 +107,54 @@ const DEFAULTS: Partial<FortniteCardConfig> = {
 };
 
 type View = "session" | "stats" | "events" | "sprites" | "trends" | "pass";
+const ALL_SECTIONS: View[] = ["session", "stats", "events", "sprites", "trends", "pass"];
+
+// Readable labels for Battle Pass reward item types (the provider's type field)
+const REWARD_TYPES: Record<string, string> = {
+  AthenaPickaxe: "Pickaxe",
+  AthenaGlider: "Glider",
+  AthenaDance: "Emote",
+  AthenaItemWrap: "Wrap",
+  AthenaLoadingScreen: "Loading Screen",
+  CosmeticVariantToken: "Style",
+  Currency: "Currency",
+  HomebaseBannerIcon: "Banner",
+  SparksSong: "Jam Track",
+  SparksGuitar: "Instrument",
+  AthenaSkyDiveContrail: "Contrail",
+  CosmeticShoes: "Kicks",
+  AthenaBackpack: "Back Bling",
+  AthenaCharacter: "Outfit",
+  AthenaMusicPack: "Lobby Music",
+};
+
+const rewardIconFile = (r: any) => String(r?.icon || "").split("/").pop() || "";
+const isVbucks = (r: any) => r?.type === "Currency" && (/MTX/i.test(rewardIconFile(r)) || /v-?bucks/i.test(r?.name || ""));
+const isOutfit = (r: any) => r?.type === "AthenaCharacter" || /^T_Soldier_/i.test(rewardIconFile(r));
+const rewardTypeLabel = (r: any): string => {
+  if (isOutfit(r)) return "Outfit";
+  if (isVbucks(r)) return "V-Bucks";
+  const file = rewardIconFile(r);
+  if (r?.type === "AthenaDance" && /Spray/i.test(file)) return "Spray";
+  if (r?.type === "AthenaDance" && /Emoji|Emoticon/i.test(file)) return "Emoticon";
+  return REWARD_TYPES[r?.type] || "Cosmetic";
+};
+// Names that are internal asset codes (e.g. Pickaxe_BlockStack) are replaced by the type label
+const rewardDisplayName = (r: any): string =>
+  r?.name && !/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(r.name) ? r.name : rewardTypeLabel(r);
+
+interface PassSet {
+  key: string;
+  title: string;
+  outfit: any | null;
+  hero: string | null;
+  pages: Array<{ label: string; bonus: boolean; rewards: any[] }>;
+  rewardCount: number;
+  baseCost: Record<string, number>;
+  bonusCost: Record<string, number>;
+  vbucks: number;
+  types: Array<[string, number]>;
+}
 type StatWindow = "lifetime" | "season" | "week" | "today";
 type Mode = "all" | "build" | "zero_build" | "reload";
 interface EventFilters {
@@ -145,7 +193,7 @@ export class FortniteActivityCard extends LitElement {
 
   @property({ attribute: false }) public hass?: any;
   @state() private _config: FortniteCardConfig = { type: "custom:fortnite-activity-card", ...DEFAULTS };
-  @state() private _view: View | null = null; // null = automatic (layout: auto)
+  @state() private _view: View | null = null; // null = default section
   @state() private _window: StatWindow = "lifetime";
   @state() private _selectedMode: Mode = "all";
   @state() private _loadingAction: string | null = null;
@@ -164,7 +212,9 @@ export class FortniteActivityCard extends LitElement {
   @state() private _spriteSort: "dex" | "rarity" | "progress" = "dex";
   @state() private _trends: { loading?: boolean; stats?: Record<string, any[]>; at?: number; error?: string; period?: string } = {};
   @state() private _pass: { loading?: boolean; data?: any; error?: string } = {};
-  @state() private _showAllPages = false;
+  @state() private _passSet = 0;
+  @state() private _passPage = 0;
+  private _renderedView: View | null = null;
 
   private _entityCache = new Map<string, string>();
   private _avatarTimer?: number;
@@ -210,8 +260,30 @@ export class FortniteActivityCard extends LitElement {
     return (this._config.player || "player1").toLowerCase();
   }
 
+  /**
+   * Sections this card shows, in tab order. `sections` wins; otherwise derived from the
+   * older `layout` / `show_tournaments` options so existing cards keep working.
+   */
+  private get _sections(): View[] {
+    const c = this._config;
+    if (Array.isArray(c.sections) && c.sections.length) {
+      const picked = c.sections.filter((s): s is View => (ALL_SECTIONS as string[]).includes(s));
+      if (picked.length) return [...new Set(picked)];
+    }
+    switch (c.layout) {
+      case "session_only":
+        return ["session"];
+      case "career_only":
+        return ["stats"];
+      case "events_only":
+        return ["events"];
+      default:
+        return ALL_SECTIONS.filter((s) => s !== "events" || c.show_tournaments !== false);
+    }
+  }
+
   private get _eventsEnabled(): boolean {
-    return this._config.show_tournaments !== false || this._config.layout === "events_only";
+    return this._sections.includes("events");
   }
 
   /**
@@ -241,6 +313,9 @@ export class FortniteActivityCard extends LitElement {
     if (changed.has("_config") || firstHass) {
       this._scheduleAvatar();
     }
+    // A section can open without a tab click (default section / single-section card)
+    if (this._renderedView === "pass") this._loadPass();
+    if (this._renderedView === "trends") this._loadTrends();
   }
 
   private async _loadCatalog(): Promise<void> {
@@ -317,7 +392,7 @@ export class FortniteActivityCard extends LitElement {
   }
 
   private async _loadPass(): Promise<void> {
-    if (!this.hass || this._pass.loading || this._pass.data !== undefined) return;
+    if (!this.hass || this._pass.loading || this._pass.error || this._pass.data !== undefined) return;
     this._pass = { loading: true };
     try {
       const r = await this.hass.callWS({ type: "fortnite_activity/battlepass", player_id: this._player });
@@ -577,13 +652,14 @@ export class FortniteActivityCard extends LitElement {
     const brRankAttrs = { ...(brRankSensor?.attributes || {}), current_rank: brRankSensor?.state };
     const reloadRankAttrs = { ...(reloadRankSensor?.attributes || {}), current_rank: reloadRankSensor?.state };
 
-    const layout = this._config.layout || "auto";
-    let view: View = this._view ?? (isPlaying ? "session" : "stats");
-    if (layout === "session_only") view = "session";
-    else if (layout === "career_only") view = "stats";
-    else if (layout === "events_only") view = "events";
-    if (view === "events" && !this._eventsEnabled) view = "stats";
-    if (view === "sprites" && !hasSprites) view = "stats";
+    // Sprites need the linked Epic account; drop the tab when there is no data
+    const sections = this._sections.filter((s) => s !== "sprites" || hasSprites || this._sections.length === 1);
+    const preferred = this._config.default_section;
+    const autoView: View = isPlaying && sections.includes("session") ? "session" : sections.includes("stats") ? "stats" : sections[0];
+    let view: View = this._view ?? (preferred && preferred !== "auto" && sections.includes(preferred as View) ? (preferred as View) : autoView);
+    if (!sections.includes(view)) view = autoView;
+    this._renderedView = view;
+    const headerMode = this._config.header || "full";
 
     let style = "";
     const accents: Record<string, string> = { victory_gold: "#FFD700", slurp_cyan: "#00E5FF", storm_purple: "#A855F7" };
@@ -595,8 +671,12 @@ export class FortniteActivityCard extends LitElement {
 
     return html`
       <ha-card class=${classes} style="${style}">
-        ${this._renderHeader(player, isPlaying, sessionAttrs, statsAttrs, profileAttrs, levelSensor, brRankAttrs, reloadRankAttrs)}
-        ${this._config.show_sub_buttons !== false && layout !== "events_only" ? this._renderButtons(view, isPlaying, hasSprites) : nothing}
+        ${headerMode === "none"
+          ? nothing
+          : headerMode === "slim"
+            ? this._renderSlimHeader(player, isPlaying, sessionAttrs, profileAttrs)
+            : this._renderHeader(player, isPlaying, sessionAttrs, statsAttrs, profileAttrs, levelSensor, brRankAttrs, reloadRankAttrs)}
+        ${this._renderButtons(view, isPlaying, sections)}
         ${view === "session"
           ? this._renderSessionView(isPlaying, sessionAttrs, brRankAttrs)
           : view === "events"
@@ -685,9 +765,45 @@ export class FortniteActivityCard extends LitElement {
     ).length;
   }
 
-  private _renderButtons(view: View, isPlaying: boolean, hasSprites = false) {
-    const layout = this._config.layout || "auto";
+  /** One-line header for single-section cards: avatar, name, V-Bucks, live state. */
+  private _renderSlimHeader(player: string, isPlaying: boolean, sessionAttrs: any, profileAttrs: any) {
+    const displayName = profileAttrs.display_name || player.charAt(0).toUpperCase() + player.slice(1);
+    const avatarImg = this._avatar?.icon;
+    const vbucks = this._findEntity("sensor", "vbucks");
+    const showVbucks = !this._config.hide_vbucks && vbucks && !isNaN(Number(vbucks.state));
+    return html`
+      <div class="fa-header slim">
+        <div class="player-avatar ${avatarImg ? "has-image" : ""}">
+          ${avatarImg ? html`<img src=${avatarImg} alt="" @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
+        </div>
+        <div class="player-info">
+          <div class="name-row">
+            <h2>${displayName}</h2>
+            ${showVbucks ? html`<span class="vbucks-chip">Ⓥ ${this._num(vbucks.state)}</span>` : nothing}
+          </div>
+        </div>
+        <div class="status-pill ${isPlaying ? "live" : "idle"}">
+          ${isPlaying
+            ? html`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(sessionAttrs.duration_minutes || 0)}</span>`
+            : html`<span>IDLE</span>`}
+        </div>
+      </div>
+    `;
+  }
+
+  private _renderButtons(view: View, isPlaying: boolean, sections: View[]) {
+    const showTabs = sections.length > 1;
+    const showActions = this._config.show_sub_buttons !== false;
+    if (!showTabs && !showActions) return nothing;
     const liveCount = this._eventsEnabled ? this._liveEventCount() : 0;
+    const tabDefs: Record<View, [string, string, number?]> = {
+      session: ["mdi:lightning-bolt", isPlaying ? "Live Session" : "Last Session"],
+      stats: ["mdi:trophy-outline", "Stats"],
+      events: ["mdi:tournament", "Events", liveCount],
+      sprites: ["mdi:ghost-outline", "Sprites"],
+      trends: ["mdi:chart-line", "Trends"],
+      pass: ["mdi:ticket-confirmation-outline", "Pass"],
+    };
     const tab = (id: View, icon: string, label: string, badge = 0) => html`
       <button class="bubble-sub-button ${view === id ? "active" : ""}" @click=${() => this._setView(id)} title=${label}>
         <ha-icon icon=${icon}></ha-icon><span class="btn-label">${label}</span>
@@ -696,13 +812,8 @@ export class FortniteActivityCard extends LitElement {
     `;
     return html`
       <div class="sub-button-row">
-        ${layout !== "career_only" ? tab("session", "mdi:lightning-bolt", isPlaying ? "Live Session" : "Last Session") : nothing}
-        ${layout !== "session_only" ? tab("stats", "mdi:trophy-outline", "Stats") : nothing}
-        ${this._eventsEnabled && layout === "auto" ? tab("events", "mdi:tournament", "Events", liveCount) : nothing}
-        ${hasSprites && layout === "auto" ? tab("sprites", "mdi:ghost-outline", "Sprites") : nothing}
-        ${layout === "auto" ? tab("trends", "mdi:chart-line", "Trends") : nothing}
-        ${layout === "auto" ? tab("pass", "mdi:ticket-confirmation-outline", "Pass") : nothing}
-        ${isPlaying
+        ${showTabs ? sections.map((s) => tab(s, tabDefs[s][0], tabDefs[s][1], tabDefs[s][2] || 0)) : nothing}
+        ${!showActions ? nothing : isPlaying
           ? html`<button class="bubble-sub-button" title="End Session" @click=${() => this._callService("end_session")} ?disabled=${this._loadingAction === "end_session"}>
               <ha-icon icon="mdi:stop-circle-outline"></ha-icon>
               <span class="btn-label">${this._loadingAction === "end_session" ? "Stopping..." : "End Session"}</span>
@@ -711,10 +822,12 @@ export class FortniteActivityCard extends LitElement {
               <ha-icon icon="mdi:play-circle-outline"></ha-icon>
               <span class="btn-label">${this._loadingAction === "start_session" ? "Starting..." : "Start Session"}</span>
             </button>`}
-        <button class="bubble-sub-button" title="Refresh" @click=${() => this._callService("refresh_player")} ?disabled=${this._loadingAction === "refresh_player"}>
-          <ha-icon icon=${this._loadingAction === "refresh_player" ? "mdi:loading" : "mdi:refresh"} class=${this._loadingAction === "refresh_player" ? "spin" : ""}></ha-icon>
-          <span class="btn-label">${this._loadingAction === "refresh_player" ? "Refreshing..." : "Refresh"}</span>
-        </button>
+        ${showActions
+          ? html`<button class="bubble-sub-button" title="Refresh" @click=${() => this._callService("refresh_player")} ?disabled=${this._loadingAction === "refresh_player"}>
+              <ha-icon icon=${this._loadingAction === "refresh_player" ? "mdi:loading" : "mdi:refresh"} class=${this._loadingAction === "refresh_player" ? "spin" : ""}></ha-icon>
+              <span class="btn-label">${this._loadingAction === "refresh_player" ? "Refreshing..." : "Refresh"}</span>
+            </button>`
+          : nothing}
       </div>
     `;
   }
@@ -1064,54 +1177,169 @@ export class FortniteActivityCard extends LitElement {
 
   // ---- battle pass -----------------------------------------------------------
 
+  /** Group the flat page list into one set per character track (bonus track pages folded in). */
+  private _passSets(bp: any): PassSet[] {
+    const order: string[] = [];
+    const byKey = new Map<string, any[]>();
+    for (const pg of bp.pages || []) {
+      const key = String(pg.track || "").replace(/Bonus$/, "") || "Pass";
+      if (!byKey.has(key)) {
+        byKey.set(key, []);
+        order.push(key);
+      }
+      byKey.get(key)!.push(pg);
+    }
+    return order.map((key, i) => {
+      const pgs = byKey.get(key)!;
+      const rewards = pgs.flatMap((p) => p.rewards || []);
+      const outfit = rewards.find(isOutfit) || null;
+      const hero = outfit?.icon || rewards.find((r) => r.icon && !isVbucks(r) && r.type !== "HomebaseBannerIcon")?.icon || null;
+      const baseCost: Record<string, number> = {};
+      const bonusCost: Record<string, number> = {};
+      const typeCounts = new Map<string, number>();
+      let vbucks = 0;
+      for (const p of pgs) {
+        const bonus = /Bonus$/.test(p.track || "");
+        for (const r of p.rewards || []) {
+          if (typeof r.cost === "number" && r.cost > 0 && r.price_row !== "Included") {
+            const bucket = bonus ? bonusCost : baseCost;
+            bucket[r.currency || ""] = (bucket[r.currency || ""] || 0) + r.cost;
+          }
+          if (isVbucks(r)) vbucks += Number(r.quantity) || 0;
+          const label = rewardTypeLabel(r);
+          // V-Bucks are summed separately (shown as an amount, not a count)
+          if (label !== "V-Bucks") typeCounts.set(label, (typeCounts.get(label) || 0) + 1);
+        }
+      }
+      return {
+        key,
+        title: outfit?.name && !/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(outfit.name) ? outfit.name : `Set ${i + 1}`,
+        outfit,
+        hero,
+        pages: pgs.map((p) => {
+          const bonus = /Bonus$/.test(p.track || "");
+          return { label: `${bonus ? "Bonus" : "Page"} ${p.page}`, bonus, rewards: p.rewards || [] };
+        }),
+        rewardCount: rewards.length,
+        baseCost,
+        bonusCost,
+        vbucks,
+        types: [...typeCounts.entries()].sort((a, b) => b[1] - a[1]),
+      };
+    });
+  }
+
+  private _costText(costs: Record<string, number>): string {
+    return Object.entries(costs)
+      .map(([cur, n]) => `${this._num(n)} ${currencyLabel(cur, n)}`)
+      .join(" + ");
+  }
+
+  private _passCostBadge(r: any) {
+    if (r.price_row === "Included" || r.cost === 0) return html`<span class="bp-cost included" title="Included with the pass">Included</span>`;
+    if (typeof r.cost !== "number") return nothing;
+    const character = r.currency === "AthenaCategoryStar";
+    return html`<span class="bp-cost ${character ? "character" : ""}" title="${r.cost} ${currencyLabel(r.currency, r.cost)}">
+      <ha-icon icon=${character ? "mdi:account-star" : "mdi:star"}></ha-icon>${r.cost}</span>`;
+  }
+
+  private _goPassSet(index: number, total: number): void {
+    this._passSet = (index + total) % total;
+    this._passPage = 0;
+  }
+
   private _renderPassView(levelSensor: any) {
     const p = this._pass;
-    if (p.loading || p.data === undefined) return html`<div class="empty">Loading Battle Pass…</div>`;
+    if (p.loading || (p.data === undefined && !p.error)) return html`<div class="empty">Loading Battle Pass…</div>`;
     if (p.error) return html`<div class="empty">${p.error}</div>`;
-    if (!p.data) return html`<div class="empty">The Battle Pass catalogue is not available right now.</div>`;
+    if (!p.data || !p.data.pages?.length) return html`<div class="empty">The Battle Pass catalogue is not available right now.</div>`;
     const bp = p.data;
+    const sets = this._passSets(bp);
+    const idx = Math.min(this._passSet, sets.length - 1);
+    const set = sets[idx];
+    const pageIdx = Math.min(this._passPage, set.pages.length - 1);
+    const page = set.pages[pageIdx];
+    const season = this._findEntity("sensor", "profile")?.attributes?.season || this._catalog.season;
     const level = Number(levelSensor?.state) || null;
-    // Each reward track restarts its page numbers, so number the tracks as sections
-    const trackIndex = new Map<string, number>();
-    for (const pg of bp.pages) {
-      const base = String(pg.track || "").replace(/Bonus$/, "");
-      if (!trackIndex.has(base)) trackIndex.set(base, trackIndex.size + 1);
-    }
-    const rewardName = (r: any) =>
-      r.name && !/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(r.name) ? r.name : r.type || "Reward";
-    const pages = this._showAllPages ? bp.pages : bp.pages.slice(0, 4);
+    const totalVbucks = sets.reduce((n, s) => n + s.vbucks, 0);
+    const outfits = sets.filter((s) => s.outfit).length;
+    const totalBase: Record<string, number> = {};
+    for (const s of sets) for (const [c, n] of Object.entries(s.baseCost)) totalBase[c] = (totalBase[c] || 0) + n;
+    const quests = this._findEntity("sensor", "profile")?.attributes?.quests;
+    const plural = (t: string, n: number) => (n > 1 && !/s$/.test(t) ? `${t}s` : t);
+
     return html`
-      <div class="rank-section">
-        <div class="rank-header">
-          <span class="rank-title"><ha-icon icon="mdi:ticket-confirmation-outline"></ha-icon><span>Season ${bp.season} Battle Pass</span></span>
-          ${level ? html`<span class="rank-name">Level ${level}</span>` : nothing}
+      <div class="bp">
+        <div class="bp-summary">
+          <div class="bp-summary-title">
+            <ha-icon icon="mdi:ticket-confirmation-outline"></ha-icon>
+            <span>Season ${bp.season} Battle Pass</span>
+            ${season?.days_left != null ? html`<span class="bp-days">${season.days_left}d left</span>` : nothing}
+          </div>
+          <div class="bp-stats">
+            <div><b>${sets.length}</b><span>sets</span></div>
+            <div><b>${outfits}</b><span>outfits</span></div>
+            <div><b>${bp.reward_count ?? sets.reduce((n, s) => n + s.rewardCount, 0)}</b><span>rewards</span></div>
+            ${totalVbucks ? html`<div class="gold"><b>${this._num(totalVbucks)}</b><span>V-Bucks</span></div>` : nothing}
+            ${level ? html`<div><b>${level}</b><span>season lvl</span></div>` : nothing}
+          </div>
         </div>
-        <div class="sprite-stats">
-          <span><b>${bp.reward_count}</b> rewards</span><span><b>${bp.pages.length}</b> pages</span>
-          ${bp.prices.filter((pr: any) => pr.cost).map((pr: any) => html`<span>${pr.name}: <b>${this._num(pr.cost)}</b> ${currencyLabel(pr.currency, pr.cost)}</span>`)}
+
+        <div class="bp-strip" role="tablist">
+          ${sets.map((s, i) => html`
+            <button class="bp-thumb ${i === idx ? "active" : ""}" role="tab" aria-selected=${i === idx ? "true" : "false"} title=${s.title}
+              @click=${() => this._goPassSet(i, sets.length)}>
+              ${s.hero ? html`<img src=${s.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+            </button>`)}
         </div>
-        <div class="perk-desc">Which rewards you have claimed is not available from this data source.</div>
-        ${(() => {
-          const q = this._findEntity("sensor", "profile")?.attributes?.quests;
-          if (!q) return nothing;
-          return html`<div class="rank-meta"><span>Quests on record: <b>${this._num(q.total)}</b> · ${Object.entries(q.by_state).map(([k, v]) => `${v} ${k.toLowerCase()}`).join(" · ")}</span>
-            <span class="muted" title="Epic's quest data has no names or targets; only states are counted">names unavailable</span></div>`;
-        })()}
+
+        <div class="bp-set">
+          <div class="bp-hero">
+            <button class="bp-nav" title="Previous set" @click=${() => this._goPassSet(idx - 1, sets.length)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
+            <div class="bp-hero-img">
+              ${set.hero ? html`<img src=${set.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+            </div>
+            <div class="bp-hero-info">
+              <div class="bp-hero-count">Set ${idx + 1} of ${sets.length}</div>
+              <div class="bp-hero-name">${set.title}</div>
+              <div class="bp-hero-meta">
+                ${Object.keys(set.baseCost).length ? html`<span title="Stars to unlock every base page reward">${this._costText(set.baseCost)}</span>` : nothing}
+                ${Object.keys(set.bonusCost).length ? html`<span title="Bonus pages">Bonus: ${this._costText(set.bonusCost)}</span>` : nothing}
+                ${set.vbucks ? html`<span class="gold">Ⓥ ${this._num(set.vbucks)}</span>` : nothing}
+              </div>
+              <div class="bp-hero-types">${set.types.map(([t, n]) => `${n} ${plural(t, n)}`).join(" · ")}</div>
+            </div>
+            <button class="bp-nav" title="Next set" @click=${() => this._goPassSet(idx + 1, sets.length)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+          </div>
+
+          ${set.pages.length > 1
+            ? html`<div class="bp-pages">
+                ${set.pages.map((pg, i) => html`
+                  <button class="mini-button ${i === pageIdx ? "active" : ""} ${pg.bonus ? "bonus" : ""}" @click=${() => (this._passPage = i)}>
+                    ${pg.label}<span class="bp-page-count">${pg.rewards.length}</span>
+                  </button>`)}
+              </div>`
+            : nothing}
+
+          <div class="bp-rewards">
+            ${page.rewards.map((r: any) => html`
+              <div class="bp-reward ${isVbucks(r) ? "vbucks" : ""} ${isOutfit(r) ? "outfit" : ""}" title="${rewardDisplayName(r)} · ${rewardTypeLabel(r)}">
+                <div class="bp-reward-img">
+                  ${r.icon ? html`<img src=${r.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
+                  ${this._passCostBadge(r)}
+                </div>
+                <span class="bp-reward-name">${isVbucks(r) && r.quantity ? `${this._num(r.quantity)} V-Bucks` : rewardDisplayName(r)}</span>
+                <span class="bp-reward-type">${rewardTypeLabel(r)}</span>
+              </div>`)}
+          </div>
+        </div>
+
+        <div class="bp-note">
+          ${Object.keys(totalBase).length ? html`<span>All base pages: ${this._costText(totalBase)}</span>` : nothing}
+          <span>Claimed rewards are not available from this data source.</span>
+          ${quests ? html`<span title="Epic's quest data has no names or targets; only states are counted">Quests on record: ${this._num(quests.total)}</span>` : nothing}
+        </div>
       </div>
-      ${pages.map((pg: any) => html`
-        <div class="section-title">Section ${trackIndex.get(String(pg.track || "").replace(/Bonus$/, ""))} · ${/Bonus$/.test(pg.track || "") ? "bonus page" : "page"} ${pg.page}</div>
-        <div class="variant-tiles">
-          ${pg.rewards.map((r: any) => html`
-            <div class="variant-tile" style="--rarity:${RARITY_COLORS[r.rarity] || "#9CA3AF"}" title="${rewardName(r)}${r.type ? ` (${r.type})` : ""}">
-              ${r.icon ? html`<img src=${r.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
-              <span class="variant-name">${rewardName(r)}</span>
-              <span class="variant-status">${r.price_row === "Included" || r.cost === 0 ? "Included" : r.cost != null ? `${r.cost} ${currencyLabel(r.currency, r.cost)}` : r.type || ""}</span>
-            </div>`)}
-        </div>`)}
-      ${bp.pages.length > 4
-        ? html`<button class="mini-button show-more" @click=${() => (this._showAllPages = !this._showAllPages)}>
-            ${this._showAllPages ? "Show fewer pages" : `Show all ${bp.pages.length} pages`}</button>`
-        : nothing}
     `;
   }
 

@@ -943,3 +943,10 @@ Following the user's `/plan` request and interactive alignment interview, design
 
 - User approved a read-only Epic `QueryProfile` for `common_core` only from HA (`fortnite-public-service-prod11…/QueryProfile?profileId=common_core&rvn=-1`, Bearer token from the provider device-auth refresh, as in the 16 Sept research probe). Identity gate on `profile.accountId`; only V-Bucks totals by kind, MTX platform and Crew dates are kept; raw profile discarded; errors carry status only.
 - V-Bucks = `Currency:Mtx*` quantities whose `attributes.platform` is the profile's `current_mtx_platform` or `Shared` (other-platform balances reported separately).
+
+### 2026-10-01 v1.9.0 Battle Pass redesign and per-card sections
+
+- The Battle Pass tab now groups the provider's pages into one set per character track (the bonus track is folded into its set), with one set per page, a portrait strip, and Page/Bonus sub-tabs. The set title is the outfit reward's name when the set contains a `T_Soldier_*` outfit icon; otherwise it is "Set N". Codenames are not translated.
+- Star totals per set are summed from the reward `cost` fields. V-Bucks per set are the `quantity` of Currency rewards with the MTX icon. Claimed/owned state is still unavailable (no athena reads), and the card says so.
+- Observed: 107 of 150 rewards have icon URLs, and all 107 loaded. The earlier blank tiles came from lazy-loading inside the scroll container, not from missing data.
+- The card has new options: `sections` (any combination, in order), `default_section` and `header` (full/slim/none). The legacy `layout`/`show_tournaments` options still map to sections.
