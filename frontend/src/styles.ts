@@ -1608,6 +1608,8 @@ export const cardStyles = css`
   }
   .map-frame:hover .map-poi b, .map-poi.on b { opacity: 1; }
   .map-poi.on { z-index: 2; }
+  .map-poi.landmark i { width: 6px; height: 6px; background: rgba(255, 255, 255, 0.75); }
+  .map-poi.landmark b { font-weight: 600; }
   .map-poi.on i { background: var(--accent); transform: scale(1.4); }
   .poi-list { display: flex; flex-wrap: wrap; gap: 4px; }
   .poi-chip { cursor: pointer; border: none; font: inherit; font-size: 11px; color: inherit; }

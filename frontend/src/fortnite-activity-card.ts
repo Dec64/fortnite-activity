@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.12.0";
+const CARD_VERSION = "1.12.1";
 
 declare global {
   interface Window {
@@ -227,6 +227,8 @@ export class FortniteActivityCard extends LitElement {
   @state() private _shop: { loading?: boolean; data?: any; error?: string } = {};
   @state() private _shopTab: "today" | "wishlist" = "today";
   @state() private _shopQuery = "";
+  @state() private _shopLimit = 36;
+  @state() private _shopKind = "all";
   @state() private _searchQuery = "";
   @state() private _searchType = "outfit";
   @state() private _searchResults: any[] | null = null;
@@ -345,7 +347,8 @@ export class FortniteActivityCard extends LitElement {
     if (this._renderedView === "shop") this._loadShop();
     if (this._renderedView === "news") {
       this._loadNews();
-      if (this._eventsEnabled || this._sections.includes("news")) this._loadEvents();
+      // Only kick off the first load; _loadEvents itself changes state, so never call it every update
+      if (this._events.list === undefined && !this._events.loading && !this._events.error) this._loadEvents();
     }
     if (this._renderedView === "map") {
       this._loadMap("br");
@@ -371,7 +374,7 @@ export class FortniteActivityCard extends LitElement {
       eventsCache.at = Date.now();
       eventsCache.promise = this.hass.callWS({ type: "fortnite_activity/tournaments", player_id: this._player });
     }
-    if (!this._events.list) this._events = { ...this._events, loading: true };
+    if (!this._events.list && !this._events.loading) this._events = { ...this._events, loading: true };
     try {
       const result = await eventsCache.promise;
       this._events = { list: result?.tournaments ?? null, defaultRegion: result?.default_region_group };
@@ -1754,15 +1757,36 @@ export class FortniteActivityCard extends LitElement {
   private _renderShopToday(shop: any) {
     if (!shop) return html`<div class="empty">The Item Shop will show here soon.</div>`;
     const q = this._shopQuery.trim().toLowerCase();
-    const sections = (shop.sections || [])
-      .map((s: any) => ({ ...s, offers: s.offers.filter((o: any) => !q || String(o.title).toLowerCase().includes(q) || o.items.some((i: any) => String(i.name || "").toLowerCase().includes(q))) }))
+    const kindOf = (o: any) => (o.bundle ? "bundle" : String(o.items[0]?.type || "other").toLowerCase());
+    const kinds: Array<[string, string]> = [["all", "All"], ["outfit", "Outfits"], ["emote", "Emotes"], ["pickaxe", "Pickaxes"], ["bundle", "Bundles"]];
+    const filteredSections = (shop.sections || [])
+      .map((s: any) => ({
+        ...s,
+        offers: s.offers.filter(
+          (o: any) =>
+            (this._shopKind === "all" || kindOf(o) === this._shopKind) &&
+            (!q || String(o.title).toLowerCase().includes(q) || o.items.some((i: any) => String(i.name || "").toLowerCase().includes(q))),
+        ),
+      }))
       .filter((s: any) => s.offers.length);
+    // Render a page at a time: the full shop is several hundred tiles
+    let budget = this._shopLimit;
+    const total = filteredSections.reduce((n: number, s: any) => n + s.offers.length, 0);
+    const sections: any[] = [];
+    for (const s of filteredSections) {
+      if (budget <= 0) break;
+      sections.push({ ...s, offers: s.offers.slice(0, budget) });
+      budget -= s.offers.length;
+    }
     const ends = shop.expiration ? Date.parse(shop.expiration) - this._now : null;
     return html`
       <div class="locker-controls">
         <input class="locker-search" type="search" placeholder="Search today's shop" .value=${this._shopQuery}
           @input=${(e: any) => (this._shopQuery = e.target.value)} />
         ${ends && ends > 0 ? html`<span class="muted">New shop in ${this._formatSpan(ends)}</span>` : nothing}
+      </div>
+      <div class="mode-tabs">
+        ${kinds.map(([id, label]) => html`<button class="mode-tab ${this._shopKind === id ? "active" : ""}" @click=${() => { this._shopKind = id; this._shopLimit = 36; }}>${label}</button>`)}
       </div>
       ${sections.length
         ? sections.map((s: any) => html`
@@ -1783,7 +1807,10 @@ export class FortniteActivityCard extends LitElement {
                   </div>`;
               })}
             </div>`)
-        : html`<div class="empty">Nothing in today's shop matches “${this._shopQuery}”.</div>`}
+        : html`<div class="empty">Nothing in today's shop matches.</div>`}
+      ${total > this._shopLimit
+        ? html`<button class="mini-button show-more" @click=${() => (this._shopLimit += 36)}>Show more (${total - this._shopLimit} left)</button>`
+        : nothing}
     `;
   }
 
@@ -1905,7 +1932,8 @@ export class FortniteActivityCard extends LitElement {
   // ---- map -----------------------------------------------------------------------
 
   private async _loadMap(mode = this._mapMode): Promise<void> {
-    if (!this.hass || this._maps[mode]?.loading || this._maps[mode]?.data !== undefined) return;
+    const cur = this._maps[mode];
+    if (!this.hass || cur?.loading || cur?.error || cur?.data !== undefined) return;
     this._maps = { ...this._maps, [mode]: { loading: true } };
     try {
       const r = await this.hass.callWS({ type: "fortnite_activity/map", player_id: this._player, mode });
@@ -1935,12 +1963,15 @@ export class FortniteActivityCard extends LitElement {
     return null;
   }
 
-  /** POI position as % of the image. World X runs bottom→top and Y left→right on the published images. */
+  /**
+   * POI position as % of the image: world X maps left→right and Y top→bottom across worldBounds
+   * (checked against the Pac-Man landmark drawn on the 42.30 minimap).
+   */
   private _poiPos(map: any, poi: any): { left: number; top: number } | null {
     const b = map?.bounds;
     if (!b || b.maxX === b.minX || b.maxY === b.minY) return null;
-    const left = ((poi.y - b.minY) / (b.maxY - b.minY)) * 100;
-    const top = (1 - (poi.x - b.minX) / (b.maxX - b.minX)) * 100;
+    const left = ((poi.x - b.minX) / (b.maxX - b.minX)) * 100;
+    const top = ((poi.y - b.minY) / (b.maxY - b.minY)) * 100;
     if (left < 0 || left > 100 || top < 0 || top > 100) return null;
     return { left, top };
   }
@@ -1955,7 +1986,7 @@ export class FortniteActivityCard extends LitElement {
           : named.map((p: any) => {
               const pos = this._poiPos(map, p);
               return pos
-                ? html`<span class="map-poi ${this._mapPoi === p.name ? "on" : ""}" style="left:${pos.left}%;top:${pos.top}%"
+                ? html`<span class="map-poi ${p.type === "landmark" ? "landmark" : ""} ${this._mapPoi === p.name ? "on" : ""}" style="left:${pos.left}%;top:${pos.top}%"
                     title=${p.name} @click=${() => (this._mapPoi = this._mapPoi === p.name ? null : p.name)}>
                     <i></i><b>${p.name}</b></span>`
                 : nothing;

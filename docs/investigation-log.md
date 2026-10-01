@@ -985,3 +985,10 @@ Following the user's `/plan` request and interactive alignment interview, design
 - **Match progress:** after a detected match, quests, sprites and level are refreshed and diffed against the previous snapshot. Changes attach to the latest match played since that snapshot: quests completed (Claimed count), level up, new sprite kind, sprite level up, sprite mastered. Sprite events attach only to Battle Royale (build / zero build) matches, because Reload has no sprites.
 - **Locker:** favourites (stored per player, `set_favorite` service) and first-seen tracking. The first athena read is a baseline, so only later additions count as "new" (14 days).
 - **Card:** Shop / News / Map sections, compact multi-select tournament filters, kid mode, and a new `fortnite-family-panel` element (one landscape page per player, swipe between them).
+
+### 2026-10-01 v1.12.1 Card fixes from live verification
+
+- Live v1.12.0 data: 332 shop offers; 5 news posts (shape `{mode, tag, motds[{id, title, body, image, tileImage, images[]}]}`); map 42.30 with 40 POIs (types `named` and `landmark`) and 14 modes, including 12 rotating codenames.
+- Map pins: the correct projection is left = (x − minX)/width and top = (y − minY)/height. This was checked against the Pac-Man landmark drawn on the 42.30 minimap (POI u=0.40, v=0.25 ↔ icon at 40 %/24 %).
+- Fixed render loops that froze the browser: the News view called the tournament loader on every update, and a null tournament list or failed map retried endlessly. Loaders are now one-shot.
+- The Shop renders 36 offers per page, with All / Outfits / Emotes / Pickaxes / Bundles filters.
