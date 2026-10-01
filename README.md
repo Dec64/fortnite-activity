@@ -120,6 +120,23 @@ header: slim
 show_sub_buttons: false
 ```
 
+#### Full-screen family panel (one landscape page per player, swipe between them)
+```yaml
+# Use a dashboard view of type "panel"
+type: custom:fortnite-family-panel
+players: [player1, player2]
+kid_mode: [player2]          # true, false, or a list of players
+# columns:                # optional; default is three columns:
+#   - sections: [session, stats, trends]
+#     header: full
+#   - sections: [pass, sprites, locker]
+#   - sections: [events, shop, news, map]
+```
+
+Sections available on any card: `session`, `stats`, `events`, `sprites`, `trends`, `pass`, `locker`, `shop`, `news`, `map`.
+
+**Wishlist alerts:** tap ♡ on any item in the Shop section (or search every cosmetic under *Wishlist*). When a wishlisted item that you don't own is in the Item Shop, `sensor.fortnite_<player>_wishlist_in_shop` counts it and a `fortnite_activity_wishlist_in_shop` event fires (once per item per shop). Use it in an automation to send a notification. Services: `fortnite_activity.wishlist_add`, `wishlist_remove`, `set_favorite`, `set_avatar`.
+
 #### Pick and order sections
 ```yaml
 type: custom:fortnite-activity-card
