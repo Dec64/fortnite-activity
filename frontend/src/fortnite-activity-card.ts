@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.7.1";
+const CARD_VERSION = "1.8.0";
 
 declare global {
   interface Window {
@@ -627,9 +627,9 @@ export class FortniteActivityCard extends LitElement {
     const avatarImg = this._avatar?.icon;
     const badgeSize = this._config.compact ? 20 : 24;
     const vbucks = this._findEntity("sensor", "vbucks");
-    // The provider's stash.globalcash read 0 for an account that should hold V-Bucks; until the source is
-    // confirmed against the in-game balance, a zero is not shown as a balance.
-    const showVbucks = !this._config.hide_vbucks && vbucks && Number(vbucks.state) > 0;
+    // V-Bucks come from Epic's common_core profile (read-only), current platform + Shared
+    const showVbucks = !this._config.hide_vbucks && vbucks && !isNaN(Number(vbucks.state));
+    const crew = vbucks?.attributes?.crew;
 
     return html`
       <div class="fa-header">
@@ -648,7 +648,12 @@ export class FortniteActivityCard extends LitElement {
             ${season?.number ? html`<span class="level-badge">S${season.number} · ${season.days_left}d left</span>` : nothing}
             ${!this._config.hide_season_level && seasonLevel > 0 ? html`<span class="level-badge">Lvl ${seasonLevel}</span>` : nothing}
             ${!this._config.hide_account_level && accountLevel > 0 ? html`<span>Acct ${accountLevel.toLocaleString()}</span>` : nothing}
-            ${showVbucks ? html`<span class="vbucks-chip" title="V-Bucks (provider inventory)">Ⓥ ${this._num(vbucks.state)}</span>` : nothing}
+            ${showVbucks
+              ? html`<span class="vbucks-chip" title=${Object.entries(vbucks.attributes?.by_kind || {}).map(([k, v]) => `${k}: ${this._num(v)}`).join(" · ") || "V-Bucks"}>Ⓥ ${this._num(vbucks.state)}</span>`
+              : nothing}
+            ${crew?.active && !this._config.hide_vbucks
+              ? html`<span class="crew-chip" title="Fortnite Crew${crew.end_date ? ` · renews ${this._formatWhen(crew.end_date)}` : ""}">Crew</span>`
+              : nothing}
             ${lastPlayed?.time && !isPlaying
               ? html`<span title=${lastPlayed.name || ""}>Played ${this._formatRelativeTime(lastPlayed.time)}</span>`
               : nothing}

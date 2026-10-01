@@ -39,6 +39,7 @@ from .profile import (
     parse_external_auths,
     parse_playlists,
     parse_battlepass,
+    parse_common_core,
     parse_inventory,
     parse_power_ranking,
     parse_season,
@@ -307,6 +308,23 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ok, raw = await self._guarded(f"inventory:{player_id}", lambda: self.api_client.get_br_inventory(account_id, token))
         if ok:
             info["inventory"] = parse_inventory(raw)
+
+        # Read-only Epic common_core (user-approved) for the real V-Bucks balance and Crew state.
+        # Only the parsed summary is kept; the raw profile is discarded immediately.
+        try:
+            raw_cc = await self.api_client.epic_query_profile_common_core(account_id, token)
+        except FortniteApiError as err:
+            if f"common_core:{player_id}" not in self._failing:
+                _LOGGER.warning("Epic common_core read for %s unavailable: %s", player_id, err)
+                self._failing.add(f"common_core:{player_id}")
+        else:
+            self._failing.discard(f"common_core:{player_id}")
+            parsed_cc = parse_common_core(raw_cc, account_id)
+            if parsed_cc is None:
+                _LOGGER.warning("Epic common_core response for %s failed the identity/shape check; ignored", player_id)
+            else:
+                info["wallet"] = parsed_cc
+            raw_cc = None
 
         ok, raw = await self._guarded(f"level:{player_id}", lambda: self.api_client.get_raw_level(account_id, token))
         if ok:

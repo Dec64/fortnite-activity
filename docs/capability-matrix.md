@@ -46,3 +46,6 @@ Primary sources: [saved OpenAPI](../evidence/sanitized/specifications/api-fortni
 | Sprites (current + cumulative) | Yes (after Epic link) | Key + player token | Image field name unverified live |
 | Power Ranking | Yes (after Epic link) | Key + player token | Shown exactly as returned |
 | Quests, locker, friends/presence | No | — | 401 / direct-Epic only / 403 on Pro |
+| V-Bucks balance, Crew status | Yes (after Epic link) | Epic common_core QueryProfile (read-only, user-approved) | Provider br-inventory `globalcash` read 0; not used |
+| Quest summary | Counts by state only | Key + player token | No names/targets in payload; FortniteAPI.io closed |
+| Battle Pass catalogue | Yes | Key | 150 rewards S42; claims not available |

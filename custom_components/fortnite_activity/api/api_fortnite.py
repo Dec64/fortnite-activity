@@ -192,6 +192,32 @@ class ApiFortniteClient:
         query = f"?{urlencode({'season': season})}" if season else ""
         return await self._request(f"/v2/battlepass{query}")
 
+    async def epic_query_profile_common_core(self, account_id: str, token: str) -> Any:
+        """Read-only Epic QueryProfile for common_core (user-approved 2026-10-01 for V-Bucks/Crew).
+
+        Only this profile is allowed; QueryProfile retrieves state and changes nothing. The body is
+        never logged and errors carry only the status code.
+        """
+        if not re.fullmatch(r"[0-9a-f]{32}", account_id):
+            raise FortniteApiError("Invalid account id for Epic profile read")
+        session = await self._get_session()
+        url = (
+            "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/"
+            f"{account_id}/client/QueryProfile?profileId=common_core&rvn=-1"
+        )
+        try:
+            async with session.post(
+                url,
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json={},
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as resp:
+                if resp.status != 200:
+                    raise FortniteApiError(f"Epic profile read failed (HTTP {resp.status})", resp.status)
+                return await resp.json(content_type=None)
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise FortniteApiError(f"Epic profile read connection error: {type(err).__name__}") from None
+
     async def get_br_inventory(self, account_id: str, token: str) -> Any:
         """Battle Royale inventory; observed shape {stash: {globalcash: n}} (provider: V-Bucks)."""
         return await self._request(f"/v2/fn/br-inventory/{account_id}", token=token)

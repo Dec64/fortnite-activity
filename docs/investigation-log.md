@@ -938,3 +938,8 @@ Following the user's `/plan` request and interactive alignment interview, design
 
 - **Observed live**: `/v2/fn/br-inventory/{id}` returns only `stash.globalcash = 0` for the linked account (same as the 15 Sept evidence). The account's Crew subscription makes a true zero V-Bucks balance unlikely, so `globalcash` is treated as **unverified as V-Bucks**: the sensor keeps the raw value, the card does not display a zero. Real balances are `Currency:Mtx*` items in Epic's `common_core` profile (direct `QueryProfile`), which needs a separate user decision.
 - **Observed live**: quests 850 total, 601 Active / 249 Claimed; shown as counts only. Definition-source research in `docs/quest-definition-sources.md`.
+
+### 2026-10-01 v1.8.0 V-Bucks from Epic common_core (user-approved)
+
+- User approved a read-only Epic `QueryProfile` for `common_core` only from HA (`fortnite-public-service-prod11…/QueryProfile?profileId=common_core&rvn=-1`, Bearer token from the provider device-auth refresh, as in the 16 Sept research probe). Identity gate on `profile.accountId`; only V-Bucks totals by kind, MTX platform and Crew dates are kept; raw profile discarded; errors carry status only.
+- V-Bucks = `Currency:Mtx*` quantities whose `attributes.platform` is the profile's `current_mtx_platform` or `Shared` (other-platform balances reported separately).

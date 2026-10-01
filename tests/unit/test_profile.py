@@ -237,3 +237,34 @@ class TestInventoryAndQuests(unittest.TestCase):
         ]}}
         self.assertEqual(summarise_quests(raw), {"total": 3, "by_state": {"Active": 2, "Claimed": 1}})
         self.assertIsNone(summarise_quests({"data": []}))
+
+
+class TestCommonCore(unittest.TestCase):
+    ACC = "a" * 32
+
+    def _profile(self, account: str) -> dict:
+        return {"profileRevision": 1, "profileChanges": [{"changeType": "fullProfileUpdate", "profile": {
+            "accountId": account, "profileId": "common_core", "updated": "2026-10-01T10:00:00Z",
+            "stats": {"attributes": {"current_mtx_platform": "EpicPC", "subscriptions": [
+                {"subscriptionEndDate": "2026-10-22T15:51:59Z", "nextRewardDate": "2026-10-22T15:51:59Z", "autoRenewState": "AutoRenewEnabled"}]}},
+            "items": {
+                "i1": {"templateId": "Currency:MtxPurchased", "quantity": 1000, "attributes": {"platform": "EpicPC"}},
+                "i2": {"templateId": "Currency:MtxComplimentary", "quantity": 350, "attributes": {"platform": "Shared"}},
+                "i3": {"templateId": "Currency:MtxPurchased", "quantity": 500, "attributes": {"platform": "PSN"}},
+                "i4": {"templateId": "AthenaCharacter:cid_x", "quantity": 1, "attributes": {}},
+            }}}]}
+
+    def test_vbucks_current_platform_plus_shared_and_crew(self) -> None:
+        from custom_components.fortnite_activity.profile import parse_common_core
+
+        w = parse_common_core(self._profile(self.ACC), self.ACC)
+        self.assertEqual(w["vbucks"], 1350)
+        self.assertEqual(w["by_kind"], {"purchased": 1000, "earned": 350})
+        self.assertEqual(w["other_platform_vbucks"], 500)
+        self.assertEqual(w["crew"]["auto_renew"], "AutoRenewEnabled")
+
+    def test_identity_gate(self) -> None:
+        from custom_components.fortnite_activity.profile import parse_common_core
+
+        self.assertIsNone(parse_common_core(self._profile("b" * 32), self.ACC))
+        self.assertIsNone(parse_common_core({"bad": 1}, self.ACC))

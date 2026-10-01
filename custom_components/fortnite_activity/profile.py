@@ -784,3 +784,66 @@ def summarise_quests(raw: Any) -> dict[str, Any] | None:
         state = str(q.get("state") or "Unknown")
         states[state] = states.get(state, 0) + 1
     return {"total": len(items), "by_state": states}
+
+
+_MTX_KINDS = {
+    "Currency:MtxPurchased": "purchased",
+    "Currency:MtxComplimentary": "earned",
+    "Currency:MtxGiveaway": "giveaway",
+    "Currency:MtxPurchaseBonus": "bonus",
+}
+
+
+def parse_common_core(raw: Any, expected_account_id: str) -> dict[str, Any] | None:
+    """V-Bucks and Crew state from a common_core QueryProfile response.
+
+    Returns None unless the profile belongs to the expected account (identity gate).
+    V-Bucks: Currency:Mtx* items for the current MTX platform plus "Shared" (as the game displays).
+    """
+    if not isinstance(raw, dict):
+        return None
+    changes = raw.get("profileChanges") or []
+    profile = next((c.get("profile") for c in changes if isinstance(c, dict) and isinstance(c.get("profile"), dict)), None)
+    if not profile or profile.get("accountId") != expected_account_id or profile.get("profileId") != "common_core":
+        return None
+    attrs = ((profile.get("stats") or {}).get("attributes")) or {}
+    platform = attrs.get("current_mtx_platform")
+    by_kind: dict[str, int] = {}
+    total = 0
+    other_platforms = 0
+    for item in (profile.get("items") or {}).values():
+        if not isinstance(item, dict):
+            continue
+        template = str(item.get("templateId") or "")
+        if not template.startswith("Currency:Mtx"):
+            continue
+        qty = item.get("quantity")
+        if not isinstance(qty, (int, float)):
+            continue
+        item_platform = (item.get("attributes") or {}).get("platform")
+        if platform and item_platform not in (platform, "Shared"):
+            other_platforms += int(qty)
+            continue
+        kind = _MTX_KINDS.get(template, "other")
+        by_kind[kind] = by_kind.get(kind, 0) + int(qty)
+        total += int(qty)
+
+    crew = None
+    subs = attrs.get("subscriptions")
+    if isinstance(subs, list) and subs:
+        sub = next((x for x in subs if isinstance(x, dict)), None)
+        if sub:
+            crew = {
+                "active": sub.get("subscriptionEndDate") is not None,
+                "end_date": sub.get("subscriptionEndDate"),
+                "next_reward_date": sub.get("nextRewardDate") or sub.get("nextRewardGrantDate"),
+                "auto_renew": sub.get("autoRenewState"),
+            }
+    return {
+        "vbucks": total,
+        "by_kind": by_kind,
+        "mtx_platform": platform,
+        "other_platform_vbucks": other_platforms or None,
+        "crew": crew,
+        "profile_updated": profile.get("updated"),
+    }

@@ -1227,4 +1227,11 @@ export const cardStyles = css`
     color: #93C5FD;
     font-weight: 700;
   }
+  .crew-chip {
+    padding: 2px 8px;
+    border-radius: var(--pill-radius);
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.3), rgba(168, 85, 247, 0.3));
+    color: #FDE68A;
+    font-weight: 700;
+  }
 `;

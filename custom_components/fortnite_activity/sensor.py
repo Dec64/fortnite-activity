@@ -495,17 +495,27 @@ class FortniteVBucksSensor(FortniteEntity, SensorEntity):
         self._attr_name = "V-Bucks"
 
     @property
-    def _inventory(self) -> dict[str, Any]:
-        return self.player_data.get("inventory") or {}
+    def _wallet(self) -> dict[str, Any]:
+        return self.player_data.get("wallet") or {}
 
     @property
     def available(self) -> bool:
-        return super().available and isinstance(self._inventory.get("vbucks"), int)
+        return super().available and isinstance(self._wallet.get("vbucks"), int)
 
     @property
     def native_value(self) -> int | None:
-        return self._inventory.get("vbucks")
+        return self._wallet.get("vbucks")
 
     @property
     def _extra_attributes(self) -> dict[str, Any]:
-        return {"source": "api-fortnite br-inventory stash.globalcash", "balances": self._inventory.get("balances")}
+        inventory = self.player_data.get("inventory") or {}
+        return {
+            "source": "Epic common_core (read-only QueryProfile)",
+            "by_kind": self._wallet.get("by_kind"),
+            "mtx_platform": self._wallet.get("mtx_platform"),
+            "other_platform_vbucks": self._wallet.get("other_platform_vbucks"),
+            "crew": self._wallet.get("crew"),
+            "profile_updated": self._wallet.get("profile_updated"),
+            # Provider stash value kept for comparison only (unverified as V-Bucks)
+            "provider_globalcash": (inventory.get("balances") or {}).get("globalcash"),
+        }
