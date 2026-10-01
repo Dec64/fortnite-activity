@@ -1139,8 +1139,8 @@ def map_mode_for_playlist(modes: list[str], playlist_id: str | None) -> str | No
     return None
 
 
-def sprite_level(xp: Any, curve: list[dict[str, Any]] | None) -> int | None:
-    """Level for a sprite's XP using the leading rising run of the public level curve."""
+def sprite_level_from_rows(xp: Any, curve: list[dict[str, Any]] | None) -> int | None:
+    """Level for a sprite's XP from raw curve rows ({level, xp}), using their leading rising run."""
     if not isinstance(xp, (int, float)) or not curve:
         return None
     rows = sorted((r for r in curve if isinstance(r.get("level"), int) and isinstance(r.get("xp"), (int, float))), key=lambda r: r["level"])
@@ -1174,7 +1174,7 @@ def progress_snapshot(info: dict[str, Any], curve: list[dict[str, Any]] | None) 
                 "icon": v.get("icon"),
                 "owned": bool(v.get("owned")),
                 "mastered": bool(v.get("mastered")),
-                "level": sprite_level(v.get("xp"), curve) if v.get("owned") else None,
+                "level": sprite_level_from_rows(v.get("xp"), curve) if v.get("owned") else None,
             }
     return {
         "claimed": (quests.get("by_state") or {}).get("Claimed") if quests else None,
@@ -1215,3 +1215,90 @@ def events_for_mode(events: list[dict[str, Any]], mode_category: str | None) -> 
     if mode_category in ("build", "zero_build"):
         return events
     return [e for e in events if e.get("type") not in SPRITE_EVENT_TYPES]
+
+
+# ---- sprite releases: live season tracking and "new" badges ----------------------
+
+
+def version_key(version: Any) -> tuple[int, ...]:
+    """'42.30' -> (42, 30) for ordering game versions."""
+    parts = []
+    for piece in str(version or "").split("."):
+        digits = "".join(ch for ch in piece if ch.isdigit())
+        parts.append(int(digits) if digits else 0)
+    return tuple(parts)
+
+
+def parse_sprite_version_list(raw: Any) -> list[dict[str, Any]]:
+    """/v2/sprites/versions (SpriteVersionDto[]) -> versions oldest first."""
+    data = _unwrap(raw)
+    items = data.get("versions") if isinstance(data, dict) else data
+    out = [
+        {
+            "version": str(v["version"]),
+            "current": bool(v.get("isCurrent")),
+            "families": v.get("familyCount"),
+            "generated": v.get("generated"),
+        }
+        for v in (items if isinstance(items, list) else [])
+        if isinstance(v, dict) and v.get("version")
+    ]
+    return sorted(out, key=lambda v: version_key(v["version"]))
+
+
+def catalogue_ids(raw: Any) -> dict[str, list[str]] | None:
+    """Family and variant ids in a sprite catalogue (live or archived)."""
+    data = _unwrap(raw)
+    if not isinstance(data, dict) or not isinstance(data.get("sprites"), list):
+        return None
+    families: list[str] = []
+    variants: list[str] = []
+    for fam in data["sprites"]:
+        if not isinstance(fam, dict) or not fam.get("id"):
+            continue
+        families.append(fam["id"])
+        variants.extend(v["id"] for v in fam.get("variants") or [] if isinstance(v, dict) and v.get("id"))
+    return {"families": families, "variants": variants}
+
+
+def build_sprite_intro(per_version: dict[str, dict[str, list[str]]]) -> dict[str, dict[str, str]]:
+    """Earliest game version each family / variant appears in, from the scanned catalogues."""
+    families: dict[str, str] = {}
+    variants: dict[str, str] = {}
+    for version in sorted(per_version, key=version_key):
+        ids = per_version[version]
+        for fid in ids.get("families", []):
+            families.setdefault(fid, version)
+        for vid in ids.get("variants", []):
+            variants.setdefault(vid, version)
+    return {"families": families, "variants": variants}
+
+
+def annotate_new_sprites(current: dict[str, Any] | None, intro: dict[str, dict[str, str]] | None, first_version: str | None) -> dict[str, Any] | None:
+    """Mark sprites and kinds introduced in the collection's own game version.
+
+    A family introduced this update is `new`; an older family that gained kinds this update lists
+    them as `new_kinds`. Nothing is marked when this version is the earliest one scanned (no
+    earlier catalogue to compare with).
+    """
+    if not current or not intro:
+        return current
+    version = current.get("version")
+    if not version or (first_version and version_key(version) <= version_key(first_version)):
+        return current
+    fam_intro = intro.get("families") or {}
+    var_intro = intro.get("variants") or {}
+    families = []
+    new_families = new_kinds = 0
+    for fam in current.get("families") or []:
+        variants = []
+        fam_new = fam_intro.get(fam.get("id")) == version
+        kinds = 0
+        for v in fam.get("variants") or []:
+            v_new = var_intro.get(v.get("id")) == version
+            kinds += int(v_new and not fam_new)
+            variants.append({**v, "new": v_new, "added_in": var_intro.get(v.get("id"))})
+        new_families += int(fam_new)
+        new_kinds += kinds
+        families.append({**fam, "variants": variants, "new": fam_new, "new_kinds": kinds, "added_in": fam_intro.get(fam.get("id"))})
+    return {**current, "families": families, "new_families": new_families, "new_kinds": new_kinds}

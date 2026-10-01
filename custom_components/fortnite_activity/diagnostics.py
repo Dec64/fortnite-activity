@@ -85,6 +85,12 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "profile": {
                 "season": getattr(profile, "season", None),
                 "sprite_version": getattr(profile, "sprite_version", None),
+                "sprite_versions": getattr(profile, "sprite_versions", None),
+                "sprite_intro_counts": {
+                    k: {ver: list((getattr(profile, "sprite_intro", {}) or {}).get(k, {}).values()).count(ver)
+                        for ver in sorted(set((getattr(profile, "sprite_intro", {}) or {}).get(k, {}).values()))}
+                    for k in ("families", "variants")
+                },
                 "sprite_curve_levels": len(((getattr(profile, "sprite_catalogue", None) or {}).get("level_curve")) or []),
                 "playlist_count": len(getattr(profile, "playlists", {}) or {}),
                 "tournament_count": len(getattr(profile, "tournaments", None) or []),

@@ -176,8 +176,10 @@ class ApiFortniteClient:
     async def get_sprite_versions(self) -> Any:
         return await self._request("/v2/sprites/versions")
 
-    async def get_sprite_catalogue(self) -> Any:
-        return await self._request("/v2/sprites")
+    async def get_sprite_catalogue(self, version: str | None = None) -> Any:
+        """Live sprite catalogue, or an archived one for a past game version (public)."""
+        query = f"?{urlencode({'version': version})}" if version else ""
+        return await self._request(f"/v2/sprites{query}")
 
     async def probe_status(self, endpoint: str, token: str | None = None) -> int | None:
         """HTTP status of a GET without reading or keeping the body (capability checks only)."""

@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.13.0";
+const CARD_VERSION = "1.14.0";
 
 declare global {
   interface Window {
@@ -212,7 +212,7 @@ export class FortniteActivityCard extends LitElement {
   @state() private _matchLists: Record<string, { loading?: boolean; matches?: MatchRecord[]; tracked?: number; error?: string }> = {};
   @state() private _showAllMatches: Record<string, boolean> = {};
   @state() private _expandedSprite: string | null = null;
-  @state() private _spriteFilter: "all" | "missing" | "unmastered" | "mastered" = "all";
+  @state() private _spriteFilter: "all" | "missing" | "unmastered" | "mastered" | "new" = "all";
   @state() private _spriteSort: "dex" | "rarity" | "progress" = "dex";
   @state() private _trends: { loading?: boolean; stats?: Record<string, any[]>; at?: number; error?: string; period?: string } = {};
   @state() private _pass: { loading?: boolean; data?: any; error?: string } = {};
@@ -2449,6 +2449,7 @@ export class FortniteActivityCard extends LitElement {
       if (this._spriteFilter === "missing") return !f.owned;
       if (this._spriteFilter === "unmastered") return f.owned && !f.mastered;
       if (this._spriteFilter === "mastered") return f.mastered > 0;
+      if (this._spriteFilter === "new") return f.new || f.new_kinds > 0;
       return true;
     });
     const sorted = [...filtered].sort((x, y) => {
@@ -2478,6 +2479,16 @@ export class FortniteActivityCard extends LitElement {
       <button class="mode-tab ${this._spriteSort === id ? "active" : ""}" @click=${() => (this._spriteSort = id)}>${label}</button>`;
 
     return html`
+      ${a.new_sprites || a.new_kinds
+        ? html`<button class="sp-release ${this._spriteFilter === "new" ? "on" : ""}" @click=${() => (this._spriteFilter = this._spriteFilter === "new" ? "all" : "new")}>
+            <span class="sp-release-badge">✨ NEW</span>
+            <span><b>Update ${a.version}</b> added ${[
+              a.new_sprites ? `${a.new_sprites} new sprite${a.new_sprites > 1 ? "s" : ""}` : "",
+              a.new_kinds ? `${a.new_kinds} new kind${a.new_kinds > 1 ? "s" : ""}` : "",
+            ].filter(Boolean).join(" and ")}</span>
+            <small>${this._spriteFilter === "new" ? "Show all" : "Show them"}</small>
+          </button>`
+        : nothing}
       <div class="sp-summary">
         <div class="sprite-ring" style="--pct:${Math.min(100, pct)}"><span>${Math.round(pct)}%</span></div>
         <div class="sp-stat">
@@ -2525,7 +2536,7 @@ export class FortniteActivityCard extends LitElement {
         : nothing}
 
       <div class="tab-rows">
-        <div class="mode-tabs">${chip("all", "All")} ${chip("mastered", "⭐ Mastered")} ${chip("unmastered", "Not mastered")} ${chip("missing", "Not found")}</div>
+        <div class="mode-tabs">${chip("all", "All")} ${chip("mastered", "⭐ Mastered")} ${chip("unmastered", "Not mastered")} ${chip("missing", "Not found")} ${a.new_sprites || a.new_kinds ? chip("new", "✨ New") : nothing}</div>
         <div class="mode-tabs">${sortChip("dex", "Number")} ${sortChip("rarity", "Rarity")} ${sortChip("progress", "Most kinds")}</div>
       </div>
 
@@ -2543,20 +2554,25 @@ export class FortniteActivityCard extends LitElement {
                 ? html`<span class="sp-have">Have ${info.copies}${info.best ? html` · <span class=${info.best.atMax ? "sp-max" : ""} title=${info.best.atMax ? "Top level" : ""}>Lv ${info.best.level}</span>` : nothing}</span>`
                 : nothing;
               return html`
-                <div class="sp-card ${f.owned ? "" : "missing"} ${info.mastered ? "mastered" : ""} ${open ? "open" : ""}"
+                <div class="sp-card ${f.owned ? "" : "missing"} ${info.mastered ? "mastered" : ""} ${open ? "open" : ""} ${f.new || f.new_kinds ? "is-new" : ""}"
                   style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" role="button" tabindex="0"
                   @click=${() => (this._expandedSprite = open ? null : f.id)}>
                   <div class="sp-img">
                     ${f.icon ? html`<img src=${f.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
                     ${info.mastered ? html`<span class="sp-badge star" title="Mastered">⭐</span>` : nothing}
                     ${!f.owned ? html`<span class="sp-badge lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
+                    ${f.new
+                      ? html`<span class="sp-badge new" title="New this update">NEW</span>`
+                      : f.new_kinds
+                        ? html`<span class="sp-badge new kind" title="${f.new_kinds} new kind${f.new_kinds > 1 ? "s" : ""} this update">NEW KIND</span>`
+                        : nothing}
                   </div>
                   <span class="sp-name">${this._spriteName(f)}</span>
                   ${status}
                   ${have}
                   <div class="sp-kinds" title="${info.owned} of ${info.total} kinds">
                     ${(f.variants || []).map((v: any) => html`
-                      <span class="sp-kind ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""}" title="${v.label}${v.owned ? "" : " (not found yet)"}">
+                      <span class="sp-kind ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""} ${v.new && !f.new ? "new" : ""}" title="${v.label}${v.new ? " · new this update" : ""}${v.owned ? "" : " (not found yet)"}">
                         ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
                       </span>`)}
                   </div>
@@ -2590,6 +2606,7 @@ export class FortniteActivityCard extends LitElement {
           ${f.icon_large || f.icon ? html`<img src=${f.icon_large || f.icon} alt="" @error=${hideBroken} />` : nothing}
           <div>
             <b>${f.name}</b> <span class="tag rarity-tag">${f.rarity || ""}</span>
+            ${f.new ? html`<span class="sp-chip new">✨ New this update</span>` : f.added_in ? html`<span class="sp-chip dim">Added in update ${f.added_in}</span>` : nothing}
             ${f.description ? html`<p class="detail-desc">${f.description}</p>` : nothing}
             ${f.hint ? html`<p class="detail-desc hint">📍 ${f.hint}</p>` : nothing}
           </div>
@@ -2608,6 +2625,7 @@ export class FortniteActivityCard extends LitElement {
                 <div class="sp-kind-main">
                   <div class="sp-kind-title">
                     <b>${v.label}</b>
+                    ${v.new && !f.new ? html`<span class="sp-chip new">✨ New kind</span>` : nothing}
                     ${v.mastered ? html`<span class="sp-chip gold">⭐ Mastered</span>` : nothing}
                     ${v.owned ? html`<span class="sp-chip">You have ${count}</span>` : html`<span class="sp-chip dim">Not found yet</span>`}
                     ${lv ? html`<span class="sp-chip">Level ${lv.level}${lv.atMax ? " · max" : ""}</span>` : nothing}

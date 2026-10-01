@@ -2004,4 +2004,44 @@ export const cardStyles = css`
   ha-card.kid .mapx-pin b { font-size: 13px; }
   ha-card.kid .mapx-tool { width: 42px; height: 42px; }
   ha-card.kid .mapx-row { font-size: 14px; padding: 8px 10px; }
+
+  /* ---- Sprite releases ---- */
+  .sp-release {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(52, 211, 153, 0.5);
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.28), rgba(59, 130, 246, 0.18));
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sp-release span:nth-child(2) { flex: 1; }
+  .sp-release small { font-size: 11px; font-weight: 800; opacity: 0.85; text-decoration: underline; }
+  .sp-release.on { box-shadow: 0 0 0 2px #34D399 inset; }
+  .sp-release-badge, .sp-badge.new {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #10B981, #3B82F6);
+    color: #fff;
+    white-space: nowrap;
+  }
+  .sp-badge.new { top: -6px; left: -10px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); animation: sp-new-glow 2.4s ease-in-out infinite; }
+  .sp-badge.new.kind { font-size: 9px; }
+  @keyframes sp-new-glow { 50% { filter: brightness(1.3); } }
+  .sp-card.is-new { border-color: #34D399; }
+  .sp-kind.new { box-shadow: 0 0 0 2px #34D399; position: relative; }
+  .sp-kind.new::after { content: "✦"; position: absolute; top: -7px; right: -5px; font-size: 10px; color: #34D399; text-shadow: 0 0 3px #000; }
+  .sp-kind { position: relative; overflow: visible; }
+  .sp-kind img { border-radius: 50%; }
+  .sp-chip.new { background: rgba(16, 185, 129, 0.25); color: #6EE7B7; }
 `;

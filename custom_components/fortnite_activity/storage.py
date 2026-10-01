@@ -27,6 +27,7 @@ class FortniteStorage:
         self._store = Store(hass, STORAGE_VERSION, STORAGE_KEY) if Store else None
         self._data: dict[str, Any] = {
             "history": {}, "active": {}, "avatars": {}, "wishlist": {}, "favorites": {}, "first_seen": {}, "notified": [],
+            "sprite_catalogues": {},
         }
 
     async def async_load(self) -> dict[str, Any]:
@@ -45,6 +46,7 @@ class FortniteStorage:
             data.setdefault("favorites", {})
             data.setdefault("first_seen", {})
             data.setdefault("notified", [])
+            data.setdefault("sprite_catalogues", {})
             self._data = data
             return self._data
         except Exception as err:
@@ -115,3 +117,10 @@ class FortniteStorage:
 
     def mark_notified(self, key: str) -> None:
         self._data["notified"] = (self._data["notified"] + [key])[-300:]
+
+    def get_sprite_catalogues(self) -> dict[str, dict[str, list[str]]]:
+        """Family / variant ids per archived game version (public catalogue, never changes)."""
+        return dict(self._data["sprite_catalogues"])
+
+    def set_sprite_catalogue(self, version: str, ids: dict[str, list[str]]) -> None:
+        self._data["sprite_catalogues"][version] = ids

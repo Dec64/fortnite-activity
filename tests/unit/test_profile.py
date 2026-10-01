@@ -386,10 +386,10 @@ def test_parse_shop_and_news_and_map():
 
 
 def test_progress_events_and_mode_relevance():
-    from custom_components.fortnite_activity.profile import progress_events, events_for_mode, sprite_level
+    from custom_components.fortnite_activity.profile import progress_events, events_for_mode, sprite_level_from_rows
 
     curve = [{"level": 1, "xp": 0}, {"level": 2, "xp": 400}, {"level": 3, "xp": 1000}, {"level": 6, "xp": 50}]
-    assert sprite_level(450, curve) == 2
+    assert sprite_level_from_rows(450, curve) == 2
     before = {"claimed": 10, "level": 5, "sprites": {
         "a": {"name": "Synth", "icon": None, "owned": False, "mastered": False, "level": None},
         "b": {"name": "Gold Synth", "icon": None, "owned": True, "mastered": False, "level": 2},
@@ -403,4 +403,37 @@ def test_progress_events_and_mode_relevance():
     assert progress_events(None, after) == []
     assert [e["type"] for e in events_for_mode(events, "reload")] == ["quests", "level_up"]
     assert events_for_mode(events, "zero_build") == events
+
+
+def test_sprite_release_tracking():
+    from custom_components.fortnite_activity.profile import (
+        annotate_new_sprites, build_sprite_intro, catalogue_ids, parse_sprite_version_list, version_key,
+    )
+
+    assert version_key("42.30") > version_key("42.4") > version_key("41.30")
+    versions = parse_sprite_version_list({"data": [
+        {"version": "42.20", "isCurrent": False, "familyCount": 20},
+        {"version": "42.10", "isCurrent": False},
+        {"version": "42.30", "isCurrent": True, "familyCount": 21},
+    ]})
+    assert [v["version"] for v in versions] == ["42.10", "42.20", "42.30"]
+
+    def cat(*fams):
+        return {"sprites": [{"id": f, "variants": [{"id": v} for v in vs]} for f, vs in fams]}
+
+    intro = build_sprite_intro({
+        "42.10": catalogue_ids(cat(("Synth", ["Synth_A"]))),
+        "42.30": catalogue_ids(cat(("Synth", ["Synth_A", "Synth_Gold"]), ("Fresh", ["Fresh_A"]))),
+    })
+    current = {"version": "42.30", "families": [
+        {"id": "Synth", "variants": [{"id": "Synth_A"}, {"id": "Synth_Gold"}]},
+        {"id": "Fresh", "variants": [{"id": "Fresh_A"}]},
+    ]}
+    marked = annotate_new_sprites(current, intro, "42.10")
+    synth, fresh = marked["families"]
+    assert (synth["new"], synth["new_kinds"], fresh["new"]) == (False, 1, True)
+    assert [v["new"] for v in synth["variants"]] == [False, True]
+    assert (marked["new_families"], marked["new_kinds"]) == (1, 1)
+    # The earliest scanned version has nothing to compare with: nothing is marked new
+    assert annotate_new_sprites({**current, "version": "42.10"}, intro, "42.10")["families"] == current["families"]
 

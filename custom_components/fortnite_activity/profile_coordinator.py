@@ -58,6 +58,11 @@ from .profile import (
     parse_sprite_collection,
     parse_sprite_collection_all,
     parse_sprite_versions,
+    parse_sprite_version_list,
+    catalogue_ids,
+    build_sprite_intro,
+    annotate_new_sprites,
+    version_key,
     parse_tournaments,
     sample_items,
     summarise_quests,
@@ -106,6 +111,10 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.sprite_version: str | None = None
         self.sprite_catalogue: dict[str, Any] | None = None
         self.sprite_boons: dict[str, dict[str, Any]] = {}
+        # Sprite releases: version list, earliest version per family/variant, and a catalogue refetch flag
+        self.sprite_versions: list[dict[str, Any]] = []
+        self.sprite_intro: dict[str, dict[str, str]] = {}
+        self._sprite_catalogue_due = False
         # Daily status-only checks of routes we cannot use yet (quests, Battle Pass, inventory)
         self.capabilities: dict[str, dict[str, Any]] = {}
         self.battlepass: dict[str, Any] | None = None
@@ -237,17 +246,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if self._raw_events is not None:
             self.tournaments = parse_tournaments(self._raw_events, now)
 
-        if self.token_managers and self._stale("sprite_version", catalogue_age, now):
-            ok, raw = await self._guarded("sprite_version", self.api_client.get_sprite_versions)
-            if ok:
-                self.sprite_version = parse_sprite_versions(raw) or self.sprite_version
-                self._fetched_at["sprite_version"] = now
-            ok, raw = await self._guarded("sprite_catalogue", self.api_client.get_sprite_catalogue)
-            if ok:
-                self.sprite_catalogue = parse_sprite_catalogue(raw) or self.sprite_catalogue
-            ok, raw = await self._guarded("sprite_boons", self.api_client.get_sprite_boons)
-            if ok:
-                self.sprite_boons = parse_sprite_boons(raw) or self.sprite_boons
+        if self.token_managers:
+            await self._async_update_sprite_catalogue(now)
 
         await self._async_update_public(now)
 
@@ -365,10 +365,25 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             info["power_ranking"] = parse_power_ranking(raw)
 
         ok, raw = await self._guarded(
-            f"sprites:{player_id}", lambda: self.api_client.get_sprite_collection(token, self.sprite_version)
+            f"sprites:{player_id}", lambda: self.api_client.get_sprite_collection(token)
         )
         if ok:
+            ids = catalogue_ids(raw)
+            known = set(((self.sprite_catalogue or {}).get("families") or {}).keys())
+            fresh_version = ((raw.get("data") if isinstance(raw, dict) and isinstance(raw.get("data"), dict) else raw) or {}).get("gameVersion") if isinstance(raw, dict) else None
+            if fresh_version and fresh_version != self.sprite_version:
+                # The collection follows the live season, so it is the authority for the current update
+                _LOGGER.info("Sprite season now %s (was %s)", fresh_version, self.sprite_version)
+                self.sprite_version = fresh_version
+                self._sprite_catalogue_due = True
+            elif ids and set(ids["families"]) - known:
+                self._sprite_catalogue_due = True  # sprites the catalogue does not describe yet
+            if self._sprite_catalogue_due:
+                # New sprites / new update: refresh hints, boons and the curve before parsing
+                await self._async_update_sprite_catalogue(now)
             current = parse_sprite_collection(raw, self.sprite_catalogue, self.sprite_boons)
+            first = self.sprite_versions[0]["version"] if self.sprite_versions else None
+            current = annotate_new_sprites(current, self.sprite_intro, first)
             if current:
                 info["sprites"] = {**(info.get("sprites") or {}), "current": current}
 
@@ -493,6 +508,88 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.async_set_updated_data({pid: dict(i) for pid, i in self._players.items()})
         return outfits["avatar"]
 
+
+
+    # ---- sprite releases --------------------------------------------------------------
+
+    async def _async_update_sprite_catalogue(self, now: datetime) -> None:
+        """Track the live sprite season: version list (30 min), catalogue on change, release history."""
+        if self._stale("sprite_versions", timedelta(minutes=30), now):
+            ok, raw = await self._guarded("sprite_versions", self.api_client.get_sprite_versions)
+            if ok:
+                versions = parse_sprite_version_list(raw)
+                if versions:
+                    self.sprite_versions = versions
+                    live = next((v["version"] for v in reversed(versions) if v["current"]), None) or parse_sprite_versions(raw)
+                    if live and live != self.sprite_version:
+                        if self.sprite_version:
+                            _LOGGER.info("Sprite update detected: %s -> %s", self.sprite_version, live)
+                        self.sprite_version = live
+                        self._sprite_catalogue_due = True
+            self._fetched_at["sprite_versions"] = now
+
+        if self._sprite_catalogue_due or self._stale("sprite_catalogue", timedelta(hours=3), now):
+            ok, raw = await self._guarded("sprite_catalogue", self.api_client.get_sprite_catalogue)
+            if ok:
+                parsed = parse_sprite_catalogue(raw)
+                if parsed:
+                    self.sprite_catalogue = parsed
+                    ids = catalogue_ids(raw)
+                    if ids and self.storage and parsed.get("version"):
+                        # The live catalogue can gain sprites within a version (hotfix): keep the union
+                        prev = self.storage.get_sprite_catalogues().get(parsed["version"]) or {}
+                        self.storage.set_sprite_catalogue(parsed["version"], {
+                            "families": sorted(set(prev.get("families", [])) | set(ids["families"])),
+                            "variants": sorted(set(prev.get("variants", [])) | set(ids["variants"])),
+                        })
+            ok, raw = await self._guarded("sprite_boons", self.api_client.get_sprite_boons)
+            if ok:
+                self.sprite_boons = parse_sprite_boons(raw) or self.sprite_boons
+            self._fetched_at["sprite_catalogue"] = now
+            self._sprite_catalogue_due = False
+
+        await self._async_scan_sprite_history()
+
+    async def _async_scan_sprite_history(self) -> None:
+        """Read each past version's public catalogue once (they never change) to date every sprite."""
+        if not self.storage or not self.sprite_versions:
+            return
+        scanned = self.storage.get_sprite_catalogues()
+        missing = [v["version"] for v in self.sprite_versions if v["version"] not in scanned]
+        for version in missing[:8]:  # usually 1-5 versions; each is read once and cached
+            ok, raw = await self._guarded("sprite_archive", lambda ver=version: self.api_client.get_sprite_catalogue(ver))
+            ids = catalogue_ids(raw) if ok else None
+            if ids:
+                self.storage.set_sprite_catalogue(version, ids)
+        scanned = self.storage.get_sprite_catalogues()
+        listed = {v["version"] for v in self.sprite_versions}
+        if listed - set(scanned):
+            # Dating needs every listed version; with gaps, older sprites could look new
+            if missing:
+                await self.storage.async_save()
+            return
+        new_intro = build_sprite_intro({k: v for k, v in scanned.items() if k in listed or k == self.sprite_version})
+        if missing:
+            await self.storage.async_save()
+        if new_intro != self.sprite_intro:
+            self.sprite_intro = new_intro
+            await self._announce_new_sprites()
+
+    async def _announce_new_sprites(self) -> None:
+        """Fire fortnite_activity_new_sprites once per update that added sprites or kinds."""
+        version = self.sprite_version
+        if not version or not self.storage or len(self.sprite_versions) < 2:
+            return
+        if version_key(version) <= version_key(self.sprite_versions[0]["version"]):
+            return
+        fams = [f for f, v in (self.sprite_intro.get("families") or {}).items() if v == version]
+        kinds = [k for k, v in (self.sprite_intro.get("variants") or {}).items() if v == version]
+        key = f"sprites:{version}"
+        if (fams or kinds) and not self.storage.was_notified(key):
+            self.storage.mark_notified(key)
+            await self.storage.async_save()
+            if self.hass is not None and getattr(self.hass, "bus", None) is not None:
+                self.hass.bus.async_fire(f"{DOMAIN}_new_sprites", {"version": version, "new_sprites": len(fams), "new_kinds": len(kinds)})
 
     # ---- public catalogues: shop, news, map ------------------------------------------
 
@@ -638,7 +735,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self.hass.async_create_task(self.async_request_refresh())
 
     def _record_progress(self, player_id: str, info: dict[str, Any], now: datetime) -> None:
-        curve = (self.sprite_catalogue or {}).get("level_curve")
+        curve = (self.sprite_catalogue or {}).get("level_curve_raw")
         after = progress_snapshot(info, curve)
         before = self._progress.get(player_id)
         since = self._progress_at.get(player_id)
