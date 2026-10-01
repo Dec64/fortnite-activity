@@ -40,6 +40,7 @@ from .profile import (
     parse_playlists,
     parse_battlepass,
     parse_athena_outfits,
+    mark_battlepass_owned,
     parse_common_core,
     is_outfit_record,
     outfit_summary,
@@ -109,6 +110,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.raw_shapes: dict[str, Any] = {}
         # Owned outfit IDs per player (athena, user-approved) and the public outfit catalogue used to name them
         self.owned_outfits: dict[str, list[str]] = {}
+        # Owned cosmetic ids -> template type (memory only), used to tick off Battle Pass rewards
+        self.owned_cosmetics: dict[str, dict[str, str]] = {}
         self.outfit_index: dict[str, dict[str, Any]] = {}
         self.outfit_index_info: dict[str, Any] = {}
         self._cosmetic_lookups: dict[str, dict[str, Any] | None] = {}
@@ -371,7 +374,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_outfits(
         self, player_id: str, account_id: str, token: str, info: dict[str, Any], now: datetime
     ) -> None:
-        """Owned outfit IDs from athena (user-approved, every 6 h) and the avatar chosen from them."""
+        """Owned cosmetic IDs from athena (user-approved, every 6 h) and the avatar chosen from outfits."""
         outfits = dict(info.get("outfits") or {})
         key = f"athena:{player_id}"
         if self._stale(key, timedelta(hours=6), now):
@@ -389,6 +392,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     _LOGGER.warning("Epic athena response for %s failed the identity/shape check; ignored", player_id)
                 else:
                     self.owned_outfits[player_id] = parsed["ids"]
+                    self.owned_cosmetics[player_id] = parsed["cosmetics"]
                     outfits["owned_count"] = parsed["count"]
                     outfits["profile_updated"] = parsed["profile_updated"]
                 self._fetched_at[key] = now
@@ -474,6 +478,12 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         info["outfits"] = outfits
         self.async_set_updated_data({pid: dict(i) for pid, i in self._players.items()})
         return outfits["avatar"]
+
+    def battlepass_for(self, player_id: str | None) -> dict[str, Any] | None:
+        """The Battle Pass with each reward marked unlocked/locked for the player (when known)."""
+        if not player_id or player_id not in self.owned_cosmetics:
+            return self.battlepass
+        return mark_battlepass_owned(self.battlepass, self.owned_cosmetics[player_id])
 
     def owned_outfit_list(self, player_id: str) -> list[dict[str, Any]]:
         """Owned outfits with catalogue metadata (unknown ids are returned with id only)."""

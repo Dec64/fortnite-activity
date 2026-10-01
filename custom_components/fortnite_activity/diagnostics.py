@@ -75,6 +75,8 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "outfits": {
                 k: v for k, v in (data.get("outfits") or {}).items() if k in ("owned_count", "named_count", "shuffle", "profile_updated")
             } | {"avatar_set": bool((data.get("outfits") or {}).get("avatar"))},
+            "owned_cosmetic_count": len((getattr(profile, "owned_cosmetics", {}) or {}).get(player_id) or {}),
+            "battlepass_unlocks": _bp_unlock_summary(profile, player_id),
         }
     return async_redact_data(
         {
@@ -105,3 +107,21 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         },
         TO_REDACT,
     )
+
+
+def _bp_unlock_summary(profile: Any, player_id: str) -> dict[str, Any] | None:
+    """Per reward type: rewards, how many have an item id, unlocked / locked / unknown counts."""
+    if profile is None or not hasattr(profile, "battlepass_for"):
+        return None
+    bp = profile.battlepass_for(player_id)
+    if not bp:
+        return None
+    out: dict[str, dict[str, int]] = {}
+    for page in bp.get("pages") or []:
+        for r in page.get("rewards") or []:
+            row = out.setdefault(str(r.get("type")), {"rewards": 0, "with_item": 0, "unlocked": 0, "locked": 0, "unknown": 0})
+            row["rewards"] += 1
+            row["with_item"] += int(bool(r.get("item")))
+            status = r.get("owned")
+            row["unlocked" if status is True else "locked" if status is False else "unknown"] += 1
+    return {"unlocked": bp.get("unlocked"), "known": bp.get("known"), "by_type": out}

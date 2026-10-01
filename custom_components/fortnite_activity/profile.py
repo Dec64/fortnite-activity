@@ -698,6 +698,7 @@ def parse_battlepass(raw: Any) -> dict[str, Any] | None:
         rewards = [
             {
                 "name": r.get("displayName") or r.get("item"),
+                "item": r.get("item") if isinstance(r.get("item"), str) else None,
                 "type": r.get("type"),
                 "rarity": r.get("rarity"),
                 "icon": r.get("icon"),
@@ -875,11 +876,18 @@ def _template_suffix(template: str) -> str | None:
     return suffix or None
 
 
-def parse_athena_outfits(raw: Any, expected_account_id: str) -> dict[str, Any] | None:
-    """Owned outfit IDs from an athena QueryProfile response (user-approved: outfit IDs only).
+# Cosmetic item template types kept from athena (user-approved: cosmetic IDs only, no quests/stats)
+_COSMETIC_TEMPLATE = re.compile(
+    r"^(?:Athena(?!Season|RewardGraph|RewardEvent)\w+|Cosmetic(?!Locker)\w+|Sparks\w+|Juno\w+|Vehicle\w+|HomebaseBannerIcon)$"
+)
 
-    Returns None unless the profile belongs to the expected account (identity gate). Nothing else
-    from the profile (items, stats, quests, variants) is kept.
+
+def parse_athena_outfits(raw: Any, expected_account_id: str) -> dict[str, Any] | None:
+    """Owned cosmetic IDs from an athena QueryProfile response (user-approved: cosmetic IDs only).
+
+    `ids` are the owned outfits; `cosmetics` maps every owned cosmetic id (lower-case, without the
+    type prefix) to its template type. Returns None unless the profile belongs to the expected
+    account (identity gate). Nothing else from the profile (quests, stats, variants) is kept.
     """
     if not isinstance(raw, dict):
         return None
@@ -888,15 +896,67 @@ def parse_athena_outfits(raw: Any, expected_account_id: str) -> dict[str, Any] |
     if not profile or profile.get("accountId") != expected_account_id or profile.get("profileId") != "athena":
         return None
     ids: set[str] = set()
+    cosmetics: dict[str, str] = {}
     for item in (profile.get("items") or {}).values():
         if not isinstance(item, dict):
             continue
         template = str(item.get("templateId") or "")
-        if template.startswith("AthenaCharacter:"):
-            suffix = _template_suffix(template)
-            if suffix:
-                ids.add(suffix)
-    return {"ids": sorted(ids), "count": len(ids), "profile_updated": profile.get("updated")}
+        kind = template.split(":", 1)[0]
+        suffix = _template_suffix(template)
+        if not suffix or not _COSMETIC_TEMPLATE.match(kind):
+            continue
+        cosmetics[suffix] = kind
+        if kind == "AthenaCharacter":
+            ids.add(suffix)
+    return {
+        "ids": sorted(ids),
+        "count": len(ids),
+        "cosmetics": cosmetics,
+        "profile_updated": profile.get("updated"),
+    }
+
+
+def mark_battlepass_owned(bp: dict[str, Any] | None, owned: dict[str, str] | None) -> dict[str, Any] | None:
+    """Copy of the Battle Pass with `owned` (True/False/None) on each reward plus unlock totals.
+
+    A reward is matched by its item id against the player's owned cosmetic ids. Rewards without an
+    item id, currency rewards, and reward types where nothing in the whole pass matched are left
+    as None (unknown) rather than shown as locked.
+    """
+    if not bp or owned is None:
+        return bp
+    owned_ids = set(owned)
+
+    def reward_id(r: dict[str, Any]) -> str | None:
+        item = r.get("item")
+        if not isinstance(item, str) or not item:
+            return None
+        return (item.split(":", 1)[1] if ":" in item else item).strip().lower() or None
+
+    matched_types: set[str] = set()
+    for page in bp.get("pages") or []:
+        for r in page.get("rewards") or []:
+            rid = reward_id(r)
+            if rid and rid in owned_ids:
+                matched_types.add(str(r.get("type")))
+
+    unlocked = known = 0
+    pages = []
+    for page in bp.get("pages") or []:
+        rewards = []
+        for r in page.get("rewards") or []:
+            rid = reward_id(r)
+            status: bool | None
+            if not rid or r.get("type") == "Currency" or str(r.get("type")) not in matched_types:
+                status = None
+            else:
+                status = rid in owned_ids
+            if status is not None:
+                known += 1
+                unlocked += int(status)
+            rewards.append({**r, "owned": status})
+        pages.append({**page, "rewards": rewards})
+    return {**bp, "pages": pages, "unlocked": unlocked, "known": known}
 
 
 _OUTFIT_TYPES = {"outfit", "athenacharacter", "character"}

@@ -447,9 +447,10 @@ async def ws_get_battlepass(
     connection: websocket_api.ActiveConnection,
     msg: dict[str, Any],
 ) -> None:
-    """Current Battle Pass catalogue (pages and rewards). Personal claim status is not available."""
-    profile = _profile(hass, msg.get("player_id"))
-    connection.send_result(msg["id"], {"battlepass": profile.battlepass if profile else None})
+    """Current Battle Pass pages and rewards, with each reward marked unlocked for the player when known."""
+    player_id = (msg.get("player_id") or "").lower() or None
+    profile = _profile(hass, player_id)
+    connection.send_result(msg["id"], {"battlepass": profile.battlepass_for(player_id) if profile else None})
 
 
 @websocket_api.websocket_command(

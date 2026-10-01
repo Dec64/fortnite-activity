@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.10.1";
+const CARD_VERSION = "1.11.0";
 
 declare global {
   interface Window {
@@ -145,10 +145,12 @@ const rewardDisplayName = (r: any): string =>
 
 interface PassSet {
   key: string;
+  unlocked: number;
+  known: number;
   title: string;
   outfit: any | null;
   hero: string | null;
-  pages: Array<{ label: string; bonus: boolean; rewards: any[] }>;
+  pages: Array<{ label: string; bonus: boolean; rewards: any[]; done: boolean }>;
   rewardCount: number;
   baseCost: Record<string, number>;
   bonusCost: Record<string, number>;
@@ -208,7 +210,7 @@ export class FortniteActivityCard extends LitElement {
   @state() private _matchLists: Record<string, { loading?: boolean; matches?: MatchRecord[]; tracked?: number; error?: string }> = {};
   @state() private _showAllMatches: Record<string, boolean> = {};
   @state() private _expandedSprite: string | null = null;
-  @state() private _spriteFilter: "all" | "missing" | "unmastered" | "complete" = "all";
+  @state() private _spriteFilter: "all" | "missing" | "unmastered" | "mastered" = "all";
   @state() private _spriteSort: "dex" | "rarity" | "progress" = "dex";
   @state() private _trends: { loading?: boolean; stats?: Record<string, any[]>; at?: number; error?: string; period?: string } = {};
   @state() private _pass: { loading?: boolean; data?: any; error?: string } = {};
@@ -1208,7 +1210,7 @@ export class FortniteActivityCard extends LitElement {
         </div>
         ${rows.length > 1
           ? this._lineChart(rows, fmt, tr.period || "day")
-          : html`<div class="collecting">Collecting history — the chart fills in as Home Assistant records it.</div>`}
+          : html`<div class="collecting">Play a few more days to see this chart.</div>`}
         <div class="rank-meta">
           <span>${rows.length > 1 ? `${change! >= 0 ? "▲" : "▼"} ${fmt(Math.abs(change!))} over ${rows.length} ${tr.period === "hour" ? "hours" : "days"}` : ""}</span>
           <span>${m.lowerBetter ? "lower is better" : ""}</span>
@@ -1260,14 +1262,20 @@ export class FortniteActivityCard extends LitElement {
           if (label !== "V-Bucks") typeCounts.set(label, (typeCounts.get(label) || 0) + 1);
         }
       }
+      const known = rewards.filter((r) => r.owned === true || r.owned === false);
       return {
         key,
+        unlocked: known.filter((r) => r.owned === true).length,
+        known: known.length,
         title: outfit?.name && !/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(outfit.name) ? outfit.name : `Set ${i + 1}`,
         outfit,
         hero,
         pages: pgs.map((p) => {
           const bonus = /Bonus$/.test(p.track || "");
-          return { label: `${bonus ? "Bonus" : "Page"} ${p.page}`, bonus, rewards: p.rewards || [] };
+          const rw = p.rewards || [];
+          const kn = rw.filter((r: any) => r.owned === true || r.owned === false);
+          const done = kn.length > 0 && kn.length === rw.filter((r: any) => r.type !== "Currency").length && kn.every((r: any) => r.owned);
+          return { label: `${bonus ? "Bonus" : "Page"} ${p.page}`, bonus, rewards: rw, done };
         }),
         rewardCount: rewards.length,
         baseCost,
@@ -1301,7 +1309,7 @@ export class FortniteActivityCard extends LitElement {
     const p = this._pass;
     if (p.loading || (p.data === undefined && !p.error)) return html`<div class="empty">Loading Battle Pass…</div>`;
     if (p.error) return html`<div class="empty">${p.error}</div>`;
-    if (!p.data || !p.data.pages?.length) return html`<div class="empty">The Battle Pass catalogue is not available right now.</div>`;
+    if (!p.data || !p.data.pages?.length) return html`<div class="empty">The Battle Pass will show here soon.</div>`;
     const bp = p.data;
     const sets = this._passSets(bp);
     const idx = Math.min(this._passSet, sets.length - 1);
@@ -1314,7 +1322,6 @@ export class FortniteActivityCard extends LitElement {
     const outfits = sets.filter((s) => s.outfit).length;
     const totalBase: Record<string, number> = {};
     for (const s of sets) for (const [c, n] of Object.entries(s.baseCost)) totalBase[c] = (totalBase[c] || 0) + n;
-    const quests = this._findEntity("sensor", "profile")?.attributes?.quests;
     const plural = (t: string, n: number) => (n > 1 && !/s$/.test(t) ? `${t}s` : t);
 
     return html`
@@ -1325,6 +1332,12 @@ export class FortniteActivityCard extends LitElement {
             <span>Season ${bp.season} Battle Pass</span>
             ${season?.days_left != null ? html`<span class="bp-days">${season.days_left}d left</span>` : nothing}
           </div>
+          ${bp.known
+            ? html`<div class="bp-unlock">
+                <div class="bp-unlock-top"><span>🔓 Unlocked</span><b>${bp.unlocked} / ${bp.known}</b></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.round((bp.unlocked / bp.known) * 100)}%"></div></div>
+              </div>`
+            : nothing}
           <div class="bp-stats">
             <div><b>${sets.length}</b><span>sets</span></div>
             <div><b>${outfits}</b><span>outfits</span></div>
@@ -1336,9 +1349,11 @@ export class FortniteActivityCard extends LitElement {
 
         <div class="bp-strip" role="tablist">
           ${sets.map((s, i) => html`
-            <button class="bp-thumb ${i === idx ? "active" : ""}" role="tab" aria-selected=${i === idx ? "true" : "false"} title=${s.title}
+            <button class="bp-thumb ${i === idx ? "active" : ""} ${s.known && s.unlocked === s.known ? "done" : ""}" role="tab" aria-selected=${i === idx ? "true" : "false"}
+              title="${s.title}${s.known ? ` · ${s.unlocked} of ${s.known} unlocked` : ""}"
               @click=${() => this._goPassSet(i, sets.length)}>
               ${s.hero ? html`<img src=${s.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+              ${s.known && s.unlocked === s.known ? html`<span class="bp-thumb-check">✓</span>` : nothing}
             </button>`)}
         </div>
 
@@ -1352,10 +1367,16 @@ export class FortniteActivityCard extends LitElement {
               <div class="bp-hero-count">Set ${idx + 1} of ${sets.length}</div>
               <div class="bp-hero-name">${set.title}</div>
               <div class="bp-hero-meta">
-                ${Object.keys(set.baseCost).length ? html`<span title="Stars to unlock every base page reward">${this._costText(set.baseCost)}</span>` : nothing}
+                ${Object.keys(set.baseCost).length ? html`<span title="Stars for every reward on the main pages">${this._costText(set.baseCost)}</span>` : nothing}
                 ${Object.keys(set.bonusCost).length ? html`<span title="Bonus pages">Bonus: ${this._costText(set.bonusCost)}</span>` : nothing}
                 ${set.vbucks ? html`<span class="gold">Ⓥ ${this._num(set.vbucks)}</span>` : nothing}
               </div>
+              ${set.known
+                ? html`<div class="bp-set-progress">
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.round((set.unlocked / set.known) * 100)}%"></div></div>
+                    <span>${set.unlocked === set.known ? "✓ All unlocked" : `${set.unlocked} of ${set.known} unlocked`}</span>
+                  </div>`
+                : nothing}
               <div class="bp-hero-types">${set.types.map(([t, n]) => `${n} ${plural(t, n)}`).join(" · ")}</div>
             </div>
             <button class="bp-nav" title="Next set" @click=${() => this._goPassSet(idx + 1, sets.length)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
@@ -1365,17 +1386,23 @@ export class FortniteActivityCard extends LitElement {
             ? html`<div class="bp-pages">
                 ${set.pages.map((pg, i) => html`
                   <button class="mini-button ${i === pageIdx ? "active" : ""} ${pg.bonus ? "bonus" : ""}" @click=${() => (this._passPage = i)}>
-                    ${pg.label}<span class="bp-page-count">${pg.rewards.length}</span>
+                    ${pg.done ? "✓ " : ""}${pg.label}<span class="bp-page-count">${pg.rewards.length}</span>
                   </button>`)}
               </div>`
             : nothing}
 
           <div class="bp-rewards">
             ${page.rewards.map((r: any) => html`
-              <div class="bp-reward ${isVbucks(r) ? "vbucks" : ""} ${isOutfit(r) ? "outfit" : ""}" title="${rewardDisplayName(r)} · ${rewardTypeLabel(r)}">
+              <div class="bp-reward ${isVbucks(r) ? "vbucks" : ""} ${isOutfit(r) ? "outfit" : ""} ${r.owned === true ? "unlocked" : r.owned === false ? "locked" : ""}"
+                title="${rewardDisplayName(r)} · ${rewardTypeLabel(r)}${r.owned === true ? " · unlocked" : r.owned === false ? " · locked" : ""}">
                 <div class="bp-reward-img">
                   ${r.icon ? html`<img src=${r.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
-                  ${this._passCostBadge(r)}
+                  ${r.owned === true
+                    ? html`<span class="bp-state unlocked">✓</span>`
+                    : r.owned === false
+                      ? html`<span class="bp-state locked"><ha-icon icon="mdi:lock"></ha-icon></span>`
+                      : nothing}
+                  ${r.owned === true ? nothing : this._passCostBadge(r)}
                 </div>
                 <span class="bp-reward-name">${isVbucks(r) && r.quantity ? `${this._num(r.quantity)} V-Bucks` : rewardDisplayName(r)}</span>
                 <span class="bp-reward-type">${rewardTypeLabel(r)}</span>
@@ -1385,8 +1412,7 @@ export class FortniteActivityCard extends LitElement {
 
         <div class="bp-note">
           ${Object.keys(totalBase).length ? html`<span>All base pages: ${this._costText(totalBase)}</span>` : nothing}
-          <span>Claimed rewards are not available from this data source.</span>
-          ${quests ? html`<span title="Epic's quest data has no names or targets; only states are counted">Quests on record: ${this._num(quests.total)}</span>` : nothing}
+
         </div>
       </div>
     `;
@@ -1410,11 +1436,10 @@ export class FortniteActivityCard extends LitElement {
     if (st.error) return html`<div class="empty">${st.error}</div>`;
     const all: any[] = st.data?.outfits || [];
     if (!all.length) {
-      return html`<div class="empty">No owned outfits yet. They appear once the linked Epic account's profile has been read (every 6 hours).</div>`;
+      return html`<div class="empty">Your outfits will show up here soon.</div>`;
     }
     const rarityOrder = ["Mythic", "Legendary", "Epic", "Rare", "Uncommon", "Common"];
     const known = all.filter((o) => o.name);
-    const unknown = all.length - known.length;
     const q = this._outfitQuery.trim().toLowerCase();
     const filtered = known.filter((o) => !q || String(o.name).toLowerCase().includes(q) || String(o.set || "").toLowerCase().includes(q));
     const sorted = [...filtered].sort((a, b) => {
@@ -1450,7 +1475,7 @@ export class FortniteActivityCard extends LitElement {
                 : html`<span class="muted">Tap an outfit below to use it</span>`}
             </div>
             <div class="bp-hero-types">
-              <b>${this._num(all.length)}</b> outfits owned${unknown ? ` · ${unknown} not in the catalogue` : ""}
+              <b>${this._num(known.length)}</b> outfits
             </div>
             <div class="locker-rarities">
               ${rarityOrder.filter((r) => byRarity.get(r)).map((r) => html`<span class="rarity-dot" style="--rarity:${RARITY_COLORS[r]}" title=${r}>${byRarity.get(r)}</span>`)}
@@ -1533,6 +1558,24 @@ export class FortniteActivityCard extends LitElement {
     return { level, maxLevel: max[0], maxXp: max[1], next: next ? next[1] : null, toMax: Math.max(0, max[1] - xp), atMax: idx === curve.length - 1 };
   }
 
+  /** Per-sprite summary used by the cards: kinds found, mastered kinds, copies, best current level. */
+  private _spriteInfo(f: any, curve: Array<[number, number]>) {
+    const variants: any[] = f.variants || [];
+    const owned = variants.filter((v) => v.owned);
+    const mastered = variants.filter((v) => v.mastered).length;
+    let best: ReturnType<FortniteActivityCard["_spriteLevel"]> = null;
+    for (const v of owned) {
+      const lv = this._spriteLevel(v.xp, curve);
+      if (lv && (!best || lv.level > best.level)) best = lv;
+    }
+    const copies = owned.reduce((n, v) => n + Math.max(1, Number(v.count) || 0), 0);
+    return { owned: owned.length, total: variants.length, mastered, best, copies };
+  }
+
+  private _spriteName(f: any): string {
+    return String(f.name || "").replace(/ Sprite$/, "");
+  }
+
   private _renderSpritesView(sensor: any) {
     const a = sensor?.attributes || {};
     const curve = this._spriteCurve(a);
@@ -1540,11 +1583,12 @@ export class FortniteActivityCard extends LitElement {
     const pct = Number(sensor?.state || 0);
     const ownedVariants = Number(a.owned_variants || 0);
     const rarityOrder = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"];
+    const masteredSprites = all.filter((f) => f.mastered > 0).length;
 
     const filtered = all.filter((f) => {
-      if (this._spriteFilter === "missing") return f.owned_variants < f.total_variants;
-      if (this._spriteFilter === "unmastered") return f.variants.some((v: any) => v.owned && !v.mastered);
-      if (this._spriteFilter === "complete") return f.complete;
+      if (this._spriteFilter === "missing") return !f.owned;
+      if (this._spriteFilter === "unmastered") return f.owned && !f.mastered;
+      if (this._spriteFilter === "mastered") return f.mastered > 0;
       return true;
     });
     const sorted = [...filtered].sort((x, y) => {
@@ -1553,19 +1597,19 @@ export class FortniteActivityCard extends LitElement {
       return (x.dex ?? 0) - (y.dex ?? 0);
     });
 
-    // Missing variants that can drop, most likely first
+    // Kinds you don't have yet that can drop, easiest to find first
     const hunt = all
       .flatMap((f) => f.variants.filter((v: any) => !v.owned && v.drop_chance_pct).map((v: any) => ({ f, v })))
       .sort((x: any, y: any) => y.v.drop_chance_pct - x.v.drop_chance_pct || rarityOrder.indexOf(x.f.rarity) - rarityOrder.indexOf(y.f.rarity))
       .slice(0, 6);
 
-    // Owned copies with XP, not yet at max level, nearest to mastery first
+    // Copies you own that are levelling up, closest to the top level first
     const toMaster = curve.length
       ? all
           .flatMap((f) => f.variants.filter((v: any) => v.owned && typeof v.xp === "number" && v.xp > 0).map((v: any) => ({ f, v, lv: this._spriteLevel(v.xp, curve)! })))
           .filter((x: any) => x.lv && !x.lv.atMax)
           .sort((x: any, y: any) => x.lv.toMax - y.lv.toMax)
-          .slice(0, 6)
+          .slice(0, 5)
       : [];
 
     const chip = (id: typeof this._spriteFilter, label: string) => html`
@@ -1574,46 +1618,31 @@ export class FortniteActivityCard extends LitElement {
       <button class="mode-tab ${this._spriteSort === id ? "active" : ""}" @click=${() => (this._spriteSort = id)}>${label}</button>`;
 
     return html`
-      <div class="rank-section sprite-summary">
-        <div class="sprite-ring" style="--pct:${Math.min(100, pct)}">
-          <span>${Math.round(pct)}%</span>
+      <div class="sp-summary">
+        <div class="sprite-ring" style="--pct:${Math.min(100, pct)}"><span>${Math.round(pct)}%</span></div>
+        <div class="sp-stat">
+          <b>${a.owned_families ?? 0}<small>/${a.total_families ?? all.length}</small></b>
+          <span>Sprites found</span>
         </div>
-        <div class="sprite-summary-main">
-          <div class="rank-header">
-            <span class="rank-title"><span>Sprite collection</span></span>
-            <span class="muted">Game update ${a.version || "?"}</span>
-          </div>
-          <div class="sprite-stats">
-            <span><b>${ownedVariants}</b>/${a.total_variants} variants</span>
-            <span><b>${a.owned_families}</b>/${a.total_families} sprites</span>
-            <span><b>${a.complete_families ?? 0}</b> full sets</span>
-            <span>★ <b>${a.mastered_variants || 0}</b>/${ownedVariants} mastered</span>
-          </div>
-          ${a.equipped ? html`<div class="rank-meta"><span>Equipped: <b>${a.equipped.variant}</b></span></div>` : nothing}
+        <div class="sp-stat gold">
+          <b>⭐ ${masteredSprites}</b>
+          <span>Mastered</span>
+        </div>
+        <div class="sp-stat">
+          <b>${ownedVariants}<small>/${a.total_variants ?? 0}</small></b>
+          <span>Kinds collected</span>
         </div>
       </div>
 
-      ${(a.versions || []).length > 1
-        ? html`<div class="split-section">
-            <div class="section-title">By game update${a.cumulative ? html` · all-time ${a.cumulative.owned_variants}/${a.cumulative.total_variants}` : nothing}</div>
-            ${a.versions.map((v: any) => html`
-              <div class="version-row ${v.current ? "current" : ""}">
-                <span>${v.version}${v.current ? " (now)" : ""}</span>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, v.completion_pct)}%"></div></div>
-                <span>${v.owned_variants}/${v.total_variants}</span>
-              </div>`)}
-          </div>`
-        : nothing}
-
       ${toMaster.length
         ? html`<div class="split-section">
-            <div class="section-title">Closest to mastering (current copy, level ${curve[curve.length - 1][0]} = ${this._num(curve[curve.length - 1][1])} XP)</div>
+            <div class="section-title">Almost mastered</div>
             <div class="master-list">
               ${toMaster.map(({ f, v, lv }: any) => html`
                 <div class="master-row" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" @click=${() => (this._expandedSprite = f.id)}>
                   ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
-                  <span class="variant-name">${f.name.replace(/ Sprite$/, "")}${v.label !== "Base" ? ` · ${v.label}` : ""}</span>
-                  <span>Lv ${lv.level}</span>
+                  <span class="variant-name">${v.label === "Base" ? this._spriteName(f) : `${v.label} ${this._spriteName(f)}`}</span>
+                  <span class="sp-level-pill">Level ${lv.level}</span>
                   <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, (v.xp / lv.maxXp) * 100)}%"></div></div>
                   <span class="muted">${this._num(lv.toMax)} XP to go</span>
                 </div>`)}
@@ -1623,89 +1652,117 @@ export class FortniteActivityCard extends LitElement {
 
       ${hunt.length
         ? html`<div class="split-section">
-            <div class="section-title">Next to hunt (highest drop chance)</div>
+            <div class="section-title">Easiest to find next</div>
             <div class="hunt-row">
               ${hunt.map(({ f, v }: any) => html`
                 <div class="hunt-item" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" title="${v.name}" @click=${() => (this._expandedSprite = f.id)}>
                   ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
-                  <span>${v.label === "Base" ? f.name.replace(/ Sprite$/, "") : `${v.label} ${f.name.replace(/ Sprite$/, "")}`}</span>
-                  <small>${v.drop_chance_pct}%</small>
+                  <span>${v.label === "Base" ? this._spriteName(f) : `${v.label} ${this._spriteName(f)}`}</span>
+                  <small>${v.drop_chance_pct}% chance</small>
                 </div>`)}
             </div>
           </div>`
         : nothing}
 
       <div class="tab-rows">
-        <div class="mode-tabs">${chip("all", "All")} ${chip("missing", "Missing")} ${chip("unmastered", "To master")} ${chip("complete", "Full sets")}</div>
-        <div class="mode-tabs">${sortChip("dex", "Dex")} ${sortChip("rarity", "Rarity")} ${sortChip("progress", "Progress")}</div>
+        <div class="mode-tabs">${chip("all", "All")} ${chip("mastered", "⭐ Mastered")} ${chip("unmastered", "Not mastered")} ${chip("missing", "Not found")}</div>
+        <div class="mode-tabs">${sortChip("dex", "Number")} ${sortChip("rarity", "Rarity")} ${sortChip("progress", "Most kinds")}</div>
       </div>
 
-      <div class="sprite-grid">
+      <div class="sp-grid">
         ${sorted.length
           ? sorted.map((f) => {
               const open = this._expandedSprite === f.id;
+              const info = this._spriteInfo(f, curve);
+              const status = info.mastered
+                ? html`<span class="sp-status gold">⭐ Mastered</span>`
+                : f.owned
+                  ? html`<span class="sp-status">Not mastered</span>`
+                  : html`<span class="sp-status dim">Not found yet</span>`;
+              const have = f.owned
+                ? html`<span class="sp-have">Have ${info.copies}${info.best ? html` · <span class=${info.best.atMax ? "sp-max" : ""} title=${info.best.atMax ? "Top level" : ""}>Lv ${info.best.level}</span>` : nothing}</span>`
+                : nothing;
               return html`
-                <div class="sprite-card ${f.owned ? "" : "missing"} ${open ? "open" : ""} ${f.complete ? "complete" : ""}"
-                  style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" @click=${() => (this._expandedSprite = open ? null : f.id)}>
-                  ${f.icon ? html`<img src=${f.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
-                  <span class="sprite-name">${f.name.replace(/ Sprite$/, "")}</span>
-                  <span class="sprite-count">${f.owned_variants}/${f.total_variants}${f.mastered ? html` · ★${f.mastered}` : nothing}</span>
-                  <span class="sprite-dots">
-                    ${(f.variants || []).map((v: any) => html`<i class="dot ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""}" title=${v.label}></i>`)}
-                  </span>
+                <div class="sp-card ${f.owned ? "" : "missing"} ${info.mastered ? "mastered" : ""} ${open ? "open" : ""}"
+                  style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" role="button" tabindex="0"
+                  @click=${() => (this._expandedSprite = open ? null : f.id)}>
+                  <div class="sp-img">
+                    ${f.icon ? html`<img src=${f.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+                    ${info.mastered ? html`<span class="sp-badge star" title="Mastered">⭐</span>` : nothing}
+                    ${!f.owned ? html`<span class="sp-badge lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
+                  </div>
+                  <span class="sp-name">${this._spriteName(f)}</span>
+                  ${status}
+                  ${have}
+                  <div class="sp-kinds" title="${info.owned} of ${info.total} kinds">
+                    ${(f.variants || []).map((v: any) => html`
+                      <span class="sp-kind ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""}" title="${v.label}${v.owned ? "" : " (not found yet)"}">
+                        ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                      </span>`)}
+                  </div>
+                  <span class="sp-kinds-text">${info.owned} of ${info.total} kinds</span>
                 </div>
                 ${open ? this._renderSpriteDetail(f) : nothing}`;
             })
-          : html`<div class="empty">Nothing matches this filter.</div>`}
+          : html`<div class="empty">No sprites here yet.</div>`}
       </div>
-    `;
-  }
 
-  /** Extra perk each variant adds (the family's own ability is listed as a boon too, so skip it). */
-  private _variantPerks(f: any) {
-    const seen = new Set<string>();
-    const perks = (f.variants || []).flatMap((v: any) =>
-      (v.boons || [])
-        .filter((b: any) => b.name && b.name !== f.name && !seen.has(b.name) && seen.add(b.name))
-        .map((b: any) => ({ variant: v.label, ...b })),
-    );
-    if (!perks.length) return nothing;
-    return html`<div class="perk-list">
-      <div class="section-title">Variant perks</div>
-      ${perks.map((b: any) => html`<div class="detail-line"><b>${b.variant}</b>${b.name !== b.variant ? html`<span>${b.name}</span>` : nothing}</div>
-        ${b.description ? html`<div class="perk-desc">${b.description}</div>` : nothing}`)}
-    </div>`;
+      ${(a.versions || []).length > 1
+        ? html`<div class="split-section">
+            <div class="section-title">Every season so far</div>
+            ${a.versions.map((v: any) => html`
+              <div class="version-row ${v.current ? "current" : ""}">
+                <span>${v.current ? "This season" : v.version}</span>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, v.completion_pct)}%"></div></div>
+                <span>${v.owned_variants}/${v.total_variants}</span>
+              </div>`)}
+          </div>`
+        : nothing}
+    `;
   }
 
   private _renderSpriteDetail(f: any) {
     const curve = this._spriteCurve(this._findEntity("sensor", "sprites")?.attributes || {});
+    const familyBoon = f.name;
     return html`
-      <div class="sprite-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
+      <div class="sprite-detail sp-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
         <div class="sprite-detail-head">
           ${f.icon_large || f.icon ? html`<img src=${f.icon_large || f.icon} alt="" @error=${hideBroken} />` : nothing}
           <div>
             <b>${f.name}</b> <span class="tag rarity-tag">${f.rarity || ""}</span>
             ${f.description ? html`<p class="detail-desc">${f.description}</p>` : nothing}
             ${f.hint ? html`<p class="detail-desc hint">📍 ${f.hint}</p>` : nothing}
-
           </div>
         </div>
-        ${this._variantPerks(f)}
-        <div class="variant-tiles">
-          ${(f.variants || []).map((v: any) => html`
-            <div class="variant-tile ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""}" title=${v.name}>
-              ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
-              <span class="variant-name">${v.label}</span>
-              <span class="variant-status">
-                ${v.owned
-                  ? (() => {
-                      const lv = this._spriteLevel(v.xp, curve);
-                      const level = lv ? (lv.atMax ? `Lv ${lv.level}${v.xp > lv.maxXp ? "+" : ""}` : `Lv ${lv.level} · ${this._num(v.xp)}/${this._num(lv.next)}`) : v.xp ? `${this._num(v.xp)} XP` : "Owned";
-                      return html`${level}${v.count > 1 ? ` · ×${v.count}` : ""}${v.mastered ? html` <span title="Mastered at some point (collection record)">★</span>` : nothing}`;
-                    })()
-                  : v.drop_chance_pct != null ? `Missing · ${v.drop_chance_pct}%` : "Missing · special"}
-              </span>
-            </div>`)}
+        <div class="sp-kind-list">
+          ${(f.variants || []).map((v: any) => {
+            const lv = v.owned ? this._spriteLevel(v.xp, curve) : null;
+            const perk = (v.boons || []).find((b: any) => b.name && b.name !== familyBoon);
+            const count = Math.max(1, Number(v.count) || 0);
+            return html`
+              <div class="sp-kind-row ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""}">
+                <div class="sp-kind-icon">
+                  ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+                  ${!v.owned ? html`<span class="sp-badge lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
+                </div>
+                <div class="sp-kind-main">
+                  <div class="sp-kind-title">
+                    <b>${v.label}</b>
+                    ${v.mastered ? html`<span class="sp-chip gold">⭐ Mastered</span>` : nothing}
+                    ${v.owned ? html`<span class="sp-chip">You have ${count}</span>` : html`<span class="sp-chip dim">Not found yet</span>`}
+                    ${lv ? html`<span class="sp-chip">Level ${lv.level}${lv.atMax ? " · max" : ""}</span>` : nothing}
+                    ${!v.owned && v.drop_chance_pct != null ? html`<span class="sp-chip dim">${v.drop_chance_pct}% chance</span>` : nothing}
+                  </div>
+                  ${lv && !lv.atMax && lv.next
+                    ? html`<div class="sp-xp">
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, (v.xp / lv.next) * 100)}%"></div></div>
+                        <span>${this._num(v.xp)} / ${this._num(lv.next)} XP to level ${lv.level + 1}</span>
+                      </div>`
+                    : nothing}
+                  ${perk ? html`<div class="sp-perk">✨ ${perk.description || perk.name}</div>` : nothing}
+                </div>
+              </div>`;
+          })}
         </div>
       </div>
     `;
@@ -1722,7 +1779,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="match-feed-header">
         <span>${windowName} matches (${tracked}${total > tracked ? ` of ${total}` : ""})</span>
-        ${total > tracked ? html`<span class="muted" title="Only games the tracker saw finish are listed; the stats API has no per-match history">tracked only</span>` : nothing}
+
       </div>
       ${list?.loading
         ? html`<div class="empty">Loading matches…</div>`
@@ -1828,7 +1885,7 @@ export class FortniteActivityCard extends LitElement {
     const ev = this._events;
     if (ev.loading && !ev.list) return html`<div class="empty">Loading tournaments…</div>`;
     if (ev.error) return html`<div class="empty">${ev.error}</div>`;
-    if (ev.list === null) return html`<div class="empty">Tournament schedule is not available right now.</div>`;
+    if (ev.list === null) return html`<div class="empty">Tournaments will show here soon.</div>`;
     const all = ev.list || [];
     const f = this._currentFilters();
     const regions = [...new Set(all.map((e) => e.region_group))].sort();
@@ -1857,7 +1914,7 @@ export class FortniteActivityCard extends LitElement {
       </div>
       <div class="match-feed-header">
         <span>Tournaments (${list.length})</span>
-        <span class="muted">UK time · schedule only</span>
+        <span class="muted">UK time</span>
       </div>
       <div class="match-list events">
         ${list.length ? list.map((e) => this._renderEvent(e)) : html`<div class="empty">No tournaments match these filters.</div>`}
@@ -1898,7 +1955,7 @@ export class FortniteActivityCard extends LitElement {
             <span class="match-mode ${timing.soon ? "soon" : ""}">${timing.text}</span>
             <div class="tag-row">
               ${typeLabel ? html`<span class="tag type-tag ${e.tournament_type === "FNCS" ? "fncs" : ""}">${typeLabel}</span>` : nothing}
-              ${e.can_spectate ? html`<span class="tag spectate-tag" title="Epic allows spectating this session inside Fortnite">👁 Spectate in-game</span>` : nothing}
+              ${e.can_spectate ? html`<span class="tag spectate-tag" title="You can watch this inside Fortnite">👁 Spectate in-game</span>` : nothing}
               ${tags.map((t) => html`<span class="tag">${t}</span>`)}
             </div>
           </div>
@@ -1923,7 +1980,7 @@ export class FortniteActivityCard extends LitElement {
         ${e.tournament_type === "FNCS"
           ? html`<div class="detail-line"><span>Official coverage</span>
               <a href="https://www.twitch.tv/fortnite" target="_blank" rel="noopener">Fortnite on Twitch ↗</a></div>
-              <div class="perk-desc">Epic streams major FNCS rounds on its official channels; this schedule does not say which sessions are broadcast.</div>`
+              <div class="perk-desc">Major FNCS rounds are streamed on Fortnite's official channels.</div>`
           : nothing}
 
         <div class="section-title">Sessions</div>

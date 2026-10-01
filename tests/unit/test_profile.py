@@ -297,6 +297,9 @@ def _athena(account=SYNTH_ACCOUNT, profile_id="athena"):
                         "guid-2": {"templateId": "AthenaCharacter:Character_SynthB"},
                         "guid-3": {"templateId": "AthenaPickaxe:Pickaxe_Synth"},
                         "guid-4": {"templateId": "AthenaCharacter:CID_Synth_A"},
+                        "guid-5": {"templateId": "Quest:quest_synth_q01"},
+                        "guid-6": {"templateId": "AthenaSeason:athenaseason42"},
+                        "guid-7": {"templateId": "CosmeticLocker:cosmeticlocker_athena"},
                     },
                 }
             }
@@ -308,7 +311,13 @@ def test_parse_athena_outfits_keeps_only_outfit_ids():
     from custom_components.fortnite_activity.profile import parse_athena_outfits
 
     parsed = parse_athena_outfits(_athena(), SYNTH_ACCOUNT)
-    assert parsed == {"ids": ["character_synthb", "cid_synth_a"], "count": 2, "profile_updated": "2026-10-01T00:00:00Z"}
+    assert parsed["ids"] == ["character_synthb", "cid_synth_a"]
+    assert parsed["count"] == 2
+    assert parsed["cosmetics"] == {
+        "cid_synth_a": "AthenaCharacter",
+        "character_synthb": "AthenaCharacter",
+        "pickaxe_synth": "AthenaPickaxe",
+    }
 
 
 def test_parse_athena_outfits_identity_gate():
@@ -326,3 +335,31 @@ def test_outfit_records():
     assert is_outfit_record(item)
     assert not is_outfit_record({"id": "BID_Synth", "type": "backpack"})
     assert outfit_summary(item)["icon"] == "https://example.invalid/a.png"
+
+
+
+def test_mark_battlepass_owned():
+    from custom_components.fortnite_activity.profile import mark_battlepass_owned
+
+    bp = {
+        "season": 42,
+        "pages": [
+            {"track": "SynthSet", "page": 1, "rewards": [
+                {"name": "Pick", "type": "AthenaPickaxe", "item": "Pickaxe_Synth"},
+                {"name": "Glide", "type": "AthenaGlider", "item": "AthenaGlider:Glider_Synth"},
+                {"name": "Pick 2", "type": "AthenaPickaxe", "item": "Pickaxe_Other"},
+                {"name": "100 V-Bucks", "type": "Currency", "item": "Currency_MtxGiveaway"},
+                {"name": "Emote", "type": "AthenaDance", "item": "EID_Synth"},
+                {"name": "No id", "type": "AthenaPickaxe"},
+            ]},
+        ],
+    }
+    owned = {"pickaxe_synth": "AthenaPickaxe", "glider_synth": "AthenaGlider"}
+    marked = mark_battlepass_owned(bp, owned)
+    status = [r["owned"] for r in marked["pages"][0]["rewards"]]
+    # pickaxe owned, glider owned, other pickaxe locked, currency unknown,
+    # emote type never matched -> unknown, missing id -> unknown
+    assert status == [True, True, False, None, None, None]
+    assert (marked["unlocked"], marked["known"]) == (2, 3)
+    assert mark_battlepass_owned(bp, None) is bp
+    assert "owned" not in bp["pages"][0]["rewards"][0]  # original untouched
