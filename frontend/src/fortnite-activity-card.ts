@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.12.1";
+const CARD_VERSION = "1.13.0";
 
 declare global {
   interface Window {
@@ -237,6 +237,18 @@ export class FortniteActivityCard extends LitElement {
   @state() private _maps: Record<string, { loading?: boolean; data?: any; error?: string }> = {};
   @state() private _mapMode = "br";
   @state() private _mapPoi: string | null = null;
+  @state() private _mapZoom = 1;
+  @state() private _mapPan = { x: 0, y: 0 };
+  @state() private _mapFull = false;
+  @state() private _mapGrid = false;
+  @state() private _mapLabels: "auto" | "all" | "off" = "auto";
+  @state() private _mapShowLandmarks = true;
+  @state() private _mapMenu = false;
+  @state() private _mapQuery = "";
+  @state() private _mapSort: "name" | "grid" = "name";
+  @state() private _mapDrop: string | null = null;
+  @state() private _gesture: any = null;
+  private _pointers = new Map<number, { x: number; y: number }>();
   @state() private _filtersOpen = false;
   private _searchTimer?: number;
   private _renderedView: View | null = null;
@@ -269,6 +281,8 @@ export class FortniteActivityCard extends LitElement {
 
   public connectedCallback(): void {
     super.connectedCallback();
+    document.addEventListener("fullscreenchange", this._onFullscreenChange);
+    document.addEventListener("keydown", this._onKeyDown);
     // Countdowns and live badges tick every 30 s
     this._tick = window.setInterval(() => {
       this._now = Date.now();
@@ -278,6 +292,8 @@ export class FortniteActivityCard extends LitElement {
 
   public disconnectedCallback(): void {
     super.disconnectedCallback();
+    document.removeEventListener("fullscreenchange", this._onFullscreenChange);
+    document.removeEventListener("keydown", this._onKeyDown);
     window.clearInterval(this._tick);
   }
 
@@ -726,7 +742,7 @@ export class FortniteActivityCard extends LitElement {
     if (this._config.custom_background) {
       style += ` --card-bg: url('${this._config.custom_background}') center/cover no-repeat;`;
     }
-    const classes = `theme-${this._config.card_style || "bubble"}${this._config.compact ? " compact" : ""}${this._config.kid_mode ? " kid" : ""}`;
+    const classes = `theme-${this._config.card_style || "bubble"}${this._config.compact ? " compact" : ""}${this._config.kid_mode ? " kid" : ""}${this._mapFull ? " map-full" : ""}`;
 
     return html`
       <ha-card class=${classes} style="${style}">
@@ -1964,68 +1980,410 @@ export class FortniteActivityCard extends LitElement {
   }
 
   /**
-   * POI position as % of the image: world X maps left→right and Y top→bottom across worldBounds
-   * (checked against the Pac-Man landmark drawn on the 42.30 minimap).
+   * POI position as % of the image. Normalise world X/Y across worldBounds, then apply the published
+   * camera rotation about the centre: rotation 0 (current BR island) puts X left→right and Y top→bottom
+   * (checked against the Pac-Man landmark); rotation -90 (OG, Reload maps) puts Y left→right and X
+   * bottom→top (checked against the classic OG layout: Junk Junction NW, Snobby Shores W).
    */
   private _poiPos(map: any, poi: any): { left: number; top: number } | null {
     const b = map?.bounds;
     if (!b || b.maxX === b.minX || b.maxY === b.minY) return null;
-    const left = ((poi.x - b.minX) / (b.maxX - b.minX)) * 100;
-    const top = ((poi.y - b.minY) / (b.maxY - b.minY)) * 100;
+    const cu = (poi.x - b.minX) / (b.maxX - b.minX) - 0.5;
+    const cv = (poi.y - b.minY) / (b.maxY - b.minY) - 0.5;
+    const rad = ((Number(map?.camera?.rotation) || 0) * Math.PI) / 180;
+    const cos = Math.round(Math.cos(rad) * 1e6) / 1e6;
+    const sin = Math.round(Math.sin(rad) * 1e6) / 1e6;
+    const left = (cu * cos - cv * sin + 0.5) * 100;
+    const top = (cu * sin + cv * cos + 0.5) * 100;
     if (left < 0 || left > 100 || top < 0 || top > 100) return null;
     return { left, top };
   }
 
+  /** In-game style grid reference (A–J across, 1–10 down) for a position in %. */
+  private _gridRef(pos: { left: number; top: number }): string {
+    const col = "ABCDEFGHIJ"[Math.min(9, Math.max(0, Math.floor(pos.left / 10)))];
+    return `${col}${Math.min(10, Math.max(1, Math.floor(pos.top / 10) + 1))}`;
+  }
+
+  private _mapModeLabel(mode: string): string {
+    const loaded = this._maps[mode]?.data?.name;
+    if (loaded) return loaded;
+    if (mode === "br") return "Battle Royale";
+    if (mode === "og") return "OG";
+    if (!mode.startsWith("rotating:")) return mode;
+    // Unnamed rotating maps: make the codename readable (forbiddenblastberry -> Forbidden Blastberry)
+    const code = mode.split(":")[1].replace(/(forbidden|blast|berry|ranch|smile|spawn|stake)/g, " $1").replace(/\s+/g, " ").trim();
+    return this._titleCase(code);
+  }
+
+  /** Fetch every map in the list (names + place counts for the picker); each is cached server-side. */
+  private async _loadAllMaps(): Promise<void> {
+    for (const m of this._maps.br?.data?.modes || []) await this._loadMap(m);
+  }
+
+  /** Places of a map with their position and grid reference, named first. */
+  private _mapPlaces(map: any): Array<{ key: string; name: string; type: string; left: number; top: number; grid: string }> {
+    return (map?.pois || [])
+      .map((p: any, i: number) => {
+        const pos = this._poiPos(map, p);
+        return pos
+          ? { key: `${p.name}#${i}`, name: this._titleCase(p.name), type: p.type === "landmark" ? "landmark" : "named", ...pos, grid: this._gridRef(pos) }
+          : null;
+      })
+      .filter(Boolean) as any[];
+  }
+
+  private _titleCase(s: string): string {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/(^|[\s(-])([a-z])/g, (_m, a, b) => a + b.toUpperCase())
+      // Lil'Loot stays capitalised; Reality's does not
+      .replace(/'([a-z])([a-z]{2,})/g, (_m, a, b) => "'" + a.toUpperCase() + b);
+  }
+
+  // -- zoom / pan (translate is stored as a fraction of the frame size) --
+
+  private _clampPan(z: number, x: number, y: number): { x: number; y: number } {
+    const min = 1 - z;
+    return { x: Math.min(0, Math.max(min, x)), y: Math.min(0, Math.max(min, y)) };
+  }
+
+  private _setMapView(z: number, x: number, y: number): void {
+    const zoom = Math.min(8, Math.max(1, z));
+    this._mapZoom = zoom;
+    this._mapPan = this._clampPan(zoom, x, y);
+  }
+
+  /** Zoom by a factor keeping the point (fx, fy) (fractions of the frame) still. */
+  private _zoomAt(factor: number, fx = 0.5, fy = 0.5): void {
+    const z1 = this._mapZoom;
+    const z2 = Math.min(8, Math.max(1, z1 * factor));
+    const { x, y } = this._mapPan;
+    this._setMapView(z2, fx - (fx - x) * (z2 / z1), fy - (fy - y) * (z2 / z1));
+  }
+
+  private _focusPlace(place: { key: string; left: number; top: number }, zoom = Math.max(this._mapZoom, 3)): void {
+    this._mapPoi = place.key;
+    const z = Math.min(8, Math.max(1, zoom));
+    this._setMapView(z, 0.5 - z * (place.left / 100), 0.5 - z * (place.top / 100));
+  }
+
+  private _resetMapView(): void {
+    this._setMapView(1, 0, 0);
+  }
+
+  private _mapFrameEl(): HTMLElement | null {
+    return this.shadowRoot?.querySelector(".mapx-frame") as HTMLElement | null;
+  }
+
+  private _applyLayer(z: number, x: number, y: number): void {
+    const layer = this.shadowRoot?.querySelector(".mapx-layer") as HTMLElement | null;
+    if (layer) {
+      layer.style.transform = `translate(${x * 100}%, ${y * 100}%) scale(${z})`;
+      layer.style.setProperty("--iz", String(1 / z));
+    }
+  }
+
+  private _onMapWheel(e: WheelEvent): void {
+    const frame = this._mapFrameEl();
+    if (!frame) return;
+    e.preventDefault();
+    const r = frame.getBoundingClientRect();
+    this._zoomAt(e.deltaY < 0 ? 1.25 : 0.8, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+  }
+
+  private _onMapPointerDown(e: PointerEvent): void {
+    const frame = this._mapFrameEl();
+    if (this._mapMenu) this._mapMenu = false;
+    if (!frame || (e.target as HTMLElement).closest(".mapx-tools, .mapx-pin, .mapx-info")) return;
+    frame.setPointerCapture(e.pointerId);
+    this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    this._gesture = { z: this._mapZoom, x: this._mapPan.x, y: this._mapPan.y, moved: false, start: new Map(this._pointers) };
+  }
+
+  private _onMapPointerMove(e: PointerEvent): void {
+    const frame = this._mapFrameEl();
+    const g = this._gesture;
+    if (!frame || !g || !this._pointers.has(e.pointerId)) return;
+    this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const r = frame.getBoundingClientRect();
+    const pts = [...this._pointers.values()];
+    const starts = [...g.start.values()];
+    let z = g.z;
+    let x = g.x;
+    let y = g.y;
+    if (pts.length >= 2 && starts.length >= 2) {
+      // Pinch: scale by the change in finger distance around the starting midpoint
+      const d0 = Math.hypot(starts[0].x - starts[1].x, starts[0].y - starts[1].y) || 1;
+      const d1 = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      z = Math.min(8, Math.max(1, g.z * (d1 / d0)));
+      const fx = ((starts[0].x + starts[1].x) / 2 - r.left) / r.width;
+      const fy = ((starts[0].y + starts[1].y) / 2 - r.top) / r.height;
+      x = fx - (fx - g.x) * (z / g.z) + ((pts[0].x + pts[1].x - starts[0].x - starts[1].x) / 2) / r.width;
+      y = fy - (fy - g.y) * (z / g.z) + ((pts[0].y + pts[1].y - starts[0].y - starts[1].y) / 2) / r.height;
+    } else {
+      const s = starts[0] || pts[0];
+      x = g.x + (pts[0].x - s.x) / r.width;
+      y = g.y + (pts[0].y - s.y) / r.height;
+    }
+    if (Math.abs(x - g.x) + Math.abs(y - g.y) > 0.005 || z !== g.z) g.moved = true;
+    const c = this._clampPan(z, x, y);
+    g.last = { z, x: c.x, y: c.y };
+    // Move the layer directly while dragging; commit to state on release
+    this._applyLayer(z, c.x, c.y);
+  }
+
+  private _onMapPointerUp(e: PointerEvent): void {
+    const g = this._gesture;
+    this._pointers.delete(e.pointerId);
+    if (!g) return;
+    if (this._pointers.size === 0) {
+      if (g.last) this._setMapView(g.last.z, g.last.x, g.last.y);
+      this._gesture = null;
+    } else {
+      // One finger lifted mid-pinch: continue as a pan from here
+      this._gesture = { ...(g.last || g), moved: g.moved, start: new Map(this._pointers) } as any;
+    }
+  }
+
+  private _onMapDblClick(e: MouseEvent): void {
+    const frame = this._mapFrameEl();
+    if (!frame || (e.target as HTMLElement).closest(".mapx-tools, .mapx-info")) return;
+    const r = frame.getBoundingClientRect();
+    this._zoomAt(2, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+  }
+
+  private async _toggleMapFull(): Promise<void> {
+    const wrap = this.shadowRoot?.querySelector(".mapx") as HTMLElement | null;
+    const doc: any = document;
+    if (this._mapFull) {
+      if (doc.fullscreenElement) await doc.exitFullscreen().catch(() => undefined);
+      this._mapFull = false;
+      return;
+    }
+    this._mapFull = true;
+    try {
+      await (wrap as any)?.requestFullscreen?.({ navigationUI: "hide" });
+    } catch {
+      // Not allowed here (e.g. some app web views): the CSS overlay still fills the window
+    }
+  }
+
+  private _onFullscreenChange = (): void => {
+    if (!document.fullscreenElement && this._mapFull) this._mapFull = false;
+  };
+
+  private _onKeyDown = (e: KeyboardEvent): void => {
+    if (e.key === "Escape" && this._mapFull) this._toggleMapFull();
+  };
+
+  private _randomDrop(places: Array<any>): void {
+    const named = places.filter((p) => p.type === "named");
+    if (!named.length) return;
+    let pick = named[Math.floor(Math.random() * named.length)];
+    if (named.length > 1 && pick.key === this._mapPoi) pick = named[(named.indexOf(pick) + 1) % named.length];
+    this._mapDrop = pick.key;
+    this._focusPlace(pick, 2.5);
+  }
+
+  /** Small static map (match details): image only. */
   private _renderMapImage(map: any, compact = false) {
-    const named = (map.pois || []).filter((p: any) => /poi|landmark|named/i.test(String(p.type || "")) || !p.type);
     return html`
       <div class="map-frame ${compact ? "compact" : ""}">
         <img src=${map.image} alt=${map.name || "Map"} loading="lazy" @error=${hideBroken} />
-        ${compact
-          ? nothing
-          : named.map((p: any) => {
-              const pos = this._poiPos(map, p);
-              return pos
-                ? html`<span class="map-poi ${p.type === "landmark" ? "landmark" : ""} ${this._mapPoi === p.name ? "on" : ""}" style="left:${pos.left}%;top:${pos.top}%"
-                    title=${p.name} @click=${() => (this._mapPoi = this._mapPoi === p.name ? null : p.name)}>
-                    <i></i><b>${p.name}</b></span>`
-                : nothing;
-            })}
+      </div>
+    `;
+  }
+
+  private _renderMapPicker() {
+    const modes: string[] = this._maps.br?.data?.modes || ["br"];
+    const current = this._mapMode;
+    const groups: Array<[string, string, string[]]> = [
+      ["Battle Royale", "mdi:island", modes.filter((m) => m === "br")],
+      ["OG", "mdi:gamepad-classic", modes.filter((m) => m === "og")],
+      ["Reload & rotating", "mdi:autorenew", modes.filter((m) => m.startsWith("rotating:"))],
+    ];
+    const icon = current === "br" ? "mdi:island" : current === "og" ? "mdi:gamepad-classic" : "mdi:autorenew";
+    const places = (m: string) => {
+      const d = this._maps[m];
+      if (d?.loading) return "loading…";
+      const n = (d?.data?.pois || []).filter((p: any) => p.type !== "landmark").length;
+      return d?.data ? `${n} places` : "";
+    };
+    return html`
+      <div class="mapx-picker">
+        <button class="mapx-current" aria-haspopup="listbox" aria-expanded=${this._mapMenu ? "true" : "false"}
+          @click=${() => { this._mapMenu = !this._mapMenu; if (this._mapMenu) this._loadAllMaps(); }}>
+          <ha-icon icon=${icon}></ha-icon>
+          <span><b>${this._mapModeLabel(current)}</b><small>${modes.length > 1 ? `${modes.length} maps · tap to change` : "Map"}</small></span>
+          <ha-icon icon=${this._mapMenu ? "mdi:chevron-up" : "mdi:chevron-down"}></ha-icon>
+        </button>
+        ${this._mapMenu
+          ? html`<div class="mapx-menu" role="listbox">
+              ${groups.filter(([, , list]) => list.length).map(([label, gicon, list]) => html`
+                <div class="mapx-group"><ha-icon icon=${gicon}></ha-icon>${label}</div>
+                ${list.map((m) => html`
+                  <button class="mapx-option ${m === current ? "on" : ""}" role="option" aria-selected=${m === current ? "true" : "false"}
+                    @click=${() => {
+                      this._mapMode = m;
+                      this._mapMenu = false;
+                      this._mapPoi = null;
+                      this._mapDrop = null;
+                      this._resetMapView();
+                      this._loadMap(m);
+                    }}>
+                    <span>${this._mapModeLabel(m)}</span><small>${places(m)}</small>
+                    ${m === current ? html`<ha-icon icon="mdi:check"></ha-icon>` : nothing}
+                  </button>`)}`)}
+            </div>`
+          : nothing}
       </div>
     `;
   }
 
   private _renderMapView() {
-    const main = this._maps.br?.data;
-    const modes: string[] = main?.modes || [];
     const st = this._maps[this._mapMode] || {};
-    if (st.loading || st.data === undefined) {
-      return html`<div class="empty">Loading map…</div>`;
-    }
-    if (st.error) return html`<div class="empty">${st.error}</div>`;
+    if (st.loading || (st.data === undefined && !st.error)) return html`${this._renderMapPicker()}<div class="empty">Loading map…</div>`;
+    if (st.error) return html`${this._renderMapPicker()}<div class="empty">${st.error}</div>`;
     const map = st.data;
-    if (!map) return html`<div class="empty">The map will show here soon.</div>`;
-    const modeLabel = (m: string) =>
-      m === "br" ? "Battle Royale" : m === "og" ? "OG" : m.startsWith("rotating:") ? this._maps[m]?.data?.name || m.split(":")[1].replace(/^\w/, (c) => c.toUpperCase()) : m;
-    const named = (map.pois || []).filter((p: any) => /poi|landmark|named/i.test(String(p.type || "")) || !p.type);
+    if (!map) return html`${this._renderMapPicker()}<div class="empty">This map will show here soon.</div>`;
+
+    const places = this._mapPlaces(map);
+    const named = places.filter((p) => p.type === "named");
+    const landmarks = places.filter((p) => p.type === "landmark");
+    const z = this._mapZoom;
+    const { x, y } = this._mapPan;
+    const wide = this._mapFull || (this.offsetWidth || 0) >= 560;
+    const showNamed = this._mapLabels === "all" || (this._mapLabels === "auto" && (wide || z >= 1.6));
+    const showLandmarkLabels = this._mapLabels === "all" ? z >= 1.6 : this._mapLabels === "auto" && z >= 3;
+    const selected = places.find((p) => p.key === this._mapPoi) || null;
+    const sameName = selected ? places.filter((p) => p.name === selected.name) : [];
+
+    // Places panel: search + type filter; landmarks grouped by name
+    const q = this._mapQuery.trim().toLowerCase();
+    const match = (p: any) => !q || p.name.toLowerCase().includes(q) || p.grid.toLowerCase() === q;
+    const sortFn = (a: any, b: any) => (this._mapSort === "grid" ? a.grid.localeCompare(b.grid, undefined, { numeric: true }) || a.name.localeCompare(b.name) : a.name.localeCompare(b.name));
+    const namedList = named.filter(match).sort(sortFn);
+    const landmarkGroups = [...landmarks.filter(match).reduce((m, p) => m.set(p.name, [...(m.get(p.name) || []), p]), new Map<string, any[]>())]
+      .sort((a, b) => (this._mapSort === "grid" ? a[1][0].grid.localeCompare(b[1][0].grid, undefined, { numeric: true }) : a[0].localeCompare(b[0])));
+
+    const tool = (icon: string, title: string, onClick: () => void, on = false, disabled = false) => html`
+      <button class="mapx-tool ${on ? "on" : ""}" title=${title} aria-label=${title} ?disabled=${disabled} @click=${onClick}><ha-icon icon=${icon}></ha-icon></button>`;
+    const labelIcon = this._mapLabels === "off" ? "mdi:label-off-outline" : this._mapLabels === "all" ? "mdi:label-multiple" : "mdi:label-outline";
+
     return html`
-      ${modes.length > 1
-        ? html`<div class="mode-tabs">
-            ${modes.map((m) => html`<button class="mode-tab ${this._mapMode === m ? "active" : ""}" @click=${() => { this._mapMode = m; this._loadMap(m); }}>${modeLabel(m)}</button>`)}
-          </div>`
-        : nothing}
-      <div class="map-head">
-        <b>${map.name || modeLabel(this._mapMode)}</b>
-        <span class="muted">${map.chapter && map.season ? `Chapter ${map.chapter} · Season ${map.season}` : ""}${map.patch ? ` · ${map.patch}` : ""}</span>
+      <div class="mapx ${this._mapFull ? "full" : ""}">
+        <div class="mapx-main">
+          <div class="mapx-top">
+            ${this._renderMapPicker()}
+            <div class="mapx-meta">
+              ${map.chapter && map.season ? html`<span>Chapter ${map.chapter} · Season ${map.season}</span>` : nothing}
+              ${map.patch ? html`<span>Update ${map.patch}</span>` : nothing}
+              <span>${named.length} places${landmarks.length ? ` · ${landmarks.length} landmarks` : ""}</span>
+            </div>
+          </div>
+
+          <div class="mapx-frame ${this._gesture ? "dragging" : ""}"
+            @wheel=${(e: WheelEvent) => this._onMapWheel(e)}
+            @pointerdown=${(e: PointerEvent) => this._onMapPointerDown(e)}
+            @pointermove=${(e: PointerEvent) => this._onMapPointerMove(e)}
+            @pointerup=${(e: PointerEvent) => this._onMapPointerUp(e)}
+            @pointercancel=${(e: PointerEvent) => this._onMapPointerUp(e)}
+            @dblclick=${(e: MouseEvent) => this._onMapDblClick(e)}>
+            <div class="mapx-layer" style="transform: translate(${x * 100}%, ${y * 100}%) scale(${z}); --iz:${1 / z}">
+              <img src=${map.image} alt=${map.name || "Map"} draggable="false" @error=${hideBroken} />
+              ${this._mapGrid
+                ? html`<div class="mapx-grid">
+                    ${[...Array(10).keys()].map((i) => html`<span class="gcol" style="left:${i * 10 + 5}%">${"ABCDEFGHIJ"[i]}</span>
+                      <span class="grow" style="top:${i * 10 + 5}%">${i + 1}</span>`)}
+                  </div>`
+                : nothing}
+              ${places
+                .filter((p) => p.type === "named" || this._mapShowLandmarks || p.key === this._mapPoi)
+                .map((p) => {
+                  const on = p.key === this._mapPoi;
+                  const label = on || (p.type === "named" ? showNamed : showLandmarkLabels);
+                  return html`
+                    <button class="mapx-pin ${p.type} ${on ? "on" : ""} ${p.key === this._mapDrop ? "drop" : ""}"
+                      style="left:${p.left}%;top:${p.top}%" title="${p.name} · ${p.grid}" aria-label="${p.name}, grid ${p.grid}"
+                      @click=${(e: Event) => { e.stopPropagation(); this._mapPoi = on ? null : p.key; }}>
+                      <i></i>${label ? html`<b>${p.key === this._mapDrop ? "🎲 " : ""}${p.name}</b>` : nothing}
+                    </button>`;
+                })}
+            </div>
+
+            <div class="mapx-tools">
+              ${tool("mdi:plus", "Zoom in", () => this._zoomAt(1.6), false, z >= 8)}
+              ${tool("mdi:minus", "Zoom out", () => this._zoomAt(1 / 1.6), false, z <= 1)}
+              ${tool("mdi:fit-to-screen-outline", "Show whole map", () => this._resetMapView(), false, z === 1)}
+              ${tool(this._mapFull ? "mdi:fullscreen-exit" : "mdi:fullscreen", this._mapFull ? "Exit full screen" : "Full screen", () => this._toggleMapFull())}
+              <span class="mapx-sep"></span>
+              ${tool("mdi:grid", "Grid", () => (this._mapGrid = !this._mapGrid), this._mapGrid)}
+              ${tool(labelIcon, `Labels: ${this._mapLabels === "auto" ? "automatic" : this._mapLabels}`, () => {
+                this._mapLabels = this._mapLabels === "auto" ? "all" : this._mapLabels === "all" ? "off" : "auto";
+              }, this._mapLabels !== "auto")}
+              ${landmarks.length ? tool("mdi:map-marker-star-outline", "Landmarks", () => (this._mapShowLandmarks = !this._mapShowLandmarks), this._mapShowLandmarks) : nothing}
+              ${named.length ? tool("mdi:dice-5-outline", "Pick a drop spot for me", () => this._randomDrop(places)) : nothing}
+            </div>
+
+            ${z > 1 ? html`<span class="mapx-zoom">${z.toFixed(1)}×</span>` : nothing}
+
+            ${selected
+              ? html`<div class="mapx-info">
+                  <span class="mapx-grid-badge">${selected.grid}</span>
+                  <div>
+                    <b>${selected.key === this._mapDrop ? "🎲 Drop here: " : ""}${selected.name}</b>
+                    <small>${selected.type === "landmark" ? "Landmark" : "Named place"}${sameName.length > 1 ? ` · ${sameName.indexOf(selected) + 1} of ${sameName.length}` : ""}</small>
+                  </div>
+                  ${sameName.length > 1
+                    ? html`<button class="mapx-tool" title="Next one" @click=${() => this._focusPlace(sameName[(sameName.indexOf(selected) + 1) % sameName.length])}><ha-icon icon="mdi:chevron-right"></ha-icon></button>`
+                    : nothing}
+                  <button class="mapx-tool" title="Zoom to" @click=${() => this._focusPlace(selected)}><ha-icon icon="mdi:crosshairs-gps"></ha-icon></button>
+                  <button class="mapx-tool" title="Close" @click=${() => { this._mapPoi = null; this._mapDrop = null; }}><ha-icon icon="mdi:close"></ha-icon></button>
+                </div>`
+              : nothing}
+          </div>
+        </div>
+
+        <div class="mapx-side">
+          <div class="mapx-search">
+            <ha-icon icon="mdi:magnify"></ha-icon>
+            <input type="search" placeholder="Find a place or grid (e.g. D4)" .value=${this._mapQuery}
+              @input=${(e: any) => (this._mapQuery = e.target.value)} />
+          </div>
+          <div class="mode-tabs">
+            <button class="mode-tab ${this._mapSort === "name" ? "active" : ""}" @click=${() => (this._mapSort = "name")}>A–Z</button>
+            <button class="mode-tab ${this._mapSort === "grid" ? "active" : ""}" @click=${() => (this._mapSort = "grid")}>By grid</button>
+          </div>
+
+          ${namedList.length
+            ? html`<div class="section-title">Named places (${namedList.length})</div>
+                <div class="mapx-list">
+                  ${namedList.map((p) => html`
+                    <button class="mapx-row ${p.key === this._mapPoi ? "on" : ""}" @click=${() => this._focusPlace(p)}>
+                      <span class="mapx-grid-badge">${p.grid}</span><span>${p.name}</span>
+                    </button>`)}
+                </div>`
+            : nothing}
+          ${landmarkGroups.length
+            ? html`<div class="section-title">Landmarks (${landmarks.length})</div>
+                <div class="mapx-list">
+                  ${landmarkGroups.map(([name, list]) => {
+                    const on = list.some((p) => p.key === this._mapPoi);
+                    return html`
+                      <button class="mapx-row landmark ${on ? "on" : ""}" @click=${() => {
+                        if (!this._mapShowLandmarks) this._mapShowLandmarks = true;
+                        const i = list.findIndex((p) => p.key === this._mapPoi);
+                        this._focusPlace(list[(i + 1) % list.length]);
+                      }}>
+                        <span class="mapx-grid-badge">${list.length > 1 ? `×${list.length}` : list[0].grid}</span><span>${name}</span>
+                      </button>`;
+                  })}
+                </div>`
+            : nothing}
+          ${!namedList.length && !landmarkGroups.length ? html`<div class="empty">No places match.</div>` : nothing}
+        </div>
       </div>
-      ${this._renderMapImage(map)}
-      ${named.length
-        ? html`<div class="section-title">Places (${named.length})</div>
-            <div class="poi-list">
-              ${[...named].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((p: any) => html`
-                <button class="tag poi-chip ${this._mapPoi === p.name ? "on" : ""}" @click=${() => (this._mapPoi = this._mapPoi === p.name ? null : p.name)}>${p.name}</button>`)}
-            </div>`
-        : nothing}
     `;
   }
 

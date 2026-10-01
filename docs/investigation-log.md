@@ -992,3 +992,9 @@ Following the user's `/plan` request and interactive alignment interview, design
 - Map pins: the correct projection is left = (x − minX)/width and top = (y − minY)/height. This was checked against the Pac-Man landmark drawn on the 42.30 minimap (POI u=0.40, v=0.25 ↔ icon at 40 %/24 %).
 - Fixed render loops that froze the browser: the News view called the tournament loader on every update, and a null tournament list or failed map retried endlessly. Loaders are now one-shot.
 - The Shop renders 36 offers per page, with All / Outfits / Emotes / Pickaxes / Bundles filters.
+
+### 2026-10-01 v1.13.0 Map redesign
+
+- Live check of all 14 map modes. Rotating maps carry display names: Venture, Stranger Things, Slurp Rush, Mini-Venture, The Elite Stronghold, Surf City, Oasis, Nitemare Island, Squid Grounds. Three have no name (codename shown instead), two of which list no places.
+- **Camera rotation matters:** the BR island reports `camera.rotation = 0`; OG and every Reload/rotating map report `-90`. Pins rotate the normalised world position about the centre by the published rotation. This was checked on BR (Pac-Man landmark), OG (Junk Junction NW, Snobby Shores W) and Venture (Tilted Towers on the town, Lil' Loot Lake on the lake).
+- Map view: grouped dropdown picker (place counts loaded lazily); pan by drag; zoom by wheel, pinch, double-tap and ± buttons (1–8×); full screen via the Fullscreen API with a CSS overlay fallback and Esc to exit; optional A–J/1–10 grid; labels Auto/All/Off with counter-scaled pills; landmark toggle; 🎲 random drop spot; a selected-place bar (grid ref, cycle through repeated landmarks, zoom to); a places panel with search (name or grid ref), A–Z / grid sort and landmarks grouped by name with counts. Wide cards put the panel beside the map.
