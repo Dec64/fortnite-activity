@@ -41,6 +41,8 @@ from .profile import (
     parse_athena_outfits,
     parse_shop,
     parse_news,
+    news_fetched_at,
+    shop_history_update,
     parse_map,
     map_mode_for_playlist,
     progress_snapshot,
@@ -132,6 +134,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Public shop / news / map catalogues
         self.shop: dict[str, Any] | None = None
         self.news: list[dict[str, Any]] | None = None
+        self.news_fetched_at: str | None = None
+        self.shop_gaps: dict[str, int | None] = {}
         self.maps: dict[str, dict[str, Any]] = {}
         # Match progress: last snapshot per player and a callback that attaches events to matches
         self._progress: dict[str, dict[str, Any]] = {}
@@ -604,11 +608,25 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ok, raw = await self._guarded("shop", self.api_client.get_shop)
             if ok:
                 self.shop = parse_shop(raw) or self.shop
+                await self._record_shop_history(now)
             self._fetched_at["shop"] = now
-        if self._stale("news", timedelta(hours=3), now):
-            ok, raw = await self._guarded("news", lambda: self.api_client.get_news("br"))
-            if ok:
-                self.news = parse_news(raw) or self.news
+        if self._stale("news", timedelta(hours=1), now):
+            # Battle Royale first, then every other mode's posts (deduplicated by title)
+            posts: list[dict[str, Any]] = []
+            stamps: list[str] = []
+            for mode in ("br", None):
+                ok, raw = await self._guarded("news", lambda m=mode: self.api_client.get_news(m))
+                if ok:
+                    for post in parse_news(raw) or []:
+                        if all(p["title"] != post["title"] for p in posts):
+                            posts.append(post)
+                    stamp = news_fetched_at(raw)
+                    if stamp:
+                        stamps.append(stamp)
+            if posts:
+                self.news = posts
+            if stamps:
+                self.news_fetched_at = max(stamps)
             self._fetched_at["news"] = now
         if self._stale("map:br", timedelta(hours=CATALOGUE_REFRESH_HOURS), now):
             await self.async_get_map("br", force=True)
@@ -635,6 +653,20 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return None
         return await self.async_get_map(mode)
 
+    async def _record_shop_history(self, now: datetime) -> None:
+        """Remember which items were in the shop each day, to show "back after N days" later."""
+        if not self.shop or not self.storage:
+            return
+        day = (self.shop.get("expiration") or now.isoformat())[:10]
+        try:
+            # The shop expires at the end of its day; label it with the day it is live
+            day = (datetime.fromisoformat(day) - timedelta(days=1)).date().isoformat() if self.shop.get("expiration") else day
+        except ValueError:
+            day = now.date().isoformat()
+        ids = sorted({i["id"] for s in self.shop["sections"] for o in s["offers"] for i in o["items"]})
+        self.shop_gaps = shop_history_update(self.storage.shop_seen(), ids, day)
+        await self.storage.async_save()
+
     def shop_for(self, player_id: str | None) -> dict[str, Any] | None:
         """Today's shop with owned / wishlisted flags for the player."""
         if not self.shop:
@@ -645,10 +677,14 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for section in self.shop["sections"]:
             offers = []
             for offer in section["offers"]:
-                items = [{**i, "owned": i["id"] in owned, "wishlisted": i["id"] in wish} for i in offer["items"]]
+                items = [
+                    {**i, "owned": i["id"] in owned, "wishlisted": i["id"] in wish, "back_after_days": self.shop_gaps.get(i["id"])}
+                    for i in offer["items"]
+                ]
                 offers.append({**offer, "items": items, "owned": all(i["owned"] for i in items), "wishlisted": any(i["wishlisted"] for i in items)})
             sections.append({**section, "offers": offers})
-        return {**self.shop, "sections": sections}
+        main = self.maps.get("br") or {}
+        return {**self.shop, "sections": sections, "current": {"chapter": main.get("chapter"), "season": main.get("season")}}
 
     # ---- wishlist / favourites / new outfits -----------------------------------------
 

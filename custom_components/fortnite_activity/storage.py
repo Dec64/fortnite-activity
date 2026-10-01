@@ -27,7 +27,7 @@ class FortniteStorage:
         self._store = Store(hass, STORAGE_VERSION, STORAGE_KEY) if Store else None
         self._data: dict[str, Any] = {
             "history": {}, "active": {}, "avatars": {}, "wishlist": {}, "favorites": {}, "first_seen": {}, "notified": [],
-            "sprite_catalogues": {},
+            "sprite_catalogues": {}, "shop_seen": {},
         }
 
     async def async_load(self) -> dict[str, Any]:
@@ -47,6 +47,7 @@ class FortniteStorage:
             data.setdefault("first_seen", {})
             data.setdefault("notified", [])
             data.setdefault("sprite_catalogues", {})
+            data.setdefault("shop_seen", {})
             self._data = data
             return self._data
         except Exception as err:
@@ -124,3 +125,7 @@ class FortniteStorage:
 
     def set_sprite_catalogue(self, version: str, ids: dict[str, list[str]]) -> None:
         self._data["sprite_catalogues"][version] = ids
+
+    def shop_seen(self) -> dict[str, dict[str, str]]:
+        """Item id -> first / last day the integration saw it in the Item Shop (mutable)."""
+        return self._data["shop_seen"]

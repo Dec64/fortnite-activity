@@ -437,3 +437,35 @@ def test_sprite_release_tracking():
     # The earliest scanned version has nothing to compare with: nothing is marked new
     assert annotate_new_sprites({**current, "version": "42.10"}, intro, "42.10")["families"] == current["families"]
 
+
+def test_tidy_variant_labels():
+    from custom_components.fortnite_activity.profile import tidy_variant_labels
+
+    def fam(*labels):
+        return {"variants": [{"label": l} for l in labels]}
+
+    families = [fam("Base", "Cheat Master", "Trick or Treat") for _ in range(3)]
+    families.append(fam("Base", "Cheatmaster", "Trick or Treat Bushranger"))
+    tidy_variant_labels(families)
+    assert [v["label"] for v in families[-1]["variants"]] == ["Base", "Cheat Master", "Trick or Treat"]
+
+
+def test_shop_history_update():
+    from custom_components.fortnite_activity.profile import shop_history_update
+
+    seen: dict = {}
+    assert shop_history_update(seen, ["a"], "2026-09-01") == {"a": None}
+    assert shop_history_update(seen, ["a"], "2026-09-02") == {"a": 1}
+    # Away for a while, then back: days since last seen; repeat reads the same day keep the gap
+    assert shop_history_update(seen, ["a", "b"], "2026-10-01") == {"a": 29, "b": None}
+    assert shop_history_update(seen, ["a"], "2026-10-01") == {"a": 29}
+
+
+def test_parse_news_merges_modes_and_reads_fetched_at():
+    from custom_components.fortnite_activity.profile import parse_news, news_fetched_at
+
+    raw = {"br": {"fetchedAt": "2026-10-01T10:00:00Z", "motds": [{"title": "A"}, {"title": "B"}]},
+           "creative": {"fetchedAt": "2026-10-01T11:00:00Z", "motds": [{"title": "C"}, {"title": "A"}]}}
+    assert [n["title"] for n in parse_news(raw)] == ["A", "B", "C"]
+    assert news_fetched_at(raw) == "2026-10-01T11:00:00Z"
+

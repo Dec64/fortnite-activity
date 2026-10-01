@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.14.0";
+const CARD_VERSION = "1.15.0";
 
 declare global {
   interface Window {
@@ -169,6 +169,9 @@ interface EventFilters {
   platform: string[];
 }
 
+// Fade an image in once decoded (paired with the .fi / .ld classes in the styles)
+const imgLoaded = (ev: Event) => (ev.target as HTMLElement).classList.add("ld");
+
 const hideBroken = (ev: Event) => {
   (ev.target as HTMLElement).hidden = true;
 };
@@ -228,6 +231,7 @@ export class FortniteActivityCard extends LitElement {
   @state() private _shopTab: "today" | "wishlist" = "today";
   @state() private _shopQuery = "";
   @state() private _shopLimit = 36;
+  @state() private _shopSection = 0;
   @state() private _shopKind = "all";
   @state() private _searchQuery = "";
   @state() private _searchType = "outfit";
@@ -238,7 +242,20 @@ export class FortniteActivityCard extends LitElement {
   @state() private _mapMode = "br";
   @state() private _mapPoi: string | null = null;
   @state() private _mapZoom = 1;
-  @state() private _mapPan = { x: 0, y: 0 };
+  @state() private _mapCenter = { x: 0.5, y: 0.5 };
+  @state() private _mapBox = { w: 0, h: 0 };
+  @state() private _mapTool: "pan" | "draw" | "marker" | "erase" = "pan";
+  @state() private _mapColor = "#F43F5E";
+  @state() private _mapIcon = "📍";
+  @state() private _mapDrawing: { color: string; points: number[][] } | null = null;
+  @state() private _notes: Record<string, { marks: any[]; lines: any[] }> = {};
+  @state() private _undo: Array<{ key: string; state: { marks: any[]; lines: any[] } }> = [];
+  @state() private _redo: Array<{ key: string; state: { marks: any[]; lines: any[] } }> = [];
+  private _mapAnim = 0;
+  private _mapRaf = 0;
+  private _mapPending: { z: number; cx: number; cy: number } | null = null;
+  private _mapResize?: ResizeObserver;
+  private _mapObserved: HTMLElement | null = null;
   @state() private _mapFull = false;
   @state() private _mapGrid = false;
   @state() private _mapLabels: "auto" | "all" | "off" = "auto";
@@ -354,6 +371,8 @@ export class FortniteActivityCard extends LitElement {
     if (changed.has("_config") || firstHass) {
       this._scheduleAvatar();
     }
+    const sheet = this.shadowRoot?.querySelector("dialog.sp-sheet") as HTMLDialogElement | null;
+    if (sheet && !sheet.open) sheet.showModal();
     // A section can open without a tab click (default section / single-section card)
     if (this._renderedView === "pass") {
       this._loadPass();
@@ -363,12 +382,14 @@ export class FortniteActivityCard extends LitElement {
     if (this._renderedView === "shop") this._loadShop();
     if (this._renderedView === "news") {
       this._loadNews();
+      this._loadShop();
       // Only kick off the first load; _loadEvents itself changes state, so never call it every update
       if (this._events.list === undefined && !this._events.loading && !this._events.error) this._loadEvents();
     }
     if (this._renderedView === "map") {
       this._loadMap("br");
       this._loadMap(this._mapMode);
+      this._observeMapFrame();
     }
     if (this._renderedView === "trends") this._loadTrends();
   }
@@ -796,7 +817,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="fa-header">
         <div class="player-avatar ${avatarImg ? "has-image" : ""}">
-          ${avatarImg ? html`<img src=${avatarImg} alt=${this._avatarName(profileAttrs)} @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
+          ${avatarImg ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${avatarImg} alt=${this._avatarName(profileAttrs)} @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
         </div>
         <div class="player-info">
           <div class="name-row">
@@ -821,10 +842,13 @@ export class FortniteActivityCard extends LitElement {
               : nothing}
           </div>
         </div>
-        <div class="status-pill ${isPlaying ? "live" : "idle"}">
-          ${isPlaying
-            ? html`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(sessionAttrs.duration_minutes || 0)}</span>`
-            : html`<span>IDLE</span>`}
+        <div class="header-right">
+          <div class="status-pill ${isPlaying ? "live" : "idle"}">
+            ${isPlaying
+              ? html`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(sessionAttrs.duration_minutes || 0)}</span>`
+              : html`<span>IDLE</span>`}
+          </div>
+          ${this._renderHeaderActions(isPlaying)}
         </div>
       </div>
       ${season?.progress_pct !== undefined && !this._config.compact
@@ -889,7 +913,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="fa-header slim">
         <div class="player-avatar ${avatarImg ? "has-image" : ""}">
-          ${avatarImg ? html`<img src=${avatarImg} alt="" @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
+          ${avatarImg ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${avatarImg} alt="" @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
         </div>
         <div class="player-info">
           <div class="name-row">
@@ -897,21 +921,38 @@ export class FortniteActivityCard extends LitElement {
             ${showVbucks ? html`<span class="vbucks-chip">Ⓥ ${this._num(vbucks.state)}</span>` : nothing}
           </div>
         </div>
-        <div class="status-pill ${isPlaying ? "live" : "idle"}">
-          ${isPlaying
-            ? html`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(sessionAttrs.duration_minutes || 0)}</span>`
-            : html`<span>IDLE</span>`}
+        <div class="header-right">
+          <div class="status-pill ${isPlaying ? "live" : "idle"}">
+            ${isPlaying
+              ? html`<div class="pulse-dot"></div><span>LIVE • ${this._formatDuration(sessionAttrs.duration_minutes || 0)}</span>`
+              : html`<span>IDLE</span>`}
+          </div>
+          ${this._renderHeaderActions(isPlaying)}
         </div>
       </div>
     `;
   }
 
-  private _renderButtons(view: View, isPlaying: boolean, sections: View[]) {
-    const showTabs = sections.length > 1;
+  /** Start / end session and refresh: small icon buttons beside the status pill. */
+  private _renderHeaderActions(isPlaying: boolean) {
     // Legacy events_only cards never showed the session/refresh actions
     const legacyEventsOnly = !this._config.sections?.length && this._config.layout === "events_only";
-    const showActions = this._config.show_sub_buttons !== false && !legacyEventsOnly;
-    if (!showTabs && !showActions) return nothing;
+    if (this._config.show_sub_buttons === false || legacyEventsOnly) return nothing;
+    const busy = this._loadingAction;
+    return html`<div class="header-actions">
+      ${isPlaying
+        ? html`<button class="hdr-btn stop" title="End session" aria-label="End session" ?disabled=${busy === "end_session"} @click=${() => this._callService("end_session")}>
+            <ha-icon icon="mdi:stop"></ha-icon></button>`
+        : html`<button class="hdr-btn" title="Start session" aria-label="Start session" ?disabled=${busy === "start_session"} @click=${() => this._callService("start_session")}>
+            <ha-icon icon="mdi:play"></ha-icon></button>`}
+      <button class="hdr-btn" title="Refresh" aria-label="Refresh" ?disabled=${busy === "refresh_player"} @click=${() => this._callService("refresh_player")}>
+        <ha-icon icon="mdi:refresh" class=${busy === "refresh_player" ? "spin" : ""}></ha-icon></button>
+    </div>`;
+  }
+
+  private _renderButtons(view: View, isPlaying: boolean, sections: View[]) {
+    const showTabs = sections.length > 1;
+    if (!showTabs) return nothing;
     const liveCount = this._eventsEnabled ? this._liveEventCount() : 0;
     const inShopCount = Number(this._findEntity("sensor", "wishlist")?.state) || 0;
     const tabDefs: Record<View, [string, string, number?]> = {
@@ -935,21 +976,6 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="sub-button-row">
         ${showTabs ? sections.map((s) => tab(s, tabDefs[s][0], tabDefs[s][1], tabDefs[s][2] || 0)) : nothing}
-        ${!showActions ? nothing : isPlaying
-          ? html`<button class="bubble-sub-button" title="End Session" @click=${() => this._callService("end_session")} ?disabled=${this._loadingAction === "end_session"}>
-              <ha-icon icon="mdi:stop-circle-outline"></ha-icon>
-              <span class="btn-label">${this._loadingAction === "end_session" ? "Stopping..." : "End Session"}</span>
-            </button>`
-          : html`<button class="bubble-sub-button" title="Start Session" @click=${() => this._callService("start_session")} ?disabled=${this._loadingAction === "start_session"}>
-              <ha-icon icon="mdi:play-circle-outline"></ha-icon>
-              <span class="btn-label">${this._loadingAction === "start_session" ? "Starting..." : "Start Session"}</span>
-            </button>`}
-        ${showActions
-          ? html`<button class="bubble-sub-button" title="Refresh" @click=${() => this._callService("refresh_player")} ?disabled=${this._loadingAction === "refresh_player"}>
-              <ha-icon icon=${this._loadingAction === "refresh_player" ? "mdi:loading" : "mdi:refresh"} class=${this._loadingAction === "refresh_player" ? "spin" : ""}></ha-icon>
-              <span class="btn-label">${this._loadingAction === "refresh_player" ? "Refreshing..." : "Refresh"}</span>
-            </button>`
-          : nothing}
       </div>
     `;
   }
@@ -1062,7 +1088,7 @@ export class FortniteActivityCard extends LitElement {
 
   /** One thing that happened in a match: quests done, level up, sprite found / levelled / mastered. */
   private _progressChip(p: any) {
-    const icon = p.icon ? html`<img src=${p.icon} alt="" @error=${hideBroken} />` : nothing;
+    const icon = p.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${p.icon} alt="" @error=${hideBroken} />` : nothing;
     switch (p.type) {
       case "quests":
         return html`<span class="pchip quest">📜 ${p.count} quest${p.count > 1 ? "s" : ""} done</span>`;
@@ -1101,7 +1127,7 @@ export class FortniteActivityCard extends LitElement {
           }
         }}>
         <div class="match-row">
-          ${art ? html`<img class="match-art" src=${art} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+          ${art ? html`<img @load=${imgLoaded} decoding="async" class="fi match-art" src=${art} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
           <div class="match-left">
             <div class="match-headline">
               <span class="match-num">#${m.match_number}${(m.match_count || 1) > 1 ? ` ×${m.match_count}` : ""}</span>
@@ -1127,7 +1153,7 @@ export class FortniteActivityCard extends LitElement {
                     ${this._renderMapImage(matchMap, true)}
                     <span>🗺️ ${matchMap.name || "Battle Royale island"}</span>
                   </div>`
-                : art ? html`<img class="detail-art" src=${art} alt="" @error=${hideBroken} />` : nothing}
+                : art ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi detail-art" src=${art} alt="" @error=${hideBroken} />` : nothing}
               ${info?.description ? html`<p class="detail-desc">${info.description}</p>` : nothing}
               <div class="detail-grid">
                 ${detail("Finished", this._formatWhen(m.timestamp))}
@@ -1486,7 +1512,7 @@ export class FortniteActivityCard extends LitElement {
             <button class="bp-thumb ${i === idx ? "active" : ""} ${s.complete ? "done" : ""}" role="tab" aria-selected=${i === idx ? "true" : "false"}
               title="${s.title}${s.known ? ` · ${s.unlocked} of ${s.known} unlocked` : ""}"
               @click=${() => this._goPassSet(i, sets.length)}>
-              ${s.hero ? html`<img src=${s.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+              ${s.hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${s.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
               ${s.complete ? html`<span class="bp-thumb-check">✓</span>` : nothing}
             </button>`)}
         </div>
@@ -1495,7 +1521,7 @@ export class FortniteActivityCard extends LitElement {
           <div class="bp-hero">
             <button class="bp-nav" title="Previous set" @click=${() => this._goPassSet(idx - 1, sets.length)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
             <div class="bp-hero-img">
-              ${set.hero ? html`<img src=${set.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+              ${set.hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${set.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
             </div>
             <div class="bp-hero-info">
               <div class="bp-hero-count">Set ${idx + 1} of ${sets.length}</div>
@@ -1534,7 +1560,7 @@ export class FortniteActivityCard extends LitElement {
               <div class="bp-reward ${isVbucks(r) ? "vbucks" : ""} ${isOutfit(r) ? "outfit" : ""} ${r.owned === true ? "unlocked" : r.owned === false ? "locked" : ""}"
                 title="${rewardDisplayName(r)} · ${rewardTypeLabel(r)}${r.owned === true ? " · unlocked" : r.owned === false ? " · locked" : ""}">
                 <div class="bp-reward-img">
-                  ${r.icon ? html`<img src=${r.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
+                  ${r.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${r.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
                   ${r.owned === true
                     ? html`<span class="bp-state unlocked">✓</span>`
                     : r.owned === false
@@ -1608,7 +1634,7 @@ export class FortniteActivityCard extends LitElement {
       <div class="locker">
         <div class="locker-hero" style="--rarity:${RARITY_COLORS[this._outfitRarity(avatar)] || "var(--accent)"}">
           <div class="locker-hero-img">
-            ${avatar?.icon ? html`<img src=${avatar.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+            ${avatar?.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${avatar.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
           </div>
           <div class="locker-hero-info">
             <div class="bp-hero-count">Avatar${cardOverride ? " · this card uses its own skin setting" : ""}</div>
@@ -1651,7 +1677,7 @@ export class FortniteActivityCard extends LitElement {
                     title="${o.name}${o.set ? ` · ${o.set}` : ""}" role="button" tabindex="0"
                     @click=${() => (this._selectedOutfit = selected ? null : id)}>
                     <div class="bp-reward-img locker-img">
-                      ${o.small || o.icon ? html`<img src=${o.small || o.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+                      ${o.small || o.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${o.small || o.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
                       ${isAvatar ? html`<span class="bp-cost included">Avatar</span>` : nothing}
                       ${o.favorite ? html`<span class="locker-fav">★</span>` : nothing}
                       ${isNew(o) ? html`<span class="locker-new">✨ New</span>` : nothing}
@@ -1770,63 +1796,113 @@ export class FortniteActivityCard extends LitElement {
     `;
   }
 
+  /** Small line under a shop item: new this season, back after a gap, or the season it first came out. */
+  private _shopTag(o: any, shop: any) {
+    const it = o.items?.[0] || {};
+    const cur = shop?.current || {};
+    if (it.intro?.chapter && cur.chapter && it.intro.chapter === cur.chapter && it.intro.season === cur.season) {
+      return html`<span class="shop-tag new">✨ New this season</span>`;
+    }
+    if (typeof it.back_after_days === "number" && it.back_after_days > 1) {
+      return html`<span class="shop-tag back">↩ Back after ${it.back_after_days} days</span>`;
+    }
+    if (it.intro?.chapter) return html`<span class="shop-tag">From Ch${it.intro.chapter} S${it.intro.season}</span>`;
+    return nothing;
+  }
+
+  private _renderShopTile(o: any, shop: any) {
+    const first = o.items[0] || {};
+    return html`
+      <div class="shop-tile ${o.owned ? "owned" : ""} ${o.wishlisted ? "wish" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(first)] || "#9CA3AF"}"
+        title="${o.title}${o.items.length > 1 ? ` · ${o.items.map((i: any) => i.name).join(", ")}` : ""}">
+        <div class="shop-img">
+          ${o.image ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${o.image} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:shopping-outline"></ha-icon>`}
+          ${o.owned ? html`<span class="bp-state unlocked" title="Owned">✓</span>` : this._wishButton(first, !!first.wishlisted)}
+          ${o.bundle ? html`<span class="shop-bundle">Bundle · ${o.items.length}</span>` : nothing}
+        </div>
+        <span class="bp-reward-name">${o.title}</span>
+        <span class="shop-price">Ⓥ ${this._num(o.price)}${o.regular_price && o.regular_price > o.price ? html` <s>${this._num(o.regular_price)}</s>` : nothing}</span>
+        ${this._shopTag(o, shop)}
+      </div>`;
+  }
+
   private _renderShopToday(shop: any) {
     if (!shop) return html`<div class="empty">The Item Shop will show here soon.</div>`;
     const q = this._shopQuery.trim().toLowerCase();
     const kindOf = (o: any) => (o.bundle ? "bundle" : String(o.items[0]?.type || "other").toLowerCase());
     const kinds: Array<[string, string]> = [["all", "All"], ["outfit", "Outfits"], ["emote", "Emotes"], ["pickaxe", "Pickaxes"], ["bundle", "Bundles"]];
-    const filteredSections = (shop.sections || [])
-      .map((s: any) => ({
-        ...s,
-        offers: s.offers.filter(
-          (o: any) =>
-            (this._shopKind === "all" || kindOf(o) === this._shopKind) &&
-            (!q || String(o.title).toLowerCase().includes(q) || o.items.some((i: any) => String(i.name || "").toLowerCase().includes(q))),
-        ),
-      }))
-      .filter((s: any) => s.offers.length);
-    // Render a page at a time: the full shop is several hundred tiles
+    const sections: any[] = shop.sections || [];
+    const filtering = !!q || this._shopKind !== "all";
+    const ends = shop.expiration ? Date.parse(shop.expiration) - this._now : null;
+    const idx = Math.min(Math.max(0, this._shopSection), Math.max(0, sections.length - 1));
+    const section = sections[idx];
+
+    // Searching or filtering looks across every section; otherwise one section per page
+    const results = filtering
+      ? sections
+          .map((s: any) => ({
+            ...s,
+            offers: s.offers.filter(
+              (o: any) =>
+                (this._shopKind === "all" || kindOf(o) === this._shopKind) &&
+                (!q || String(o.title).toLowerCase().includes(q) || o.items.some((i: any) => String(i.name || "").toLowerCase().includes(q))),
+            ),
+          }))
+          .filter((s: any) => s.offers.length)
+      : [];
+    const total = results.reduce((n: number, s: any) => n + s.offers.length, 0);
     let budget = this._shopLimit;
-    const total = filteredSections.reduce((n: number, s: any) => n + s.offers.length, 0);
-    const sections: any[] = [];
-    for (const s of filteredSections) {
+    const shown: any[] = [];
+    for (const s of results) {
       if (budget <= 0) break;
-      sections.push({ ...s, offers: s.offers.slice(0, budget) });
+      shown.push({ ...s, offers: s.offers.slice(0, budget) });
       budget -= s.offers.length;
     }
-    const ends = shop.expiration ? Date.parse(shop.expiration) - this._now : null;
+    const go = (i: number) => {
+      this._shopSection = (i + sections.length) % sections.length;
+      this.shadowRoot?.querySelector(".shop-nav")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    };
+
     return html`
-      <div class="locker-controls">
-        <input class="locker-search" type="search" placeholder="Search today's shop" .value=${this._shopQuery}
-          @input=${(e: any) => (this._shopQuery = e.target.value)} />
-        ${ends && ends > 0 ? html`<span class="muted">New shop in ${this._formatSpan(ends)}</span>` : nothing}
+      <div class="shop-controls">
+        <div class="mapx-search">
+          <ha-icon icon="mdi:magnify"></ha-icon>
+          <input type="search" placeholder="Search today's shop" .value=${this._shopQuery}
+            @input=${(e: any) => { this._shopQuery = e.target.value; this._shopLimit = 36; }} />
+        </div>
+        ${ends && ends > 0 ? html`<span class="shop-refresh"><ha-icon icon="mdi:timer-sand"></ha-icon>New shop in ${this._formatSpan(ends)}</span>` : nothing}
       </div>
-      <div class="mode-tabs">
+      <div class="mode-tabs shop-kinds">
         ${kinds.map(([id, label]) => html`<button class="mode-tab ${this._shopKind === id ? "active" : ""}" @click=${() => { this._shopKind = id; this._shopLimit = 36; }}>${label}</button>`)}
       </div>
-      ${sections.length
-        ? sections.map((s: any) => html`
-            <div class="section-title">${s.name}</div>
-            <div class="shop-grid">
-              ${s.offers.map((o: any) => {
-                const first = o.items[0] || {};
-                return html`
-                  <div class="shop-tile ${o.owned ? "owned" : ""} ${o.wishlisted ? "wish" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(first)] || "#9CA3AF"}"
-                    title="${o.title}${o.items.length > 1 ? ` · ${o.items.map((i: any) => i.name).join(", ")}` : ""}">
-                    <div class="shop-img">
-                      ${o.image ? html`<img src=${o.image} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:shopping-outline"></ha-icon>`}
-                      ${o.owned ? html`<span class="bp-state unlocked" title="Owned">✓</span>` : this._wishButton(first, !!first.wishlisted)}
-                      ${o.bundle ? html`<span class="shop-bundle">Bundle · ${o.items.length}</span>` : nothing}
-                    </div>
-                    <span class="bp-reward-name">${o.title}</span>
-                    <span class="shop-price">Ⓥ ${this._num(o.price)}${o.regular_price && o.regular_price > o.price ? html` <s>${this._num(o.regular_price)}</s>` : nothing}</span>
-                  </div>`;
-              })}
-            </div>`)
-        : html`<div class="empty">Nothing in today's shop matches.</div>`}
-      ${total > this._shopLimit
-        ? html`<button class="mini-button show-more" @click=${() => (this._shopLimit += 36)}>Show more (${total - this._shopLimit} left)</button>`
-        : nothing}
+      ${filtering
+        ? html`
+            ${shown.length
+              ? shown.map((s: any) => html`
+                  <div class="section-title">${s.name}</div>
+                  <div class="shop-grid">${s.offers.map((o: any) => this._renderShopTile(o, shop))}</div>`)
+              : html`<div class="empty">Nothing in today's shop matches.</div>`}
+            ${total > this._shopLimit
+              ? html`<button class="mini-button show-more" @click=${() => (this._shopLimit += 36)}>Show more (${total - this._shopLimit} left)</button>`
+              : nothing}`
+        : section
+          ? html`
+              <div class="shop-nav">
+                <button class="bp-nav" title="Previous section" @click=${() => go(idx - 1)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
+                <label class="mapx-select shop-section-select">
+                  <ha-icon icon="mdi:shopping-outline"></ha-icon>
+                  <select @change=${(e: any) => go(Number(e.target.value))}>
+                    ${sections.map((s: any, i: number) => html`<option value=${i} ?selected=${i === idx}>${s.name} (${s.offers.length})</option>`)}
+                  </select>
+                </label>
+                <button class="bp-nav" title="Next section" @click=${() => go(idx + 1)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+              </div>
+              <div class="shop-section-meta">Section ${idx + 1} of ${sections.length} · ${section.offers.length} item${section.offers.length === 1 ? "" : "s"}</div>
+              <div class="shop-grid">${section.offers.map((o: any) => this._renderShopTile(o, shop))}</div>
+              ${sections.length > 1
+                ? html`<button class="mini-button show-more" @click=${() => go(idx + 1)}>Next: ${sections[(idx + 1) % sections.length].name} ›</button>`
+                : nothing}`
+          : html`<div class="empty">The Item Shop is empty right now.</div>`}
     `;
   }
 
@@ -1852,7 +1928,7 @@ export class FortniteActivityCard extends LitElement {
               ${this._searchResults.map((r) => html`
                 <div class="bp-reward" style="--rarity:${RARITY_COLORS[this._outfitRarity(r)] || "#9CA3AF"}" title=${r.name}>
                   <div class="bp-reward-img locker-img">
-                    ${r.icon ? html`<img src=${r.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
+                    ${r.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${r.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
                     ${r.owned ? html`<span class="bp-state unlocked" title="Owned">✓</span>` : this._wishButton(r, !!r.wishlisted)}
                   </div>
                   <span class="bp-reward-name">${r.name}</span>
@@ -1868,7 +1944,7 @@ export class FortniteActivityCard extends LitElement {
             ${wishlist.map((w) => html`
               <div class="bp-reward ${inShopIds.has(w.id) ? "in-shop" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(w)] || "#9CA3AF"}" title=${w.name || w.id}>
                 <div class="bp-reward-img locker-img">
-                  ${w.icon ? html`<img src=${w.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
+                  ${w.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${w.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
                   ${this._wishButton(w, true)}
                   ${inShopIds.has(w.id) ? html`<span class="shop-bundle in">In shop!</span>` : nothing}
                 </div>
@@ -1899,7 +1975,9 @@ export class FortniteActivityCard extends LitElement {
     const news: any[] = st.data?.news || [];
     const up = st.data?.update;
     const season = st.data?.season || this._catalog.season;
+    const fetched = st.data?.fetched_at ? Date.parse(st.data.fetched_at) : NaN;
     return html`
+      ${this._renderWhatsNew(up)}
       ${up || season
         ? html`<div class="news-update">
             <ha-icon icon="mdi:update"></ha-icon>
@@ -1914,10 +1992,14 @@ export class FortniteActivityCard extends LitElement {
         : nothing}
       ${this._sectionsHas("events") ? nothing : this._renderNextEventTeaser()}
       ${news.length
-        ? html`<div class="news-list">
+        ? html`<div class="news-meta">
+            <span>In-game news</span>
+            ${!isNaN(fetched) ? html`<span class="muted">Updated ${this._formatRelativeTime(new Date(fetched).toISOString())}</span>` : nothing}
+          </div>
+          <div class="news-list">
             ${news.map((n) => html`
               <div class="news-card">
-                ${n.image || n.tile ? html`<img src=${n.image || n.tile} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+                ${n.image || n.tile ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${n.image || n.tile} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
                 <div class="news-body">
                   ${n.tag ? html`<span class="tag">${n.tag}</span>` : nothing}
                   <b>${n.title}</b>
@@ -1927,6 +2009,41 @@ export class FortniteActivityCard extends LitElement {
           </div>`
         : html`<div class="empty">No news right now.</div>`}
     `;
+  }
+
+  /** "What's new in this update", from what the integration itself detected (sprites, shop, map). */
+  private _renderWhatsNew(up: any) {
+    const sp = this._findEntity("sensor", "sprites")?.attributes || {};
+    const newFams = (sp.families || []).filter((f: any) => f.new);
+    const kindNames = [...new Set((sp.families || []).flatMap((f: any) => (f.variants || []).filter((v: any) => v.new && !f.new).map((v: any) => v.label)))];
+    const shop = this._shop.data?.shop;
+    const cur = shop?.current || {};
+    const newInShop = shop
+      ? shop.sections.flatMap((s: any) => s.offers).filter((o: any) => o.items?.[0]?.intro?.chapter === cur.chapter && o.items?.[0]?.intro?.season === cur.season).length
+      : 0;
+    const version = sp.version || up?.patch || up?.version;
+    const rows = [
+      newFams.length
+        ? html`<div class="wn-row" @click=${() => { this._spriteFilter = "new"; this._setView("sprites"); }}>
+            <span class="wn-icons">${newFams.slice(0, 4).map((f: any) => html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${f.icon} alt="" @error=${hideBroken} />`)}</span>
+            <span><b>${newFams.length} new sprite${newFams.length > 1 ? "s" : ""}</b> · ${newFams.map((f: any) => this._spriteName(f)).join(", ")}</span>
+          </div>`
+        : nothing,
+      sp.new_kinds
+        ? html`<div class="wn-row" @click=${() => { this._spriteFilter = "new"; this._setView("sprites"); }}>
+            <span class="wn-emoji">✨</span><span><b>${sp.new_kinds} new sprite kinds</b>${kindNames.length ? ` · ${kindNames.join(", ")}` : ""}</span>
+          </div>`
+        : nothing,
+      newInShop
+        ? html`<div class="wn-row" @click=${() => this._setView("shop")}><span class="wn-emoji">🛒</span><span><b>${newInShop} new item${newInShop > 1 ? "s" : ""}</b> from this season in today's shop</span></div>`
+        : nothing,
+      up?.patch ? html`<div class="wn-row" @click=${() => this._setView("map")}><span class="wn-emoji">🗺️</span><span>Map data for <b>update ${up.patch}</b></span></div>` : nothing,
+    ].filter((r) => r !== nothing);
+    if (!rows.length || !version) return nothing;
+    return html`<div class="whats-new">
+      <div class="wn-head"><span class="sp-release-badge">✨ NEW</span><b>What's new in update ${version}</b></div>
+      ${rows}
+    </div>`;
   }
 
   private _sectionsHas(view: View): boolean {
@@ -1940,7 +2057,7 @@ export class FortniteActivityCard extends LitElement {
     if (!next) return nothing;
     const timing = this._eventTiming(next);
     return html`<div class="news-update event">
-      ${next.poster ? html`<img src=${next.poster} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tournament"></ha-icon>`}
+      ${next.poster ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${next.poster} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tournament"></ha-icon>`}
       <div><b>${next.name}</b><span>${timing.text}</span></div>
     </div>`;
   }
@@ -2041,120 +2158,273 @@ export class FortniteActivityCard extends LitElement {
       .replace(/'([a-z])([a-z]{2,})/g, (_m, a, b) => "'" + a.toUpperCase() + b);
   }
 
-  // -- zoom / pan (translate is stored as a fraction of the frame size) --
+  // -- map viewer: state is the zoom and the map point at the frame centre (fractions 0..1) --
 
-  private _clampPan(z: number, x: number, y: number): { x: number; y: number } {
-    const min = 1 - z;
-    return { x: Math.min(0, Math.max(min, x)), y: Math.min(0, Math.max(min, y)) };
+  /** Largest useful zoom: about 2× the image's native 2048 px over the frame's short side. */
+  private _mapMaxZoom(): number {
+    const L = Math.max(1, Math.min(this._mapBox.w, this._mapBox.h) || 400);
+    return Math.min(10, Math.max(3, 4096 / L));
   }
 
-  private _setMapView(z: number, x: number, y: number): void {
-    const zoom = Math.min(8, Math.max(1, z));
+  /** Screen geometry for the current view: map square size and its top-left offset (px). */
+  private _mapGeom(z = this._mapZoom, cx = this._mapCenter.x, cy = this._mapCenter.y) {
+    const w = this._mapBox.w || 400;
+    const h = this._mapBox.h || 400;
+    const size = Math.min(w, h) * z;
+    const axis = (span: number, c: number) => (size <= span ? (span - size) / 2 : Math.min(0, Math.max(span - size, span / 2 - c * size)));
+    return { w, h, size, tx: axis(w, cx), ty: axis(h, cy) };
+  }
+
+  /** Clamp a requested view and store it (centre recomputed from the clamped offset). */
+  private _setMapView(z: number, cx: number, cy: number): void {
+    const zoom = Math.min(this._mapMaxZoom(), Math.max(1, z));
+    const g = this._mapGeom(zoom, cx, cy);
     this._mapZoom = zoom;
-    this._mapPan = this._clampPan(zoom, x, y);
+    this._mapCenter = { x: (g.w / 2 - g.tx) / g.size, y: (g.h / 2 - g.ty) / g.size };
   }
 
-  /** Zoom by a factor keeping the point (fx, fy) (fractions of the frame) still. */
-  private _zoomAt(factor: number, fx = 0.5, fy = 0.5): void {
-    const z1 = this._mapZoom;
-    const z2 = Math.min(8, Math.max(1, z1 * factor));
-    const { x, y } = this._mapPan;
-    this._setMapView(z2, fx - (fx - x) * (z2 / z1), fy - (fy - y) * (z2 / z1));
+  /** Smoothly move to a view (ease-out over ~220 ms). */
+  private _animateMapTo(z: number, cx: number, cy: number): void {
+    const from = { z: this._mapZoom, x: this._mapCenter.x, y: this._mapCenter.y };
+    const start = performance.now();
+    const step = (t: number) => {
+      const k = Math.min(1, (t - start) / 220);
+      const e = 1 - Math.pow(1 - k, 3);
+      this._setMapView(from.z + (z - from.z) * e, from.x + (cx - from.x) * e, from.y + (cy - from.y) * e);
+      if (k < 1) this._mapAnim = requestAnimationFrame(step);
+    };
+    cancelAnimationFrame(this._mapAnim || 0);
+    this._mapAnim = requestAnimationFrame(step);
+  }
+
+  /** Zoom by a factor, keeping the screen point (sx, sy) in px fixed. */
+  private _zoomAt(factor: number, sx?: number, sy?: number, animate = false): void {
+    const g = this._mapGeom();
+    const px = sx ?? g.w / 2;
+    const py = sy ?? g.h / 2;
+    const mx = (px - g.tx) / g.size;
+    const my = (py - g.ty) / g.size;
+    const z2 = Math.min(this._mapMaxZoom(), Math.max(1, this._mapZoom * factor));
+    const size2 = Math.min(g.w, g.h) * z2;
+    // New centre so that (mx, my) stays under the pointer
+    const cx = mx + (g.w / 2 - px) / size2;
+    const cy = my + (g.h / 2 - py) / size2;
+    if (animate) this._animateMapTo(z2, cx, cy);
+    else this._setMapView(z2, cx, cy);
   }
 
   private _focusPlace(place: { key: string; left: number; top: number }, zoom = Math.max(this._mapZoom, 3)): void {
     this._mapPoi = place.key;
-    const z = Math.min(8, Math.max(1, zoom));
-    this._setMapView(z, 0.5 - z * (place.left / 100), 0.5 - z * (place.top / 100));
+    this._animateMapTo(Math.min(this._mapMaxZoom(), zoom), place.left / 100, place.top / 100);
   }
 
   private _resetMapView(): void {
-    this._setMapView(1, 0, 0);
+    this._animateMapTo(1, 0.5, 0.5);
   }
 
   private _mapFrameEl(): HTMLElement | null {
     return this.shadowRoot?.querySelector(".mapx-frame") as HTMLElement | null;
   }
 
-  private _applyLayer(z: number, x: number, y: number): void {
-    const layer = this.shadowRoot?.querySelector(".mapx-layer") as HTMLElement | null;
-    if (layer) {
-      layer.style.transform = `translate(${x * 100}%, ${y * 100}%) scale(${z})`;
-      layer.style.setProperty("--iz", String(1 / z));
-    }
+  /** Keep the measured frame size current (drives all geometry). */
+  private _observeMapFrame(): void {
+    const frame = this._mapFrameEl();
+    if (!frame || frame === this._mapObserved) return;
+    this._mapResize?.disconnect();
+    this._mapObserved = frame;
+    this._mapResize = new ResizeObserver((entries) => {
+      const r = entries[0].contentRect;
+      if (Math.abs(r.width - this._mapBox.w) > 0.5 || Math.abs(r.height - this._mapBox.h) > 0.5) {
+        this._mapBox = { w: r.width, h: r.height };
+        this._setMapView(this._mapZoom, this._mapCenter.x, this._mapCenter.y);
+      }
+    });
+    this._mapResize.observe(frame);
+  }
+
+  private _localPoint(e: { clientX: number; clientY: number }): { x: number; y: number } {
+    const r = this._mapFrameEl()!.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  /** Screen px -> map fraction. */
+  private _toMap(p: { x: number; y: number }): { x: number; y: number } {
+    const g = this._mapGeom();
+    return { x: (p.x - g.tx) / g.size, y: (p.y - g.ty) / g.size };
   }
 
   private _onMapWheel(e: WheelEvent): void {
-    const frame = this._mapFrameEl();
-    if (!frame) return;
+    if (!this._mapFrameEl()) return;
     e.preventDefault();
-    const r = frame.getBoundingClientRect();
-    this._zoomAt(e.deltaY < 0 ? 1.25 : 0.8, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+    const p = this._localPoint(e);
+    this._zoomAt(Math.exp(-e.deltaY * 0.0015), p.x, p.y);
   }
 
   private _onMapPointerDown(e: PointerEvent): void {
     const frame = this._mapFrameEl();
+    const target = e.target as HTMLElement;
     if (this._mapMenu) this._mapMenu = false;
-    if (!frame || (e.target as HTMLElement).closest(".mapx-tools, .mapx-pin, .mapx-info")) return;
+    if (!frame || target.closest(".mapx-ui, .mapx-pin, .mapx-mark")) return;
     frame.setPointerCapture(e.pointerId);
-    this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    this._gesture = { z: this._mapZoom, x: this._mapPan.x, y: this._mapPan.y, moved: false, start: new Map(this._pointers) };
+    const p = this._localPoint(e);
+    this._pointers.set(e.pointerId, p);
+    const tool = this._pointers.size === 1 ? this._mapTool : "pan";
+    if (tool === "draw") {
+      const m = this._toMap(p);
+      this._mapDrawing = { color: this._mapColor, points: [[m.x, m.y]] };
+      return;
+    }
+    if (this._mapDrawing) this._mapDrawing = null; // second finger: pinch instead of drawing
+    this._gesture = {
+      z: this._mapZoom, cx: this._mapCenter.x, cy: this._mapCenter.y, moved: false, tool,
+      start: new Map(this._pointers),
+    };
   }
 
   private _onMapPointerMove(e: PointerEvent): void {
-    const frame = this._mapFrameEl();
-    const g = this._gesture;
-    if (!frame || !g || !this._pointers.has(e.pointerId)) return;
-    this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    const r = frame.getBoundingClientRect();
+    if (!this._pointers.has(e.pointerId)) return;
+    const p = this._localPoint(e);
+    this._pointers.set(e.pointerId, p);
+    if (this._mapDrawing) {
+      const m = this._toMap(p);
+      const last = this._mapDrawing.points[this._mapDrawing.points.length - 1];
+      const g = this._mapGeom();
+      if (Math.hypot((m.x - last[0]) * g.size, (m.y - last[1]) * g.size) > 3) {
+        this._mapDrawing = { ...this._mapDrawing, points: [...this._mapDrawing.points, [m.x, m.y]] };
+      }
+      return;
+    }
+    const gs = this._gesture;
+    if (!gs) return;
     const pts = [...this._pointers.values()];
-    const starts = [...g.start.values()];
-    let z = g.z;
-    let x = g.x;
-    let y = g.y;
+    const starts = [...gs.start.values()];
+    const g0 = this._mapGeom(gs.z, gs.cx, gs.cy);
+    let z = gs.z;
+    let anchorStart = starts[0];
+    let anchorNow = pts[0];
     if (pts.length >= 2 && starts.length >= 2) {
-      // Pinch: scale by the change in finger distance around the starting midpoint
       const d0 = Math.hypot(starts[0].x - starts[1].x, starts[0].y - starts[1].y) || 1;
       const d1 = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      z = Math.min(8, Math.max(1, g.z * (d1 / d0)));
-      const fx = ((starts[0].x + starts[1].x) / 2 - r.left) / r.width;
-      const fy = ((starts[0].y + starts[1].y) / 2 - r.top) / r.height;
-      x = fx - (fx - g.x) * (z / g.z) + ((pts[0].x + pts[1].x - starts[0].x - starts[1].x) / 2) / r.width;
-      y = fy - (fy - g.y) * (z / g.z) + ((pts[0].y + pts[1].y - starts[0].y - starts[1].y) / 2) / r.height;
-    } else {
-      const s = starts[0] || pts[0];
-      x = g.x + (pts[0].x - s.x) / r.width;
-      y = g.y + (pts[0].y - s.y) / r.height;
+      z = gs.z * (d1 / d0);
+      anchorStart = { x: (starts[0].x + starts[1].x) / 2, y: (starts[0].y + starts[1].y) / 2 };
+      anchorNow = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
     }
-    if (Math.abs(x - g.x) + Math.abs(y - g.y) > 0.005 || z !== g.z) g.moved = true;
-    const c = this._clampPan(z, x, y);
-    g.last = { z, x: c.x, y: c.y };
-    // Move the layer directly while dragging; commit to state on release
-    this._applyLayer(z, c.x, c.y);
+    if (Math.hypot(anchorNow.x - anchorStart.x, anchorNow.y - anchorStart.y) > 4 || z !== gs.z) gs.moved = true;
+    // Map point that was under the anchor at gesture start stays under the anchor now
+    const mx = (anchorStart.x - g0.tx) / g0.size;
+    const my = (anchorStart.y - g0.ty) / g0.size;
+    const zc = Math.min(this._mapMaxZoom(), Math.max(1, z));
+    const size = Math.min(g0.w, g0.h) * zc;
+    const cx = mx + (g0.w / 2 - anchorNow.x) / size;
+    const cy = my + (g0.h / 2 - anchorNow.y) / size;
+    // Throttle state updates to one per frame
+    this._mapPending = { z: zc, cx, cy };
+    if (!this._mapRaf) {
+      this._mapRaf = requestAnimationFrame(() => {
+        this._mapRaf = 0;
+        if (this._mapPending) this._setMapView(this._mapPending.z, this._mapPending.cx, this._mapPending.cy);
+      });
+    }
   }
 
   private _onMapPointerUp(e: PointerEvent): void {
-    const g = this._gesture;
+    const p = this._pointers.get(e.pointerId);
     this._pointers.delete(e.pointerId);
-    if (!g) return;
+    if (this._mapDrawing) {
+      const line = this._mapDrawing;
+      this._mapDrawing = null;
+      if (line.points.length > 1) this._annotate((a) => ({ ...a, lines: [...a.lines, { id: Date.now(), ...line }] }));
+      return;
+    }
+    const gs = this._gesture;
+    if (!gs) return;
     if (this._pointers.size === 0) {
-      if (g.last) this._setMapView(g.last.z, g.last.x, g.last.y);
       this._gesture = null;
+      if (!gs.moved && p) this._onMapTap(p, gs.tool);
     } else {
-      // One finger lifted mid-pinch: continue as a pan from here
-      this._gesture = { ...(g.last || g), moved: g.moved, start: new Map(this._pointers) } as any;
+      this._gesture = { z: this._mapZoom, cx: this._mapCenter.x, cy: this._mapCenter.y, moved: gs.moved, tool: "pan", start: new Map(this._pointers) };
+    }
+  }
+
+  /** A tap (no drag) on the map: place a pin, erase, or clear the selection. */
+  private _onMapTap(p: { x: number; y: number }, tool: string): void {
+    if (tool === "marker") {
+      const m = this._toMap(p);
+      if (m.x < 0 || m.x > 1 || m.y < 0 || m.y > 1) return;
+      this._annotate((a) => ({ ...a, marks: [...a.marks, { id: Date.now(), x: m.x, y: m.y, color: this._mapColor, icon: this._mapIcon }] }));
+    } else if (tool === "erase") {
+      const g = this._mapGeom();
+      const near = (x: number, y: number) => Math.hypot(g.tx + x * g.size - p.x, g.ty + y * g.size - p.y);
+      const a = this._annots();
+      const mark = a.marks.find((m) => near(m.x, m.y) < 18);
+      if (mark) return this._annotate((s) => ({ ...s, marks: s.marks.filter((m) => m.id !== mark.id) }));
+      const line = a.lines.find((l) => l.points.some(([x, y]) => near(x, y) < 12));
+      if (line) this._annotate((s) => ({ ...s, lines: s.lines.filter((l) => l.id !== line.id) }));
     }
   }
 
   private _onMapDblClick(e: MouseEvent): void {
-    const frame = this._mapFrameEl();
-    if (!frame || (e.target as HTMLElement).closest(".mapx-tools, .mapx-info")) return;
-    const r = frame.getBoundingClientRect();
-    this._zoomAt(2, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+    if ((e.target as HTMLElement).closest(".mapx-ui") || this._mapTool !== "pan") return;
+    const p = this._localPoint(e);
+    this._zoomAt(2, p.x, p.y, true);
+  }
+
+  // -- annotations (pins and lines), kept per player and map on this device --
+
+  private _annotKey(): string {
+    return `fortnite-map-notes:${this._player}:${this._mapMode}`;
+  }
+
+  private _annots(): { marks: any[]; lines: any[] } {
+    const key = this._annotKey();
+    if (!this._notes[key]) {
+      let saved: any = null;
+      try {
+        saved = JSON.parse(localStorage.getItem(key) || "null");
+      } catch {
+        saved = null;
+      }
+      this._notes = { ...this._notes, [key]: { marks: saved?.marks || [], lines: saved?.lines || [] } };
+    }
+    return this._notes[key];
+  }
+
+  private _annotate(change: (a: { marks: any[]; lines: any[] }) => { marks: any[]; lines: any[] }): void {
+    const key = this._annotKey();
+    const before = this._annots();
+    const after = change(before);
+    this._undo = [...this._undo, { key, state: before }].slice(-50);
+    this._redo = [];
+    this._saveNotes(key, after);
+  }
+
+  private _saveNotes(key: string, state: { marks: any[]; lines: any[] }): void {
+    this._notes = { ...this._notes, [key]: state };
+    try {
+      localStorage.setItem(key, JSON.stringify(state));
+    } catch {
+      // Storage full or blocked: notes stay for this visit only
+    }
+  }
+
+  private _undoNote(): void {
+    const last = this._undo[this._undo.length - 1];
+    if (!last) return;
+    this._undo = this._undo.slice(0, -1);
+    this._redo = [...this._redo, { key: last.key, state: this._notes[last.key] || { marks: [], lines: [] } }];
+    this._saveNotes(last.key, last.state);
+  }
+
+  private _redoNote(): void {
+    const next = this._redo[this._redo.length - 1];
+    if (!next) return;
+    this._redo = this._redo.slice(0, -1);
+    this._undo = [...this._undo, { key: next.key, state: this._notes[next.key] || { marks: [], lines: [] } }];
+    this._saveNotes(next.key, next.state);
   }
 
   private async _toggleMapFull(): Promise<void> {
-    const wrap = this.shadowRoot?.querySelector(".mapx") as HTMLElement | null;
+    const frame = this._mapFrameEl() as any;
     const doc: any = document;
     if (this._mapFull) {
       if (doc.fullscreenElement) await doc.exitFullscreen().catch(() => undefined);
@@ -2163,9 +2433,9 @@ export class FortniteActivityCard extends LitElement {
     }
     this._mapFull = true;
     try {
-      await (wrap as any)?.requestFullscreen?.({ navigationUI: "hide" });
+      await frame?.requestFullscreen?.({ navigationUI: "hide" });
     } catch {
-      // Not allowed here (e.g. some app web views): the CSS overlay still fills the window
+      // Not allowed (some app web views): the overlay still fills the window
     }
   }
 
@@ -2175,22 +2445,43 @@ export class FortniteActivityCard extends LitElement {
 
   private _onKeyDown = (e: KeyboardEvent): void => {
     if (e.key === "Escape" && this._mapFull) this._toggleMapFull();
+    if (this._renderedView === "map" && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+      e.preventDefault();
+      if (e.shiftKey) this._redoNote();
+      else this._undoNote();
+    }
   };
 
   private _randomDrop(places: Array<any>): void {
     const named = places.filter((p) => p.type === "named");
     if (!named.length) return;
     let pick = named[Math.floor(Math.random() * named.length)];
-    if (named.length > 1 && pick.key === this._mapPoi) pick = named[(named.indexOf(pick) + 1) % named.length];
+    if (named.length > 1 && pick.key === this._mapDrop) pick = named[(named.indexOf(pick) + 1) % named.length];
     this._mapDrop = pick.key;
     this._focusPlace(pick, 2.5);
+  }
+
+  /** Details for a place: elevation and the nearest other places (world units are centimetres). */
+  private _placeFacts(map: any, place: any) {
+    const raw = (map.pois || [])[Number(String(place.key).split("#")[1])];
+    if (!raw) return { elevation: null, nearest: [] as any[] };
+    const all = this._mapPlaces(map);
+    const nearest = all
+      .filter((p) => p.key !== place.key && p.name !== place.name)
+      .map((p) => {
+        const o = (map.pois || [])[Number(String(p.key).split("#")[1])];
+        return { ...p, metres: Math.round(Math.hypot(o.x - raw.x, o.y - raw.y) / 100) };
+      })
+      .sort((a, b) => a.metres - b.metres)
+      .slice(0, 3);
+    return { elevation: typeof raw.z === "number" ? Math.round(raw.z / 100) : null, nearest };
   }
 
   /** Small static map (match details): image only. */
   private _renderMapImage(map: any, compact = false) {
     return html`
       <div class="map-frame ${compact ? "compact" : ""}">
-        <img src=${map.image} alt=${map.name || "Map"} loading="lazy" @error=${hideBroken} />
+        <img @load=${imgLoaded} class="fi" src=${map.image} alt=${map.name || "Map"} loading="lazy" decoding="async" @error=${hideBroken} />
       </div>
     `;
   }
@@ -2229,7 +2520,7 @@ export class FortniteActivityCard extends LitElement {
                       this._mapMenu = false;
                       this._mapPoi = null;
                       this._mapDrop = null;
-                      this._resetMapView();
+                      this._setMapView(1, 0.5, 0.5);
                       this._loadMap(m);
                     }}>
                     <span>${this._mapModeLabel(m)}</span><small>${places(m)}</small>
@@ -2237,6 +2528,97 @@ export class FortniteActivityCard extends LitElement {
                   </button>`)}`)}
             </div>`
           : nothing}
+      </div>
+    `;
+  }
+
+  private _renderPlacePickers(named: any[], landmarks: any[]) {
+    const q = this._mapQuery.trim().toLowerCase();
+    const match = (p: any) => !q || p.name.toLowerCase().includes(q) || p.grid.toLowerCase() === q;
+    const groups = [...landmarks.filter(match).reduce((m, p) => m.set(p.name, [...(m.get(p.name) || []), p]), new Map<string, any[]>())]
+      .sort((a, b) => a[0].localeCompare(b[0]));
+    const namedList = named.filter(match).sort((a, b) => a.name.localeCompare(b.name));
+    const sel = this._mapPoi;
+    const onPick = (key: string) => {
+      const p = [...named, ...landmarks].find((x) => x.key === key);
+      if (p) this._focusPlace(p);
+    };
+    return html`
+      <div class="mapx-search">
+        <ha-icon icon="mdi:magnify"></ha-icon>
+        <input type="search" placeholder="Find a place or grid (e.g. D4)" .value=${this._mapQuery}
+          @input=${(e: any) => (this._mapQuery = e.target.value)}
+          @keydown=${(e: KeyboardEvent) => {
+            if (e.key === "Enter") {
+              const first = [...namedList, ...groups.map((g) => g[1][0])][0];
+              if (first) this._focusPlace(first);
+            }
+          }} />
+      </div>
+      <div class="mapx-selects">
+        <label class="mapx-select">
+          <ha-icon icon="mdi:map-marker"></ha-icon>
+          <select @change=${(e: any) => { if (e.target.value) onPick(e.target.value); }}>
+            <option value="" ?selected=${!named.some((p) => p.key === sel)}>Named places (${namedList.length})</option>
+            ${namedList.map((p) => html`<option value=${p.key} ?selected=${p.key === sel}>${p.grid} · ${p.name}</option>`)}
+          </select>
+        </label>
+        ${landmarks.length
+          ? html`<label class="mapx-select landmark">
+              <ha-icon icon="mdi:map-marker-star"></ha-icon>
+              <select @change=${(e: any) => {
+                const list = groups.find((g) => g[0] === e.target.value)?.[1] || [];
+                const i = list.findIndex((p) => p.key === sel);
+                if (list.length) {
+                  if (!this._mapShowLandmarks) this._mapShowLandmarks = true;
+                  this._focusPlace(list[(i + 1) % list.length]);
+                }
+              }}>
+                <option value="" ?selected=${!landmarks.some((p) => p.key === sel)}>Landmarks (${landmarks.length})</option>
+                ${groups.map(([name, list]) => html`<option value=${name} ?selected=${list.some((p) => p.key === sel)}>${list.length > 1 ? `×${list.length}` : list[0].grid} · ${name}</option>`)}
+              </select>
+            </label>`
+          : nothing}
+      </div>
+    `;
+  }
+
+  private _renderPlaceInfo(map: any, places: any[], floating: boolean) {
+    const selected = places.find((p) => p.key === this._mapPoi);
+    if (!selected) {
+      return floating ? nothing : html`<div class="mapx-hint">Tap a place on the map or pick one above to see details.</div>`;
+    }
+    const same = places.filter((p) => p.name === selected.name);
+    const facts = this._placeFacts(map, selected);
+    const isDrop = selected.key === this._mapDrop;
+    return html`
+      <div class="mapx-info ${floating ? "floating mapx-ui" : ""}">
+        <div class="mapx-info-head">
+          <span class="mapx-grid-badge">${selected.grid}</span>
+          <div>
+            <b>${isDrop ? "🪂 Drop here: " : ""}${selected.name}</b>
+            <small>${selected.type === "landmark" ? "Landmark" : "Named place"}${same.length > 1 ? ` · ${same.indexOf(selected) + 1} of ${same.length}` : ""}</small>
+          </div>
+          <button class="mapx-tool" title="Close" @click=${() => { this._mapPoi = null; this._mapDrop = null; }}><ha-icon icon="mdi:close"></ha-icon></button>
+        </div>
+        <div class="mapx-facts">
+          ${facts.elevation != null ? html`<span><ha-icon icon="mdi:image-filter-hdr"></ha-icon>${facts.elevation} m high</span>` : nothing}
+          <span><ha-icon icon="mdi:grid"></ha-icon>Grid ${selected.grid}</span>
+        </div>
+        ${facts.nearest.length
+          ? html`<div class="mapx-near">
+              <small>Nearby</small>
+              ${facts.nearest.map((n) => html`<button @click=${() => this._focusPlace(n)}>${n.name} <em>${n.metres} m</em></button>`)}
+            </div>`
+          : nothing}
+        <div class="mapx-info-actions">
+          <button class="mini-button" @click=${() => this._focusPlace(selected)}><ha-icon icon="mdi:crosshairs-gps"></ha-icon> Zoom to</button>
+          ${same.length > 1
+            ? html`<button class="mini-button" @click=${() => this._focusPlace(same[(same.indexOf(selected) + 1) % same.length])}><ha-icon icon="mdi:chevron-right"></ha-icon> Next</button>`
+            : nothing}
+          <button class="mini-button" @click=${() => this._annotate((a) => ({ ...a, marks: [...a.marks, { id: Date.now(), x: selected.left / 100, y: selected.top / 100, color: this._mapColor, icon: "📍" }] }))}>
+            <ha-icon icon="mdi:map-marker-plus"></ha-icon> Pin it</button>
+        </div>
       </div>
     `;
   }
@@ -2252,137 +2634,140 @@ export class FortniteActivityCard extends LitElement {
     const named = places.filter((p) => p.type === "named");
     const landmarks = places.filter((p) => p.type === "landmark");
     const z = this._mapZoom;
-    const { x, y } = this._mapPan;
-    const wide = this._mapFull || (this.offsetWidth || 0) >= 560;
+    const g = this._mapGeom();
+    const at = (fx: number, fy: number) => ({ x: g.tx + fx * g.size, y: g.ty + fy * g.size });
+    const wide = this._mapFull || g.w >= 560;
     const showNamed = this._mapLabels === "all" || (this._mapLabels === "auto" && (wide || z >= 1.6));
     const showLandmarkLabels = this._mapLabels === "all" ? z >= 1.6 : this._mapLabels === "auto" && z >= 3;
-    const selected = places.find((p) => p.key === this._mapPoi) || null;
-    const sameName = selected ? places.filter((p) => p.name === selected.name) : [];
-
-    // Places panel: search + type filter; landmarks grouped by name
-    const q = this._mapQuery.trim().toLowerCase();
-    const match = (p: any) => !q || p.name.toLowerCase().includes(q) || p.grid.toLowerCase() === q;
-    const sortFn = (a: any, b: any) => (this._mapSort === "grid" ? a.grid.localeCompare(b.grid, undefined, { numeric: true }) || a.name.localeCompare(b.name) : a.name.localeCompare(b.name));
-    const namedList = named.filter(match).sort(sortFn);
-    const landmarkGroups = [...landmarks.filter(match).reduce((m, p) => m.set(p.name, [...(m.get(p.name) || []), p]), new Map<string, any[]>())]
-      .sort((a, b) => (this._mapSort === "grid" ? a[1][0].grid.localeCompare(b[1][0].grid, undefined, { numeric: true }) : a[0].localeCompare(b[0])));
-
+    const notes = this._annots();
+    const drop = places.find((p) => p.key === this._mapDrop);
     const tool = (icon: string, title: string, onClick: () => void, on = false, disabled = false) => html`
       <button class="mapx-tool ${on ? "on" : ""}" title=${title} aria-label=${title} ?disabled=${disabled} @click=${onClick}><ha-icon icon=${icon}></ha-icon></button>`;
     const labelIcon = this._mapLabels === "off" ? "mdi:label-off-outline" : this._mapLabels === "all" ? "mdi:label-multiple" : "mdi:label-outline";
+    const path = (pts: number[][]) => pts.map(([x, y], i) => `${i ? "L" : "M"}${(g.tx + x * g.size).toFixed(1)} ${(g.ty + y * g.size).toFixed(1)}`).join(" ");
+    const colors = ["#F43F5E", "#FACC15", "#22C55E", "#38BDF8", "#A855F7", "#FFFFFF"];
+    const icons = ["📍", "⭐", "🎯", "⚠️", "🏠", "💰"];
+    const drawing = this._mapTool !== "pan";
 
     return html`
       <div class="mapx ${this._mapFull ? "full" : ""}">
-        <div class="mapx-main">
-          <div class="mapx-top">
-            ${this._renderMapPicker()}
-            <div class="mapx-meta">
-              ${map.chapter && map.season ? html`<span>Chapter ${map.chapter} · Season ${map.season}</span>` : nothing}
-              ${map.patch ? html`<span>Update ${map.patch}</span>` : nothing}
-              <span>${named.length} places${landmarks.length ? ` · ${landmarks.length} landmarks` : ""}</span>
-            </div>
+        ${this._mapFull ? nothing : html`<div class="mapx-top">
+          ${this._renderMapPicker()}
+          <div class="mapx-meta">
+            ${map.chapter && map.season ? html`<span>Chapter ${map.chapter} · Season ${map.season}</span>` : nothing}
+            ${map.patch ? html`<span>Update ${map.patch}</span>` : nothing}
+            <span>${named.length} places${landmarks.length ? ` · ${landmarks.length} landmarks` : ""}</span>
           </div>
+        </div>`}
 
-          <div class="mapx-frame ${this._gesture ? "dragging" : ""}"
-            @wheel=${(e: WheelEvent) => this._onMapWheel(e)}
-            @pointerdown=${(e: PointerEvent) => this._onMapPointerDown(e)}
-            @pointermove=${(e: PointerEvent) => this._onMapPointerMove(e)}
-            @pointerup=${(e: PointerEvent) => this._onMapPointerUp(e)}
-            @pointercancel=${(e: PointerEvent) => this._onMapPointerUp(e)}
-            @dblclick=${(e: MouseEvent) => this._onMapDblClick(e)}>
-            <div class="mapx-layer" style="transform: translate(${x * 100}%, ${y * 100}%) scale(${z}); --iz:${1 / z}">
-              <img src=${map.image} alt=${map.name || "Map"} draggable="false" @error=${hideBroken} />
-              ${this._mapGrid
-                ? html`<div class="mapx-grid">
-                    ${[...Array(10).keys()].map((i) => html`<span class="gcol" style="left:${i * 10 + 5}%">${"ABCDEFGHIJ"[i]}</span>
-                      <span class="grow" style="top:${i * 10 + 5}%">${i + 1}</span>`)}
-                  </div>`
-                : nothing}
-              ${places
-                .filter((p) => p.type === "named" || this._mapShowLandmarks || p.key === this._mapPoi)
-                .map((p) => {
-                  const on = p.key === this._mapPoi;
-                  const label = on || (p.type === "named" ? showNamed : showLandmarkLabels);
-                  return html`
-                    <button class="mapx-pin ${p.type} ${on ? "on" : ""} ${p.key === this._mapDrop ? "drop" : ""}"
-                      style="left:${p.left}%;top:${p.top}%" title="${p.name} · ${p.grid}" aria-label="${p.name}, grid ${p.grid}"
-                      @click=${(e: Event) => { e.stopPropagation(); this._mapPoi = on ? null : p.key; }}>
-                      <i></i>${label ? html`<b>${p.key === this._mapDrop ? "🎲 " : ""}${p.name}</b>` : nothing}
-                    </button>`;
-                })}
-            </div>
+        <div class="mapx-frame ${this._mapFull ? "fs" : ""} ${this._gesture ? "dragging" : ""} tool-${this._mapTool}"
+          @wheel=${(e: WheelEvent) => this._onMapWheel(e)}
+          @pointerdown=${(e: PointerEvent) => this._onMapPointerDown(e)}
+          @pointermove=${(e: PointerEvent) => this._onMapPointerMove(e)}
+          @pointerup=${(e: PointerEvent) => this._onMapPointerUp(e)}
+          @pointercancel=${(e: PointerEvent) => this._onMapPointerUp(e)}
+          @dblclick=${(e: MouseEvent) => this._onMapDblClick(e)}>
+          <!-- The image is laid out at its real on-screen size so the browser resamples it sharply -->
+          <img class="mapx-img" src=${map.image} alt=${map.name || "Map"} draggable="false" decoding="async"
+            style="left:${g.tx}px;top:${g.ty}px;width:${g.size}px;height:${g.size}px" @error=${hideBroken} />
 
-            <div class="mapx-tools">
-              ${tool("mdi:plus", "Zoom in", () => this._zoomAt(1.6), false, z >= 8)}
-              ${tool("mdi:minus", "Zoom out", () => this._zoomAt(1 / 1.6), false, z <= 1)}
-              ${tool("mdi:fit-to-screen-outline", "Show whole map", () => this._resetMapView(), false, z === 1)}
-              ${tool(this._mapFull ? "mdi:fullscreen-exit" : "mdi:fullscreen", this._mapFull ? "Exit full screen" : "Full screen", () => this._toggleMapFull())}
-              <span class="mapx-sep"></span>
-              ${tool("mdi:grid", "Grid", () => (this._mapGrid = !this._mapGrid), this._mapGrid)}
-              ${tool(labelIcon, `Labels: ${this._mapLabels === "auto" ? "automatic" : this._mapLabels}`, () => {
-                this._mapLabels = this._mapLabels === "auto" ? "all" : this._mapLabels === "all" ? "off" : "auto";
-              }, this._mapLabels !== "auto")}
-              ${landmarks.length ? tool("mdi:map-marker-star-outline", "Landmarks", () => (this._mapShowLandmarks = !this._mapShowLandmarks), this._mapShowLandmarks) : nothing}
-              ${named.length ? tool("mdi:dice-5-outline", "Pick a drop spot for me", () => this._randomDrop(places)) : nothing}
-            </div>
-
-            ${z > 1 ? html`<span class="mapx-zoom">${z.toFixed(1)}×</span>` : nothing}
-
-            ${selected
-              ? html`<div class="mapx-info">
-                  <span class="mapx-grid-badge">${selected.grid}</span>
-                  <div>
-                    <b>${selected.key === this._mapDrop ? "🎲 Drop here: " : ""}${selected.name}</b>
-                    <small>${selected.type === "landmark" ? "Landmark" : "Named place"}${sameName.length > 1 ? ` · ${sameName.indexOf(selected) + 1} of ${sameName.length}` : ""}</small>
-                  </div>
-                  ${sameName.length > 1
-                    ? html`<button class="mapx-tool" title="Next one" @click=${() => this._focusPlace(sameName[(sameName.indexOf(selected) + 1) % sameName.length])}><ha-icon icon="mdi:chevron-right"></ha-icon></button>`
-                    : nothing}
-                  <button class="mapx-tool" title="Zoom to" @click=${() => this._focusPlace(selected)}><ha-icon icon="mdi:crosshairs-gps"></ha-icon></button>
-                  <button class="mapx-tool" title="Close" @click=${() => { this._mapPoi = null; this._mapDrop = null; }}><ha-icon icon="mdi:close"></ha-icon></button>
-                </div>`
+          <svg class="mapx-ink" width=${g.w} height=${g.h} viewBox="0 0 ${g.w} ${g.h}">
+            ${this._mapGrid
+              ? [...Array(11).keys()].map((i) => svg`
+                  <line x1=${g.tx + (i * g.size) / 10} y1=${g.ty} x2=${g.tx + (i * g.size) / 10} y2=${g.ty + g.size} class="gl" />
+                  <line x1=${g.tx} y1=${g.ty + (i * g.size) / 10} x2=${g.tx + g.size} y2=${g.ty + (i * g.size) / 10} class="gl" />`)
               : nothing}
+            ${notes.lines.map((l) => svg`<path d=${path(l.points)} stroke=${l.color} class="ln" />`)}
+            ${this._mapDrawing ? svg`<path d=${path(this._mapDrawing.points)} stroke=${this._mapDrawing.color} class="ln live" />` : nothing}
+          </svg>
+
+          ${this._mapGrid
+            ? [...Array(10).keys()].map((i) => html`
+                <span class="mapx-gridlabel col" style="left:${g.tx + ((i + 0.5) * g.size) / 10}px;top:${Math.max(4, g.ty + 4)}px">${"ABCDEFGHIJ"[i]}</span>
+                <span class="mapx-gridlabel row" style="left:${Math.max(4, g.tx + 4)}px;top:${g.ty + ((i + 0.5) * g.size) / 10}px">${i + 1}</span>`)
+            : nothing}
+
+          ${places
+            .filter((p) => p.type === "named" || this._mapShowLandmarks || p.key === this._mapPoi)
+            .map((p) => {
+              const s = at(p.left / 100, p.top / 100);
+              if (s.x < -60 || s.y < -30 || s.x > g.w + 60 || s.y > g.h + 30) return nothing;
+              const on = p.key === this._mapPoi;
+              const label = on || (p.type === "named" ? showNamed : showLandmarkLabels);
+              return html`
+                <button class="mapx-pin ${p.type} ${on ? "on" : ""}" style="left:${s.x}px;top:${s.y}px"
+                  title="${p.name} · ${p.grid}" aria-label="${p.name}, grid ${p.grid}"
+                  @click=${(e: Event) => { e.stopPropagation(); this._mapPoi = on ? null : p.key; }}>
+                  <i></i>${label ? html`<b>${p.name}</b>` : nothing}
+                </button>`;
+            })}
+
+          ${notes.marks.map((m) => {
+            const s = at(m.x, m.y);
+            return html`<span class="mapx-mark" style="left:${s.x}px;top:${s.y}px;--c:${m.color}"
+              @click=${(e: Event) => { if (this._mapTool === "erase") { e.stopPropagation(); this._annotate((a) => ({ ...a, marks: a.marks.filter((x) => x.id !== m.id) })); } }}>${m.icon || "📍"}</span>`;
+          })}
+
+          ${drop
+            ? (() => {
+                const s = at(drop.left / 100, drop.top / 100);
+                return html`<div class="mapx-drop" style="left:${s.x}px;top:${s.y}px"><i></i><i></i><span>🪂</span><b>Drop here!</b></div>`;
+              })()
+            : nothing}
+
+          ${this._mapFull
+            ? html`<div class="mapx-ui mapx-float-top">
+                ${this._renderMapPicker()}
+                ${this._renderPlacePickers(named, landmarks)}
+              </div>
+              ${this._renderPlaceInfo(map, places, true)}`
+            : nothing}
+
+          <div class="mapx-ui mapx-tools">
+            ${tool(this._mapFull ? "mdi:fullscreen-exit" : "mdi:fullscreen", this._mapFull ? "Exit full screen" : "Full screen", () => this._toggleMapFull())}
+            <span class="mapx-sep"></span>
+            ${tool("mdi:grid", "Grid", () => (this._mapGrid = !this._mapGrid), this._mapGrid)}
+            ${tool(labelIcon, `Labels: ${this._mapLabels === "auto" ? "automatic" : this._mapLabels}`, () => {
+              this._mapLabels = this._mapLabels === "auto" ? "all" : this._mapLabels === "all" ? "off" : "auto";
+            }, this._mapLabels !== "auto")}
+            ${landmarks.length ? tool("mdi:map-marker-star-outline", "Landmarks", () => (this._mapShowLandmarks = !this._mapShowLandmarks), this._mapShowLandmarks) : nothing}
+            ${named.length ? tool("mdi:parachute-outline", "Pick a drop spot for me", () => this._randomDrop(places)) : nothing}
+            <span class="mapx-sep"></span>
+            ${tool("mdi:draw", "Draw & pins", () => (this._mapTool = drawing ? "pan" : "draw"), drawing)}
           </div>
+
+          <div class="mapx-ui mapx-zoombar">
+            ${tool("mdi:plus", "Zoom in", () => this._zoomAt(1.6, undefined, undefined, true), false, z >= this._mapMaxZoom() - 0.01)}
+            <span class="mapx-zoomval">${z.toFixed(1)}×</span>
+            ${tool("mdi:minus", "Zoom out", () => this._zoomAt(1 / 1.6, undefined, undefined, true), false, z <= 1)}
+            ${tool("mdi:fit-to-screen-outline", "Whole map", () => this._resetMapView(), false, z === 1)}
+          </div>
+
+          ${drawing
+            ? html`<div class="mapx-ui mapx-drawbar">
+                ${tool("mdi:pencil", "Pen", () => (this._mapTool = "draw"), this._mapTool === "draw")}
+                ${tool("mdi:map-marker-plus", "Pin", () => (this._mapTool = "marker"), this._mapTool === "marker")}
+                ${tool("mdi:eraser", "Eraser", () => (this._mapTool = "erase"), this._mapTool === "erase")}
+                <span class="mapx-sep v"></span>
+                ${colors.map((c) => html`<button class="mapx-swatch ${this._mapColor === c ? "on" : ""}" style="--c:${c}" title="Colour" @click=${() => (this._mapColor = c)}></button>`)}
+                ${this._mapTool === "marker"
+                  ? html`<span class="mapx-sep v"></span>${icons.map((i) => html`<button class="mapx-emoji ${this._mapIcon === i ? "on" : ""}" @click=${() => (this._mapIcon = i)}>${i}</button>`)}`
+                  : nothing}
+                <span class="mapx-sep v"></span>
+                ${tool("mdi:undo", "Undo (Ctrl+Z)", () => this._undoNote(), false, !this._undo.length)}
+                ${tool("mdi:redo", "Redo (Ctrl+Shift+Z)", () => this._redoNote(), false, !this._redo.length)}
+                ${tool("mdi:delete-sweep-outline", "Clear all", () => this._annotate(() => ({ marks: [], lines: [] })), false, !notes.marks.length && !notes.lines.length)}
+                ${tool("mdi:check", "Done", () => (this._mapTool = "pan"))}
+              </div>`
+            : nothing}
         </div>
 
-        <div class="mapx-side">
-          <div class="mapx-search">
-            <ha-icon icon="mdi:magnify"></ha-icon>
-            <input type="search" placeholder="Find a place or grid (e.g. D4)" .value=${this._mapQuery}
-              @input=${(e: any) => (this._mapQuery = e.target.value)} />
-          </div>
-          <div class="mode-tabs">
-            <button class="mode-tab ${this._mapSort === "name" ? "active" : ""}" @click=${() => (this._mapSort = "name")}>A–Z</button>
-            <button class="mode-tab ${this._mapSort === "grid" ? "active" : ""}" @click=${() => (this._mapSort = "grid")}>By grid</button>
-          </div>
-
-          ${namedList.length
-            ? html`<div class="section-title">Named places (${namedList.length})</div>
-                <div class="mapx-list">
-                  ${namedList.map((p) => html`
-                    <button class="mapx-row ${p.key === this._mapPoi ? "on" : ""}" @click=${() => this._focusPlace(p)}>
-                      <span class="mapx-grid-badge">${p.grid}</span><span>${p.name}</span>
-                    </button>`)}
-                </div>`
-            : nothing}
-          ${landmarkGroups.length
-            ? html`<div class="section-title">Landmarks (${landmarks.length})</div>
-                <div class="mapx-list">
-                  ${landmarkGroups.map(([name, list]) => {
-                    const on = list.some((p) => p.key === this._mapPoi);
-                    return html`
-                      <button class="mapx-row landmark ${on ? "on" : ""}" @click=${() => {
-                        if (!this._mapShowLandmarks) this._mapShowLandmarks = true;
-                        const i = list.findIndex((p) => p.key === this._mapPoi);
-                        this._focusPlace(list[(i + 1) % list.length]);
-                      }}>
-                        <span class="mapx-grid-badge">${list.length > 1 ? `×${list.length}` : list[0].grid}</span><span>${name}</span>
-                      </button>`;
-                  })}
-                </div>`
-            : nothing}
-          ${!namedList.length && !landmarkGroups.length ? html`<div class="empty">No places match.</div>` : nothing}
-        </div>
+        ${this._mapFull
+          ? nothing
+          : html`<div class="mapx-side">
+              ${this._renderPlacePickers(named, landmarks)}
+              ${this._renderPlaceInfo(map, places, false)}
+            </div>`}
       </div>
     `;
   }
@@ -2511,7 +2896,7 @@ export class FortniteActivityCard extends LitElement {
             <div class="master-list">
               ${toMaster.map(({ f, v, lv }: any) => html`
                 <div class="master-row" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" @click=${() => (this._expandedSprite = f.id)}>
-                  ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
                   <span class="variant-name">${v.label === "Base" ? this._spriteName(f) : `${v.label} ${this._spriteName(f)}`}</span>
                   <span class="sp-level-pill">Level ${lv.level}</span>
                   <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, (v.xp / lv.maxXp) * 100)}%"></div></div>
@@ -2527,7 +2912,7 @@ export class FortniteActivityCard extends LitElement {
             <div class="hunt-row">
               ${hunt.map(({ f, v }: any) => html`
                 <div class="hunt-item" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" title="${v.name}" @click=${() => (this._expandedSprite = f.id)}>
-                  ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
                   <span>${v.label === "Base" ? this._spriteName(f) : `${v.label} ${this._spriteName(f)}`}</span>
                   <small>${v.drop_chance_pct}% chance</small>
                 </div>`)}
@@ -2543,7 +2928,6 @@ export class FortniteActivityCard extends LitElement {
       <div class="sp-grid">
         ${sorted.length
           ? sorted.map((f) => {
-              const open = this._expandedSprite === f.id;
               const info = this._spriteInfo(f, curve);
               const status = info.mastered
                 ? html`<span class="sp-status gold">⭐ Mastered</span>`
@@ -2554,17 +2938,18 @@ export class FortniteActivityCard extends LitElement {
                 ? html`<span class="sp-have">Have ${info.copies}${info.best ? html` · <span class=${info.best.atMax ? "sp-max" : ""} title=${info.best.atMax ? "Top level" : ""}>Lv ${info.best.level}</span>` : nothing}</span>`
                 : nothing;
               return html`
-                <div class="sp-card ${f.owned ? "" : "missing"} ${info.mastered ? "mastered" : ""} ${open ? "open" : ""} ${f.new || f.new_kinds ? "is-new" : ""}"
+                <div class="sp-card ${f.owned ? "" : "missing"} ${info.mastered ? "mastered" : ""} ${f.new ? "is-new" : ""}"
                   style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" role="button" tabindex="0"
-                  @click=${() => (this._expandedSprite = open ? null : f.id)}>
+                  @click=${() => (this._expandedSprite = f.id)}
+                  @keydown=${(e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this._expandedSprite = f.id; } }}>
                   <div class="sp-img">
-                    ${f.icon ? html`<img src=${f.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+                    ${f.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${f.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
                     ${info.mastered ? html`<span class="sp-badge star" title="Mastered">⭐</span>` : nothing}
                     ${!f.owned ? html`<span class="sp-badge lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
                     ${f.new
                       ? html`<span class="sp-badge new" title="New this update">NEW</span>`
                       : f.new_kinds
-                        ? html`<span class="sp-badge new kind" title="${f.new_kinds} new kind${f.new_kinds > 1 ? "s" : ""} this update">NEW KIND</span>`
+                        ? html`<span class="sp-newdot" title="${f.new_kinds} new kind${f.new_kinds > 1 ? "s" : ""} this update"></span>`
                         : nothing}
                   </div>
                   <span class="sp-name">${this._spriteName(f)}</span>
@@ -2573,15 +2958,16 @@ export class FortniteActivityCard extends LitElement {
                   <div class="sp-kinds" title="${info.owned} of ${info.total} kinds">
                     ${(f.variants || []).map((v: any) => html`
                       <span class="sp-kind ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""} ${v.new && !f.new ? "new" : ""}" title="${v.label}${v.new ? " · new this update" : ""}${v.owned ? "" : " (not found yet)"}">
-                        ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                        ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
                       </span>`)}
                   </div>
                   <span class="sp-kinds-text">${info.owned} of ${info.total} kinds</span>
-                </div>
-                ${open ? this._renderSpriteDetail(f) : nothing}`;
+                </div>`;
             })
           : html`<div class="empty">No sprites here yet.</div>`}
       </div>
+
+      ${this._expandedSprite ? this._renderSpriteSheet(all, sorted) : nothing}
 
       ${(a.versions || []).length > 1
         ? html`<div class="split-section">
@@ -2597,13 +2983,37 @@ export class FortniteActivityCard extends LitElement {
     `;
   }
 
+  /** Sprite details in a modal sheet (native <dialog>: top layer, Esc and backdrop close). */
+  private _renderSpriteSheet(all: any[], list: any[]) {
+    const order = list.some((f) => f.id === this._expandedSprite) ? list : all;
+    const i = order.findIndex((f) => f.id === this._expandedSprite);
+    const f = order[i];
+    if (!f) return nothing;
+    const go = (d: number) => (this._expandedSprite = order[(i + d + order.length) % order.length].id);
+    return html`
+      <dialog class="sp-sheet" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}"
+        @close=${() => (this._expandedSprite = null)}
+        @click=${(e: Event) => { if (e.target === e.currentTarget) (e.currentTarget as HTMLDialogElement).close(); }}
+        @keydown=${(e: KeyboardEvent) => { if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); }}>
+        <div class="sp-sheet-body">
+          <div class="sp-sheet-nav">
+            <button class="bp-nav" title="Previous sprite" @click=${() => go(-1)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
+            <span>${i + 1} of ${order.length}</span>
+            <button class="bp-nav" title="Next sprite" @click=${() => go(1)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+            <button class="bp-nav close" title="Close" @click=${(e: Event) => ((e.currentTarget as HTMLElement).closest("dialog") as HTMLDialogElement)?.close()}><ha-icon icon="mdi:close"></ha-icon></button>
+          </div>
+          ${this._renderSpriteDetail(f)}
+        </div>
+      </dialog>`;
+  }
+
   private _renderSpriteDetail(f: any) {
     const curve = this._spriteCurve(this._findEntity("sensor", "sprites")?.attributes || {});
     const familyBoon = f.name;
     return html`
       <div class="sprite-detail sp-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
         <div class="sprite-detail-head">
-          ${f.icon_large || f.icon ? html`<img src=${f.icon_large || f.icon} alt="" @error=${hideBroken} />` : nothing}
+          ${f.icon_large || f.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${f.icon_large || f.icon} alt="" @error=${hideBroken} />` : nothing}
           <div>
             <b>${f.name}</b> <span class="tag rarity-tag">${f.rarity || ""}</span>
             ${f.new ? html`<span class="sp-chip new">✨ New this update</span>` : f.added_in ? html`<span class="sp-chip dim">Added in update ${f.added_in}</span>` : nothing}
@@ -2619,7 +3029,7 @@ export class FortniteActivityCard extends LitElement {
             return html`
               <div class="sp-kind-row ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""}">
                 <div class="sp-kind-icon">
-                  ${v.icon ? html`<img src=${v.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${v.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
                   ${!v.owned ? html`<span class="sp-badge lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
                 </div>
                 <div class="sp-kind-main">
@@ -2682,7 +3092,7 @@ export class FortniteActivityCard extends LitElement {
           <span class="feature-sub">${this._num(favourite.matches)} matches</span>
         </div>
         ${art
-          ? html`<img class="feature-art" src=${art} alt="" @error=${hideBroken} />`
+          ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi feature-art" src=${art} alt="" @error=${hideBroken} />`
           : html`<ha-icon class="feature-icon" icon=${MODE_ICONS[category]}></ha-icon>`}
       </div>
     `;
@@ -2836,7 +3246,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="event-card ${timing.live ? "live" : ""} ${expanded ? "expanded" : ""} ${e.tournament_type === "FNCS" ? "featured" : ""}">
         <div class="event-row" @click=${() => this._toggleEvent(e)}>
-          ${e.poster ? html`<img class="event-art" src=${e.poster} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+          ${e.poster ? html`<img @load=${imgLoaded} decoding="async" class="fi event-art" src=${e.poster} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
           <div class="match-left">
             <div class="match-headline">
               <span class="event-name">${e.name}</span>
@@ -2860,7 +3270,7 @@ export class FortniteActivityCard extends LitElement {
     const hero = e.loading_screen || e.poster;
     return html`
       <div class="event-details">
-        ${hero ? html`<img class="event-hero" src=${hero} alt="" @error=${hideBroken} />` : nothing}
+        ${hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi event-hero" src=${hero} alt="" @error=${hideBroken} />` : nothing}
         ${e.subtitle && e.subtitle !== e.name ? html`<div class="detail-sub">${e.subtitle}</div>` : nothing}
         ${e.description ? html`<p class="detail-desc">${e.description}</p>` : nothing}
         ${e.schedule_info ? html`<p class="detail-desc muted">${e.schedule_info}</p>` : nothing}

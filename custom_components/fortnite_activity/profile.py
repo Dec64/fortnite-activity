@@ -600,6 +600,7 @@ def _parse_collection_body(
             "variants": parsed_variants,
         })
     families.sort(key=lambda f: (f["dex"] is None, f["dex"] or 0, f["name"] or ""))
+    tidy_variant_labels(families)
     equipped_id = data.get("equippedVariant")
     equipped = next(
         ({"family": f["name"], "variant": v["name"], "icon": v["icon"]}
@@ -1017,8 +1018,10 @@ def parse_shop(raw: Any) -> dict[str, Any] | None:
                 item_type = cos.get("type")
                 if isinstance(item_type, dict):
                     item_type = item_type.get("displayValue") or item_type.get("value")
+                intro = cos.get("introduction") if isinstance(cos.get("introduction"), dict) else {}
                 items.append({
                     "id": _suffix_lower(grant.get("templateId")),
+                    "intro": {"chapter": intro.get("chapter"), "season": intro.get("season")} if intro.get("chapter") else None,
                     "name": cos.get("name"),
                     "type": item_type,
                     "rarity": rarity,
@@ -1050,18 +1053,37 @@ def parse_shop(raw: Any) -> dict[str, Any] | None:
     }
 
 
+def news_fetched_at(raw: Any) -> str | None:
+    """Newest `fetchedAt` stamp anywhere in a news payload (when the provider last read Epic)."""
+    stamps: list[str] = []
+
+    def walk(value: Any, depth: int = 0) -> None:
+        if depth > 4:
+            return
+        if isinstance(value, dict):
+            if isinstance(value.get("fetchedAt"), str):
+                stamps.append(value["fetchedAt"])
+            for v in value.values():
+                walk(v, depth + 1)
+        elif isinstance(value, list):
+            for v in value[:10]:
+                walk(v, depth + 1)
+
+    walk(raw)
+    return max(stamps) if stamps else None
+
+
 def parse_news(raw: Any) -> list[dict[str, Any]] | None:
-    """In-game news posts from an untyped payload: the largest list of dicts with a title."""
+    """In-game news posts from an untyped payload: every list of titled posts, merged (all modes)."""
     best: list[dict[str, Any]] = []
 
     def walk(value: Any, depth: int = 0) -> None:
-        nonlocal best
         if depth > 6:
             return
         if isinstance(value, list):
             posts = [v for v in value if isinstance(v, dict) and (v.get("title") or v.get("tabTitle"))]
-            if posts and len(posts) > len(best):
-                best = posts
+            if posts:
+                best.extend(posts)
             for v in value[:10]:
                 walk(v, depth + 1)
         elif isinstance(value, dict):
@@ -1106,7 +1128,10 @@ def parse_map(raw: Any) -> dict[str, Any] | None:
             continue
         if not isinstance(poi.get("x"), (int, float)) or not isinstance(poi.get("y"), (int, float)):
             continue
-        pois.append({"name": poi["name"], "type": poi.get("type"), "x": poi["x"], "y": poi["y"]})
+        pois.append({
+            "name": poi["name"], "type": poi.get("type"), "x": poi["x"], "y": poi["y"],
+            "z": poi.get("z") if isinstance(poi.get("z"), (int, float)) else None,
+        })
     modes = [m for m in data.get("modes") or [] if isinstance(m, str)]
     return {
         "version": data.get("version"),
@@ -1302,3 +1327,65 @@ def annotate_new_sprites(current: dict[str, Any] | None, intro: dict[str, dict[s
         new_kinds += kinds
         families.append({**fam, "variants": variants, "new": fam_new, "new_kinds": kinds, "added_in": fam_intro.get(fam.get("id"))})
     return {**current, "families": families, "new_families": new_families, "new_kinds": new_kinds}
+
+
+def _norm_label(label: str) -> str:
+    return "".join(ch for ch in str(label or "").lower() if ch.isalnum())
+
+
+def tidy_variant_labels(families: list[dict[str, Any]]) -> None:
+    """Make kind names consistent across sprites.
+
+    The same kind is named differently in places ("Cheatmaster" vs "Cheat Master"), and some names
+    carry the sprite's own name ("Trick or Treat Bushranger"). Use the most common spelling of each
+    kind, and trim a label to a known kind it starts with.
+    """
+    counts: dict[str, dict[str, int]] = {}
+    for fam in families:
+        for v in fam.get("variants") or []:
+            label = v.get("label") or ""
+            counts.setdefault(_norm_label(label), {})
+            counts[_norm_label(label)][label] = counts[_norm_label(label)].get(label, 0) + 1
+    # Preferred display form: most used, then the one with spaces (readable)
+    preferred = {
+        key: sorted(forms.items(), key=lambda kv: (-kv[1], -kv[0].count(" "), kv[0]))[0][0]
+        for key, forms in counts.items() if key
+    }
+    popularity = {key: sum(forms.values()) for key, forms in counts.items()}
+    known = sorted((k for k in preferred if popularity[k] >= 3), key=len, reverse=True)
+    for fam in families:
+        for v in fam.get("variants") or []:
+            key = _norm_label(v.get("label"))
+            if not key or v.get("label") == "Base":
+                continue
+            if popularity.get(key, 0) < 3:
+                # A rare spelling that begins with a common kind name: trim to that kind
+                prefix = next((k for k in known if key.startswith(k) and len(key) > len(k)), None)
+                if prefix:
+                    v["label"] = preferred[prefix]
+                    continue
+            v["label"] = preferred.get(key, v.get("label"))
+
+
+def shop_history_update(seen: dict[str, dict[str, str]], item_ids: list[str], day: str) -> dict[str, int | None]:
+    """Record today's shop items; return days since each was last in the shop (None = no earlier record).
+
+    `seen` maps item id -> {"first": day, "last": day} and is updated in place. Days are ISO dates.
+    """
+    from datetime import date
+
+    out: dict[str, int | None] = {}
+    today = date.fromisoformat(day)
+    for item_id in item_ids:
+        rec = seen.get(item_id)
+        gap = None
+        if rec and rec.get("last") and rec["last"] != day:
+            gap = (today - date.fromisoformat(rec["last"])).days
+        elif rec and rec.get("prev_gap") is not None and rec.get("last") == day:
+            gap = rec["prev_gap"]
+        out[item_id] = gap
+        if not rec:
+            seen[item_id] = {"first": day, "last": day, "prev_gap": None}
+        elif rec.get("last") != day:
+            seen[item_id] = {"first": rec.get("first", day), "last": day, "prev_gap": gap}
+    return out

@@ -511,6 +511,7 @@ async def ws_get_news(hass: HomeAssistant, connection: websocket_api.ActiveConne
     main = (profile.maps.get("br") if profile else None) or {}
     connection.send_result(msg["id"], {
         "news": profile.news if profile else None,
+        "fetched_at": profile.news_fetched_at if profile else None,
         "update": {k: main.get(k) for k in ("version", "patch", "chapter", "season", "release_date", "name")} if main else None,
         "season": profile.season if profile else None,
     })

@@ -311,8 +311,10 @@ class ApiFortniteClient:
         """Today's Item Shop (public)."""
         return await self._request("/v1/shop")
 
-    async def get_news(self, mode: str = "br") -> Any:
-        """In-game news for a mode (public)."""
+    async def get_news(self, mode: str | None = "br") -> Any:
+        """In-game news for a mode, or every mode when mode is None (public)."""
+        if not mode:
+            return await self._request("/v1/news?lang=en")
         return await self._request(f"/v1/news/{quote(mode, safe='')}?lang=en")
 
     async def get_map(self, mode: str | None = None) -> Any:
