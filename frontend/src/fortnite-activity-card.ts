@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.9.0";
+const CARD_VERSION = "1.9.1";
 
 declare global {
   interface Window {
@@ -793,7 +793,9 @@ export class FortniteActivityCard extends LitElement {
 
   private _renderButtons(view: View, isPlaying: boolean, sections: View[]) {
     const showTabs = sections.length > 1;
-    const showActions = this._config.show_sub_buttons !== false;
+    // Legacy events_only cards never showed the session/refresh actions
+    const legacyEventsOnly = !this._config.sections?.length && this._config.layout === "events_only";
+    const showActions = this._config.show_sub_buttons !== false && !legacyEventsOnly;
     if (!showTabs && !showActions) return nothing;
     const liveCount = this._eventsEnabled ? this._liveEventCount() : 0;
     const tabDefs: Record<View, [string, string, number?]> = {
@@ -1281,7 +1283,7 @@ export class FortniteActivityCard extends LitElement {
             <div><b>${outfits}</b><span>outfits</span></div>
             <div><b>${bp.reward_count ?? sets.reduce((n, s) => n + s.rewardCount, 0)}</b><span>rewards</span></div>
             ${totalVbucks ? html`<div class="gold"><b>${this._num(totalVbucks)}</b><span>V-Bucks</span></div>` : nothing}
-            ${level ? html`<div><b>${level}</b><span>season lvl</span></div>` : nothing}
+            ${level ? html`<div><b>${level}</b><span>level</span></div>` : nothing}
           </div>
         </div>
 
