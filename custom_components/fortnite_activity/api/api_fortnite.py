@@ -305,9 +305,22 @@ class ApiFortniteClient:
         """A single public cosmetic by id."""
         return await self._request(f"/v2/cosmetics/{quote(cosmetic_id, safe='')}?lang=en")
 
-    async def search_cosmetics(self, query: str, cosmetic_type: str | None = "outfit") -> Any:
+    async def get_shop(self) -> Any:
+        """Today's Item Shop (public)."""
+        return await self._request("/v1/shop")
+
+    async def get_news(self, mode: str = "br") -> Any:
+        """In-game news for a mode (public)."""
+        return await self._request(f"/v1/news/{quote(mode, safe='')}?lang=en")
+
+    async def get_map(self, mode: str | None = None) -> Any:
+        """Map data with POIs for the current version; mode is br (default), og or rotating:<codename>."""
+        query = f"?{urlencode({'mode': mode})}" if mode else ""
+        return await self._request(f"/v1/map{query}")
+
+    async def search_cosmetics(self, query: str, cosmetic_type: str | None = "outfit", page_size: int = 10) -> Any:
         """Search the public cosmetic catalogue by name."""
-        params = {"q": query, "pageSize": 10, "lang": "en"}
+        params = {"q": query, "pageSize": page_size, "lang": "en"}
         if cosmetic_type:
             params["type"] = cosmetic_type
         return await self._request(f"{COSMETIC_SEARCH_ENDPOINT}?{urlencode(params)}")

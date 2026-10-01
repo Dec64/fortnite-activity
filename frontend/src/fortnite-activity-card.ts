@@ -3,8 +3,9 @@ import { property, state } from "lit/decorators.js";
 import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
+import "./panel";
 
-const CARD_VERSION = "1.11.1";
+const CARD_VERSION = "1.12.0";
 
 declare global {
   interface Window {
@@ -100,14 +101,13 @@ const DEFAULTS: Partial<FortniteCardConfig> = {
   theme_accent: "auto",
   show_match_feed: true,
   show_sub_buttons: true,
-  show_platforms: true,
   show_tournaments: true,
   compact: false,
   max_feed_matches: 10,
 };
 
-type View = "session" | "stats" | "events" | "sprites" | "trends" | "pass" | "locker";
-const ALL_SECTIONS: View[] = ["session", "stats", "events", "sprites", "trends", "pass", "locker"];
+type View = "session" | "stats" | "events" | "sprites" | "trends" | "pass" | "locker" | "shop" | "news" | "map";
+const ALL_SECTIONS: View[] = ["session", "stats", "events", "sprites", "trends", "pass", "locker", "shop", "news", "map"];
 
 // Readable labels for Battle Pass reward item types (the provider's type field)
 const REWARD_TYPES: Record<string, string> = {
@@ -160,12 +160,13 @@ interface PassSet {
 }
 type StatWindow = "lifetime" | "season" | "week" | "today";
 type Mode = "all" | "build" | "zero_build" | "reload";
+// Every filter group is multi-select; an empty list means "any"
 interface EventFilters {
-  region: string;
-  type: string;
-  mode: string;
-  team: string;
-  platform: string;
+  region: string[];
+  type: string[];
+  mode: string[];
+  team: string[];
+  platform: string[];
 }
 
 const hideBroken = (ev: Event) => {
@@ -222,6 +223,20 @@ export class FortniteActivityCard extends LitElement {
   @state() private _outfitSort: "rarity" | "name" = "rarity";
   @state() private _outfitPage = 0;
   @state() private _selectedOutfit: string | null = null;
+  @state() private _lockerFilter: "all" | "favorites" | "new" = "all";
+  @state() private _shop: { loading?: boolean; data?: any; error?: string } = {};
+  @state() private _shopTab: "today" | "wishlist" = "today";
+  @state() private _shopQuery = "";
+  @state() private _searchQuery = "";
+  @state() private _searchType = "outfit";
+  @state() private _searchResults: any[] | null = null;
+  @state() private _searchLoading = false;
+  @state() private _news: { loading?: boolean; data?: any; error?: string } = {};
+  @state() private _maps: Record<string, { loading?: boolean; data?: any; error?: string }> = {};
+  @state() private _mapMode = "br";
+  @state() private _mapPoi: string | null = null;
+  @state() private _filtersOpen = false;
+  private _searchTimer?: number;
   private _renderedView: View | null = null;
 
   private _entityCache = new Map<string, string>();
@@ -327,6 +342,15 @@ export class FortniteActivityCard extends LitElement {
       this._loadOutfits(); // owned outfits tick off each set's outfit reward
     }
     if (this._renderedView === "locker") this._loadOutfits();
+    if (this._renderedView === "shop") this._loadShop();
+    if (this._renderedView === "news") {
+      this._loadNews();
+      if (this._eventsEnabled || this._sections.includes("news")) this._loadEvents();
+    }
+    if (this._renderedView === "map") {
+      this._loadMap("br");
+      this._loadMap(this._mapMode);
+    }
     if (this._renderedView === "trends") this._loadTrends();
   }
 
@@ -541,6 +565,9 @@ export class FortniteActivityCard extends LitElement {
       this._loadOutfits();
     }
     if (view === "locker") this._loadOutfits();
+    if (view === "shop") this._loadShop();
+    if (view === "news") this._loadNews();
+    if (view === "map") this._loadMap(this._mapMode);
   }
 
   private _entityId(domain: string, key: string): string | undefined {
@@ -696,7 +723,7 @@ export class FortniteActivityCard extends LitElement {
     if (this._config.custom_background) {
       style += ` --card-bg: url('${this._config.custom_background}') center/cover no-repeat;`;
     }
-    const classes = `theme-${this._config.card_style || "bubble"}${this._config.compact ? " compact" : ""}`;
+    const classes = `theme-${this._config.card_style || "bubble"}${this._config.compact ? " compact" : ""}${this._config.kid_mode ? " kid" : ""}`;
 
     return html`
       <ha-card class=${classes} style="${style}">
@@ -718,7 +745,13 @@ export class FortniteActivityCard extends LitElement {
                   ? this._renderPassView(levelSensor)
                   : view === "locker"
                     ? this._renderLockerView(profileAttrs)
-                    : this._renderStatsView(statsAttrs, profileAttrs, brRankAttrs, reloadRankAttrs, powerSensor)}
+                    : view === "shop"
+                      ? this._renderShopView()
+                      : view === "news"
+                        ? this._renderNewsView()
+                        : view === "map"
+                          ? this._renderMapView()
+                          : this._renderStatsView(statsAttrs, profileAttrs, brRankAttrs, reloadRankAttrs, powerSensor)}
       </ha-card>
     `;
   }
@@ -729,7 +762,6 @@ export class FortniteActivityCard extends LitElement {
   ) {
     const displayName = profileAttrs.display_name || player.charAt(0).toUpperCase() + player.slice(1);
     const season = profileAttrs.season || this._catalog.season;
-    const platforms: any[] = this._config.show_platforms !== false ? profileAttrs.platforms || [] : [];
     const lastPlayed = statsAttrs.metrics?.last_played;
     const levelAttrs = levelSensor?.attributes || {};
     // Level needs the linked Epic account. (sNN_social_bp_level in stats is not a plain level: 32179 vs 322.)
@@ -769,11 +801,6 @@ export class FortniteActivityCard extends LitElement {
               ? html`<span title=${lastPlayed.name || ""}>Played ${this._formatRelativeTime(lastPlayed.time)}</span>`
               : nothing}
           </div>
-          ${platforms.length
-            ? html`<div class="platforms">
-                ${platforms.map((p) => html`<span class="platform-chip" title=${p.name || p.label}>${p.label}${p.name ? html` · ${p.name}` : nothing}</span>`)}
-              </div>`
-            : nothing}
         </div>
         <div class="status-pill ${isPlaying ? "live" : "idle"}">
           ${isPlaying
@@ -805,6 +832,20 @@ export class FortniteActivityCard extends LitElement {
   private _avatarName(profileAttrs: any): string {
     if ((this._config.avatar || "").trim()) return this._avatar?.name || "";
     return profileAttrs?.outfits?.avatar?.name || "";
+  }
+
+  private async _setFavorite(outfitId: string, favorite: boolean): Promise<void> {
+    try {
+      await this.hass.callService("fortnite_activity", "set_favorite", { player_id: this._player, outfit_id: outfitId, favorite });
+      const outfits = (this._outfits.data?.outfits || []).map((o: any) =>
+        String(o.key || o.id).toLowerCase() === outfitId ? { ...o, favorite } : o,
+      );
+      this._outfits = { data: { ...(this._outfits.data || {}), outfits } };
+    } catch (err) {
+      console.error("Favourite update failed:", err);
+    } finally {
+      this._selectedOutfit = null;
+    }
   }
 
   private async _setAvatar(outfitId: string | null): Promise<void> {
@@ -853,6 +894,7 @@ export class FortniteActivityCard extends LitElement {
     const showActions = this._config.show_sub_buttons !== false && !legacyEventsOnly;
     if (!showTabs && !showActions) return nothing;
     const liveCount = this._eventsEnabled ? this._liveEventCount() : 0;
+    const inShopCount = Number(this._findEntity("sensor", "wishlist")?.state) || 0;
     const tabDefs: Record<View, [string, string, number?]> = {
       session: ["mdi:lightning-bolt", isPlaying ? "Live Session" : "Last Session"],
       stats: ["mdi:trophy-outline", "Stats"],
@@ -861,6 +903,9 @@ export class FortniteActivityCard extends LitElement {
       trends: ["mdi:chart-line", "Trends"],
       pass: ["mdi:ticket-confirmation-outline", "Pass"],
       locker: ["mdi:hanger", "Locker"],
+      shop: ["mdi:shopping-outline", "Shop", inShopCount],
+      news: ["mdi:newspaper-variant-outline", "News"],
+      map: ["mdi:map-outline", "Map"],
     };
     const tab = (id: View, icon: string, label: string, badge = 0) => html`
       <button class="bubble-sub-button ${view === id ? "active" : ""}" @click=${() => this._setView(id)} title=${label}>
@@ -996,6 +1041,25 @@ export class FortniteActivityCard extends LitElement {
     `;
   }
 
+  /** One thing that happened in a match: quests done, level up, sprite found / levelled / mastered. */
+  private _progressChip(p: any) {
+    const icon = p.icon ? html`<img src=${p.icon} alt="" @error=${hideBroken} />` : nothing;
+    switch (p.type) {
+      case "quests":
+        return html`<span class="pchip quest">📜 ${p.count} quest${p.count > 1 ? "s" : ""} done</span>`;
+      case "level_up":
+        return html`<span class="pchip level">⬆️ Level ${p.to}</span>`;
+      case "sprite_new":
+        return html`<span class="pchip sprite">${icon}New sprite: ${p.name}</span>`;
+      case "sprite_mastered":
+        return html`<span class="pchip gold">${icon}⭐ Mastered ${p.name}</span>`;
+      case "sprite_level":
+        return html`<span class="pchip sprite">${icon}${p.name} → Lv ${p.level}</span>`;
+      default:
+        return nothing;
+    }
+  }
+
   private _renderMatch(m: MatchRecord) {
     const info = this._playlist(m.playlist_id);
     const art = info?.image;
@@ -1003,12 +1067,20 @@ export class FortniteActivityCard extends LitElement {
     const expanded = this._expandedMatch === key;
     const multi = (m.match_count || 1) > 1;
     const ranked = this._isRanked(m);
+    const progress: any[] = (m as any).progress || [];
+    const matchMap = expanded ? this._matchMap(m) : null;
     const detail = (label: string, value: any) =>
       value === undefined || value === null || value === "" ? nothing : html`<div class="detail"><span>${label}</span><b>${value}</b></div>`;
 
     return html`
       <div class="match-card ${m.is_victory ? "victory" : ""} ${expanded ? "expanded" : ""}"
-        @click=${() => (this._expandedMatch = expanded ? null : key)}>
+        @click=${() => {
+          this._expandedMatch = expanded ? null : key;
+          if (!expanded) {
+            this._loadMap("br");
+            this._loadMatchMap(m.playlist_id);
+          }
+        }}>
         <div class="match-row">
           ${art ? html`<img class="match-art" src=${art} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
           <div class="match-left">
@@ -1017,6 +1089,7 @@ export class FortniteActivityCard extends LitElement {
               <span class="placement-badge ${m.is_victory ? "win" : ""}">${m.placement_text}</span>
             </div>
             <span class="match-mode">${m.mode_name} • ${this._formatRelativeTime(m.timestamp)}</span>
+            ${progress.length ? html`<div class="progress-chips">${progress.map((p: any) => this._progressChip(p))}</div>` : nothing}
           </div>
           <div class="match-right">
             <span class="kills-badge"><ha-icon icon="mdi:skull-outline" style="--mdc-icon-size: 16px;"></ha-icon>${m.kills}</span>
@@ -1030,7 +1103,12 @@ export class FortniteActivityCard extends LitElement {
         </div>
         ${expanded
           ? html`<div class="match-details" @click=${(e: Event) => e.stopPropagation()}>
-              ${art ? html`<img class="detail-art" src=${art} alt="" @error=${hideBroken} />` : nothing}
+              ${matchMap
+                ? html`<div class="match-map">
+                    ${this._renderMapImage(matchMap, true)}
+                    <span>🗺️ ${matchMap.name || "Battle Royale island"}</span>
+                  </div>`
+                : art ? html`<img class="detail-art" src=${art} alt="" @error=${hideBroken} />` : nothing}
               ${info?.description ? html`<p class="detail-desc">${info.description}</p>` : nothing}
               <div class="detail-grid">
                 ${detail("Finished", this._formatWhen(m.timestamp))}
@@ -1480,9 +1558,16 @@ export class FortniteActivityCard extends LitElement {
       return html`<div class="empty">Your outfits will show up here soon.</div>`;
     }
     const rarityOrder = ["Mythic", "Legendary", "Epic", "Rare", "Uncommon", "Common"];
+    const NEW_DAYS = 14;
+    const isNew = (o: any) => !!o.first_seen && this._now - Date.parse(o.first_seen) < NEW_DAYS * 86400_000;
     const known = all.filter((o) => o.name);
+    const favCount = known.filter((o) => o.favorite).length;
+    const newCount = known.filter(isNew).length;
     const q = this._outfitQuery.trim().toLowerCase();
-    const filtered = known.filter((o) => !q || String(o.name).toLowerCase().includes(q) || String(o.set || "").toLowerCase().includes(q));
+    const filtered = known
+      .filter((o) => this._lockerFilter !== "favorites" || o.favorite)
+      .filter((o) => this._lockerFilter !== "new" || isNew(o))
+      .filter((o) => !q || String(o.name).toLowerCase().includes(q) || String(o.set || "").toLowerCase().includes(q));
     const sorted = [...filtered].sort((a, b) => {
       if (a.id?.toLowerCase() === avatarId) return -1;
       if (b.id?.toLowerCase() === avatarId) return 1;
@@ -1530,6 +1615,11 @@ export class FortniteActivityCard extends LitElement {
           <button class="mini-button ${this._outfitSort === "rarity" ? "active" : ""}" @click=${() => { this._outfitSort = "rarity"; this._outfitPage = 0; }}>Rarity</button>
           <button class="mini-button ${this._outfitSort === "name" ? "active" : ""}" @click=${() => { this._outfitSort = "name"; this._outfitPage = 0; }}>A–Z</button>
         </div>
+        <div class="mode-tabs">
+          ${(["all", "favorites", "new"] as const).map((id) => html`
+            <button class="mode-tab ${this._lockerFilter === id ? "active" : ""}" @click=${() => { this._lockerFilter = id; this._outfitPage = 0; }}>
+              ${id === "all" ? "All" : id === "favorites" ? `★ Favourites (${favCount})` : `✨ New (${newCount})`}</button>`)}
+        </div>
 
         ${shown.length
           ? html`<div class="bp-rewards locker-grid">
@@ -1544,10 +1634,18 @@ export class FortniteActivityCard extends LitElement {
                     <div class="bp-reward-img locker-img">
                       ${o.small || o.icon ? html`<img src=${o.small || o.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
                       ${isAvatar ? html`<span class="bp-cost included">Avatar</span>` : nothing}
-                      ${selected && !isAvatar
-                        ? html`<button class="locker-use" ?disabled=${this._loadingAction === "set_avatar"}
-                            @click=${(e: Event) => { e.stopPropagation(); this._setAvatar(id); }}>
-                            ${this._loadingAction === "set_avatar" ? "Saving…" : "Use as avatar"}</button>`
+                      ${o.favorite ? html`<span class="locker-fav">★</span>` : nothing}
+                      ${isNew(o) ? html`<span class="locker-new">✨ New</span>` : nothing}
+                      ${selected
+                        ? html`<div class="locker-actions">
+                            ${!isAvatar
+                              ? html`<button class="locker-use" ?disabled=${this._loadingAction === "set_avatar"}
+                                  @click=${(e: Event) => { e.stopPropagation(); this._setAvatar(id); }}>
+                                  ${this._loadingAction === "set_avatar" ? "Saving…" : "Use as avatar"}</button>`
+                              : nothing}
+                            <button class="locker-use fav" @click=${(e: Event) => { e.stopPropagation(); this._setFavorite(id, !o.favorite); }}>
+                              ${o.favorite ? "☆ Unfavourite" : "★ Favourite"}</button>
+                          </div>`
                         : nothing}
                     </div>
                     <span class="bp-reward-name">${o.name}</span>
@@ -1565,6 +1663,338 @@ export class FortniteActivityCard extends LitElement {
             </div>`
           : nothing}
       </div>
+    `;
+  }
+
+  // ---- shop + wishlist ------------------------------------------------------------
+
+  private async _loadShop(force = false): Promise<void> {
+    if (!this.hass || this._shop.loading || (!force && (this._shop.data !== undefined || this._shop.error))) return;
+    this._shop = { ...this._shop, loading: true };
+    try {
+      this._shop = { data: await this.hass.callWS({ type: "fortnite_activity/shop", player_id: this._player }) };
+    } catch (err: any) {
+      this._shop = { error: err?.message || "Item Shop unavailable" };
+    }
+  }
+
+  private async _toggleWishlist(item: any, add: boolean): Promise<void> {
+    const id = String(item.key || item.id || "").toLowerCase();
+    if (!id) return;
+    this._loadingAction = `wish:${id}`;
+    try {
+      await this.hass.callService("fortnite_activity", add ? "wishlist_add" : "wishlist_remove", {
+        player_id: this._player,
+        cosmetic_id: id,
+        ...(add ? Object.fromEntries(Object.entries({ name: item.name, icon: item.icon, type: item.type, rarity: item.rarity }).filter(([, v]) => typeof v === "string" && v)) : {}),
+      });
+      this._searchResults = (this._searchResults || []).map((r) => (String(r.key).toLowerCase() === id ? { ...r, wishlisted: add } : r));
+      await this._loadShop(true);
+    } catch (err) {
+      console.error("Wishlist update failed:", err);
+    } finally {
+      this._loadingAction = null;
+    }
+  }
+
+  private async _searchCosmetics(): Promise<void> {
+    const query = this._searchQuery.trim();
+    if (query.length < 2) {
+      this._searchResults = null;
+      return;
+    }
+    this._searchLoading = true;
+    try {
+      const r = await this.hass.callWS({
+        type: "fortnite_activity/cosmetic_search",
+        query,
+        player_id: this._player,
+        ...(this._searchType !== "all" ? { cosmetic_type: this._searchType } : {}),
+      });
+      if (this._searchQuery.trim() === query) this._searchResults = r?.results || [];
+    } catch {
+      this._searchResults = [];
+    } finally {
+      this._searchLoading = false;
+    }
+  }
+
+  private _wishButton(item: any, on: boolean) {
+    const id = String(item.key || item.id || "").toLowerCase();
+    return html`<button class="wish-btn ${on ? "on" : ""}" title=${on ? "Remove from wishlist" : "Add to wishlist"}
+      ?disabled=${this._loadingAction === `wish:${id}`}
+      @click=${(e: Event) => { e.stopPropagation(); this._toggleWishlist(item, !on); }}>
+      <ha-icon icon=${on ? "mdi:heart" : "mdi:heart-outline"}></ha-icon></button>`;
+  }
+
+  private _renderShopView() {
+    const st = this._shop;
+    if (st.loading && st.data === undefined) return html`<div class="empty">Loading the Item Shop…</div>`;
+    if (st.error) return html`<div class="empty">${st.error}</div>`;
+    const shop = st.data?.shop;
+    const wishlist: any[] = st.data?.wishlist || [];
+    const inShop: any[] = st.data?.in_shop || [];
+    const tab = (id: "today" | "wishlist", label: any) => html`
+      <button class="mode-tab ${this._shopTab === id ? "active" : ""}" @click=${() => (this._shopTab = id)}>${label}</button>`;
+    return html`
+      ${inShop.length
+        ? html`<div class="shop-alert">
+            <ha-icon icon="mdi:heart"></ha-icon>
+            <span><b>${inShop.length === 1 ? inShop[0].name : `${inShop.length} wishlist items`}</b> ${inShop.length === 1 ? "is" : "are"} in the shop today!</span>
+          </div>`
+        : nothing}
+      <div class="mode-tabs shop-tabs">
+        ${tab("today", "Today's shop")}
+        ${tab("wishlist", html`♥ Wishlist${wishlist.length ? ` (${wishlist.length})` : ""}`)}
+      </div>
+      ${this._shopTab === "wishlist" ? this._renderWishlist(wishlist, inShop) : this._renderShopToday(shop)}
+    `;
+  }
+
+  private _renderShopToday(shop: any) {
+    if (!shop) return html`<div class="empty">The Item Shop will show here soon.</div>`;
+    const q = this._shopQuery.trim().toLowerCase();
+    const sections = (shop.sections || [])
+      .map((s: any) => ({ ...s, offers: s.offers.filter((o: any) => !q || String(o.title).toLowerCase().includes(q) || o.items.some((i: any) => String(i.name || "").toLowerCase().includes(q))) }))
+      .filter((s: any) => s.offers.length);
+    const ends = shop.expiration ? Date.parse(shop.expiration) - this._now : null;
+    return html`
+      <div class="locker-controls">
+        <input class="locker-search" type="search" placeholder="Search today's shop" .value=${this._shopQuery}
+          @input=${(e: any) => (this._shopQuery = e.target.value)} />
+        ${ends && ends > 0 ? html`<span class="muted">New shop in ${this._formatSpan(ends)}</span>` : nothing}
+      </div>
+      ${sections.length
+        ? sections.map((s: any) => html`
+            <div class="section-title">${s.name}</div>
+            <div class="shop-grid">
+              ${s.offers.map((o: any) => {
+                const first = o.items[0] || {};
+                return html`
+                  <div class="shop-tile ${o.owned ? "owned" : ""} ${o.wishlisted ? "wish" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(first)] || "#9CA3AF"}"
+                    title="${o.title}${o.items.length > 1 ? ` · ${o.items.map((i: any) => i.name).join(", ")}` : ""}">
+                    <div class="shop-img">
+                      ${o.image ? html`<img src=${o.image} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:shopping-outline"></ha-icon>`}
+                      ${o.owned ? html`<span class="bp-state unlocked" title="Owned">✓</span>` : this._wishButton(first, !!first.wishlisted)}
+                      ${o.bundle ? html`<span class="shop-bundle">Bundle · ${o.items.length}</span>` : nothing}
+                    </div>
+                    <span class="bp-reward-name">${o.title}</span>
+                    <span class="shop-price">Ⓥ ${this._num(o.price)}${o.regular_price && o.regular_price > o.price ? html` <s>${this._num(o.regular_price)}</s>` : nothing}</span>
+                  </div>`;
+              })}
+            </div>`)
+        : html`<div class="empty">Nothing in today's shop matches “${this._shopQuery}”.</div>`}
+    `;
+  }
+
+  private _renderWishlist(wishlist: any[], inShop: any[]) {
+    const inShopIds = new Set(inShop.map((i) => i.id));
+    const typeChip = (id: string, label: string) => html`
+      <button class="mode-tab ${this._searchType === id ? "active" : ""}" @click=${() => { this._searchType = id; this._searchCosmetics(); }}>${label}</button>`;
+    return html`
+      <div class="section-title">Find any skin or item</div>
+      <div class="locker-controls">
+        <input class="locker-search" type="search" placeholder="Type a name, e.g. Peely" .value=${this._searchQuery}
+          @input=${(e: any) => {
+            this._searchQuery = e.target.value;
+            window.clearTimeout(this._searchTimer);
+            this._searchTimer = window.setTimeout(() => this._searchCosmetics(), 400);
+          }} />
+      </div>
+      <div class="mode-tabs">${typeChip("outfit", "Outfits")} ${typeChip("all", "Everything")}</div>
+      ${this._searchLoading ? html`<div class="empty">Searching…</div>` : nothing}
+      ${this._searchResults
+        ? this._searchResults.length
+          ? html`<div class="bp-rewards locker-grid">
+              ${this._searchResults.map((r) => html`
+                <div class="bp-reward" style="--rarity:${RARITY_COLORS[this._outfitRarity(r)] || "#9CA3AF"}" title=${r.name}>
+                  <div class="bp-reward-img locker-img">
+                    ${r.icon ? html`<img src=${r.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
+                    ${r.owned ? html`<span class="bp-state unlocked" title="Owned">✓</span>` : this._wishButton(r, !!r.wishlisted)}
+                  </div>
+                  <span class="bp-reward-name">${r.name}</span>
+                  <span class="bp-reward-type">${r.owned ? "Owned" : r.type || this._outfitRarity(r)}</span>
+                </div>`)}
+            </div>`
+          : html`<div class="empty">No matches.</div>`
+        : nothing}
+
+      <div class="section-title">Your wishlist</div>
+      ${wishlist.length
+        ? html`<div class="bp-rewards locker-grid">
+            ${wishlist.map((w) => html`
+              <div class="bp-reward ${inShopIds.has(w.id) ? "in-shop" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(w)] || "#9CA3AF"}" title=${w.name || w.id}>
+                <div class="bp-reward-img locker-img">
+                  ${w.icon ? html`<img src=${w.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
+                  ${this._wishButton(w, true)}
+                  ${inShopIds.has(w.id) ? html`<span class="shop-bundle in">In shop!</span>` : nothing}
+                </div>
+                <span class="bp-reward-name">${w.name || w.id}</span>
+                <span class="bp-reward-type">${inShopIds.has(w.id) ? "Available now" : w.type || "Waiting"}</span>
+              </div>`)}
+          </div>`
+        : html`<div class="empty">Tap ♡ on any skin to get told when it is in the shop.</div>`}
+    `;
+  }
+
+  // ---- news ----------------------------------------------------------------------
+
+  private async _loadNews(): Promise<void> {
+    if (!this.hass || this._news.loading || this._news.data !== undefined || this._news.error) return;
+    this._news = { loading: true };
+    try {
+      this._news = { data: await this.hass.callWS({ type: "fortnite_activity/news", player_id: this._player }) };
+    } catch (err: any) {
+      this._news = { error: err?.message || "News unavailable" };
+    }
+  }
+
+  private _renderNewsView() {
+    const st = this._news;
+    if (st.loading || (st.data === undefined && !st.error)) return html`<div class="empty">Loading news…</div>`;
+    if (st.error) return html`<div class="empty">${st.error}</div>`;
+    const news: any[] = st.data?.news || [];
+    const up = st.data?.update;
+    const season = st.data?.season || this._catalog.season;
+    return html`
+      ${up || season
+        ? html`<div class="news-update">
+            <ha-icon icon="mdi:update"></ha-icon>
+            <div>
+              <b>${up?.chapter && up?.season ? `Chapter ${up.chapter} · Season ${up.season}` : season?.number ? `Season ${season.number}` : "Current update"}</b>
+              <span>
+                ${up?.patch || up?.version ? `Update ${up.patch || up.version}` : ""}${up?.release_date ? ` · out ${this._formatWhen(up.release_date)}` : ""}
+                ${season?.days_left != null ? ` · season ends in ${season.days_left} days` : ""}
+              </span>
+            </div>
+          </div>`
+        : nothing}
+      ${this._sectionsHas("events") ? nothing : this._renderNextEventTeaser()}
+      ${news.length
+        ? html`<div class="news-list">
+            ${news.map((n) => html`
+              <div class="news-card">
+                ${n.image || n.tile ? html`<img src=${n.image || n.tile} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+                <div class="news-body">
+                  ${n.tag ? html`<span class="tag">${n.tag}</span>` : nothing}
+                  <b>${n.title}</b>
+                  ${n.body ? html`<p>${n.body}</p>` : nothing}
+                </div>
+              </div>`)}
+          </div>`
+        : html`<div class="empty">No news right now.</div>`}
+    `;
+  }
+
+  private _sectionsHas(view: View): boolean {
+    return this._sections.includes(view);
+  }
+
+  /** Next live / upcoming tournament, so a News-only card still shows what is coming up. */
+  private _renderNextEventTeaser() {
+    const list = (this._events.list || []).filter((e) => this._matchesFilters(e, this._currentFilters()));
+    const next = list.find((e) => e.windows.some((w: any) => this._windowState(w) !== "finished"));
+    if (!next) return nothing;
+    const timing = this._eventTiming(next);
+    return html`<div class="news-update event">
+      ${next.poster ? html`<img src=${next.poster} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tournament"></ha-icon>`}
+      <div><b>${next.name}</b><span>${timing.text}</span></div>
+    </div>`;
+  }
+
+  // ---- map -----------------------------------------------------------------------
+
+  private async _loadMap(mode = this._mapMode): Promise<void> {
+    if (!this.hass || this._maps[mode]?.loading || this._maps[mode]?.data !== undefined) return;
+    this._maps = { ...this._maps, [mode]: { loading: true } };
+    try {
+      const r = await this.hass.callWS({ type: "fortnite_activity/map", player_id: this._player, mode });
+      this._maps = { ...this._maps, [mode]: { data: r?.map ?? null } };
+    } catch (err: any) {
+      this._maps = { ...this._maps, [mode]: { error: err?.message || "Map unavailable" } };
+    }
+  }
+
+  private async _loadMatchMap(playlistId: string): Promise<void> {
+    const key = `playlist:${playlistId}`;
+    if (!this.hass || this._maps[key]) return;
+    this._maps = { ...this._maps, [key]: { loading: true } };
+    try {
+      const r = await this.hass.callWS({ type: "fortnite_activity/map", player_id: this._player, playlist_id: playlistId });
+      this._maps = { ...this._maps, [key]: { data: r?.map ?? null } };
+    } catch {
+      this._maps = { ...this._maps, [key]: { data: null } };
+    }
+  }
+
+  /** The map a match was played on: the rotating map named in its playlist, else today's main island for BR modes. */
+  private _matchMap(m: MatchRecord): any {
+    const own = this._maps[`playlist:${m.playlist_id}`]?.data;
+    if (own) return own;
+    if (m.mode_category === "build" || m.mode_category === "zero_build") return this._maps.br?.data || null;
+    return null;
+  }
+
+  /** POI position as % of the image. World X runs bottom→top and Y left→right on the published images. */
+  private _poiPos(map: any, poi: any): { left: number; top: number } | null {
+    const b = map?.bounds;
+    if (!b || b.maxX === b.minX || b.maxY === b.minY) return null;
+    const left = ((poi.y - b.minY) / (b.maxY - b.minY)) * 100;
+    const top = (1 - (poi.x - b.minX) / (b.maxX - b.minX)) * 100;
+    if (left < 0 || left > 100 || top < 0 || top > 100) return null;
+    return { left, top };
+  }
+
+  private _renderMapImage(map: any, compact = false) {
+    const named = (map.pois || []).filter((p: any) => /poi|landmark|named/i.test(String(p.type || "")) || !p.type);
+    return html`
+      <div class="map-frame ${compact ? "compact" : ""}">
+        <img src=${map.image} alt=${map.name || "Map"} loading="lazy" @error=${hideBroken} />
+        ${compact
+          ? nothing
+          : named.map((p: any) => {
+              const pos = this._poiPos(map, p);
+              return pos
+                ? html`<span class="map-poi ${this._mapPoi === p.name ? "on" : ""}" style="left:${pos.left}%;top:${pos.top}%"
+                    title=${p.name} @click=${() => (this._mapPoi = this._mapPoi === p.name ? null : p.name)}>
+                    <i></i><b>${p.name}</b></span>`
+                : nothing;
+            })}
+      </div>
+    `;
+  }
+
+  private _renderMapView() {
+    const main = this._maps.br?.data;
+    const modes: string[] = main?.modes || [];
+    const st = this._maps[this._mapMode] || {};
+    if (st.loading || st.data === undefined) {
+      return html`<div class="empty">Loading map…</div>`;
+    }
+    if (st.error) return html`<div class="empty">${st.error}</div>`;
+    const map = st.data;
+    if (!map) return html`<div class="empty">The map will show here soon.</div>`;
+    const modeLabel = (m: string) =>
+      m === "br" ? "Battle Royale" : m === "og" ? "OG" : m.startsWith("rotating:") ? this._maps[m]?.data?.name || m.split(":")[1].replace(/^\w/, (c) => c.toUpperCase()) : m;
+    const named = (map.pois || []).filter((p: any) => /poi|landmark|named/i.test(String(p.type || "")) || !p.type);
+    return html`
+      ${modes.length > 1
+        ? html`<div class="mode-tabs">
+            ${modes.map((m) => html`<button class="mode-tab ${this._mapMode === m ? "active" : ""}" @click=${() => { this._mapMode = m; this._loadMap(m); }}>${modeLabel(m)}</button>`)}
+          </div>`
+        : nothing}
+      <div class="map-head">
+        <b>${map.name || modeLabel(this._mapMode)}</b>
+        <span class="muted">${map.chapter && map.season ? `Chapter ${map.chapter} · Season ${map.season}` : ""}${map.patch ? ` · ${map.patch}` : ""}</span>
+      </div>
+      ${this._renderMapImage(map)}
+      ${named.length
+        ? html`<div class="section-title">Places (${named.length})</div>
+            <div class="poi-list">
+              ${[...named].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((p: any) => html`
+                <button class="tag poi-chip ${this._mapPoi === p.name ? "on" : ""}" @click=${() => (this._mapPoi = this._mapPoi === p.name ? null : p.name)}>${p.name}</button>`)}
+            </div>`
+        : nothing}
     `;
   }
 
@@ -1896,13 +2326,8 @@ export class FortniteActivityCard extends LitElement {
   // ---- events --------------------------------------------------------------
 
   private _defaultFilters(): EventFilters {
-    return {
-      region: this._config.events_region || this._events.defaultRegion || "EU",
-      type: "all",
-      mode: "all",
-      team: "all",
-      platform: "all",
-    };
+    const region = this._config.events_region || this._events.defaultRegion || "EU";
+    return { region: region === "all" ? [] : [region], type: [], mode: [], team: [], platform: [] };
   }
 
   private _currentFilters(): EventFilters {
@@ -1910,16 +2335,18 @@ export class FortniteActivityCard extends LitElement {
   }
 
   private _matchesFilters(e: any, f: EventFilters): boolean {
-    if (f.region !== "all" && e.region_group !== f.region) return false;
-    if (f.type !== "all" && e.tournament_type !== f.type) return false;
-    if (f.mode === "Ranked" ? !e.ranked : f.mode !== "all" && e.mode !== f.mode) return false;
-    if (f.team !== "all" && e.team !== f.team) return false;
-    if (f.platform !== "all" && !(e.platform_groups || []).includes(f.platform)) return false;
+    if (f.region.length && !f.region.includes(e.region_group)) return false;
+    if (f.type.length && !f.type.includes(e.tournament_type)) return false;
+    if (f.mode.length && !f.mode.some((m) => (m === "Ranked" ? e.ranked : e.mode === m))) return false;
+    if (f.team.length && !f.team.includes(e.team)) return false;
+    if (f.platform.length && !f.platform.some((p) => (e.platform_groups || []).includes(p))) return false;
     return true;
   }
 
-  private _setFilter(key: keyof EventFilters, value: string): void {
-    this._filters = { ...this._currentFilters(), [key]: value };
+  private _toggleFilter(key: keyof EventFilters, value: string): void {
+    const cur = this._currentFilters();
+    const list = cur[key].includes(value) ? cur[key].filter((v) => v !== value) : [...cur[key], value];
+    this._filters = { ...cur, [key]: list };
   }
 
   private _renderEventsView() {
@@ -1934,25 +2361,40 @@ export class FortniteActivityCard extends LitElement {
       .filter((e) => this._matchesFilters(e, f))
       .filter((e) => e.windows.some((w: any) => this._windowState(w) !== "finished") || this._expandedEvent === e.key);
 
-    const select = (key: keyof EventFilters, options: Array<[string, string]>) => html`
-      <select class="filter-select" .value=${f[key]} @change=${(e: Event) => this._setFilter(key, (e.target as HTMLSelectElement).value)}>
-        ${options.map(([value, label]) => html`<option value=${value} ?selected=${f[key] === value}>${label}</option>`)}
-      </select>
-    `;
+    const groups: Array<[keyof EventFilters, string, Array<[string, string]>]> = [
+      ["region", "Region", regions.map((r) => [r, r] as [string, string])],
+      ["type", "Type", [...new Set(all.map((e) => e.tournament_type).filter(Boolean))].map((t: any) => [t, TOURNAMENT_TYPES[t] || t] as [string, string])],
+      ["mode", "Mode", [["Battle Royale", "Battle Royale"], ["Zero Build", "Zero Build"], ["Reload", "Reload"], ["Ranked", "Ranked"]]],
+      ["team", "Team", [["Solo", "Solo"], ["Duos", "Duos"], ["Trios", "Trios"], ["Squads", "Squads"]]],
+      ["platform", "Platform", [["PC", "PC"], ["Console", "Console"], ["Mobile", "Mobile"]]],
+    ];
+    const labelFor = (key: keyof EventFilters, value: string) => groups.find((g) => g[0] === key)?.[2].find((o) => o[0] === value)?.[1] || value;
+    const active = groups.flatMap(([key]) => f[key].map((v) => [key, v] as [keyof EventFilters, string]));
+    const changed = JSON.stringify(f) !== JSON.stringify(this._defaultFilters());
 
     return html`
-      <div class="event-filters">
-        ${select("region", [["all", "All regions"], ...regions.map((r) => [r, r] as [string, string])])}
-        ${select("type", [["all", "Type"], ...[...new Set(all.map((e) => e.tournament_type).filter(Boolean))].map((t: any) => [t, TOURNAMENT_TYPES[t] || t] as [string, string])])}
-        ${select("mode", [["all", "Mode"], ["Battle Royale", "Battle Royale"], ["Zero Build", "Zero Build"], ["Reload", "Reload"], ["Ranked", "Ranked cups"]])}
-        ${select("team", [["all", "Team"], ["Solo", "Solo"], ["Duos", "Duos"], ["Trios", "Trios"], ["Squads", "Squads"]])}
-        ${select("platform", [["all", "Platform"], ["PC", "PC"], ["Console", "Console"], ["Mobile", "Mobile"]])}
-        ${this._filters && JSON.stringify(this._filters) !== JSON.stringify({ ...this._filters, ...this._defaultFilters() })
-          ? html`<button class="filter-reset" @click=${() => (this._filters = null)} title="Clear all filters">
-              <ha-icon icon="mdi:filter-remove-outline"></ha-icon><span>Reset</span>
-            </button>`
+      <div class="filter-bar">
+        <button class="filter-toggle ${this._filtersOpen ? "open" : ""}" @click=${() => (this._filtersOpen = !this._filtersOpen)}>
+          <ha-icon icon="mdi:filter-variant"></ha-icon><span>Filters</span>${active.length ? html`<b>${active.length}</b>` : nothing}
+        </button>
+        <div class="filter-active">
+          ${active.length
+            ? active.map(([key, v]) => html`<button class="fchip on" title="Remove" @click=${() => this._toggleFilter(key, v)}>${labelFor(key, v)} ✕</button>`)
+            : html`<span class="muted">All tournaments</span>`}
+        </div>
+        ${changed
+          ? html`<button class="filter-reset" @click=${() => (this._filters = null)} title="Reset filters"><ha-icon icon="mdi:filter-remove-outline"></ha-icon></button>`
           : nothing}
       </div>
+      ${this._filtersOpen
+        ? html`<div class="filter-panel">
+            ${groups.map(([key, label, options]) => options.length
+              ? html`<div class="fgroup"><span>${label}</span><div>
+                  ${options.map(([value, text]) => html`<button class="fchip ${f[key].includes(value) ? "on" : ""}" @click=${() => this._toggleFilter(key, value)}>${text}</button>`)}
+                </div></div>`
+              : nothing)}
+          </div>`
+        : nothing}
       <div class="match-feed-header">
         <span>Tournaments (${list.length})</span>
         <span class="muted">UK time</span>

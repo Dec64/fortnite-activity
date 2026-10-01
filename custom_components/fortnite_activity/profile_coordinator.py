@@ -36,10 +36,15 @@ from .epic_auth import EpicAuthError, EpicReauthRequired, EpicTokenManager
 from .profile import (
     compute_window,
     parse_display_name,
-    parse_external_auths,
     parse_playlists,
     parse_battlepass,
     parse_athena_outfits,
+    parse_shop,
+    parse_news,
+    parse_map,
+    map_mode_for_playlist,
+    progress_snapshot,
+    progress_events,
     mark_battlepass_owned,
     parse_common_core,
     is_outfit_record,
@@ -115,6 +120,15 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.outfit_index: dict[str, dict[str, Any]] = {}
         self.outfit_index_info: dict[str, Any] = {}
         self._cosmetic_lookups: dict[str, dict[str, Any] | None] = {}
+        # Public shop / news / map catalogues
+        self.shop: dict[str, Any] | None = None
+        self.news: list[dict[str, Any]] | None = None
+        self.maps: dict[str, dict[str, Any]] = {}
+        # Match progress: last snapshot per player and a callback that attaches events to matches
+        self._progress: dict[str, dict[str, Any]] = {}
+        self._progress_at: dict[str, datetime] = {}
+        self._match_progress_due: set[str] = set()
+        self.on_progress: Callable[[str, list[dict[str, Any]], datetime], None] | None = None
 
         # Epic player tokens for players who linked their account (device auth)
         self.token_managers: dict[str, EpicTokenManager] = {}
@@ -235,6 +249,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if ok:
                 self.sprite_boons = parse_sprite_boons(raw) or self.sprite_boons
 
+        await self._async_update_public(now)
+
         starts = self._window_starts(now)
         for p in self.players_config:
             await self._async_update_player(p[CONF_PLAYER_ID], p[CONF_ACCOUNT_ID], now, starts)
@@ -246,7 +262,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self, player_id: str, account_id: str, now: datetime, starts: dict[str, int]
     ) -> None:
         info = self._players.setdefault(
-            player_id, {"display_name": None, "platforms": None, "windows": {}, "window_labels": WINDOW_LABELS}
+            player_id, {"display_name": None, "windows": {}, "window_labels": WINDOW_LABELS}
         )
         catalogue_age = timedelta(hours=CATALOGUE_REFRESH_HOURS)
 
@@ -255,13 +271,6 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ok, raw = await self._guarded(key, lambda: self.api_client.get_account(account_id))
             if ok:
                 info["display_name"] = parse_display_name(raw)
-                self._fetched_at[key] = now
-
-        key = f"platforms:{player_id}"
-        if self._stale(key, catalogue_age, now):
-            ok, raw = await self._guarded(key, lambda: self.api_client.get_external_auths(account_id))
-            if ok:
-                info["platforms"] = parse_external_auths(raw)
                 self._fetched_at[key] = now
 
         lifetime = self._lifetime_matches(player_id)
@@ -316,7 +325,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._fetched_at[key] = now
 
         key = f"quests:{player_id}"
-        if self._stale(key, timedelta(hours=6), now):
+        match_due = player_id in self._match_progress_due
+        if self._stale(key, timedelta(hours=6), now) or (match_due and self._stale(key, timedelta(minutes=3), now)):
             ok, raw = await self._guarded(key, lambda: self.api_client.get_quests(account_id, token))
             if ok:
                 self.quest_debug[player_id] = sample_items(raw)
@@ -371,6 +381,9 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     info["sprites"] = {**(info.get("sprites") or {}), "cumulative": cumulative}
                 self._fetched_at[key] = now
 
+        self._record_progress(player_id, info, now)
+        await self._update_wishlist_hits(player_id, info)
+
     async def _async_update_outfits(
         self, player_id: str, account_id: str, token: str, info: dict[str, Any], now: datetime
     ) -> None:
@@ -393,6 +406,7 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else:
                     self.owned_outfits[player_id] = parsed["ids"]
                     self.owned_cosmetics[player_id] = parsed["cosmetics"]
+                    await self._track_first_seen(player_id, parsed["ids"], now)
                     outfits["owned_count"] = parsed["count"]
                     outfits["profile_updated"] = parsed["profile_updated"]
                 self._fetched_at[key] = now
@@ -479,6 +493,162 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.async_set_updated_data({pid: dict(i) for pid, i in self._players.items()})
         return outfits["avatar"]
 
+
+    # ---- public catalogues: shop, news, map ------------------------------------------
+
+    async def _async_update_public(self, now: datetime) -> None:
+        expiry = None
+        if self.shop and self.shop.get("expiration"):
+            try:
+                expiry = datetime.fromisoformat(str(self.shop["expiration"]).replace("Z", "+00:00"))
+            except ValueError:
+                expiry = None
+        if self._stale("shop", timedelta(hours=6), now) or (expiry and now >= expiry):
+            ok, raw = await self._guarded("shop", self.api_client.get_shop)
+            if ok:
+                self.shop = parse_shop(raw) or self.shop
+            self._fetched_at["shop"] = now
+        if self._stale("news", timedelta(hours=3), now):
+            ok, raw = await self._guarded("news", lambda: self.api_client.get_news("br"))
+            if ok:
+                self.news = parse_news(raw) or self.news
+            self._fetched_at["news"] = now
+        if self._stale("map:br", timedelta(hours=CATALOGUE_REFRESH_HOURS), now):
+            await self.async_get_map("br", force=True)
+
+    async def async_get_map(self, mode: str = "br", force: bool = False) -> dict[str, Any] | None:
+        """Map data for a mode (br, og, rotating:<codename>), cached for a day."""
+        mode = (mode or "br").strip().lower()
+        now = self._now()
+        key = f"map:{mode}"
+        if force or (mode not in self.maps and self._stale(key, timedelta(hours=1), now)) or self._stale(key, timedelta(hours=CATALOGUE_REFRESH_HOURS), now):
+            ok, raw = await self._guarded("map", lambda: self.api_client.get_map(None if mode == "br" else mode))
+            if ok:
+                parsed = parse_map(raw)
+                if parsed:
+                    self.maps[mode] = parsed
+            self._fetched_at[key] = now
+        return self.maps.get(mode)
+
+    async def async_map_for_playlist(self, playlist_id: str | None) -> dict[str, Any] | None:
+        """The map a stats playlist key was played on, when the map list names its codename."""
+        main = self.maps.get("br") or await self.async_get_map("br")
+        mode = map_mode_for_playlist((main or {}).get("modes") or [], playlist_id)
+        if not mode:
+            return None
+        return await self.async_get_map(mode)
+
+    def shop_for(self, player_id: str | None) -> dict[str, Any] | None:
+        """Today's shop with owned / wishlisted flags for the player."""
+        if not self.shop:
+            return None
+        owned = (self.owned_cosmetics.get(player_id) or {}) if player_id else {}
+        wish = {w["id"] for w in (self.storage.get_wishlist(player_id) if self.storage and player_id else [])}
+        sections = []
+        for section in self.shop["sections"]:
+            offers = []
+            for offer in section["offers"]:
+                items = [{**i, "owned": i["id"] in owned, "wishlisted": i["id"] in wish} for i in offer["items"]]
+                offers.append({**offer, "items": items, "owned": all(i["owned"] for i in items), "wishlisted": any(i["wishlisted"] for i in items)})
+            sections.append({**section, "offers": offers})
+        return {**self.shop, "sections": sections}
+
+    # ---- wishlist / favourites / new outfits -----------------------------------------
+
+    async def async_wishlist(self, player_id: str, cosmetic_id: str, add: bool, meta: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+        cosmetic_id = (cosmetic_id or "").strip().lower()
+        if not cosmetic_id or not self.storage:
+            raise ValueError("A cosmetic id is required")
+        items = [w for w in self.storage.get_wishlist(player_id) if w["id"] != cosmetic_id]
+        if add:
+            meta = dict(meta or {})
+            if not meta.get("name"):
+                ok, raw = await self._guarded("cosmetic", lambda: self.api_client.get_cosmetic(cosmetic_id))
+                item = (raw.get("data") if isinstance(raw, dict) and isinstance(raw.get("data"), dict) else raw) if ok else None
+                if not isinstance(item, dict) or not item.get("name"):
+                    raise ValueError("That cosmetic was not found")
+                meta = outfit_summary(item) | {"type": item.get("type") if isinstance(item.get("type"), str) else None}
+            items.append({
+                "id": cosmetic_id, "name": meta.get("name"), "icon": meta.get("icon"),
+                "type": meta.get("type"), "rarity": meta.get("rarity"),
+            })
+        self.storage.set_wishlist(player_id, items)
+        await self.storage.async_save()
+        await self._update_wishlist_hits(player_id, self._players.setdefault(player_id, {}))
+        self.async_set_updated_data({pid: dict(i) for pid, i in self._players.items()})
+        return items
+
+    async def async_set_favorite(self, player_id: str, outfit_id: str, favorite: bool) -> list[str]:
+        outfit_id = (outfit_id or "").strip().lower()
+        if not self.storage or outfit_id not in self.owned_outfits.get(player_id, []):
+            raise ValueError("That outfit is not in the player's owned outfits")
+        favs = [f for f in self.storage.get_favorites(player_id) if f != outfit_id]
+        if favorite:
+            favs.append(outfit_id)
+        self.storage.set_favorites(player_id, favs)
+        await self.storage.async_save()
+        return favs
+
+    async def _track_first_seen(self, player_id: str, ids: list[str], now: datetime) -> None:
+        """Remember when each outfit first appeared; the first read is a baseline, not 'new'."""
+        if not self.storage:
+            return
+        seen = self.storage.get_first_seen(player_id)
+        baseline = not seen
+        changed = False
+        for outfit_id in ids:
+            if outfit_id not in seen:
+                seen[outfit_id] = "baseline" if baseline else now.isoformat()
+                changed = True
+        if changed:
+            self.storage.set_first_seen(player_id, seen)
+            await self.storage.async_save()
+
+    async def _update_wishlist_hits(self, player_id: str, info: dict[str, Any]) -> None:
+        """Wishlist items in today's shop that the player does not own yet; fire an event once per shop."""
+        if not self.storage:
+            return
+        wish = {w["id"]: w for w in self.storage.get_wishlist(player_id)}
+        owned = self.owned_cosmetics.get(player_id) or {}
+        hits: list[dict[str, Any]] = []
+        for section in (self.shop or {}).get("sections") or []:
+            for offer in section["offers"]:
+                for item in offer["items"]:
+                    if item["id"] in wish and item["id"] not in owned and all(h["id"] != item["id"] for h in hits):
+                        hits.append({
+                            "id": item["id"], "name": item.get("name") or wish[item["id"]].get("name"),
+                            "icon": item.get("icon") or wish[item["id"]].get("icon"),
+                            "price": offer.get("price"), "offer": offer.get("title"), "section": section["name"],
+                        })
+        info["wishlist"] = {"count": len(wish), "in_shop": hits}
+        expiration = (self.shop or {}).get("expiration") or "unknown"
+        fresh = [h for h in hits if not self.storage.was_notified(f"{player_id}:{expiration}:{h['id']}")]
+        if fresh and self.hass is not None and getattr(self.hass, "bus", None) is not None:
+            for h in fresh:
+                self.storage.mark_notified(f"{player_id}:{expiration}:{h['id']}")
+            await self.storage.async_save()
+            self.hass.bus.async_fire(f"{DOMAIN}_wishlist_in_shop", {"player_id": player_id, "items": fresh})
+
+    # ---- match progress ---------------------------------------------------------------
+
+    def request_match_progress(self, player_id: str) -> None:
+        """A match just finished: refresh quests/sprites/level soon and attach what changed."""
+        self._match_progress_due.add(player_id)
+        if hasattr(self.hass, "async_create_task"):
+            self.hass.async_create_task(self.async_request_refresh())
+
+    def _record_progress(self, player_id: str, info: dict[str, Any], now: datetime) -> None:
+        curve = (self.sprite_catalogue or {}).get("level_curve")
+        after = progress_snapshot(info, curve)
+        before = self._progress.get(player_id)
+        since = self._progress_at.get(player_id)
+        self._progress[player_id] = after
+        self._progress_at[player_id] = now
+        self._match_progress_due.discard(player_id)
+        events = progress_events(before, after)
+        if events and since and self.on_progress:
+            self.on_progress(player_id, events, since)
+
     def battlepass_for(self, player_id: str | None) -> dict[str, Any] | None:
         """The Battle Pass with each reward marked unlocked/locked for the player (when known)."""
         if not player_id or player_id not in self.owned_cosmetics:
@@ -486,8 +656,19 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return mark_battlepass_owned(self.battlepass, self.owned_cosmetics[player_id])
 
     def owned_outfit_list(self, player_id: str) -> list[dict[str, Any]]:
-        """Owned outfits with catalogue metadata (unknown ids are returned with id only)."""
-        return [self.outfit_index.get(i) or {"id": i, "name": None} for i in self.owned_outfits.get(player_id, [])]
+        """Owned outfits with catalogue metadata, favourite flag and first-seen time (None = before tracking)."""
+        favs = set(self.storage.get_favorites(player_id)) if self.storage else set()
+        seen = self.storage.get_first_seen(player_id) if self.storage else {}
+        out = []
+        for i in self.owned_outfits.get(player_id, []):
+            first = seen.get(i)
+            out.append({
+                **(self.outfit_index.get(i) or {"id": i, "name": None}),
+                "key": i,
+                "favorite": i in favs,
+                "first_seen": first if first and first != "baseline" else None,
+            })
+        return out
 
     def playlist_info(self, playlist_id: str) -> dict[str, Any] | None:
         """Look up catalogue name/image for a stats playlist id."""

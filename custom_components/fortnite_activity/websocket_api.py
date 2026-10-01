@@ -78,6 +78,10 @@ def async_setup_websocket_api(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_get_matches)
     websocket_api.async_register_command(hass, ws_get_battlepass)
     websocket_api.async_register_command(hass, ws_get_outfits)
+    websocket_api.async_register_command(hass, ws_get_shop)
+    websocket_api.async_register_command(hass, ws_get_news)
+    websocket_api.async_register_command(hass, ws_get_map)
+    websocket_api.async_register_command(hass, ws_cosmetic_search)
 
 
 def _get_coordinator(hass: HomeAssistant, player_id: str | None = None) -> FortniteDataUpdateCoordinator | None:
@@ -481,3 +485,87 @@ async def ws_get_outfits(
             "catalogue": profile.outfit_index_info,
         },
     )
+
+
+@websocket_api.websocket_command({vol.Required("type"): "fortnite_activity/shop", vol.Optional("player_id"): str})
+@websocket_api.async_response
+async def ws_get_shop(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """Today's Item Shop with owned / wishlisted flags, plus the player's wishlist."""
+    player_id = (msg.get("player_id") or "").lower() or None
+    profile = _profile(hass, player_id)
+    if not profile:
+        connection.send_result(msg["id"], {"shop": None, "wishlist": []})
+        return
+    connection.send_result(msg["id"], {
+        "shop": profile.shop_for(player_id),
+        "wishlist": profile.storage.get_wishlist(player_id) if profile.storage and player_id else [],
+        "in_shop": (((profile.data or {}).get(player_id) or {}).get("wishlist") or {}).get("in_shop") or [],
+    })
+
+
+@websocket_api.websocket_command({vol.Required("type"): "fortnite_activity/news", vol.Optional("player_id"): str})
+@websocket_api.async_response
+async def ws_get_news(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """In-game news plus the current map/patch for an 'updates' header."""
+    profile = _profile(hass, msg.get("player_id"))
+    main = (profile.maps.get("br") if profile else None) or {}
+    connection.send_result(msg["id"], {
+        "news": profile.news if profile else None,
+        "update": {k: main.get(k) for k in ("version", "patch", "chapter", "season", "release_date", "name")} if main else None,
+        "season": profile.season if profile else None,
+    })
+
+
+@websocket_api.websocket_command({
+    vol.Required("type"): "fortnite_activity/map",
+    vol.Optional("player_id"): str,
+    vol.Optional("mode"): str,
+    vol.Optional("playlist_id"): str,
+})
+@websocket_api.async_response
+async def ws_get_map(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """Map image + POIs for a mode, or for the map a stats playlist key was played on."""
+    profile = _profile(hass, msg.get("player_id"))
+    if not profile:
+        connection.send_result(msg["id"], {"map": None})
+        return
+    if msg.get("playlist_id"):
+        result = await profile.async_map_for_playlist(msg["playlist_id"])
+    else:
+        result = await profile.async_get_map(msg.get("mode") or "br")
+    connection.send_result(msg["id"], {"map": result})
+
+
+@websocket_api.websocket_command({
+    vol.Required("type"): "fortnite_activity/cosmetic_search",
+    vol.Required("query"): vol.All(str, vol.Length(min=2, max=60)),
+    vol.Optional("cosmetic_type"): str,
+    vol.Optional("player_id"): str,
+})
+@websocket_api.async_response
+async def ws_cosmetic_search(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """Search every cosmetic (not just owned) for the wishlist browser."""
+    player_id = (msg.get("player_id") or "").lower() or None
+    coordinator = _get_coordinator(hass, player_id)
+    if not coordinator:
+        connection.send_error(msg["id"], "not_found", "Fortnite Activity is not set up")
+        return
+    try:
+        raw = await coordinator.api_client.search_cosmetics(msg["query"].strip(), msg.get("cosmetic_type") or None, page_size=30)
+    except FortniteApiError as err:
+        connection.send_error(msg["id"], "api_error", str(err))
+        return
+    profile = getattr(coordinator, "profile", None)
+    owned = (profile.owned_cosmetics.get(player_id) or {}) if profile and player_id else {}
+    wish = {w["id"] for w in (profile.storage.get_wishlist(player_id) if profile and profile.storage and player_id else [])}
+    results = []
+    for item in cosmetic_items(raw):
+        if not item.get("id") or not item.get("name"):
+            continue
+        summary = _cosmetic_summary(item)
+        key = str(item["id"]).lower()
+        item_type = item.get("type")
+        if isinstance(item_type, dict):
+            item_type = item_type.get("displayValue") or item_type.get("value")
+        results.append({**summary, "key": key, "type": item_type, "owned": key in owned, "wishlisted": key in wish})
+    connection.send_result(msg["id"], {"results": results})

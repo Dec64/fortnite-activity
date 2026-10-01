@@ -982,3 +982,236 @@ def outfit_summary(item: dict[str, Any]) -> dict[str, Any]:
         "icon": images.get("icon") or images.get("smallIcon") or item.get("icon"),
         "small": images.get("smallIcon") or images.get("icon") or item.get("icon"),
     }
+
+
+# ---- shop / news / map ------------------------------------------------------------
+
+
+def _suffix_lower(template: Any) -> str | None:
+    if not isinstance(template, str) or not template:
+        return None
+    return (template.split(":", 1)[1] if ":" in template else template).strip().lower() or None
+
+
+def parse_shop(raw: Any) -> dict[str, Any] | None:
+    """Today's Item Shop (ShopResponseDto) -> sections of offers with their cosmetic items."""
+    data = _unwrap(raw)
+    if not isinstance(data, dict) or not isinstance(data.get("storefronts"), list):
+        return None
+    sections: dict[str, dict[str, Any]] = {}
+    for front in data["storefronts"]:
+        for entry in (front or {}).get("catalogEntries") or []:
+            if not isinstance(entry, dict):
+                continue
+            prices = [p for p in entry.get("prices") or [] if isinstance(p, dict)]
+            price = next((p for p in prices if p.get("currencyType") == "MtxCurrency"), prices[0] if prices else {})
+            items = []
+            for grant in entry.get("itemGrants") or []:
+                if not isinstance(grant, dict):
+                    continue
+                cos = grant.get("cosmetic") if isinstance(grant.get("cosmetic"), dict) else {}
+                images = cos.get("images") if isinstance(cos.get("images"), dict) else {}
+                rarity = cos.get("rarity")
+                if isinstance(rarity, dict):
+                    rarity = rarity.get("displayValue") or rarity.get("value")
+                item_type = cos.get("type")
+                if isinstance(item_type, dict):
+                    item_type = item_type.get("displayValue") or item_type.get("value")
+                items.append({
+                    "id": _suffix_lower(grant.get("templateId")),
+                    "name": cos.get("name"),
+                    "type": item_type,
+                    "rarity": rarity,
+                    "icon": images.get("icon") or images.get("smallIcon") or cos.get("icon"),
+                })
+            items = [i for i in items if i["id"]]
+            if not items:
+                continue
+            bundle = entry.get("bundle") if isinstance(entry.get("bundle"), dict) else None
+            name = entry.get("sectionDisplayName") or "Item Shop"
+            section = sections.setdefault(name, {"name": name, "priority": entry.get("sectionPriority") or 0, "offers": []})
+            section["offers"].append({
+                "id": entry.get("offerId"),
+                "title": (bundle or {}).get("name") or entry.get("title") or items[0]["name"],
+                "price": price.get("finalPrice"),
+                "regular_price": price.get("regularPrice"),
+                "image": entry.get("offerVisual") or items[0]["icon"],
+                "bundle": bool(bundle),
+                "items": items,
+                "sort": entry.get("sortPriority") or 0,
+            })
+    ordered = sorted(sections.values(), key=lambda s: -(s["priority"] or 0))
+    for s in ordered:
+        s["offers"].sort(key=lambda o: -(o["sort"] or 0))
+    return {
+        "expiration": data.get("expiration"),
+        "sections": ordered,
+        "offer_count": sum(len(s["offers"]) for s in ordered),
+    }
+
+
+def parse_news(raw: Any) -> list[dict[str, Any]] | None:
+    """In-game news posts from an untyped payload: the largest list of dicts with a title."""
+    best: list[dict[str, Any]] = []
+
+    def walk(value: Any, depth: int = 0) -> None:
+        nonlocal best
+        if depth > 6:
+            return
+        if isinstance(value, list):
+            posts = [v for v in value if isinstance(v, dict) and (v.get("title") or v.get("tabTitle"))]
+            if posts and len(posts) > len(best):
+                best = posts
+            for v in value[:10]:
+                walk(v, depth + 1)
+        elif isinstance(value, dict):
+            for v in value.values():
+                walk(v, depth + 1)
+
+    walk(raw)
+    if not best:
+        return None
+    out = []
+    seen: set[str] = set()
+    for post in best:
+        title = str(post.get("title") or post.get("tabTitle") or "").strip()
+        if not title or title in seen:
+            continue
+        seen.add(title)
+        image = post.get("image") or post.get("tileImage") or post.get("newsImage") or post.get("imageUrl")
+        if isinstance(image, dict):
+            image = image.get("url")
+        out.append({
+            "title": title,
+            "body": str(post.get("body") or post.get("description") or "").strip() or None,
+            "image": image if isinstance(image, str) else None,
+            "tile": post.get("tileImage") if isinstance(post.get("tileImage"), str) else None,
+            "tag": post.get("tabTitle") if post.get("tabTitle") and post.get("tabTitle") != title else None,
+            "date": post.get("date") or post.get("publishedAt") or post.get("startDate"),
+            "priority": post.get("sortingPriority") or 0,
+        })
+    out.sort(key=lambda p: -(p["priority"] or 0))
+    return out
+
+
+def parse_map(raw: Any) -> dict[str, Any] | None:
+    """MapDataDto -> image, bounds and named POIs."""
+    data = _unwrap(raw)
+    if not isinstance(data, dict) or not data.get("imageUrl"):
+        return None
+    bounds = data.get("worldBounds") if isinstance(data.get("worldBounds"), dict) else None
+    pois = []
+    for poi in data.get("pois") or []:
+        if not isinstance(poi, dict) or not poi.get("name"):
+            continue
+        if not isinstance(poi.get("x"), (int, float)) or not isinstance(poi.get("y"), (int, float)):
+            continue
+        pois.append({"name": poi["name"], "type": poi.get("type"), "x": poi["x"], "y": poi["y"]})
+    modes = [m for m in data.get("modes") or [] if isinstance(m, str)]
+    return {
+        "version": data.get("version"),
+        "patch": data.get("patch"),
+        "chapter": data.get("chapter"),
+        "season": data.get("season"),
+        "release_date": data.get("releaseDate"),
+        "mode": data.get("mode"),
+        "island": data.get("island"),
+        "name": data.get("displayName"),
+        "image": data["imageUrl"],
+        "width": data.get("imageWidth"),
+        "height": data.get("imageHeight"),
+        "bounds": bounds,
+        "camera": data.get("camera") if isinstance(data.get("camera"), dict) else None,
+        "pois": pois,
+        "modes": modes,
+    }
+
+
+def map_mode_for_playlist(modes: list[str], playlist_id: str | None) -> str | None:
+    """Map mode whose codename appears in the stats playlist key (e.g. rotating:blastberry for a Reload key)."""
+    key = str(playlist_id or "").lower()
+    if not key:
+        return None
+    for mode in modes or []:
+        code = mode.split(":", 1)[1].lower() if ":" in mode else ""
+        if code and code in key:
+            return mode
+    return None
+
+
+def sprite_level(xp: Any, curve: list[dict[str, Any]] | None) -> int | None:
+    """Level for a sprite's XP using the leading rising run of the public level curve."""
+    if not isinstance(xp, (int, float)) or not curve:
+        return None
+    rows = sorted((r for r in curve if isinstance(r.get("level"), int) and isinstance(r.get("xp"), (int, float))), key=lambda r: r["level"])
+    run: list[tuple[int, float]] = []
+    for r in rows:
+        if run and r["xp"] < run[-1][1]:
+            break
+        run.append((r["level"], r["xp"]))
+    if len(run) < 2:
+        return None
+    level = run[0][0]
+    for lvl, threshold in run:
+        if xp >= threshold:
+            level = lvl
+    return level
+
+
+def progress_snapshot(info: dict[str, Any], curve: list[dict[str, Any]] | None) -> dict[str, Any]:
+    """What changes when a match is played: claimed quests, level, sprite kinds owned/mastered/level."""
+    quests = info.get("quests") or {}
+    level = info.get("level") or {}
+    sprites: dict[str, dict[str, Any]] = {}
+    for family in ((info.get("sprites") or {}).get("current") or {}).get("families") or []:
+        for v in family.get("variants") or []:
+            if not v.get("id"):
+                continue
+            label = v.get("label")
+            name = family.get("name", "").replace(" Sprite", "")
+            sprites[v["id"]] = {
+                "name": name if label in (None, "Base") else f"{label} {name}",
+                "icon": v.get("icon"),
+                "owned": bool(v.get("owned")),
+                "mastered": bool(v.get("mastered")),
+                "level": sprite_level(v.get("xp"), curve) if v.get("owned") else None,
+            }
+    return {
+        "claimed": (quests.get("by_state") or {}).get("Claimed") if quests else None,
+        "level": level.get("level") if level else None,
+        "sprites": sprites,
+    }
+
+
+def progress_events(before: dict[str, Any] | None, after: dict[str, Any]) -> list[dict[str, Any]]:
+    """Differences between two progress snapshots, as card-friendly events."""
+    if not before:
+        return []
+    events: list[dict[str, Any]] = []
+    if isinstance(before.get("claimed"), int) and isinstance(after.get("claimed"), int) and after["claimed"] > before["claimed"]:
+        events.append({"type": "quests", "count": after["claimed"] - before["claimed"]})
+    if isinstance(before.get("level"), int) and isinstance(after.get("level"), int) and after["level"] > before["level"]:
+        events.append({"type": "level_up", "from": before["level"], "to": after["level"]})
+    old = before.get("sprites") or {}
+    for vid, now in (after.get("sprites") or {}).items():
+        prev = old.get(vid)
+        if prev is None:
+            continue
+        base = {"name": now["name"], "icon": now["icon"]}
+        if now["owned"] and not prev["owned"]:
+            events.append({"type": "sprite_new", **base})
+        if now["mastered"] and not prev["mastered"]:
+            events.append({"type": "sprite_mastered", **base})
+        elif now["owned"] and prev["owned"] and isinstance(now["level"], int) and isinstance(prev["level"], int) and now["level"] > prev["level"]:
+            events.append({"type": "sprite_level", "level": now["level"], **base})
+    return events
+
+
+# Sprites belong to the main Battle Royale island; Reload and other modes have none
+SPRITE_EVENT_TYPES = {"sprite_new", "sprite_mastered", "sprite_level"}
+
+
+def events_for_mode(events: list[dict[str, Any]], mode_category: str | None) -> list[dict[str, Any]]:
+    if mode_category in ("build", "zero_build"):
+        return events
+    return [e for e in events if e.get("type") not in SPRITE_EVENT_TYPES]

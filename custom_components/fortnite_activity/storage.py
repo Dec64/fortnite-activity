@@ -25,7 +25,9 @@ class FortniteStorage:
         """Initialize the storage helper."""
         self.hass = hass
         self._store = Store(hass, STORAGE_VERSION, STORAGE_KEY) if Store else None
-        self._data: dict[str, Any] = {"history": {}, "active": {}, "avatars": {}}
+        self._data: dict[str, Any] = {
+            "history": {}, "active": {}, "avatars": {}, "wishlist": {}, "favorites": {}, "first_seen": {}, "notified": [],
+        }
 
     async def async_load(self) -> dict[str, Any]:
         """Load session history from storage."""
@@ -39,6 +41,10 @@ class FortniteStorage:
                 data = {"history": data, "active": {}}
             data.setdefault("active", {})
             data.setdefault("avatars", {})
+            data.setdefault("wishlist", {})
+            data.setdefault("favorites", {})
+            data.setdefault("first_seen", {})
+            data.setdefault("notified", [])
             self._data = data
             return self._data
         except Exception as err:
@@ -83,3 +89,29 @@ class FortniteStorage:
             self._data["avatars"][player_id] = outfit_id
         else:
             self._data["avatars"].pop(player_id, None)
+
+    # ---- wishlist / favourites / first seen ----
+
+    def get_wishlist(self, player_id: str) -> list[dict[str, Any]]:
+        return list(self._data["wishlist"].get(player_id, []))
+
+    def set_wishlist(self, player_id: str, items: list[dict[str, Any]]) -> None:
+        self._data["wishlist"][player_id] = items
+
+    def get_favorites(self, player_id: str) -> list[str]:
+        return list(self._data["favorites"].get(player_id, []))
+
+    def set_favorites(self, player_id: str, ids: list[str]) -> None:
+        self._data["favorites"][player_id] = ids
+
+    def get_first_seen(self, player_id: str) -> dict[str, str]:
+        return dict(self._data["first_seen"].get(player_id, {}))
+
+    def set_first_seen(self, player_id: str, seen: dict[str, str]) -> None:
+        self._data["first_seen"][player_id] = seen
+
+    def was_notified(self, key: str) -> bool:
+        return key in self._data["notified"]
+
+    def mark_notified(self, key: str) -> None:
+        self._data["notified"] = (self._data["notified"] + [key])[-300:]

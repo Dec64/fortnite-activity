@@ -10,6 +10,9 @@ const SECTION_OPTIONS = [
   { value: "trends", label: "Trends" },
   { value: "pass", label: "Battle Pass" },
   { value: "locker", label: "Locker (owned outfits)" },
+  { value: "shop", label: "Item Shop & wishlist" },
+  { value: "news", label: "News & updates" },
+  { value: "map", label: "Map" },
 ];
 
 // Same mapping as the card uses for configs saved before `sections` existed
@@ -125,8 +128,8 @@ const SCHEMA = [
     selector: { boolean: {} },
   },
   {
-    name: "show_platforms",
-    label: "Show linked platform accounts (PSN / Xbox / Switch names)",
+    name: "kid_mode",
+    label: "Kid mode (bigger, simpler layout)",
     selector: { boolean: {} },
   },
   {
@@ -169,7 +172,6 @@ export class FortniteActivityCardEditor extends LitElement {
       theme_accent: "auto",
       show_match_feed: true,
       show_sub_buttons: true,
-      show_platforms: true,
       show_tournaments: true,
       max_feed_matches: 10,
       ...config,

@@ -363,3 +363,44 @@ def test_mark_battlepass_owned():
     assert (marked["unlocked"], marked["known"]) == (2, 3)
     assert mark_battlepass_owned(bp, None) is bp
     assert "owned" not in bp["pages"][0]["rewards"][0]  # original untouched
+
+
+def test_parse_shop_and_news_and_map():
+    from custom_components.fortnite_activity.profile import parse_shop, parse_news, parse_map, map_mode_for_playlist
+
+    shop = parse_shop({"status": 200, "data": {"expiration": "2026-10-02T00:00:00Z", "storefronts": [{"name": "BR", "catalogEntries": [
+        {"offerId": "o1", "title": "Synth Hero", "sectionDisplayName": "Featured", "sectionPriority": 5,
+         "prices": [{"currencyType": "MtxCurrency", "regularPrice": 1500, "finalPrice": 1200}],
+         "itemGrants": [{"templateId": "AthenaCharacter:Character_Synth", "cosmetic": {"name": "Synth Hero", "type": "outfit", "rarity": "epic", "images": {"icon": "https://example.invalid/s.png"}}}]},
+    ]}]}})
+    offer = shop["sections"][0]["offers"][0]
+    assert offer["price"] == 1200 and offer["items"][0]["id"] == "character_synth"
+
+    news = parse_news({"data": {"br": {"motds": [{"title": "Synthetic update", "body": "Hello", "image": "https://example.invalid/n.png"}, {"title": "Synthetic update"}]}}})
+    assert [n["title"] for n in news] == ["Synthetic update"]
+
+    m = parse_map({"data": {"imageUrl": "https://example.invalid/m.png", "pois": [{"name": "Synth Town", "x": 1, "y": 2}, {"x": 3}], "modes": ["br", "rotating:blastberry"]}})
+    assert len(m["pois"]) == 1
+    assert map_mode_for_playlist(m["modes"], "blastberrysquads") == "rotating:blastberry"
+    assert map_mode_for_playlist(m["modes"], "defaultduo") is None
+
+
+def test_progress_events_and_mode_relevance():
+    from custom_components.fortnite_activity.profile import progress_events, events_for_mode, sprite_level
+
+    curve = [{"level": 1, "xp": 0}, {"level": 2, "xp": 400}, {"level": 3, "xp": 1000}, {"level": 6, "xp": 50}]
+    assert sprite_level(450, curve) == 2
+    before = {"claimed": 10, "level": 5, "sprites": {
+        "a": {"name": "Synth", "icon": None, "owned": False, "mastered": False, "level": None},
+        "b": {"name": "Gold Synth", "icon": None, "owned": True, "mastered": False, "level": 2},
+    }}
+    after = {"claimed": 12, "level": 6, "sprites": {
+        "a": {"name": "Synth", "icon": None, "owned": True, "mastered": False, "level": 1},
+        "b": {"name": "Gold Synth", "icon": None, "owned": True, "mastered": False, "level": 3},
+    }}
+    events = progress_events(before, after)
+    assert [e["type"] for e in events] == ["quests", "level_up", "sprite_new", "sprite_level"]
+    assert progress_events(None, after) == []
+    assert [e["type"] for e in events_for_mode(events, "reload")] == ["quests", "level_up"]
+    assert events_for_mode(events, "zero_build") == events
+

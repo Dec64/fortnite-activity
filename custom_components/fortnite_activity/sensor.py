@@ -62,6 +62,7 @@ async def async_setup_entry(
                 FortniteSeasonStatSensor(coordinator.profile, p_id, p_name, "win_rate", "Season Win Rate", "season_win_rate", "%"),
                 FortniteLastPlayedSensor(coordinator, p_id, p_name),
                 FortniteProfileSensor(coordinator.profile, p_id, p_name),
+                FortniteWishlistSensor(coordinator.profile, p_id, p_name),
             ]
         )
 
@@ -294,10 +295,10 @@ class FortniteLastPlayedSensor(FortniteEntity, SensorEntity):
 
 
 class FortniteProfileSensor(FortniteEntity, SensorEntity):
-    """Epic display name, linked platforms, season and time-windowed stats."""
+    """Epic display name, season and time-windowed stats."""
 
     _attr_icon = "mdi:account-star"
-    _unrecorded_attributes = frozenset({"windows", "window_labels", "season", "platforms"})
+    _unrecorded_attributes = frozenset({"windows", "window_labels", "season", "outfits", "quests"})
 
     def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
@@ -314,7 +315,6 @@ class FortniteProfileSensor(FortniteEntity, SensorEntity):
     def _extra_attributes(self) -> dict[str, Any]:
         return {
             "display_name": self.player_data.get("display_name"),
-            "platforms": self.player_data.get("platforms"),
             "season": self.coordinator.season,
             "windows": self.player_data.get("windows") or {},
             "window_labels": self.player_data.get("window_labels") or {},
@@ -521,3 +521,26 @@ class FortniteVBucksSensor(FortniteEntity, SensorEntity):
             # Provider stash value kept for comparison only (unverified as V-Bucks)
             "provider_globalcash": (inventory.get("balances") or {}).get("globalcash"),
         }
+
+
+class FortniteWishlistSensor(FortniteEntity, SensorEntity):
+    """How many wishlisted cosmetics are in today's Item Shop."""
+
+    _attr_icon = "mdi:heart-outline"
+    _unrecorded_attributes = frozenset({"in_shop"})
+
+    def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
+        super().__init__(coordinator, "sensor", player_id, player_name, "wishlist")
+        self._attr_name = "Wishlist in Shop"
+
+    @property
+    def _wishlist(self) -> dict[str, Any]:
+        return self.player_data.get("wishlist") or {}
+
+    @property
+    def native_value(self) -> int:
+        return len(self._wishlist.get("in_shop") or [])
+
+    @property
+    def _extra_attributes(self) -> dict[str, Any]:
+        return {"wishlist_size": self._wishlist.get("count", 0), "in_shop": self._wishlist.get("in_shop") or []}

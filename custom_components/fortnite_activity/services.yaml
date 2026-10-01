@@ -52,3 +52,58 @@ set_avatar:
       example: "cid_028_athena_commando_f"
       selector:
         text:
+
+wishlist_add:
+  name: Add to Wishlist
+  description: Add a cosmetic to a player's wishlist. When it appears in the Item Shop the Wishlist sensor lists it and a fortnite_activity_wishlist_in_shop event fires.
+  fields:
+    player_id:
+      name: Player Identifier
+      required: true
+      example: "player1"
+      selector:
+        text:
+    cosmetic_id:
+      name: Cosmetic ID
+      description: Cosmetic id from the card's skin browser (e.g. character_xyz).
+      required: true
+      selector:
+        text:
+
+wishlist_remove:
+  name: Remove from Wishlist
+  description: Remove a cosmetic from a player's wishlist.
+  fields:
+    player_id:
+      name: Player Identifier
+      required: true
+      example: "player1"
+      selector:
+        text:
+    cosmetic_id:
+      name: Cosmetic ID
+      required: true
+      selector:
+        text:
+
+set_favorite:
+  name: Set Favourite Outfit
+  description: Mark (or unmark) an owned outfit as a favourite in the Locker.
+  fields:
+    player_id:
+      name: Player Identifier
+      required: true
+      example: "player1"
+      selector:
+        text:
+    outfit_id:
+      name: Outfit ID
+      required: true
+      selector:
+        text:
+    favorite:
+      name: Favourite
+      required: false
+      default: true
+      selector:
+        boolean:

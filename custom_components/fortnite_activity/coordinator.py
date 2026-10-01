@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 from typing import Any
 
@@ -40,7 +40,7 @@ from .const import (
     DEFAULT_INACTIVITY_TIMEOUT,
     DOMAIN,
 )
-from .profile import compute_metrics
+from .profile import compute_metrics, events_for_mode
 from .session_manager import FortniteSessionManager
 from .storage import FortniteStorage
 
@@ -126,6 +126,9 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     len(new_matches),
                     manager.player_name,
                 )
+                profile = getattr(self, "profile", None)
+                if profile is not None and hasattr(profile, "request_match_progress"):
+                    profile.request_match_progress(p_id)
             if new_matches or self._session_signature(manager) != state_before:
                 self._store_player_state(p_id)
                 storage_dirty = True
@@ -215,6 +218,33 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         profile = getattr(self, "profile", None)
         if profile is not None and hasattr(self.hass, "async_create_task"):
             self.hass.async_create_task(profile.async_request_refresh())
+
+    def attach_match_progress(self, player_id: str, events: list[dict[str, Any]], since: datetime) -> None:
+        """Attach quest/level/sprite progress to the latest match played after `since`.
+
+        Sprite events are only kept for Battle Royale (build / zero build) matches.
+        """
+        manager = self.session_managers.get(player_id)
+        if manager is None:
+            return
+        session = manager.active_session or (manager.history[0] if manager.history else None)
+        if not session or not session.get("matches"):
+            return
+        match = session["matches"][0]
+        try:
+            played = datetime.fromisoformat(match["timestamp"])
+        except (KeyError, ValueError):
+            return
+        if played < since:
+            return
+        kept = events_for_mode(events, match.get("mode_category"))
+        if not kept:
+            return
+        match["progress"] = (match.get("progress") or []) + kept
+        self._store_player_state(player_id)
+        self.hass.async_create_task(self.storage.async_save())
+        self._sync_session_data(player_id)
+        self.async_set_updated_data(self.data)
 
     def lifetime_matches(self, player_id: str) -> int:
         """Lifetime match total from the latest poll (used to validate windowed stats)."""

@@ -1567,4 +1567,201 @@ export const cardStyles = css`
   .bp-state.unlocked { background: #10B981; color: #fff; }
   .bp-state.locked { background: rgba(0, 0, 0, 0.7); }
   .bp-state.locked ha-icon { --mdc-icon-size: 13px; }
+
+  /* ---- Match progress chips + match map ---- */
+  .progress-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .pchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 7px 1px 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+  }
+  .pchip img { width: 16px; height: 16px; object-fit: contain; }
+  .pchip.quest { background: rgba(96, 165, 250, 0.2); color: #BFDBFE; }
+  .pchip.level { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; }
+  .pchip.sprite { background: rgba(168, 85, 247, 0.2); color: #E9D5FF; }
+  .pchip.gold { background: rgba(252, 211, 77, 0.2); color: #FCD34D; }
+  .match-map { display: grid; gap: 4px; margin-bottom: 8px; font-size: 12px; font-weight: 700; }
+
+  /* ---- Map ---- */
+  .map-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 6px 0; }
+  .map-frame { position: relative; width: 100%; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: rgba(0, 0, 0, 0.3); }
+  .map-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .map-frame.compact { aspect-ratio: 16 / 9; }
+  .map-frame.compact img { object-fit: cover; }
+  .map-poi { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 1; }
+  .map-poi i { width: 9px; height: 9px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.6); }
+  .map-poi b {
+    font-size: 9px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 2px #000, 0 0 3px #000;
+    white-space: nowrap;
+    margin-top: 1px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .map-frame:hover .map-poi b, .map-poi.on b { opacity: 1; }
+  .map-poi.on { z-index: 2; }
+  .map-poi.on i { background: var(--accent); transform: scale(1.4); }
+  .poi-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .poi-chip { cursor: pointer; border: none; font: inherit; font-size: 11px; color: inherit; }
+  .poi-chip.on { background: var(--accent); color: #0b0f19; }
+
+  /* ---- News ---- */
+  .news-update {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, transparent), rgba(121, 40, 202, 0.2));
+  }
+  .news-update ha-icon { --mdc-icon-size: 28px; color: var(--accent); }
+  .news-update img { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; }
+  .news-update div { display: grid; gap: 2px; }
+  .news-update span { font-size: 12px; opacity: 0.85; }
+  .news-update.event { background: rgba(255, 255, 255, 0.05); }
+  .news-list { display: grid; gap: 10px; }
+  .news-card { border-radius: 14px; overflow: hidden; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); }
+  .news-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+  .news-body { display: grid; gap: 4px; padding: 10px 12px; }
+  .news-body b { font-size: 15px; }
+  .news-body p { margin: 0; font-size: 12px; opacity: 0.85; line-height: 1.4; }
+  .news-body .tag { justify-self: start; }
+
+  /* ---- Shop ---- */
+  .shop-alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, rgba(236, 72, 153, 0.35), rgba(168, 85, 247, 0.25));
+    font-size: 13px;
+  }
+  .shop-alert ha-icon { color: #F9A8D4; }
+  .shop-tabs { margin-bottom: 8px; }
+  .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin-bottom: 6px; }
+  .shop-tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .shop-img {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--rarity) 50%, transparent), rgba(15, 23, 42, 0.7));
+    border: 1px solid color-mix(in srgb, var(--rarity) 55%, transparent);
+    display: grid;
+    place-items: center;
+  }
+  .shop-img img { width: 100%; height: 100%; object-fit: cover; }
+  .shop-img > ha-icon { --mdc-icon-size: 36px; opacity: 0.5; }
+  .shop-tile.wish .shop-img { box-shadow: 0 0 0 2px #F472B6; }
+  .shop-tile.owned .shop-img img { opacity: 0.75; }
+  .shop-price { font-size: 12px; font-weight: 800; color: #FCD34D; }
+  .shop-price s { opacity: 0.6; font-weight: 600; color: inherit; }
+  .shop-bundle {
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.65);
+  }
+  .shop-bundle.in { background: #EC4899; color: #fff; }
+  .wish-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    cursor: pointer;
+  }
+  .wish-btn ha-icon { --mdc-icon-size: 16px; }
+  .wish-btn.on { background: #EC4899; }
+  .bp-reward.in-shop .bp-reward-img { box-shadow: 0 0 0 2px #EC4899; }
+
+  /* ---- Locker extras ---- */
+  .locker-fav { position: absolute; top: 4px; left: 6px; color: #FCD34D; font-size: 16px; text-shadow: 0 1px 2px #000; }
+  .locker-new {
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #10B981;
+    color: #fff;
+  }
+  .locker-actions { position: absolute; left: 4px; right: 4px; bottom: 4px; display: grid; gap: 3px; }
+  .locker-actions .locker-use { position: static; }
+  .locker-use.fav { background: rgba(0, 0, 0, 0.75); color: #FCD34D; }
+
+  /* ---- Tournament filters ---- */
+  .filter-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; min-width: 0; }
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: inherit;
+    cursor: pointer;
+  }
+  .filter-toggle ha-icon { --mdc-icon-size: 16px; }
+  .filter-toggle b { background: var(--accent); color: #0b0f19; border-radius: 999px; padding: 0 6px; font-size: 11px; }
+  .filter-toggle.open { border-color: var(--accent); }
+  .filter-active { display: flex; gap: 4px; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: none; }
+  .filter-panel { display: grid; gap: 6px; padding: 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); margin-bottom: 8px; }
+  .fgroup { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 6px; align-items: start; }
+  .fgroup > span { font-size: 11px; font-weight: 700; opacity: 0.7; padding-top: 3px; }
+  .fgroup > div { display: flex; flex-wrap: wrap; gap: 4px; }
+  .fchip {
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .fchip.on { background: color-mix(in srgb, var(--accent) 25%, transparent); border-color: var(--accent); color: var(--accent); }
+
+  /* ---- Kid mode: bigger, simpler ---- */
+  ha-card.kid { font-size: 15px; }
+  ha-card.kid .bubble-sub-button { height: 44px; font-size: 15px; }
+  ha-card.kid .sp-grid, ha-card.kid .bp-rewards, ha-card.kid .shop-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  ha-card.kid .sp-img, ha-card.kid .sp-img img { width: 80px; height: 80px; }
+  ha-card.kid .sp-name, ha-card.kid .bp-reward-name { font-size: 15px; }
+  ha-card.kid .sp-status, ha-card.kid .sp-have, ha-card.kid .shop-price { font-size: 13px; }
+  ha-card.kid .sp-kind { width: 26px; height: 26px; }
+  ha-card.kid .bp-hero-name { font-size: 22px; }
+  ha-card.kid .pchip { font-size: 12px; }
+  ha-card.kid .muted, ha-card.kid .bp-note, ha-card.kid .version-row, ha-card.kid .detail-grid { display: none; }
 `;

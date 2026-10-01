@@ -98,6 +98,13 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
                 ) if getattr(profile, "battlepass", None) else None,
                 "quest_debug": getattr(profile, "quest_debug", {}),
                 "outfit_catalogue": getattr(profile, "outfit_index_info", {}),
+                "shop_offers": ((getattr(profile, "shop", None) or {}).get("offer_count")),
+                "news_posts": len(getattr(profile, "news", None) or []),
+                "news_sample_titles": [n.get("title") for n in (getattr(profile, "news", None) or [])[:5]],
+                "maps": {
+                    k: {"name": v.get("name"), "version": v.get("version"), "pois": len(v.get("pois") or []), "modes": v.get("modes"), "bounds": v.get("bounds"), "camera": v.get("camera"), "size": [v.get("width"), v.get("height")]}
+                    for k, v in (getattr(profile, "maps", {}) or {}).items()
+                },
                 "sprite_level_curve_raw": ((getattr(profile, "sprite_catalogue", None) or {}).get("level_curve_raw")),
                 "tournament_classification": sorted({
                     f"{e.get('tournament_type')}|{e.get('event_group')}|spectate={e.get('can_spectate')}|{e.get('name')}"

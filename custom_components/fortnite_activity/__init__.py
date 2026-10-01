@@ -109,6 +109,23 @@ def _coordinator_for_player(hass: HomeAssistant, player_id: str) -> FortniteData
 
 PLAYER_SCHEMA = vol.Schema({vol.Required("player_id"): cv.string}) if vol else None
 OPTIONAL_PLAYER_SCHEMA = vol.Schema({vol.Optional("player_id"): cv.string}) if vol else None
+WISHLIST_SCHEMA = (
+    vol.Schema({
+        vol.Required("player_id"): cv.string,
+        vol.Required("cosmetic_id"): cv.string,
+        vol.Optional("name"): cv.string,
+        vol.Optional("icon"): cv.string,
+        vol.Optional("type"): cv.string,
+        vol.Optional("rarity"): cv.string,
+    }) if vol else None
+)
+FAVORITE_SCHEMA = (
+    vol.Schema({
+        vol.Required("player_id"): cv.string,
+        vol.Required("outfit_id"): cv.string,
+        vol.Optional("favorite", default=True): cv.boolean,
+    }) if vol else None
+)
 AVATAR_SCHEMA = (
     vol.Schema({vol.Required("player_id"): cv.string, vol.Optional("outfit_id", default=""): cv.string}) if vol else None
 )
@@ -162,6 +179,38 @@ async def _async_register_services(hass: HomeAssistant) -> None:
 
     hass.services.async_register(DOMAIN, "set_avatar", handle_set_avatar, schema=AVATAR_SCHEMA)
 
+    def _profile_for(player_id: str):
+        coordinator = _coordinator_for_player(hass, player_id)
+        profile = getattr(coordinator, "profile", None)
+        if profile is None:
+            raise ServiceValidationError("Profile data is not loaded yet")
+        return profile
+
+    async def handle_wishlist(call: ServiceCall, add: bool) -> None:
+        player_id = call.data["player_id"].strip().lower()
+        meta = {k: call.data.get(k) for k in ("name", "icon", "type", "rarity") if call.data.get(k)}
+        try:
+            await _profile_for(player_id).async_wishlist(player_id, call.data["cosmetic_id"], add, meta)
+        except ValueError as err:
+            raise ServiceValidationError(str(err)) from err
+
+    async def handle_wishlist_add(call: ServiceCall) -> None:
+        await handle_wishlist(call, True)
+
+    async def handle_wishlist_remove(call: ServiceCall) -> None:
+        await handle_wishlist(call, False)
+
+    async def handle_set_favorite(call: ServiceCall) -> None:
+        player_id = call.data["player_id"].strip().lower()
+        try:
+            await _profile_for(player_id).async_set_favorite(player_id, call.data["outfit_id"], call.data.get("favorite", True))
+        except ValueError as err:
+            raise ServiceValidationError(str(err)) from err
+
+    hass.services.async_register(DOMAIN, "wishlist_add", handle_wishlist_add, schema=WISHLIST_SCHEMA)
+    hass.services.async_register(DOMAIN, "wishlist_remove", handle_wishlist_remove, schema=WISHLIST_SCHEMA)
+    hass.services.async_register(DOMAIN, "set_favorite", handle_set_favorite, schema=FAVORITE_SCHEMA)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Fortnite Family Tracker from a config entry."""
@@ -200,6 +249,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         on_relink_required=lambda pid, name: _async_raise_relink_issue(hass, pid, name),
         storage=storage,
     )
+    coordinator.profile.on_progress = coordinator.attach_match_progress
     entry.async_create_background_task(
         hass, coordinator.profile.async_refresh(), f"{DOMAIN}_profile_first_refresh"
     )

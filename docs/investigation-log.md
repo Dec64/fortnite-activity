@@ -975,3 +975,13 @@ Following the user's `/plan` request and interactive alignment interview, design
 - Live v1.11.0 diagnostics: 2,959 owned cosmetic IDs. Battle Pass matching gave 62 unlocked and 2 locked across pickaxes, gliders, emotes, wraps, loading screens, back blings, kicks and jam tracks. The 72 `CosmeticVariantToken` rewards (including set outfits) never match owned items and correctly stay unknown. Banner icons (held in common_core) and currency also stay unknown.
 - Verified naming join: all 8 set codenames have an owned `character_<set>[_<name>]` outfit, and the outfit reward icons are `T_Soldier_<Set>_<Name>`. The card marks an outfit reward unlocked only on an exact `character_<set>_<name>` match, and never marks it locked. Live result: 69 unlocked, 2 locked.
 - Unlock wording: "All unlocked" appears only when every non-currency reward in a set was checked. Otherwise it reads "N unlocked · M still locked".
+
+### 2026-10-01 v1.12.0 Shop and wishlist, news, map, match progress, family panel
+
+- **Removed** linked platforms: the `externalAuths` call, its attribute and the card chips. The provider route has returned 403.
+- **Item Shop** (`/v1/shop`, typed): refreshed every 6 h or when the shop expires. The **wishlist** is per player in storage, built from any cosmetic via `/v2/cosmetics/search`. Wishlisted items that are in the shop and not owned appear on the `Wishlist in Shop` sensor and fire `fortnite_activity_wishlist_in_shop` once per item per shop.
+- **News** (`/v1/news/br`, untyped in the OpenAPI): parsed defensively as the largest list of titled posts. Live shape and sample titles are recorded in diagnostics.
+- **Map** (`/v1/map`, typed `MapDataDto`): image, world bounds, POIs and the `modes` list. A match's map is joined only when a mode codename (e.g. `rotating:blastberry`) appears in the stats playlist key. BR build and zero-build matches use the current main island.
+- **Match progress:** after a detected match, quests, sprites and level are refreshed and diffed against the previous snapshot. Changes attach to the latest match played since that snapshot: quests completed (Claimed count), level up, new sprite kind, sprite level up, sprite mastered. Sprite events attach only to Battle Royale (build / zero build) matches, because Reload has no sprites.
+- **Locker:** favourites (stored per player, `set_favorite` service) and first-seen tracking. The first athena read is a baseline, so only later additions count as "new" (14 days).
+- **Card:** Shop / News / Map sections, compact multi-select tournament filters, kid mode, and a new `fortnite-family-panel` element (one landscape page per player, swipe between them).
