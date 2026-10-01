@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.15.3";
+const CARD_VERSION = "1.16.0";
 
 declare global {
   interface Window {
@@ -240,7 +240,6 @@ export class FortniteActivityCard extends LitElement {
   @state() private _selectedOutfit: string | null = null;
   @state() private _sheetKind: string | null = null;
   private _sheetLockUntil = 0;
-  private _sheetScroller: HTMLElement | null = null;
   @state() private _lockerFilter: "all" | "favorites" | "new" = "all";
   @state() private _shop: { loading?: boolean; data?: any; error?: string } = {};
   @state() private _shopTab: "today" | "wishlist" = "today";
@@ -388,7 +387,6 @@ export class FortniteActivityCard extends LitElement {
     }
     const sheet = this.shadowRoot?.querySelector("dialog.sp-sheet") as HTMLDialogElement | null;
     if (sheet && !sheet.open) sheet.showModal();
-    this._watchSheetRows();
     // A section can open without a tab click (default section / single-section card)
     if (this._renderedView === "pass") {
       this._loadPass();
@@ -3030,7 +3028,6 @@ export class FortniteActivityCard extends LitElement {
     const go = (d: number) => {
       this._expandedSprite = order[(i + d + order.length) % order.length].id;
       this._sheetKind = null;
-      this.shadowRoot?.querySelector(".sp-sheet-scroll")?.scrollTo({ top: 0 });
     };
     const curve = this._spriteCurve(this._findEntity("sensor", "sprites")?.attributes || {});
     const variants: any[] = f.variants || [];
@@ -3038,12 +3035,11 @@ export class FortniteActivityCard extends LitElement {
     const kind = variants.find((v) => v.id === this._sheetKind) || variants.find((v) => v.owned) || variants[0] || {};
     const lv = kind.owned ? this._spriteLevel(kind.xp, curve) : null;
     const count = Math.max(1, Number(kind.count) || 0);
-    const select = (v: any) => {
-      this._sheetKind = v.id;
-      this._sheetLockUntil = Date.now() + 700; // ignore the scroll-spy while the list scrolls there
-      const row = this.shadowRoot?.querySelector(`.sp-kind-row[data-vid="${CSS.escape(v.id)}"]`) as HTMLElement | null;
-      row?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    };
+    const perk = (kind.boons || []).find((b: any) => b.name && b.name !== f.name);
+    // Full-resolution art for the big picture (512 px originals; the small icons are 128 px)
+    const hd = kind.icon_large || (kind.label === "Base" || variants[0] === kind ? f.icon_large : null) || kind.icon;
+    const k = variants.indexOf(kind);
+    const select = (v: any) => (this._sheetKind = v.id);
     return html`
       <dialog class="sp-sheet" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}"
         @close=${() => { this._expandedSprite = null; this._sheetKind = null; }}
@@ -3051,11 +3047,9 @@ export class FortniteActivityCard extends LitElement {
         @keydown=${(e: KeyboardEvent) => {
           if (e.key === "ArrowRight") go(1);
           if (e.key === "ArrowLeft") go(-1);
-          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          if ((e.key === "ArrowDown" || e.key === "ArrowUp") && variants.length) {
             e.preventDefault();
-            const k = variants.indexOf(kind);
-            const next = variants[(k + (e.key === "ArrowDown" ? 1 : -1) + variants.length) % variants.length];
-            if (next) select(next);
+            select(variants[(k + (e.key === "ArrowDown" ? 1 : -1) + variants.length) % variants.length]);
           }
         }}>
         <div class="sp-sheet-nav">
@@ -3065,64 +3059,73 @@ export class FortniteActivityCard extends LitElement {
           <button class="bp-nav close" title="Close" @click=${(e: Event) => ((e.currentTarget as HTMLElement).closest("dialog") as HTMLDialogElement)?.close()}><ha-icon icon="mdi:close"></ha-icon></button>
         </div>
 
-        <div class="sp-hero ${kind.owned ? "" : "missing"} ${kind.mastered ? "mastered" : ""}">
-          <div class="sp-hero-art">
-            ${kind.icon
-              ? html`<img decoding="async" src=${thumb(kind.icon, 512)} alt=${kind.name || f.name} @error=${hideBroken} />`
-              : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
-            ${!kind.owned ? html`<span class="sp-hero-lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
-            ${kind.mastered ? html`<span class="sp-hero-star" title="Mastered">⭐</span>` : nothing}
+        <div class="sp-sheet-main">
+          <div class="sp-hero ${kind.owned ? "" : "missing"} ${kind.mastered ? "mastered" : ""}">
+            <div class="sp-hero-art">
+              ${hd
+                ? html`<img decoding="async" src=${hd} alt=${kind.name || f.name} @error=${(e: Event) => {
+                    // Large file missing: fall back to the small original
+                    const img = e.target as HTMLImageElement;
+                    if (kind.icon && img.src !== kind.icon) img.src = kind.icon;
+                    else hideBroken(e);
+                  }} />`
+                : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+              ${!kind.owned ? html`<span class="sp-hero-lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
+              ${kind.mastered ? html`<span class="sp-hero-star" title="Mastered">⭐</span>` : nothing}
+            </div>
+            <div class="sp-hero-name">
+              <b>${kind.label && kind.label !== "Base" ? `${kind.label} ` : ""}${this._spriteName(f)}</b>
+              <span class="tag rarity-tag">${f.rarity || ""}</span>
+            </div>
+            <div class="sp-hero-chips">
+              ${f.new ? html`<span class="sp-chip new">✨ New this update</span>` : kind.new ? html`<span class="sp-chip new">✨ New kind</span>` : nothing}
+              ${kind.mastered ? html`<span class="sp-chip gold">⭐ Mastered</span>` : nothing}
+              ${kind.owned ? html`<span class="sp-chip">You have ${count}</span>` : html`<span class="sp-chip dim">Not found yet</span>`}
+              ${lv ? html`<span class="sp-chip">Level ${lv.level}${lv.atMax ? " · max" : ""}</span>` : nothing}
+              ${!kind.owned && kind.drop_chance_pct != null ? html`<span class="sp-chip dim">${kind.drop_chance_pct}% chance</span>` : nothing}
+            </div>
+            ${lv
+              ? html`<div class="sp-hero-xp">
+                  <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${lv.atMax ? 100 : Math.min(100, (kind.xp / (lv.next || lv.maxXp)) * 100)}%"></div></div>
+                  <span>${lv.atMax ? `${this._num(kind.xp)} XP · top level` : `${this._num(kind.xp)} / ${this._num(lv.next)} XP to level ${lv.level + 1}`}</span>
+                </div>`
+              : nothing}
+            ${perk ? html`<div class="sp-hero-perk">✨ <b>${perk.name}</b> ${perk.description || ""}</div>` : nothing}
           </div>
-          <div class="sp-hero-name">
-            <b>${kind.label && kind.label !== "Base" ? `${kind.label} ` : ""}${this._spriteName(f)}</b>
-            <span class="tag rarity-tag">${f.rarity || ""}</span>
-          </div>
-          <div class="sp-hero-chips">
-            ${kind.new && !f.new ? html`<span class="sp-chip new">✨ New kind</span>` : nothing}
-            ${f.new ? html`<span class="sp-chip new">✨ New this update</span>` : nothing}
-            ${kind.mastered ? html`<span class="sp-chip gold">⭐ Mastered</span>` : nothing}
-            ${kind.owned ? html`<span class="sp-chip">You have ${count}</span>` : html`<span class="sp-chip dim">Not found yet</span>`}
-            ${lv ? html`<span class="sp-chip">Level ${lv.level}${lv.atMax ? " · max" : ""}</span>` : nothing}
-            ${!kind.owned && kind.drop_chance_pct != null ? html`<span class="sp-chip dim">${kind.drop_chance_pct}% chance</span>` : nothing}
-          </div>
-          <div class="sp-hero-strip" role="tablist">
-            ${variants.map((v) => html`
-              <button class="sp-strip-kind ${v.id === kind.id ? "on" : ""} ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""} ${v.new && !f.new ? "new" : ""}"
-                role="tab" aria-selected=${v.id === kind.id ? "true" : "false"} title=${v.label} @click=${() => select(v)}>
-                ${v.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${thumb(v.icon, 128)} alt="" @error=${hideBroken} />` : nothing}
-                ${!v.owned ? html`<span class="sp-strip-lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
-              </button>`)}
-          </div>
-        </div>
 
-        <div class="sp-sheet-scroll">
-          ${this._renderSpriteDetail(f, kind.id, select)}
+          <div class="sp-kind-tiles" role="tablist" aria-label="Kinds">
+            ${variants.map((v) => {
+              const vl = v.owned ? this._spriteLevel(v.xp, curve) : null;
+              const pct = vl ? (vl.atMax ? 100 : Math.min(100, (v.xp / (vl.next || vl.maxXp)) * 100)) : 0;
+              const n = Math.max(1, Number(v.count) || 0);
+              return html`
+                <button class="sp-kt ${v.id === kind.id ? "on" : ""} ${v.owned ? "owned" : "missing"} ${v.mastered ? "mastered" : ""}"
+                  role="tab" aria-selected=${v.id === kind.id ? "true" : "false"}
+                  title="${v.label}${v.owned ? ` · have ${n}${vl ? ` · level ${vl.level}` : ""}` : " · not found yet"}"
+                  @click=${() => select(v)}>
+                  <span class="sp-kt-img">
+                    ${v.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${thumb(v.icon, 128)} alt="" @error=${hideBroken} />` : nothing}
+                    ${!v.owned ? html`<span class="sp-kt-lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
+                    ${v.new && !f.new ? html`<span class="sp-kt-new" title="New kind"></span>` : nothing}
+                  </span>
+                  <span class="sp-kt-name">${v.label}</span>
+                  <span class="sp-kt-badges">
+                    ${v.mastered ? html`<span class="sp-kt-star" title="Mastered">⭐</span>` : nothing}
+                    ${v.owned ? html`<span class="sp-kt-count" title="Copies you have">×${n}</span>` : html`<span class="sp-kt-count dim">—</span>`}
+                  </span>
+                  <span class="sp-kt-bar" title=${vl ? `${this._num(v.xp)} XP` : ""}><i style="width:${pct}%"></i></span>
+                  <span class="sp-kt-lv">${vl ? `Lv ${vl.level}` : v.owned ? "Lv —" : "Locked"}</span>
+                </button>`;
+            })}
+          </div>
+
+          <div class="sp-about">
+            ${f.description ? html`<p>${f.description}</p>` : nothing}
+            ${f.hint ? html`<p class="hint">📍 ${f.hint}</p>` : nothing}
+            ${!f.new && (kind.added_in || f.added_in) ? html`<p class="muted">${kind.label} added in update ${kind.added_in || f.added_in}</p>` : nothing}
+          </div>
         </div>
       </dialog>`;
-  }
-
-  /**
-   * Scroll-spy: scrolling the kind list moves through the kinds (top = first, bottom = last), so the big
-   * picture always matches the kind you are reading, even when the list only scrolls a little.
-   */
-  private _watchSheetRows(): void {
-    const scroller = this.shadowRoot?.querySelector(".sp-sheet-scroll") as HTMLElement | null;
-    if (!scroller || scroller === this._sheetScroller) return;
-    this._sheetScroller = scroller;
-    let timer = 0;
-    scroller.addEventListener("scroll", () => {
-      if (timer) return;
-      timer = window.setTimeout(() => {
-        timer = 0;
-        if (Date.now() < this._sheetLockUntil) return;
-        const rows = [...scroller.querySelectorAll(".sp-kind-row")] as HTMLElement[];
-        const max = scroller.scrollHeight - scroller.clientHeight;
-        if (!rows.length || max <= 2) return;
-        const index = Math.round((scroller.scrollTop / max) * (rows.length - 1));
-        const vid = rows[Math.min(rows.length - 1, Math.max(0, index))].dataset.vid;
-        if (vid && vid !== this._sheetKind) this._sheetKind = vid;
-      }, 16);
-    }, { passive: true });
   }
 
   private _renderSpriteDetail(f: any, selectedId?: string, select?: (v: any) => void) {

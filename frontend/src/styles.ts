@@ -2207,4 +2207,63 @@ export const cardStyles = css`
     .sp-hero-art { width: min(150px, 40vw); }
     .sp-hero-name b { font-size: 16px; }
   }
+
+  /* ---- v1.16: sprite sheet = HD hero + kind tiles ---- */
+  .sp-sheet-main { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: grid; align-content: start; }
+  .sp-hero { border-bottom: none; }
+  .sp-hero-art { width: min(240px, 52vw); }
+  .sp-hero-art img { animation: hero-pop 0.25s ease; image-rendering: auto; }
+  .sp-hero-xp { width: min(320px, 90%); display: grid; gap: 3px; font-size: 11px; text-align: center; opacity: 0.9; }
+  .sp-hero-xp .progress-bar-bg { height: 7px; }
+  .sp-hero-perk { max-width: 420px; text-align: center; font-size: 12px; opacity: 0.85; }
+  .sp-kind-tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px 12px; }
+  .sp-kt {
+    width: 76px;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    padding: 6px 4px 7px;
+    border-radius: 14px;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.05);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+  }
+  .sp-kt:hover { transform: translateY(-2px); }
+  .sp-kt.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  .sp-kt.mastered:not(.on) { border-color: rgba(252, 211, 77, 0.55); }
+  .sp-kt-img { position: relative; width: 52px; height: 52px; display: grid; place-items: center; }
+  .sp-kt-img img { width: 52px; height: 52px; object-fit: contain; }
+  .sp-kt.missing .sp-kt-img img { filter: grayscale(1) brightness(0.45); }
+  .sp-kt-lock {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+  }
+  .sp-kt-lock ha-icon { --mdc-icon-size: 13px; display: flex; }
+  .sp-kt-new { position: absolute; top: -2px; left: -2px; width: 9px; height: 9px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 2px var(--card-background-color, #1c2230); }
+  .sp-kt-name { font-size: 10px; font-weight: 800; line-height: 1.1; text-align: center; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sp-kt-badges { display: flex; align-items: center; justify-content: center; gap: 4px; height: 16px; }
+  .sp-kt-star { font-size: 12px; line-height: 1; }
+  .sp-kt-count { font-size: 10px; font-weight: 800; padding: 0 5px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); line-height: 15px; }
+  .sp-kt-count.dim { background: none; opacity: 0.4; }
+  .sp-kt-bar { width: 56px; height: 5px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+  .sp-kt-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), #FCD34D); }
+  .sp-kt.mastered .sp-kt-bar i { background: #FCD34D; }
+  .sp-kt-lv { font-size: 10px; font-weight: 800; opacity: 0.85; font-variant-numeric: tabular-nums; }
+  .sp-kt.missing .sp-kt-lv { opacity: 0.5; }
+  .sp-about { padding: 0 16px 14px; text-align: center; }
+  @media (max-width: 600px) {
+    .sp-hero-art { width: min(190px, 52vw); }
+    .sp-kt { width: 68px; }
+  }
 `;

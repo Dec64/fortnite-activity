@@ -580,6 +580,7 @@ def _parse_collection_body(
                 "drop_chance_pct": v.get("dropChancePercent"),
                 "boons": named_boons((extra.get("variant_boons") or {}).get(v.get("id"), [])),
                 "icon": v_icon or icon or extra.get("icon"),
+                "icon_large": v_large if v_large and v_large != v_icon else None,
             })
         families.append({
             "id": fam.get("id"),
