@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.15.2";
+const CARD_VERSION = "1.15.3";
 
 declare global {
   interface Window {
@@ -238,6 +238,9 @@ export class FortniteActivityCard extends LitElement {
   @state() private _outfitSort: "rarity" | "name" = "rarity";
   @state() private _outfitPage = 0;
   @state() private _selectedOutfit: string | null = null;
+  @state() private _sheetKind: string | null = null;
+  private _sheetLockUntil = 0;
+  private _sheetScroller: HTMLElement | null = null;
   @state() private _lockerFilter: "all" | "favorites" | "new" = "all";
   @state() private _shop: { loading?: boolean; data?: any; error?: string } = {};
   @state() private _shopTab: "today" | "wishlist" = "today";
@@ -385,6 +388,7 @@ export class FortniteActivityCard extends LitElement {
     }
     const sheet = this.shadowRoot?.querySelector("dialog.sp-sheet") as HTMLDialogElement | null;
     if (sheet && !sheet.open) sheet.showModal();
+    this._watchSheetRows();
     // A section can open without a tab click (default section / single-section card)
     if (this._renderedView === "pass") {
       this._loadPass();
@@ -3023,37 +3027,113 @@ export class FortniteActivityCard extends LitElement {
     const i = order.findIndex((f) => f.id === this._expandedSprite);
     const f = order[i];
     if (!f) return nothing;
-    const go = (d: number) => (this._expandedSprite = order[(i + d + order.length) % order.length].id);
+    const go = (d: number) => {
+      this._expandedSprite = order[(i + d + order.length) % order.length].id;
+      this._sheetKind = null;
+      this.shadowRoot?.querySelector(".sp-sheet-scroll")?.scrollTo({ top: 0 });
+    };
+    const curve = this._spriteCurve(this._findEntity("sensor", "sprites")?.attributes || {});
+    const variants: any[] = f.variants || [];
+    // Default: the first kind you own (else the base kind)
+    const kind = variants.find((v) => v.id === this._sheetKind) || variants.find((v) => v.owned) || variants[0] || {};
+    const lv = kind.owned ? this._spriteLevel(kind.xp, curve) : null;
+    const count = Math.max(1, Number(kind.count) || 0);
+    const select = (v: any) => {
+      this._sheetKind = v.id;
+      this._sheetLockUntil = Date.now() + 700; // ignore the scroll-spy while the list scrolls there
+      const row = this.shadowRoot?.querySelector(`.sp-kind-row[data-vid="${CSS.escape(v.id)}"]`) as HTMLElement | null;
+      row?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    };
     return html`
       <dialog class="sp-sheet" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}"
-        @close=${() => (this._expandedSprite = null)}
+        @close=${() => { this._expandedSprite = null; this._sheetKind = null; }}
         @click=${(e: Event) => { if (e.target === e.currentTarget) (e.currentTarget as HTMLDialogElement).close(); }}
-        @keydown=${(e: KeyboardEvent) => { if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); }}>
-        <div class="sp-sheet-body">
-          <div class="sp-sheet-nav">
-            <button class="bp-nav" title="Previous sprite" @click=${() => go(-1)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
-            <span>${i + 1} of ${order.length}</span>
-            <button class="bp-nav" title="Next sprite" @click=${() => go(1)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
-            <button class="bp-nav close" title="Close" @click=${(e: Event) => ((e.currentTarget as HTMLElement).closest("dialog") as HTMLDialogElement)?.close()}><ha-icon icon="mdi:close"></ha-icon></button>
+        @keydown=${(e: KeyboardEvent) => {
+          if (e.key === "ArrowRight") go(1);
+          if (e.key === "ArrowLeft") go(-1);
+          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            e.preventDefault();
+            const k = variants.indexOf(kind);
+            const next = variants[(k + (e.key === "ArrowDown" ? 1 : -1) + variants.length) % variants.length];
+            if (next) select(next);
+          }
+        }}>
+        <div class="sp-sheet-nav">
+          <button class="bp-nav" title="Previous sprite" @click=${() => go(-1)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
+          <span>${this._spriteName(f)} · ${i + 1} of ${order.length}</span>
+          <button class="bp-nav" title="Next sprite" @click=${() => go(1)}><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+          <button class="bp-nav close" title="Close" @click=${(e: Event) => ((e.currentTarget as HTMLElement).closest("dialog") as HTMLDialogElement)?.close()}><ha-icon icon="mdi:close"></ha-icon></button>
+        </div>
+
+        <div class="sp-hero ${kind.owned ? "" : "missing"} ${kind.mastered ? "mastered" : ""}">
+          <div class="sp-hero-art">
+            ${kind.icon
+              ? html`<img decoding="async" src=${thumb(kind.icon, 512)} alt=${kind.name || f.name} @error=${hideBroken} />`
+              : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+            ${!kind.owned ? html`<span class="sp-hero-lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
+            ${kind.mastered ? html`<span class="sp-hero-star" title="Mastered">⭐</span>` : nothing}
           </div>
-          ${this._renderSpriteDetail(f)}
+          <div class="sp-hero-name">
+            <b>${kind.label && kind.label !== "Base" ? `${kind.label} ` : ""}${this._spriteName(f)}</b>
+            <span class="tag rarity-tag">${f.rarity || ""}</span>
+          </div>
+          <div class="sp-hero-chips">
+            ${kind.new && !f.new ? html`<span class="sp-chip new">✨ New kind</span>` : nothing}
+            ${f.new ? html`<span class="sp-chip new">✨ New this update</span>` : nothing}
+            ${kind.mastered ? html`<span class="sp-chip gold">⭐ Mastered</span>` : nothing}
+            ${kind.owned ? html`<span class="sp-chip">You have ${count}</span>` : html`<span class="sp-chip dim">Not found yet</span>`}
+            ${lv ? html`<span class="sp-chip">Level ${lv.level}${lv.atMax ? " · max" : ""}</span>` : nothing}
+            ${!kind.owned && kind.drop_chance_pct != null ? html`<span class="sp-chip dim">${kind.drop_chance_pct}% chance</span>` : nothing}
+          </div>
+          <div class="sp-hero-strip" role="tablist">
+            ${variants.map((v) => html`
+              <button class="sp-strip-kind ${v.id === kind.id ? "on" : ""} ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""} ${v.new && !f.new ? "new" : ""}"
+                role="tab" aria-selected=${v.id === kind.id ? "true" : "false"} title=${v.label} @click=${() => select(v)}>
+                ${v.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${thumb(v.icon, 128)} alt="" @error=${hideBroken} />` : nothing}
+                ${!v.owned ? html`<span class="sp-strip-lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
+              </button>`)}
+          </div>
+        </div>
+
+        <div class="sp-sheet-scroll">
+          ${this._renderSpriteDetail(f, kind.id, select)}
         </div>
       </dialog>`;
   }
 
-  private _renderSpriteDetail(f: any) {
+  /**
+   * Scroll-spy: scrolling the kind list moves through the kinds (top = first, bottom = last), so the big
+   * picture always matches the kind you are reading, even when the list only scrolls a little.
+   */
+  private _watchSheetRows(): void {
+    const scroller = this.shadowRoot?.querySelector(".sp-sheet-scroll") as HTMLElement | null;
+    if (!scroller || scroller === this._sheetScroller) return;
+    this._sheetScroller = scroller;
+    let timer = 0;
+    scroller.addEventListener("scroll", () => {
+      if (timer) return;
+      timer = window.setTimeout(() => {
+        timer = 0;
+        if (Date.now() < this._sheetLockUntil) return;
+        const rows = [...scroller.querySelectorAll(".sp-kind-row")] as HTMLElement[];
+        const max = scroller.scrollHeight - scroller.clientHeight;
+        if (!rows.length || max <= 2) return;
+        const index = Math.round((scroller.scrollTop / max) * (rows.length - 1));
+        const vid = rows[Math.min(rows.length - 1, Math.max(0, index))].dataset.vid;
+        if (vid && vid !== this._sheetKind) this._sheetKind = vid;
+      }, 16);
+    }, { passive: true });
+  }
+
+  private _renderSpriteDetail(f: any, selectedId?: string, select?: (v: any) => void) {
     const curve = this._spriteCurve(this._findEntity("sensor", "sprites")?.attributes || {});
     const familyBoon = f.name;
     return html`
-      <div class="sprite-detail sp-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
-        <div class="sprite-detail-head">
-          ${f.icon_large || f.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(f.icon_large || f.icon, 256)} alt="" @error=${hideBroken} />` : nothing}
-          <div>
-            <b>${f.name}</b> <span class="tag rarity-tag">${f.rarity || ""}</span>
-            ${f.new ? html`<span class="sp-chip new">✨ New this update</span>` : f.added_in ? html`<span class="sp-chip dim">Added in update ${f.added_in}</span>` : nothing}
-            ${f.description ? html`<p class="detail-desc">${f.description}</p>` : nothing}
-            ${f.hint ? html`<p class="detail-desc hint">📍 ${f.hint}</p>` : nothing}
-          </div>
+      <div class="sp-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
+        <div class="sp-about">
+          ${f.description ? html`<p>${f.description}</p>` : nothing}
+          ${f.hint ? html`<p class="hint">📍 ${f.hint}</p>` : nothing}
+          ${!f.new && f.added_in ? html`<p class="muted">Added in update ${f.added_in}</p>` : nothing}
         </div>
         <div class="sp-kind-list">
           ${(f.variants || []).map((v: any) => {
@@ -3061,7 +3141,8 @@ export class FortniteActivityCard extends LitElement {
             const perk = (v.boons || []).find((b: any) => b.name && b.name !== familyBoon);
             const count = Math.max(1, Number(v.count) || 0);
             return html`
-              <div class="sp-kind-row ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""}">
+              <div class="sp-kind-row ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""} ${v.id === selectedId ? "on" : ""}"
+                data-vid=${v.id} @click=${() => select?.(v)}>
                 <div class="sp-kind-icon">
                   ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(v.icon, 128)} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
                   ${!v.owned ? html`<span class="sp-badge lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}

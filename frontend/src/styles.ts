@@ -2127,4 +2127,84 @@ export const cardStyles = css`
   .sp-img, .bp-hero-img, .locker-hero-img { position: relative; }
   @keyframes shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
   .shop-tile, .locker-grid .bp-reward { content-visibility: auto; contain-intrinsic-size: auto 170px; }
+
+  /* ---- v1.15.3: sprite sheet hero, badge fixes ---- */
+  .sp-newdot { right: auto; left: -2px; }
+  .sp-badge.lock { display: flex; align-items: center; justify-content: center; line-height: 0; padding: 0; }
+  .sp-badge.lock ha-icon, .sp-strip-lock ha-icon, .sp-hero-lock ha-icon { display: flex; align-items: center; justify-content: center; }
+  .sp-badge.lock ha-icon { --mdc-icon-size: 12px; width: 12px; height: 12px; }
+
+  dialog.sp-sheet { display: none; }
+  dialog.sp-sheet[open] { display: flex; flex-direction: column; }
+  dialog.sp-sheet .sp-sheet-nav { position: static; margin: 0; flex: 0 0 auto; }
+  .sp-hero {
+    flex: 0 0 auto;
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    padding: 12px 14px 10px;
+    background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--rarity) 35%, transparent), transparent 70%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .sp-hero-art { position: relative; width: min(200px, 42vw); aspect-ratio: 1; display: grid; place-items: center; }
+  .sp-hero-art img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5)); animation: hero-pop 0.25s ease; }
+  .sp-hero-art > ha-icon { --mdc-icon-size: 96px; color: var(--rarity); }
+  @keyframes hero-pop { from { opacity: 0.4; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+  .sp-hero.missing .sp-hero-art img { filter: grayscale(1) brightness(0.45) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5)); }
+  .sp-hero-lock {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.65);
+  }
+  .sp-hero-lock ha-icon { --mdc-icon-size: 26px; }
+  .sp-hero-star { position: absolute; top: 4px; right: 4px; font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); }
+  .sp-hero-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; text-align: center; }
+  .sp-hero-name b { font-size: 18px; }
+  .sp-hero-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; min-height: 20px; }
+  .sp-hero-strip { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 2px; }
+  .sp-strip-kind {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    padding: 2px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+  }
+  .sp-strip-kind img { width: 100%; height: 100%; object-fit: contain; }
+  .sp-strip-kind:not(.owned) img { filter: grayscale(1) brightness(0.45); }
+  .sp-strip-kind.mastered { box-shadow: inset 0 0 0 2px #FCD34D; }
+  .sp-strip-kind.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 20%, transparent); }
+  .sp-strip-kind.new::after { content: ""; position: absolute; top: -3px; left: -3px; width: 9px; height: 9px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 2px var(--card-background-color, #1c2230); }
+  .sp-strip-lock {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+  }
+  .sp-strip-lock ha-icon { --mdc-icon-size: 11px; }
+  .sp-sheet-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 12px 14px; scroll-behavior: smooth; }
+  .sp-about p { margin: 0 0 4px; font-size: 12px; opacity: 0.85; }
+  .sp-about .hint { opacity: 0.75; }
+  .sp-kind-row { cursor: pointer; transition: background 0.15s, box-shadow 0.15s; }
+  .sp-kind-row.on { background: color-mix(in srgb, var(--accent) 14%, rgba(255, 255, 255, 0.04)); box-shadow: inset 3px 0 0 var(--accent); }
+  .sp-kind-row.mastered.on { box-shadow: inset 3px 0 0 var(--accent), inset 0 0 0 1px #FCD34D; }
+  @media (max-width: 600px) {
+    .sp-hero-art { width: min(150px, 40vw); }
+    .sp-hero-name b { font-size: 16px; }
+  }
 `;
