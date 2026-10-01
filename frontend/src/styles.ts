@@ -2095,6 +2095,8 @@ export const cardStyles = css`
   .shop-nav { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 6px; margin-bottom: 4px; }
   .shop-section-select select { font-size: 14px; }
   .shop-section-meta { font-size: 11px; opacity: 0.65; margin: 2px 2px 8px; }
+  .shop-price.varies { color: #FDE68A; font-size: 11px; }
+  .shop-price.varies s { color: inherit; opacity: 0.7; }
   .shop-tag { font-size: 10px; font-weight: 700; opacity: 0.75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .shop-tag.new { color: #6EE7B7; opacity: 1; }
   .shop-tag.back { color: #93C5FD; opacity: 1; }

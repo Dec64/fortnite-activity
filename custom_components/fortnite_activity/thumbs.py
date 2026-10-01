@@ -107,11 +107,17 @@ class FortniteThumbView(HomeAssistantView):  # type: ignore[misc]
         try:
             async with self._sem:
                 session = async_get_clientsession(self.hass)
+                chunks: list[bytes] = []
+                total = 0
                 async with session.get(url, timeout=ClientTimeout(total=30)) as resp:
                     resp.raise_for_status()
-                    data = await resp.content.read(MAX_SOURCE_BYTES + 1)
-                if len(data) > MAX_SOURCE_BYTES:
-                    raise ValueError("source image too large")
+                    # Read the whole body (a single read() may return only what is buffered)
+                    async for chunk in resp.content.iter_chunked(64 * 1024):
+                        total += len(chunk)
+                        if total > MAX_SOURCE_BYTES:
+                            raise ValueError("source image too large")
+                        chunks.append(chunk)
+                data = b"".join(chunks)
                 out = await self.hass.async_add_executor_job(_resize, data, width)
                 await self.hass.async_add_executor_job(self._write, path, out)
             fut.set_result(out)

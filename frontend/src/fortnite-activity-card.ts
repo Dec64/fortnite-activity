@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.15.1";
+const CARD_VERSION = "1.15.2";
 
 declare global {
   interface Window {
@@ -1823,6 +1823,24 @@ export class FortniteActivityCard extends LitElement {
     return nothing;
   }
 
+  /** What a bundle's items cost bought one by one in today's shop (when every item is sold alone). */
+  private _bundleSeparately(o: any, shop: any): number | null {
+    if (!o.bundle || !o.items?.length) return null;
+    const single = new Map<string, number>();
+    for (const s of shop?.sections || []) {
+      for (const offer of s.offers) {
+        if (!offer.bundle && offer.items.length === 1 && offer.price) single.set(offer.items[0].id, offer.price);
+      }
+    }
+    let sum = 0;
+    for (const it of o.items) {
+      const p = single.get(it.id);
+      if (!p) return null;
+      sum += p;
+    }
+    return sum || null;
+  }
+
   private _renderShopTile(o: any, shop: any) {
     const first = o.items[0] || {};
     return html`
@@ -1834,7 +1852,10 @@ export class FortniteActivityCard extends LitElement {
           ${o.bundle ? html`<span class="shop-bundle">Bundle · ${o.items.length}</span>` : nothing}
         </div>
         <span class="bp-reward-name">${o.title}</span>
-        <span class="shop-price">Ⓥ ${this._num(o.price)}${o.regular_price && o.regular_price > o.price ? html` <s>${this._num(o.regular_price)}</s>` : nothing}</span>
+        ${o.price
+          ? html`<span class="shop-price">Ⓥ ${this._num(o.price)}${o.regular_price && o.regular_price > o.price ? html` <s>${this._num(o.regular_price)}</s>` : nothing}</span>`
+          : html`<span class="shop-price varies" title="Fortnite works out this bundle's price from what you already own">
+              Price varies${this._bundleSeparately(o, shop) ? html` · <s>Ⓥ ${this._num(this._bundleSeparately(o, shop))}</s>` : nothing}</span>`}
         ${this._shopTag(o, shop)}
       </div>`;
   }
