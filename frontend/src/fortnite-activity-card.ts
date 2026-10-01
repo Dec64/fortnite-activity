@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.11.0";
+const CARD_VERSION = "1.11.1";
 
 declare global {
   interface Window {
@@ -147,6 +147,7 @@ interface PassSet {
   key: string;
   unlocked: number;
   known: number;
+  complete: boolean;
   title: string;
   outfit: any | null;
   hero: string | null;
@@ -321,7 +322,10 @@ export class FortniteActivityCard extends LitElement {
       this._scheduleAvatar();
     }
     // A section can open without a tab click (default section / single-section card)
-    if (this._renderedView === "pass") this._loadPass();
+    if (this._renderedView === "pass") {
+      this._loadPass();
+      this._loadOutfits(); // owned outfits tick off each set's outfit reward
+    }
     if (this._renderedView === "locker") this._loadOutfits();
     if (this._renderedView === "trends") this._loadTrends();
   }
@@ -532,7 +536,10 @@ export class FortniteActivityCard extends LitElement {
     this._view = view;
     if (view === "events") this._loadEvents();
     if (view === "trends") this._loadTrends();
-    if (view === "pass") this._loadPass();
+    if (view === "pass") {
+      this._loadPass();
+      this._loadOutfits();
+    }
     if (view === "locker") this._loadOutfits();
   }
 
@@ -1263,10 +1270,13 @@ export class FortniteActivityCard extends LitElement {
         }
       }
       const known = rewards.filter((r) => r.owned === true || r.owned === false);
+      const unlockedCount = known.filter((r) => r.owned === true).length;
+      const checkable = rewards.filter((r) => r.type !== "Currency").length;
       return {
         key,
-        unlocked: known.filter((r) => r.owned === true).length,
+        unlocked: unlockedCount,
         known: known.length,
+        complete: known.length > 0 && known.length === checkable && unlockedCount === known.length,
         title: outfit?.name && !/^[A-Za-z]+_[A-Za-z0-9_]+$/.test(outfit.name) ? outfit.name : `Set ${i + 1}`,
         outfit,
         hero,
@@ -1305,12 +1315,36 @@ export class FortniteActivityCard extends LitElement {
     this._passPage = 0;
   }
 
+  /**
+   * Outfit rewards arrive as style tokens, which ownership matching cannot resolve. Their icon
+   * (T_Soldier_<Set>_<Name>) names the outfit id (character_<set>_<name>), so an owned outfit marks
+   * that reward unlocked. No match leaves it unmarked rather than locked.
+   */
+  private _withOwnedOutfits(bp: any): any {
+    const owned = new Set<string>((this._outfits.data?.outfits || []).map((o: any) => String(o.id || "").toLowerCase()));
+    if (!owned.size || bp.known == null) return bp;
+    let unlocked = bp.unlocked || 0;
+    let known = bp.known || 0;
+    const pages = (bp.pages || []).map((pg: any) => ({
+      ...pg,
+      rewards: (pg.rewards || []).map((r: any) => {
+        if (r.owned != null || !isOutfit(r)) return r;
+        const m = /^T_Soldier_(.+?)(?:\.\w+)?$/i.exec(rewardIconFile(r));
+        if (!m || !owned.has(`character_${m[1].toLowerCase()}`)) return r;
+        unlocked += 1;
+        known += 1;
+        return { ...r, owned: true };
+      }),
+    }));
+    return { ...bp, pages, unlocked, known };
+  }
+
   private _renderPassView(levelSensor: any) {
     const p = this._pass;
     if (p.loading || (p.data === undefined && !p.error)) return html`<div class="empty">Loading Battle Pass…</div>`;
     if (p.error) return html`<div class="empty">${p.error}</div>`;
     if (!p.data || !p.data.pages?.length) return html`<div class="empty">The Battle Pass will show here soon.</div>`;
-    const bp = p.data;
+    const bp = this._withOwnedOutfits(p.data);
     const sets = this._passSets(bp);
     const idx = Math.min(this._passSet, sets.length - 1);
     const set = sets[idx];
@@ -1334,7 +1368,10 @@ export class FortniteActivityCard extends LitElement {
           </div>
           ${bp.known
             ? html`<div class="bp-unlock">
-                <div class="bp-unlock-top"><span>🔓 Unlocked</span><b>${bp.unlocked} / ${bp.known}</b></div>
+                <div class="bp-unlock-top">
+                  <span>✓ <b>${bp.unlocked}</b> unlocked</span>
+                  ${bp.known > bp.unlocked ? html`<span class="bp-locked-count">🔒 ${bp.known - bp.unlocked} still locked</span>` : nothing}
+                </div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.round((bp.unlocked / bp.known) * 100)}%"></div></div>
               </div>`
             : nothing}
@@ -1349,11 +1386,11 @@ export class FortniteActivityCard extends LitElement {
 
         <div class="bp-strip" role="tablist">
           ${sets.map((s, i) => html`
-            <button class="bp-thumb ${i === idx ? "active" : ""} ${s.known && s.unlocked === s.known ? "done" : ""}" role="tab" aria-selected=${i === idx ? "true" : "false"}
+            <button class="bp-thumb ${i === idx ? "active" : ""} ${s.complete ? "done" : ""}" role="tab" aria-selected=${i === idx ? "true" : "false"}
               title="${s.title}${s.known ? ` · ${s.unlocked} of ${s.known} unlocked` : ""}"
               @click=${() => this._goPassSet(i, sets.length)}>
               ${s.hero ? html`<img src=${s.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
-              ${s.known && s.unlocked === s.known ? html`<span class="bp-thumb-check">✓</span>` : nothing}
+              ${s.complete ? html`<span class="bp-thumb-check">✓</span>` : nothing}
             </button>`)}
         </div>
 
@@ -1374,7 +1411,11 @@ export class FortniteActivityCard extends LitElement {
               ${set.known
                 ? html`<div class="bp-set-progress">
                     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.round((set.unlocked / set.known) * 100)}%"></div></div>
-                    <span>${set.unlocked === set.known ? "✓ All unlocked" : `${set.unlocked} of ${set.known} unlocked`}</span>
+                    <span>${set.complete
+                      ? "✓ All unlocked"
+                      : set.unlocked === set.known
+                        ? `✓ ${set.unlocked} unlocked`
+                        : `✓ ${set.unlocked} unlocked · 🔒 ${set.known - set.unlocked} still locked`}</span>
                   </div>`
                 : nothing}
               <div class="bp-hero-types">${set.types.map(([t, n]) => `${n} ${plural(t, n)}`).join(" · ")}</div>

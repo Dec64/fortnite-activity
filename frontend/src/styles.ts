@@ -1527,6 +1527,8 @@ export const cardStyles = css`
   .bp-unlock { margin-top: 10px; display: grid; gap: 4px; }
   .bp-unlock-top { display: flex; justify-content: space-between; align-items: baseline; font-weight: 800; }
   .bp-unlock-top b { font-size: 18px; color: #6EE7B7; }
+  .bp-unlock-top span:first-child { color: #6EE7B7; }
+  .bp-locked-count { font-size: 12px; opacity: 0.85; }
   .bp-unlock .progress-bar-bg, .bp-set-progress .progress-bar-bg { height: 8px; }
   .bp-unlock .progress-bar-fill, .bp-set-progress .progress-bar-fill { background: linear-gradient(90deg, #10B981, #6EE7B7); }
   .bp-set-progress { display: grid; gap: 3px; margin-top: 6px; font-size: 12px; font-weight: 800; color: #6EE7B7; }

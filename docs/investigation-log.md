@@ -969,3 +969,9 @@ Following the user's `/plan` request and interactive alignment interview, design
 - Battle Pass rewards now keep the provider `item` id. `mark_battlepass_owned` marks each reward `owned` true/false/None. Currency rewards, rewards without an item id, and any reward type with no match anywhere in the pass stay unknown, so nothing is shown as locked without evidence. Diagnostics `battlepass_unlocks.by_type` reports counts only.
 - Sprites page redesigned for young players. Each card shows Mastered / Not mastered / Not found yet, "Have N · Lv X" (gold at top level), and a row of the sprite's kinds (variants) with owned, mastered and missing states. The detail view lists every kind with "You have N", its level, XP to the next level and its perk.
 - Removed user-facing text about data sources and availability (claimed rewards, catalogue, tracked-only, schedule-only, "collecting history", game update labels).
+
+### 2026-10-01 v1.11.1 Battle Pass outfit rewards
+
+- Live v1.11.0 diagnostics: 2,959 owned cosmetic IDs. Battle Pass matching gave 62 unlocked and 2 locked across pickaxes, gliders, emotes, wraps, loading screens, back blings, kicks and jam tracks. The 72 `CosmeticVariantToken` rewards (including set outfits) never match owned items and correctly stay unknown. Banner icons (held in common_core) and currency also stay unknown.
+- Verified naming join: all 8 set codenames have an owned `character_<set>[_<name>]` outfit, and the outfit reward icons are `T_Soldier_<Set>_<Name>`. The card marks an outfit reward unlocked only on an exact `character_<set>_<name>` match, and never marks it locked. Live result: 69 unlocked, 2 locked.
+- Unlock wording: "All unlocked" appears only when every non-currency reward in a set was checked. Otherwise it reads "N unlocked · M still locked".
