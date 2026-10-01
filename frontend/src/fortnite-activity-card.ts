@@ -4,7 +4,7 @@ import { cardStyles } from "./styles";
 import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 
-const CARD_VERSION = "1.6.2";
+const CARD_VERSION = "1.7.0";
 
 declare global {
   interface Window {
@@ -626,6 +626,8 @@ export class FortniteActivityCard extends LitElement {
     const accountLevel = Number(levelAttrs.account_level || 0);
     const avatarImg = this._avatar?.icon;
     const badgeSize = this._config.compact ? 20 : 24;
+    const vbucks = this._findEntity("sensor", "vbucks");
+    const showVbucks = !this._config.hide_vbucks && vbucks && !isNaN(Number(vbucks.state));
 
     return html`
       <div class="fa-header">
@@ -644,6 +646,7 @@ export class FortniteActivityCard extends LitElement {
             ${season?.number ? html`<span class="level-badge">S${season.number} · ${season.days_left}d left</span>` : nothing}
             ${!this._config.hide_season_level && seasonLevel > 0 ? html`<span class="level-badge">Lvl ${seasonLevel}</span>` : nothing}
             ${!this._config.hide_account_level && accountLevel > 0 ? html`<span>Acct ${accountLevel.toLocaleString()}</span>` : nothing}
+            ${showVbucks ? html`<span class="vbucks-chip" title="V-Bucks (provider inventory)">Ⓥ ${this._num(vbucks.state)}</span>` : nothing}
             ${lastPlayed?.time && !isPlaying
               ? html`<span title=${lastPlayed.name || ""}>Played ${this._formatRelativeTime(lastPlayed.time)}</span>`
               : nothing}
@@ -1081,6 +1084,12 @@ export class FortniteActivityCard extends LitElement {
           ${bp.prices.filter((pr: any) => pr.cost).map((pr: any) => html`<span>${pr.name}: <b>${this._num(pr.cost)}</b> ${currencyLabel(pr.currency, pr.cost)}</span>`)}
         </div>
         <div class="perk-desc">Which rewards you have claimed is not available from this data source.</div>
+        ${(() => {
+          const q = this._findEntity("sensor", "profile")?.attributes?.quests;
+          if (!q) return nothing;
+          return html`<div class="rank-meta"><span>Quests on record: <b>${this._num(q.total)}</b> · ${Object.entries(q.by_state).map(([k, v]) => `${v} ${k.toLowerCase()}`).join(" · ")}</span>
+            <span class="muted" title="Epic's quest data has no names or targets; only states are counted">names unavailable</span></div>`;
+        })()}
       </div>
       ${pages.map((pg: any) => html`
         <div class="section-title">Section ${trackIndex.get(String(pg.track || "").replace(/Bonus$/, ""))} · ${/Bonus$/.test(pg.track || "") ? "bonus page" : "page"} ${pg.page}</div>

@@ -39,6 +39,7 @@ from .profile import (
     parse_external_auths,
     parse_playlists,
     parse_battlepass,
+    parse_inventory,
     parse_power_ranking,
     parse_season,
     parse_sprite_boons,
@@ -48,6 +49,7 @@ from .profile import (
     parse_sprite_versions,
     parse_tournaments,
     sample_items,
+    summarise_quests,
     window_is_valid,
 )
 
@@ -299,7 +301,12 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ok, raw = await self._guarded(key, lambda: self.api_client.get_quests(account_id, token))
             if ok:
                 self.quest_debug[player_id] = sample_items(raw)
+                info["quests"] = summarise_quests(raw)
             self._fetched_at[key] = now
+
+        ok, raw = await self._guarded(f"inventory:{player_id}", lambda: self.api_client.get_br_inventory(account_id, token))
+        if ok:
+            info["inventory"] = parse_inventory(raw)
 
         ok, raw = await self._guarded(f"level:{player_id}", lambda: self.api_client.get_raw_level(account_id, token))
         if ok:

@@ -57,6 +57,7 @@ async def async_setup_entry(
                 FortniteLadderSensor(coordinator, p_id, p_name, "reload_build", "Reload Ladder", "ladder_reload"),
                 FortniteUnrealPositionSensor(coordinator, p_id, p_name, "battle_royale", "BR Unreal Position", "unreal_battle_royale"),
                 FortniteUnrealPositionSensor(coordinator, p_id, p_name, "reload_build", "Reload Unreal Position", "unreal_reload"),
+                FortniteVBucksSensor(coordinator.profile, p_id, p_name),
                 FortniteSeasonStatSensor(coordinator.profile, p_id, p_name, "kd", "Season K/D", "season_kd", None),
                 FortniteSeasonStatSensor(coordinator.profile, p_id, p_name, "win_rate", "Season Win Rate", "season_win_rate", "%"),
                 FortniteLastPlayedSensor(coordinator, p_id, p_name),
@@ -319,6 +320,8 @@ class FortniteProfileSensor(FortniteEntity, SensorEntity):
             "window_labels": self.player_data.get("window_labels") or {},
             "epic_link": (self.player_data.get("epic") or {}).get("status", "unlinked"),
             "capabilities": (self.coordinator.capabilities or {}).get(self.player_id),
+            # State counts only: the quests payload has no names, targets or rewards
+            "quests": self.player_data.get("quests"),
         }
 
 
@@ -478,3 +481,31 @@ class FortniteSeasonStatSensor(FortniteEntity, SensorEntity):
     @property
     def native_value(self) -> float | None:
         return (self._season or {}).get(self._field)
+
+
+class FortniteVBucksSensor(FortniteEntity, SensorEntity):
+    """V-Bucks balance reported by the provider's inventory route (needs a linked Epic account)."""
+
+    _attr_icon = "mdi:hand-coin"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "V-Bucks"
+
+    def __init__(self, coordinator: Any, player_id: str, player_name: str) -> None:
+        super().__init__(coordinator, "sensor", player_id, player_name, "vbucks")
+        self._attr_name = "V-Bucks"
+
+    @property
+    def _inventory(self) -> dict[str, Any]:
+        return self.player_data.get("inventory") or {}
+
+    @property
+    def available(self) -> bool:
+        return super().available and isinstance(self._inventory.get("vbucks"), int)
+
+    @property
+    def native_value(self) -> int | None:
+        return self._inventory.get("vbucks")
+
+    @property
+    def _extra_attributes(self) -> dict[str, Any]:
+        return {"source": "api-fortnite br-inventory stash.globalcash", "balances": self._inventory.get("balances")}

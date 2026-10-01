@@ -216,3 +216,24 @@ class TestBattlePass(unittest.TestCase):
         self.assertIsNone(parse_battlepass({"data": {"no": "pages"}}))
         self.assertEqual(sample_items({"quests": [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]}, 2),
                          {"largest_list_length": 4, "sample": [{"a": 1}, {"a": 2}]})
+
+
+class TestInventoryAndQuests(unittest.TestCase):
+    def test_inventory_globalcash(self) -> None:
+        from custom_components.fortnite_activity.profile import parse_inventory
+
+        self.assertEqual(parse_inventory({"stash": {"globalcash": 1250}}), {"vbucks": 1250, "balances": {"globalcash": 1250}})
+        self.assertEqual(parse_inventory({"data": {"stash": {"globalcash": 0}}})["vbucks"], 0)
+        self.assertIsNone(parse_inventory({"stash": {}}))
+        self.assertIsNone(parse_inventory("bad"))
+
+    def test_quest_state_counts_only(self) -> None:
+        from custom_components.fortnite_activity.profile import summarise_quests
+
+        raw = {"data": {"quests": [
+            {"templateId": "Quest:a", "state": "Active", "objectives": []},
+            {"templateId": "Quest:b", "state": "Claimed", "objectives": []},
+            {"templateId": "Quest:c", "state": "Active", "objectives": []},
+        ]}}
+        self.assertEqual(summarise_quests(raw), {"total": 3, "by_state": {"Active": 2, "Claimed": 1}})
+        self.assertIsNone(summarise_quests({"data": []}))

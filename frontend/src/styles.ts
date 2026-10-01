@@ -1220,4 +1220,11 @@ export const cardStyles = css`
   .kill-bar { fill: var(--accent); opacity: 0.85; }
   .win-mark { fill: #FFD700; font-size: 10px; }
   .collecting { font-size: 12px; opacity: 0.7; padding: 18px 0; text-align: center; }
+  .vbucks-chip {
+    padding: 2px 8px;
+    border-radius: var(--pill-radius);
+    background: rgba(59, 130, 246, 0.18);
+    color: #93C5FD;
+    font-weight: 700;
+  }
 `;

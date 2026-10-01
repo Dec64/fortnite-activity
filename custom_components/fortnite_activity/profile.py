@@ -744,3 +744,43 @@ def sample_items(raw: Any, limit: int = 3) -> Any:
 
     walk(raw)
     return {"largest_list_length": len(best), "sample": best[:limit]}
+
+
+def parse_inventory(raw: Any) -> dict[str, Any] | None:
+    """Currency balances from /v2/fn/br-inventory. `globalcash` is the provider's V-Bucks balance."""
+    data = _unwrap(raw)
+    if not isinstance(data, dict):
+        return None
+    stash = data.get("stash") if isinstance(data.get("stash"), dict) else data
+    balances = {k: int(v) for k, v in stash.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
+    if not balances:
+        return None
+    return {"vbucks": balances.get("globalcash"), "balances": balances}
+
+
+def summarise_quests(raw: Any) -> dict[str, Any] | None:
+    """Counts by state from /v2/quests (no names/targets exist in the payload, so nothing else is derived)."""
+    items: list[Any] = []
+
+    def walk(value: Any, depth: int = 0) -> None:
+        nonlocal items
+        if depth > 5:
+            return
+        if isinstance(value, list) and value and all(isinstance(v, dict) and "templateId" in v for v in value[:5]):
+            if len(value) > len(items):
+                items = value
+        elif isinstance(value, dict):
+            for v in value.values():
+                walk(v, depth + 1)
+        elif isinstance(value, list):
+            for v in value[:5]:
+                walk(v, depth + 1)
+
+    walk(raw)
+    if not items:
+        return None
+    states: dict[str, int] = {}
+    for q in items:
+        state = str(q.get("state") or "Unknown")
+        states[state] = states.get(state, 0) + 1
+    return {"total": len(items), "by_state": states}

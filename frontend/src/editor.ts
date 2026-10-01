@@ -87,6 +87,11 @@ const SCHEMA = [
     },
   },
   {
+    name: "hide_vbucks",
+    label: "Hide V-Bucks balance (e.g. on a shared/family screen)",
+    selector: { boolean: {} },
+  },
+  {
     name: "show_platforms",
     label: "Show linked platform accounts (PSN / Xbox / Switch names)",
     selector: { boolean: {} },

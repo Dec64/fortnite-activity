@@ -192,6 +192,10 @@ class ApiFortniteClient:
         query = f"?{urlencode({'season': season})}" if season else ""
         return await self._request(f"/v2/battlepass{query}")
 
+    async def get_br_inventory(self, account_id: str, token: str) -> Any:
+        """Battle Royale inventory; observed shape {stash: {globalcash: n}} (provider: V-Bucks)."""
+        return await self._request(f"/v2/fn/br-inventory/{account_id}", token=token)
+
     async def get_quests(self, account_id: str, token: str) -> Any:
         """Player quests (untyped in the spec; only captured for diagnostics until its shape is known)."""
         return await self._request(f"/v2/quests/{account_id}", token=token)

@@ -19,6 +19,7 @@ export interface FortniteCardConfig {
   show_platforms?: boolean;
   show_tournaments?: boolean;
   compact?: boolean;
+  hide_vbucks?: boolean;
   events_region?: string;
 }
 
