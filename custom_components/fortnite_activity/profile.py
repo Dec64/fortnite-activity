@@ -982,7 +982,15 @@ def outfit_summary(item: dict[str, Any]) -> dict[str, Any]:
         "set": item.get("set") if isinstance(item.get("set"), str) else None,
         "icon": images.get("icon") or images.get("smallIcon") or item.get("icon"),
         "small": images.get("smallIcon") or images.get("icon") or item.get("icon"),
+        "intro": _intro(item.get("introduction")),
     }
+
+
+def _intro(value: Any) -> dict[str, Any] | None:
+    """{chapter, season} from a cosmetic's introduction block, when present."""
+    if not isinstance(value, dict) or not value.get("chapter"):
+        return None
+    return {"chapter": value.get("chapter"), "season": value.get("season")}
 
 
 # ---- shop / news / map ------------------------------------------------------------
@@ -1036,8 +1044,8 @@ def parse_shop(raw: Any) -> dict[str, Any] | None:
             section["offers"].append({
                 "id": entry.get("offerId"),
                 "title": (bundle or {}).get("name") or entry.get("title") or items[0]["name"],
-                "price": price.get("finalPrice"),
-                "regular_price": price.get("regularPrice"),
+                "price": (bundle or {}).get("finalPrice") or price.get("finalPrice"),
+                "regular_price": (bundle or {}).get("regularPrice") or price.get("regularPrice"),
                 "image": entry.get("offerVisual") or items[0]["icon"],
                 "bundle": bool(bundle),
                 "items": items,

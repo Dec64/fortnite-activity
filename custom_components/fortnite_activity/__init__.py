@@ -77,6 +77,14 @@ async def _async_register_frontend_card(hass: HomeAssistant) -> None:
         except Exception as err:
             _LOGGER.debug("Card static path registration: %s", err)
 
+    if hasattr(hass, "http") and hasattr(hass.http, "register_view"):
+        try:
+            from .thumbs import FortniteThumbView
+
+            hass.http.register_view(FortniteThumbView(hass))
+        except Exception as err:
+            _LOGGER.debug("Thumbnail view registration: %s", err)
+
     if add_extra_js_url:
         try:
             add_extra_js_url(hass, f"{CARD_URL}?v={_VERSION}")

@@ -303,6 +303,10 @@ class ApiFortniteClient:
             params["type"] = cosmetic_type
         return await self._request(f"/v2/cosmetics/all?{urlencode(params)}")
 
+    async def get_new_cosmetics(self, page: int = 1, page_size: int = 100) -> Any:
+        """Cosmetics added in the latest game update (public)."""
+        return await self._request(f"/v2/cosmetics/new?{urlencode({'page': page, 'pageSize': page_size, 'lang': 'en'})}")
+
     async def get_cosmetic(self, cosmetic_id: str) -> Any:
         """A single public cosmetic by id."""
         return await self._request(f"/v2/cosmetics/{quote(cosmetic_id, safe='')}?lang=en")

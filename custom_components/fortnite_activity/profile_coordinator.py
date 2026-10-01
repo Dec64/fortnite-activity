@@ -136,6 +136,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.news: list[dict[str, Any]] | None = None
         self.news_fetched_at: str | None = None
         self.shop_gaps: dict[str, int | None] = {}
+        # Cosmetic ids added in the latest game update (from the public "new cosmetics" list)
+        self.new_cosmetics: set[str] = set()
         self.maps: dict[str, dict[str, Any]] = {}
         # Match progress: last snapshot per player and a callback that attaches events to matches
         self._progress: dict[str, dict[str, Any]] = {}
@@ -610,6 +612,19 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self.shop = parse_shop(raw) or self.shop
                 await self._record_shop_history(now)
             self._fetched_at["shop"] = now
+        if self._stale("new_cosmetics", timedelta(hours=6), now):
+            ids: set[str] = set()
+            for page in (1, 2, 3, 4, 5):
+                ok, raw = await self._guarded("new_cosmetics", lambda pg=page: self.api_client.get_new_cosmetics(pg))
+                items = cosmetic_items(raw) if ok else []
+                ids |= {str(i["id"]).lower() for i in items if i.get("id")}
+                body = raw.get("data") if ok and isinstance(raw, dict) and isinstance(raw.get("data"), dict) else raw
+                if not items or (isinstance(body, dict) and page >= int(body.get("totalPages") or 1)):
+                    break
+            if ids:
+                self.new_cosmetics = ids
+            self._fetched_at["new_cosmetics"] = now
+
         if self._stale("news", timedelta(hours=1), now):
             # Battle Royale first, then every other mode's posts (deduplicated by title)
             posts: list[dict[str, Any]] = []
@@ -678,7 +693,14 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             offers = []
             for offer in section["offers"]:
                 items = [
-                    {**i, "owned": i["id"] in owned, "wishlisted": i["id"] in wish, "back_after_days": self.shop_gaps.get(i["id"])}
+                    {
+                        **i,
+                        "owned": i["id"] in owned,
+                        "wishlisted": i["id"] in wish,
+                        "back_after_days": self.shop_gaps.get(i["id"]),
+                        "brand_new": i["id"] in self.new_cosmetics,
+                        "intro": i.get("intro") or (self.outfit_index.get(i["id"]) or {}).get("intro"),
+                    }
                     for i in offer["items"]
                 ]
                 offers.append({**offer, "items": items, "owned": all(i["owned"] for i in items), "wishlisted": any(i["wishlisted"] for i in items)})

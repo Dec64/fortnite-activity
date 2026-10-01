@@ -469,3 +469,26 @@ def test_parse_news_merges_modes_and_reads_fetched_at():
     assert [n["title"] for n in parse_news(raw)] == ["A", "B", "C"]
     assert news_fetched_at(raw) == "2026-10-01T11:00:00Z"
 
+
+def test_thumb_allow_list():
+    from custom_components.fortnite_activity.thumbs import thumb_allowed, snap_width
+
+    assert thumb_allowed("https://cdn.api-fortnite.com/images/a.png")
+    assert not thumb_allowed("http://cdn.api-fortnite.com/images/a.png")
+    assert not thumb_allowed("https://evil.example/a.png")
+    assert not thumb_allowed("https://cdn.api-fortnite.com:8443/a.png")
+    assert not thumb_allowed("https://user@cdn.api-fortnite.com/a.png")
+    assert snap_width(250) == 256 and snap_width("x") == 256 and snap_width(5000) == 720
+
+
+def test_shop_bundle_price():
+    from custom_components.fortnite_activity.profile import parse_shop
+
+    shop = parse_shop({"storefronts": [{"catalogEntries": [{
+        "offerId": "b", "sectionDisplayName": "S", "bundle": {"name": "Synth Bundle", "finalPrice": 1800, "regularPrice": 2400},
+        "prices": [{"currencyType": "MtxCurrency"}],
+        "itemGrants": [{"templateId": "AthenaCharacter:Character_Synth", "cosmetic": {"name": "Synth"}}],
+    }]}]})
+    offer = shop["sections"][0]["offers"][0]
+    assert (offer["price"], offer["regular_price"], offer["title"]) == (1800, 2400, "Synth Bundle")
+

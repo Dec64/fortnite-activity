@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.15.0";
+const CARD_VERSION = "1.15.1";
 
 declare global {
   interface Window {
@@ -168,6 +168,18 @@ interface EventFilters {
   team: string[];
   platform: string[];
 }
+
+// Large public artwork is served as a small cached thumbnail by the integration (see thumbs.py)
+const THUMB_HOSTS = ["cdn.api-fortnite.com", "cdn-live.prm.ol.epicgames.com", "raw.githubusercontent.com"];
+const thumb = (url: string | null | undefined, width: number): string => {
+  if (!url) return "";
+  try {
+    if (!THUMB_HOSTS.includes(new URL(url).hostname)) return url;
+  } catch {
+    return url;
+  }
+  return `/api/fortnite_activity/thumb?w=${width}&u=${encodeURIComponent(url)}`;
+};
 
 // Fade an image in once decoded (paired with the .fi / .ld classes in the styles)
 const imgLoaded = (ev: Event) => (ev.target as HTMLElement).classList.add("ld");
@@ -817,7 +829,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="fa-header">
         <div class="player-avatar ${avatarImg ? "has-image" : ""}">
-          ${avatarImg ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${avatarImg} alt=${this._avatarName(profileAttrs)} @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
+          ${avatarImg ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(avatarImg, 128)} alt=${this._avatarName(profileAttrs)} @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
         </div>
         <div class="player-info">
           <div class="name-row">
@@ -913,7 +925,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="fa-header slim">
         <div class="player-avatar ${avatarImg ? "has-image" : ""}">
-          ${avatarImg ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${avatarImg} alt="" @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
+          ${avatarImg ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(avatarImg, 128)} alt="" @error=${hideBroken} />` : player.slice(0, 2).toUpperCase()}
         </div>
         <div class="player-info">
           <div class="name-row">
@@ -1088,7 +1100,7 @@ export class FortniteActivityCard extends LitElement {
 
   /** One thing that happened in a match: quests done, level up, sprite found / levelled / mastered. */
   private _progressChip(p: any) {
-    const icon = p.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${p.icon} alt="" @error=${hideBroken} />` : nothing;
+    const icon = p.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(p.icon, 64)} alt="" @error=${hideBroken} />` : nothing;
     switch (p.type) {
       case "quests":
         return html`<span class="pchip quest">📜 ${p.count} quest${p.count > 1 ? "s" : ""} done</span>`;
@@ -1127,7 +1139,7 @@ export class FortniteActivityCard extends LitElement {
           }
         }}>
         <div class="match-row">
-          ${art ? html`<img @load=${imgLoaded} decoding="async" class="fi match-art" src=${art} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+          ${art ? html`<img @load=${imgLoaded} decoding="async" class="fi match-art" src=${thumb(art, 384)} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
           <div class="match-left">
             <div class="match-headline">
               <span class="match-num">#${m.match_number}${(m.match_count || 1) > 1 ? ` ×${m.match_count}` : ""}</span>
@@ -1153,7 +1165,7 @@ export class FortniteActivityCard extends LitElement {
                     ${this._renderMapImage(matchMap, true)}
                     <span>🗺️ ${matchMap.name || "Battle Royale island"}</span>
                   </div>`
-                : art ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi detail-art" src=${art} alt="" @error=${hideBroken} />` : nothing}
+                : art ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi detail-art" src=${thumb(art, 384)} alt="" @error=${hideBroken} />` : nothing}
               ${info?.description ? html`<p class="detail-desc">${info.description}</p>` : nothing}
               <div class="detail-grid">
                 ${detail("Finished", this._formatWhen(m.timestamp))}
@@ -1512,7 +1524,7 @@ export class FortniteActivityCard extends LitElement {
             <button class="bp-thumb ${i === idx ? "active" : ""} ${s.complete ? "done" : ""}" role="tab" aria-selected=${i === idx ? "true" : "false"}
               title="${s.title}${s.known ? ` · ${s.unlocked} of ${s.known} unlocked` : ""}"
               @click=${() => this._goPassSet(i, sets.length)}>
-              ${s.hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${s.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+              ${s.hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(s.hero, 128)} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
               ${s.complete ? html`<span class="bp-thumb-check">✓</span>` : nothing}
             </button>`)}
         </div>
@@ -1521,7 +1533,7 @@ export class FortniteActivityCard extends LitElement {
           <div class="bp-hero">
             <button class="bp-nav" title="Previous set" @click=${() => this._goPassSet(idx - 1, sets.length)}><ha-icon icon="mdi:chevron-left"></ha-icon></button>
             <div class="bp-hero-img">
-              ${set.hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${set.hero} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+              ${set.hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(set.hero, 256)} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
             </div>
             <div class="bp-hero-info">
               <div class="bp-hero-count">Set ${idx + 1} of ${sets.length}</div>
@@ -1560,7 +1572,7 @@ export class FortniteActivityCard extends LitElement {
               <div class="bp-reward ${isVbucks(r) ? "vbucks" : ""} ${isOutfit(r) ? "outfit" : ""} ${r.owned === true ? "unlocked" : r.owned === false ? "locked" : ""}"
                 title="${rewardDisplayName(r)} · ${rewardTypeLabel(r)}${r.owned === true ? " · unlocked" : r.owned === false ? " · locked" : ""}">
                 <div class="bp-reward-img">
-                  ${r.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${r.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
+                  ${r.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(r.icon, 256)} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:gift-outline"></ha-icon>`}
                   ${r.owned === true
                     ? html`<span class="bp-state unlocked">✓</span>`
                     : r.owned === false
@@ -1634,7 +1646,7 @@ export class FortniteActivityCard extends LitElement {
       <div class="locker">
         <div class="locker-hero" style="--rarity:${RARITY_COLORS[this._outfitRarity(avatar)] || "var(--accent)"}">
           <div class="locker-hero-img">
-            ${avatar?.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${avatar.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+            ${avatar?.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(avatar.icon, 256)} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
           </div>
           <div class="locker-hero-info">
             <div class="bp-hero-count">Avatar${cardOverride ? " · this card uses its own skin setting" : ""}</div>
@@ -1677,7 +1689,7 @@ export class FortniteActivityCard extends LitElement {
                     title="${o.name}${o.set ? ` · ${o.set}` : ""}" role="button" tabindex="0"
                     @click=${() => (this._selectedOutfit = selected ? null : id)}>
                     <div class="bp-reward-img locker-img">
-                      ${o.small || o.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${o.small || o.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
+                      ${o.small || o.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${thumb(o.small || o.icon, 256)} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:account"></ha-icon>`}
                       ${isAvatar ? html`<span class="bp-cost included">Avatar</span>` : nothing}
                       ${o.favorite ? html`<span class="locker-fav">★</span>` : nothing}
                       ${isNew(o) ? html`<span class="locker-new">✨ New</span>` : nothing}
@@ -1800,13 +1812,14 @@ export class FortniteActivityCard extends LitElement {
   private _shopTag(o: any, shop: any) {
     const it = o.items?.[0] || {};
     const cur = shop?.current || {};
-    if (it.intro?.chapter && cur.chapter && it.intro.chapter === cur.chapter && it.intro.season === cur.season) {
-      return html`<span class="shop-tag new">✨ New this season</span>`;
-    }
+    if (it.brand_new) return html`<span class="shop-tag new">✨ Brand new</span>`;
     if (typeof it.back_after_days === "number" && it.back_after_days > 1) {
       return html`<span class="shop-tag back">↩ Back after ${it.back_after_days} days</span>`;
     }
-    if (it.intro?.chapter) return html`<span class="shop-tag">From Ch${it.intro.chapter} S${it.intro.season}</span>`;
+    if (it.intro?.chapter && cur.chapter && it.intro.chapter === cur.chapter && it.intro.season === cur.season) {
+      return html`<span class="shop-tag new">New this season</span>`;
+    }
+    if (it.intro?.chapter) return html`<span class="shop-tag">Released Ch${it.intro.chapter} S${it.intro.season}</span>`;
     return nothing;
   }
 
@@ -1816,7 +1829,7 @@ export class FortniteActivityCard extends LitElement {
       <div class="shop-tile ${o.owned ? "owned" : ""} ${o.wishlisted ? "wish" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(first)] || "#9CA3AF"}"
         title="${o.title}${o.items.length > 1 ? ` · ${o.items.map((i: any) => i.name).join(", ")}` : ""}">
         <div class="shop-img">
-          ${o.image ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${o.image} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:shopping-outline"></ha-icon>`}
+          ${o.image ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${thumb(o.image, 256)} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:shopping-outline"></ha-icon>`}
           ${o.owned ? html`<span class="bp-state unlocked" title="Owned">✓</span>` : this._wishButton(first, !!first.wishlisted)}
           ${o.bundle ? html`<span class="shop-bundle">Bundle · ${o.items.length}</span>` : nothing}
         </div>
@@ -1928,7 +1941,7 @@ export class FortniteActivityCard extends LitElement {
               ${this._searchResults.map((r) => html`
                 <div class="bp-reward" style="--rarity:${RARITY_COLORS[this._outfitRarity(r)] || "#9CA3AF"}" title=${r.name}>
                   <div class="bp-reward-img locker-img">
-                    ${r.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${r.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
+                    ${r.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${thumb(r.icon, 256)} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
                     ${r.owned ? html`<span class="bp-state unlocked" title="Owned">✓</span>` : this._wishButton(r, !!r.wishlisted)}
                   </div>
                   <span class="bp-reward-name">${r.name}</span>
@@ -1944,7 +1957,7 @@ export class FortniteActivityCard extends LitElement {
             ${wishlist.map((w) => html`
               <div class="bp-reward ${inShopIds.has(w.id) ? "in-shop" : ""}" style="--rarity:${RARITY_COLORS[this._outfitRarity(w)] || "#9CA3AF"}" title=${w.name || w.id}>
                 <div class="bp-reward-img locker-img">
-                  ${w.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${w.icon} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
+                  ${w.icon ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${thumb(w.icon, 256)} alt="" loading="lazy" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tshirt-crew-outline"></ha-icon>`}
                   ${this._wishButton(w, true)}
                   ${inShopIds.has(w.id) ? html`<span class="shop-bundle in">In shop!</span>` : nothing}
                 </div>
@@ -1999,7 +2012,7 @@ export class FortniteActivityCard extends LitElement {
           <div class="news-list">
             ${news.map((n) => html`
               <div class="news-card">
-                ${n.image || n.tile ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${n.image || n.tile} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+                ${n.image || n.tile ? html`<img @load=${imgLoaded} decoding="async" class="fi" src=${thumb(n.image || n.tile, 720)} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
                 <div class="news-body">
                   ${n.tag ? html`<span class="tag">${n.tag}</span>` : nothing}
                   <b>${n.title}</b>
@@ -2019,13 +2032,13 @@ export class FortniteActivityCard extends LitElement {
     const shop = this._shop.data?.shop;
     const cur = shop?.current || {};
     const newInShop = shop
-      ? shop.sections.flatMap((s: any) => s.offers).filter((o: any) => o.items?.[0]?.intro?.chapter === cur.chapter && o.items?.[0]?.intro?.season === cur.season).length
+      ? shop.sections.flatMap((s: any) => s.offers).filter((o: any) => o.items?.[0]?.brand_new || (o.items?.[0]?.intro?.chapter === cur.chapter && o.items?.[0]?.intro?.season === cur.season)).length
       : 0;
     const version = sp.version || up?.patch || up?.version;
     const rows = [
       newFams.length
         ? html`<div class="wn-row" @click=${() => { this._spriteFilter = "new"; this._setView("sprites"); }}>
-            <span class="wn-icons">${newFams.slice(0, 4).map((f: any) => html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${f.icon} alt="" @error=${hideBroken} />`)}</span>
+            <span class="wn-icons">${newFams.slice(0, 4).map((f: any) => html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(f.icon, 64)} alt="" @error=${hideBroken} />`)}</span>
             <span><b>${newFams.length} new sprite${newFams.length > 1 ? "s" : ""}</b> · ${newFams.map((f: any) => this._spriteName(f)).join(", ")}</span>
           </div>`
         : nothing,
@@ -2035,7 +2048,7 @@ export class FortniteActivityCard extends LitElement {
           </div>`
         : nothing,
       newInShop
-        ? html`<div class="wn-row" @click=${() => this._setView("shop")}><span class="wn-emoji">🛒</span><span><b>${newInShop} new item${newInShop > 1 ? "s" : ""}</b> from this season in today's shop</span></div>`
+        ? html`<div class="wn-row" @click=${() => this._setView("shop")}><span class="wn-emoji">🛒</span><span><b>${newInShop} brand-new item${newInShop > 1 ? "s" : ""}</b> in today's shop</span></div>`
         : nothing,
       up?.patch ? html`<div class="wn-row" @click=${() => this._setView("map")}><span class="wn-emoji">🗺️</span><span>Map data for <b>update ${up.patch}</b></span></div>` : nothing,
     ].filter((r) => r !== nothing);
@@ -2057,7 +2070,7 @@ export class FortniteActivityCard extends LitElement {
     if (!next) return nothing;
     const timing = this._eventTiming(next);
     return html`<div class="news-update event">
-      ${next.poster ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${next.poster} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tournament"></ha-icon>`}
+      ${next.poster ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(next.poster, 128)} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:tournament"></ha-icon>`}
       <div><b>${next.name}</b><span>${timing.text}</span></div>
     </div>`;
   }
@@ -2693,7 +2706,7 @@ export class FortniteActivityCard extends LitElement {
               const s = at(p.left / 100, p.top / 100);
               if (s.x < -60 || s.y < -30 || s.x > g.w + 60 || s.y > g.h + 30) return nothing;
               const on = p.key === this._mapPoi;
-              const label = on || (p.type === "named" ? showNamed : showLandmarkLabels);
+              const label = p.key !== this._mapDrop && (on || (p.type === "named" ? showNamed : showLandmarkLabels));
               return html`
                 <button class="mapx-pin ${p.type} ${on ? "on" : ""}" style="left:${s.x}px;top:${s.y}px"
                   title="${p.name} · ${p.grid}" aria-label="${p.name}, grid ${p.grid}"
@@ -2711,7 +2724,7 @@ export class FortniteActivityCard extends LitElement {
           ${drop
             ? (() => {
                 const s = at(drop.left / 100, drop.top / 100);
-                return html`<div class="mapx-drop" style="left:${s.x}px;top:${s.y}px"><i></i><i></i><span>🪂</span><b>Drop here!</b></div>`;
+                return html`<div class="mapx-drop" style="left:${s.x}px;top:${s.y}px"><i></i><i></i><span>🪂</span><b>Drop: ${drop.name}</b></div>`;
               })()
             : nothing}
 
@@ -2896,7 +2909,7 @@ export class FortniteActivityCard extends LitElement {
             <div class="master-list">
               ${toMaster.map(({ f, v, lv }: any) => html`
                 <div class="master-row" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" @click=${() => (this._expandedSprite = f.id)}>
-                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(v.icon, 128)} alt="" @error=${hideBroken} />` : nothing}
                   <span class="variant-name">${v.label === "Base" ? this._spriteName(f) : `${v.label} ${this._spriteName(f)}`}</span>
                   <span class="sp-level-pill">Level ${lv.level}</span>
                   <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, (v.xp / lv.maxXp) * 100)}%"></div></div>
@@ -2912,7 +2925,7 @@ export class FortniteActivityCard extends LitElement {
             <div class="hunt-row">
               ${hunt.map(({ f, v }: any) => html`
                 <div class="hunt-item" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}" title="${v.name}" @click=${() => (this._expandedSprite = f.id)}>
-                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(v.icon, 128)} alt="" @error=${hideBroken} />` : nothing}
                   <span>${v.label === "Base" ? this._spriteName(f) : `${v.label} ${this._spriteName(f)}`}</span>
                   <small>${v.drop_chance_pct}% chance</small>
                 </div>`)}
@@ -2943,7 +2956,7 @@ export class FortniteActivityCard extends LitElement {
                   @click=${() => (this._expandedSprite = f.id)}
                   @keydown=${(e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this._expandedSprite = f.id; } }}>
                   <div class="sp-img">
-                    ${f.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${f.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+                    ${f.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(f.icon, 160)} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
                     ${info.mastered ? html`<span class="sp-badge star" title="Mastered">⭐</span>` : nothing}
                     ${!f.owned ? html`<span class="sp-badge lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
                     ${f.new
@@ -2958,7 +2971,7 @@ export class FortniteActivityCard extends LitElement {
                   <div class="sp-kinds" title="${info.owned} of ${info.total} kinds">
                     ${(f.variants || []).map((v: any) => html`
                       <span class="sp-kind ${v.owned ? "owned" : ""} ${v.mastered ? "mastered" : ""} ${v.new && !f.new ? "new" : ""}" title="${v.label}${v.new ? " · new this update" : ""}${v.owned ? "" : " (not found yet)"}">
-                        ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${v.icon} alt="" @error=${hideBroken} />` : nothing}
+                        ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(v.icon, 64)} alt="" @error=${hideBroken} />` : nothing}
                       </span>`)}
                   </div>
                   <span class="sp-kinds-text">${info.owned} of ${info.total} kinds</span>
@@ -3013,7 +3026,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="sprite-detail sp-detail" style="--rarity:${RARITY_COLORS[f.rarity] || "#9CA3AF"}">
         <div class="sprite-detail-head">
-          ${f.icon_large || f.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${f.icon_large || f.icon} alt="" @error=${hideBroken} />` : nothing}
+          ${f.icon_large || f.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(f.icon_large || f.icon, 256)} alt="" @error=${hideBroken} />` : nothing}
           <div>
             <b>${f.name}</b> <span class="tag rarity-tag">${f.rarity || ""}</span>
             ${f.new ? html`<span class="sp-chip new">✨ New this update</span>` : f.added_in ? html`<span class="sp-chip dim">Added in update ${f.added_in}</span>` : nothing}
@@ -3029,7 +3042,7 @@ export class FortniteActivityCard extends LitElement {
             return html`
               <div class="sp-kind-row ${v.owned ? "" : "missing"} ${v.mastered ? "mastered" : ""}">
                 <div class="sp-kind-icon">
-                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${v.icon} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
+                  ${v.icon ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi" src=${thumb(v.icon, 128)} alt="" @error=${hideBroken} />` : html`<ha-icon icon="mdi:ghost-outline"></ha-icon>`}
                   ${!v.owned ? html`<span class="sp-badge lock"><ha-icon icon="mdi:lock"></ha-icon></span>` : nothing}
                 </div>
                 <div class="sp-kind-main">
@@ -3092,7 +3105,7 @@ export class FortniteActivityCard extends LitElement {
           <span class="feature-sub">${this._num(favourite.matches)} matches</span>
         </div>
         ${art
-          ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi feature-art" src=${art} alt="" @error=${hideBroken} />`
+          ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi feature-art" src=${thumb(art, 384)} alt="" @error=${hideBroken} />`
           : html`<ha-icon class="feature-icon" icon=${MODE_ICONS[category]}></ha-icon>`}
       </div>
     `;
@@ -3246,7 +3259,7 @@ export class FortniteActivityCard extends LitElement {
     return html`
       <div class="event-card ${timing.live ? "live" : ""} ${expanded ? "expanded" : ""} ${e.tournament_type === "FNCS" ? "featured" : ""}">
         <div class="event-row" @click=${() => this._toggleEvent(e)}>
-          ${e.poster ? html`<img @load=${imgLoaded} decoding="async" class="fi event-art" src=${e.poster} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
+          ${e.poster ? html`<img @load=${imgLoaded} decoding="async" class="fi event-art" src=${thumb(e.poster, 128)} alt="" loading="lazy" @error=${hideBroken} />` : nothing}
           <div class="match-left">
             <div class="match-headline">
               <span class="event-name">${e.name}</span>
@@ -3270,7 +3283,7 @@ export class FortniteActivityCard extends LitElement {
     const hero = e.loading_screen || e.poster;
     return html`
       <div class="event-details">
-        ${hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi event-hero" src=${hero} alt="" @error=${hideBroken} />` : nothing}
+        ${hero ? html`<img @load=${imgLoaded} decoding="async" loading="lazy" class="fi event-hero" src=${thumb(hero, 720)} alt="" @error=${hideBroken} />` : nothing}
         ${e.subtitle && e.subtitle !== e.name ? html`<div class="detail-sub">${e.subtitle}</div>` : nothing}
         ${e.description ? html`<p class="detail-desc">${e.description}</p>` : nothing}
         ${e.schedule_info ? html`<p class="detail-desc muted">${e.schedule_info}</p>` : nothing}
