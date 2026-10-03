@@ -79,6 +79,11 @@ Click **Configure** on the integration card to adjust:
 - **Idle Polling Interval**: Polling frequency when idle (default: `1800` seconds / 30 minutes).
 - **Inactivity Timeout**: Grace period before automatically closing and archiving a session (default: `20` minutes).
 
+### Adding a player
+**Configure** → **Add a player**. Enter a display name, then pick how to find the Epic account:
+- **Sign in with Epic** (recommended): open the sign-in link, sign in as that player and press **Submit**. The Epic Games Account ID is read from the sign-in, the Epic display name is shown for you to confirm, and Sprites, level and Power Ranking are linked in the same step. Use a private/incognito window if the browser is already signed in to another Epic account.
+- **Enter the Epic Games Account ID myself**: for players who can't sign in right now. Epic can be linked later from **Configure**.
+
 ---
 
 ## 🖼️ Dashboard Card Setup

@@ -69,6 +69,14 @@ def identity_matches(data: Any, expected_account_id: str) -> bool:
     return len(ids) == 1 and next(iter(ids)) == expected_account_id
 
 
+def extract_account_id(data: Any) -> str | None:
+    """The single Epic account id a completed sign-in names, or None if absent/ambiguous/malformed."""
+    account_id = _single(data, _ACCOUNT_KEY)
+    if isinstance(account_id, str) and re.fullmatch(r"[0-9a-f]{32}", account_id):
+        return account_id
+    return None
+
+
 def parse_flow_start(data: Any) -> tuple[str, str] | None:
     """Return (flow_id, https sign-in url on an Epic/api-fortnite host) from get-token."""
     flow_id = _single(data, _FLOW_KEY)

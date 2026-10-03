@@ -165,7 +165,6 @@ export class FortniteActivityCardEditor extends LitElement {
 
   public setConfig(config: FortniteCardConfig): void {
     this._config = {
-      player: "player1",
       header: "full",
       default_section: "auto",
       card_style: "bubble",

@@ -43,6 +43,11 @@ from .const import (
 PLAYER_ID_RE = re.compile(r"^[a-z0-9_]{1,32}$")
 
 
+def _slugify(name: str) -> str:
+    """Player identifier derived from a display name."""
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")[:32]
+
+
 async def _async_validate_player(api_key: str, account_id: str, session: Any = None) -> str | None:
     """Return an error key, or None when the account returns stats."""
     client = ApiFortniteClient(api_key=api_key, session=session)
@@ -123,8 +128,8 @@ class FortniteFamilyConfigFlow(config_entries.ConfigFlow if config_entries else 
         schema = vol.Schema(
             {
                 vol.Required(CONF_API_KEY): str,
-                vol.Required(CONF_PLAYER_ID, default="player1"): str,
-                vol.Required(CONF_PLAYER_NAME, default="Player One"): str,
+                vol.Required(CONF_PLAYER_ID): str,
+                vol.Required(CONF_PLAYER_NAME): str,
                 vol.Required(CONF_ACCOUNT_ID): str,
             }
         ) if vol else {}
@@ -181,19 +186,52 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
         return self.async_show_form(step_id="settings", data_schema=schema)
 
     async def async_step_add_player(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Add another tracked player (validated with one stats request)."""
+        """Name the new player, then choose how to find their Epic account."""
         errors: dict[str, str] = {}
-        # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
-        players = [dict(p) for p in self.config_entry.data.get(CONF_PLAYERS, [])]
+        players = self.config_entry.data.get(CONF_PLAYERS, [])
 
         if user_input is not None:
-            player_id = user_input[CONF_PLAYER_ID].strip().lower()
-            account_id = user_input[CONF_ACCOUNT_ID].strip()
+            player_name = user_input[CONF_PLAYER_NAME].strip()
+            player_id = (user_input.get(CONF_PLAYER_ID) or "").strip().lower() or _slugify(player_name)
             if not PLAYER_ID_RE.match(player_id):
                 errors[CONF_PLAYER_ID] = "invalid_player_id"
             elif any(p[CONF_PLAYER_ID] == player_id for p in players):
                 errors[CONF_PLAYER_ID] = "already_configured"
-            elif any(p[CONF_ACCOUNT_ID] == account_id for p in players):
+            else:
+                self._new_player = {CONF_PLAYER_ID: player_id, CONF_PLAYER_NAME: player_name or player_id.capitalize()}
+                self._link_flow = None
+                self._pending = None
+                return self.async_show_menu(
+                    step_id="add_player_method", menu_options=["add_player_epic", "add_player_manual"]
+                )
+
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_PLAYER_NAME): str,
+                vol.Optional(CONF_PLAYER_ID): str,
+            }
+        )
+        return self.async_show_form(step_id="add_player", data_schema=schema, errors=errors)
+
+    def _save_new_player(self, account_id: str, epic_device: dict[str, str] | None = None) -> FlowResult:
+        # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
+        players = [dict(p) for p in self.config_entry.data.get(CONF_PLAYERS, [])]
+        player = {**self._new_player, CONF_ACCOUNT_ID: account_id}
+        if epic_device:
+            player[CONF_EPIC_DEVICE] = epic_device
+        players.append(player)
+        self.hass.config_entries.async_update_entry(
+            self.config_entry, data={**self.config_entry.data, CONF_PLAYERS: players}
+        )
+        # Returning unchanged options triggers the reload that creates the new entities
+        return self.async_create_entry(title="", data=dict(self.config_entry.options))
+
+    async def async_step_add_player_manual(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Add the player from a typed Epic account ID (validated with one stats request)."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            account_id = user_input[CONF_ACCOUNT_ID].strip()
+            if any(p[CONF_ACCOUNT_ID] == account_id for p in self.config_entry.data.get(CONF_PLAYERS, [])):
                 errors[CONF_ACCOUNT_ID] = "already_configured"
             else:
                 session = None
@@ -206,27 +244,61 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
                 error = await _async_validate_player(self.config_entry.data[CONF_API_KEY], account_id, session)
                 if error:
                     errors["base"] = error
-
             if not errors:
-                players.append({
-                    CONF_PLAYER_ID: player_id,
-                    CONF_PLAYER_NAME: user_input[CONF_PLAYER_NAME].strip() or player_id.capitalize(),
-                    CONF_ACCOUNT_ID: account_id,
-                })
-                self.hass.config_entries.async_update_entry(
-                    self.config_entry, data={**self.config_entry.data, CONF_PLAYERS: players}
-                )
-                # Returning unchanged options triggers the reload that creates the new entities
-                return self.async_create_entry(title="", data=dict(self.config_entry.options))
+                return self._save_new_player(account_id)
 
-        schema = vol.Schema(
-            {
-                vol.Required(CONF_PLAYER_ID): str,
-                vol.Required(CONF_PLAYER_NAME): str,
-                vol.Required(CONF_ACCOUNT_ID): str,
-            }
+        return self.async_show_form(
+            step_id="add_player_manual",
+            data_schema=vol.Schema({vol.Required(CONF_ACCOUNT_ID): str}),
+            errors=errors,
+            description_placeholders={"player": self._new_player[CONF_PLAYER_NAME]},
         )
-        return self.async_show_form(step_id="add_player", data_schema=schema, errors=errors)
+
+    async def async_step_add_player_epic(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Sign the new player in to Epic; the account ID comes from the sign-in itself."""
+        from .epic_auth import extract_account_id, parse_device_credential
+        from .profile import parse_display_name
+
+        flow, errors, data = await self._async_signin_step(user_input)
+        if data is not None:
+            self._link_flow = None
+            account_id = extract_account_id(data)
+            credential = parse_device_credential(data)
+            if not account_id or not credential:
+                return self.async_abort(reason="link_no_account")
+            if any(p[CONF_ACCOUNT_ID] == account_id for p in self.config_entry.data.get(CONF_PLAYERS, [])):
+                # Usually the browser was still signed in as an already-tracked player: keep nothing
+                return self.async_abort(reason="account_already_tracked")
+            try:
+                display_name = parse_display_name(await self._client().get_account(account_id))
+            except FortniteApiError:
+                display_name = None
+            self._pending = (account_id, {"device_id": credential[0], "secret": credential[1]}, display_name)
+            return await self.async_step_add_player_confirm()
+        if not flow:
+            return self.async_abort(reason="link_unavailable")
+        return self.async_show_form(
+            step_id="add_player_epic",
+            data_schema=vol.Schema({}),
+            errors=errors,
+            description_placeholders={"url": flow[1], "player": self._new_player[CONF_PLAYER_NAME]},
+        )
+
+    async def async_step_add_player_confirm(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Show which Epic account signed in before anything is stored."""
+        account_id, epic_device, display_name = self._pending
+        if user_input is not None:
+            self._pending = None
+            return self._save_new_player(account_id, epic_device)
+        return self.async_show_form(
+            step_id="add_player_confirm",
+            data_schema=vol.Schema({}),
+            description_placeholders={
+                "player": self._new_player[CONF_PLAYER_NAME],
+                "epic_name": display_name or "unknown display name",
+                "account_tail": account_id[-4:],
+            },
+        )
 
     async def async_step_remove_player(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Stop tracking a player (at least one must remain)."""
@@ -266,20 +338,20 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
         )
         return self.async_show_form(step_id="link_epic", data_schema=schema)
 
-    async def async_step_link_epic_signin(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Show the Epic sign-in link; on submit, complete the flow once (no background polling)."""
+    async def _async_signin_step(
+        self, user_input: dict[str, Any] | None
+    ) -> tuple[tuple[str, str, float] | None, dict[str, str], Any]:
+        """Device-code sign-in shared by link and add-player: (flow, errors, completed response or None).
+
+        The flow is completed once per Submit (no background polling); flow is None when no
+        sign-in link could be obtained.
+        """
         import time
 
-        from homeassistant.helpers import issue_registry as ir
-
-        from .epic_auth import identity_matches, parse_device_credential, parse_flow_start
+        from .epic_auth import parse_flow_start
 
         errors: dict[str, str] = {}
-        # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
-        players = [dict(p) for p in self.config_entry.data.get(CONF_PLAYERS, [])]
-        player = next(p for p in players if p[CONF_PLAYER_ID] == self._link_player)
         client = self._client()
-
         flow = getattr(self, "_link_flow", None)
         if flow and time.monotonic() - flow[2] > 570:  # device-code flows last ~600 s
             flow = None
@@ -294,35 +366,51 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
             if status == 202:
                 errors["base"] = "link_pending"
             elif status == 200:
-                credential = parse_device_credential(data)
-                if not identity_matches(data, player[CONF_ACCOUNT_ID]):
-                    # Signed in to a different Epic account: keep nothing
-                    self._link_flow = None
-                    return self.async_abort(reason="identity_mismatch")
-                if not credential:
-                    errors["base"] = "link_failed"
-                else:
-                    device_id, secret = credential
-                    for p in players:
-                        if p[CONF_PLAYER_ID] == player[CONF_PLAYER_ID]:
-                            p[CONF_EPIC_DEVICE] = {"device_id": device_id, "secret": secret}
-                    self._link_flow = None
-                    self.hass.config_entries.async_update_entry(
-                        self.config_entry, data={**self.config_entry.data, CONF_PLAYERS: players}
-                    )
-                    ir.async_delete_issue(self.hass, DOMAIN, f"epic_relink_{player[CONF_PLAYER_ID]}")
-                    return self.async_create_entry(title="", data=dict(self.config_entry.options))
+                return flow, errors, data
 
         if not flow:
             try:
                 started = parse_flow_start(await client.oauth_start())
             except FortniteApiError:
                 started = None
-            if not started:
-                return self.async_abort(reason="link_unavailable")
-            flow = (started[0], started[1], time.monotonic())
+            if started:
+                flow = (started[0], started[1], time.monotonic())
             self._link_flow = flow
+        return flow, errors, None
 
+    async def async_step_link_epic_signin(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Show the Epic sign-in link; on submit, complete the flow once (no background polling)."""
+        from homeassistant.helpers import issue_registry as ir
+
+        from .epic_auth import identity_matches, parse_device_credential
+
+        # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
+        players = [dict(p) for p in self.config_entry.data.get(CONF_PLAYERS, [])]
+        player = next(p for p in players if p[CONF_PLAYER_ID] == self._link_player)
+
+        flow, errors, data = await self._async_signin_step(user_input)
+        if data is not None:
+            credential = parse_device_credential(data)
+            if not identity_matches(data, player[CONF_ACCOUNT_ID]):
+                # Signed in to a different Epic account: keep nothing
+                self._link_flow = None
+                return self.async_abort(reason="identity_mismatch")
+            if not credential:
+                errors["base"] = "link_failed"
+            else:
+                device_id, secret = credential
+                for p in players:
+                    if p[CONF_PLAYER_ID] == player[CONF_PLAYER_ID]:
+                        p[CONF_EPIC_DEVICE] = {"device_id": device_id, "secret": secret}
+                self._link_flow = None
+                self.hass.config_entries.async_update_entry(
+                    self.config_entry, data={**self.config_entry.data, CONF_PLAYERS: players}
+                )
+                ir.async_delete_issue(self.hass, DOMAIN, f"epic_relink_{player[CONF_PLAYER_ID]}")
+                return self.async_create_entry(title="", data=dict(self.config_entry.options))
+
+        if not flow:
+            return self.async_abort(reason="link_unavailable")
         return self.async_show_form(
             step_id="link_epic_signin",
             data_schema=vol.Schema({}),

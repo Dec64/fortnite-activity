@@ -1,11 +1,11 @@
 import { LitElement, html, nothing, svg, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { cardStyles } from "./styles";
-import { FortniteCardConfig, MatchRecord } from "./types";
+import { FortniteCardConfig, MatchRecord, trackedPlayers } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.16.0";
+const CARD_VERSION = "1.17.0";
 
 declare global {
   interface Window {
@@ -95,7 +95,6 @@ const MODE_ICONS: Record<string, string> = {
 };
 
 const DEFAULTS: Partial<FortniteCardConfig> = {
-  player: "player1",
   header: "full",
   card_style: "bubble",
   theme_accent: "auto",
@@ -285,6 +284,7 @@ export class FortniteActivityCard extends LitElement {
   private _renderedView: View | null = null;
 
   private _entityCache = new Map<string, string>();
+  private _defaultPlayer?: string;
   private _avatarTimer?: number;
   private _avatarQuery = "";
   private _tick?: number;
@@ -302,8 +302,8 @@ export class FortniteActivityCard extends LitElement {
     return document.createElement("fortnite-activity-card-editor");
   }
 
-  public static getStubConfig(): Record<string, any> {
-    return { type: "custom:fortnite-activity-card", ...DEFAULTS };
+  public static getStubConfig(hass?: any): Record<string, any> {
+    return { type: "custom:fortnite-activity-card", player: trackedPlayers(hass)[0] || "", ...DEFAULTS };
   }
 
   public getCardSize(): number {
@@ -329,7 +329,10 @@ export class FortniteActivityCard extends LitElement {
   }
 
   private get _player(): string {
-    return (this._config.player || "player1").toLowerCase();
+    // Without a configured player, fall back to the first one the integration tracks
+    if (this._config.player) return this._config.player.toLowerCase();
+    this._defaultPlayer ||= trackedPlayers(this.hass)[0];
+    return this._defaultPlayer || "";
   }
 
   /**
@@ -558,7 +561,7 @@ export class FortniteActivityCard extends LitElement {
   /**
    * Locate an integration entity for the configured player. Entities expose
    * fortnite_player_id / fortnite_entity_key attributes (v1.0.7+); older
-   * registry naming (e.g. sensor.fortnite_player1_player1_session) is matched
+   * registry naming (e.g. sensor.fortnite_<player>_<player>_session) is matched
    * as a fallback.
    */
   private _findEntity(domain: string, key: string): any {

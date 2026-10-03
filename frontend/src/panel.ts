@@ -5,6 +5,7 @@
  */
 import { LitElement, html, css, nothing, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
+import { trackedPlayers } from "./types";
 
 interface PanelColumn {
   sections: string[];
@@ -44,13 +45,14 @@ export class FortniteFamilyPanel extends LitElement {
     return 12;
   }
 
-  public static getStubConfig(): Record<string, any> {
-    return { type: "custom:fortnite-family-panel", players: ["player1"] };
+  public static getStubConfig(hass?: any): Record<string, any> {
+    return { type: "custom:fortnite-family-panel", players: trackedPlayers(hass) };
   }
 
   private get _players(): string[] {
     const list = (this._config.players || []).map((p) => String(p).toLowerCase()).filter(Boolean);
-    return list.length ? list : ["player1"];
+    // No players configured: show everyone the integration tracks
+    return list.length ? list : trackedPlayers(this.hass);
   }
 
   private _kid(player: string): boolean {
@@ -84,7 +86,8 @@ export class FortniteFamilyPanel extends LitElement {
   protected updated(changed: PropertyValues): void {
     if (changed.has("_config") || !this._cards.length) {
       this._buildCards();
-      this.requestUpdate();
+      // Nothing to show until hass lists a tracked player; re-rendering then would loop
+      if (this._cards.length) this.requestUpdate();
     }
     for (const el of this._cards) (el as any).hass = this.hass;
   }

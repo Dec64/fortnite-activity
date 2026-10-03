@@ -30,7 +30,7 @@
           "settings": "Polling, session & tournament settings",
           "add_player": "Add a player",
           "remove_player": "Remove a player",
-          "link_epic": "Link Epic account (Sprites, level, Power Ranking)",
+          "link_epic": "Link or re-link an existing player's Epic account",
           "unlink_epic": "Unlink Epic account"
         }
       },
@@ -45,10 +45,35 @@
       },
       "add_player": {
         "title": "Add a player",
-        "description": "The identifier becomes part of entity IDs (lowercase letters, numbers, underscores).",
+        "description": "Name the player. Next you choose how to find their Epic account: signing in fills in the Epic Games Account ID for you.",
         "data": {
-          "player_id": "Player Identifier (e.g. player2)",
-          "player_name": "Player Display Name (e.g. Player Two)",
+          "player_name": "Player Display Name",
+          "player_id": "Player Identifier (optional)"
+        },
+        "data_description": {
+          "player_id": "Becomes part of entity IDs: lowercase letters, numbers, underscores. Left empty, it is made from the name."
+        }
+      },
+      "add_player_method": {
+        "title": "Find the Epic account",
+        "description": "Signing in is the easy way: the Epic Games Account ID is read from the sign-in, and Sprites, level and Power Ranking are linked at the same time.",
+        "menu_options": {
+          "add_player_epic": "Sign in with Epic (finds the account ID automatically)",
+          "add_player_manual": "Enter the Epic Games Account ID myself"
+        }
+      },
+      "add_player_epic": {
+        "title": "Sign in to Epic Games",
+        "description": "1. Make sure the browser is **not signed in to a different Epic account**: open the link in a private/incognito window, or sign out of epicgames.com first.\n2. Open [Epic Games sign-in]({url}), sign in as **{player}** and approve access. Console players sign in with the PlayStation, Xbox or Nintendo button.\n3. Come back here and press **Submit**.\n\nThe account ID is taken from this sign-in. Only a device credential is stored in Home Assistant; the password never is. The link expires after about 10 minutes."
+      },
+      "add_player_confirm": {
+        "title": "Confirm the Epic account",
+        "description": "Epic signed in as **{epic_name}** (account ID ending in {account_tail}).\n\nPress **Submit** to track this account as **{player}**. If this is the wrong account, close this dialog: nothing is saved, and the unused sign-in can be removed from that Epic account's settings."
+      },
+      "add_player_manual": {
+        "title": "Enter the Epic account ID",
+        "description": "Epic Games Account ID for **{player}** (32 letters and digits, shown on epicgames.com under Account). Epic can be linked later from Configure.",
+        "data": {
           "account_id": "Epic Games Account ID"
         }
       },
@@ -91,7 +116,9 @@
     "abort": {
       "last_player": "At least one player must remain tracked.",
       "identity_mismatch": "That Epic account does not match this player's configured account ID, so nothing was saved.",
-      "link_unavailable": "Could not start Epic sign-in (api-fortnite.com did not return a sign-in link)."
+      "link_unavailable": "Could not start Epic sign-in (api-fortnite.com did not return a sign-in link).",
+      "account_already_tracked": "That sign-in was for an Epic account that is already tracked, so nothing was saved. The browser was probably still signed in as another player: use a private window and try again.",
+      "link_no_account": "Epic sign-in finished but did not return a single account ID and device credential, so nothing was saved."
     }
   },
   "issues": {

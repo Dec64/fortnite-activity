@@ -45,6 +45,7 @@ Primary sources: [saved OpenAPI](../evidence/sanitized/specifications/api-fortni
 | Season level / XP / tier | Yes (after Epic link) | Key + player token | Pass ownership deliberately not shown |
 | Sprites (current + cumulative) | Yes (after Epic link) | Key + player token | Image field name unverified live |
 | Power Ranking | Yes (after Epic link) | Key + player token | Shown exactly as returned |
+| Add player by Epic sign-in (account ID discovered) | Implemented in v1.17.0; live result for a second account unverified | Device-code OAuth via provider | Refuses ambiguous or already-tracked ids; cannot revoke a mistaken sign-in |
 | Quests, locker, friends/presence | No | — | 401 / direct-Epic only / 403 on Pro |
 | V-Bucks balance, Crew status | Yes (after Epic link) | Epic common_core QueryProfile (read-only, user-approved) | Provider br-inventory `globalcash` read 0; not used |
 | Quest summary | Counts by state only | Key + player token | No names/targets in payload; FortniteAPI.io closed |

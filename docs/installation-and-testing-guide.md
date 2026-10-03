@@ -11,8 +11,8 @@ Before installing, ensure you have:
 2. **api-fortnite.com Pro API Key**:
    - The key configured in your environment as `API_FORTNITE_KEY`.
 3. **Player Account ID**:
-   - Player One's Epic Account ID (`FORTNITE_PLAYER1_ACCOUNT_ID`).
-   - (Optional) Player Two's Account ID when ready to track his console profile.
+   - The first player's Epic Account ID.
+   - (Optional) Further players can be added later from **Configure** → **Add a player** by signing in with Epic; no account ID is needed.
 
 ---
 
@@ -20,7 +20,7 @@ Before installing, ensure you have:
 
 ### Method A: Via HACS (Home Assistant Community Store)
 
-The repository is structured with [`hacs.json`](file:///c:/Users/user/Projects/fortnite-family-tracker/hacs.json) and manifest tags for custom HACS repository support:
+The repository is structured with [`hacs.json`](../hacs.json) and manifest tags for custom HACS repository support:
 
 1. In Home Assistant, open **HACS** from the sidebar.
 2. Click **Integrations** (or the top right **⋮** menu) → **Custom repositories**.
@@ -38,7 +38,7 @@ The repository is structured with [`hacs.json`](file:///c:/Users/user/Projects/f
 If your Home Assistant `/config` folder is mounted via Samba, SSH, or local directory:
 
 1. **Copy the Integration**:
-   Copy the entire [`custom_components/fortnite_activity`](file:///c:/Users/user/Projects/fortnite-family-tracker/custom_components/fortnite_activity) folder into your Home Assistant `/config/custom_components/` folder:
+   Copy the entire [`custom_components/fortnite_activity`](../custom_components/fortnite_activity) folder into your Home Assistant `/config/custom_components/` folder:
    ```bash
    # Example via SCP / Samba
    cp -r custom_components/fortnite_activity /config/custom_components/
@@ -55,7 +55,7 @@ If your Home Assistant `/config` folder is mounted via Samba, SSH, or local dire
 > The integration automatically registers the card at `/fortnite_activity_static/fortnite-activity-card.js` using Home Assistant's `add_extra_js_url` hook during setup.
 > 
 > If you prefer manual resource management:
-> 1. Copy [`frontend/dist/fortnite-activity-card.js`](file:///c:/Users/user/Projects/fortnite-family-tracker/frontend/dist/fortnite-activity-card.js) to `/config/www/fortnite-activity-card.js`.
+> 1. Copy [`frontend/dist/fortnite-activity-card.js`](../frontend/dist/fortnite-activity-card.js) to `/config/www/fortnite-activity-card.js`.
 > 2. Add resource `/local/fortnite-activity-card.js` (JavaScript Module) in **Settings** → **Dashboards** → **⋮** → **Resources**.
 
 ---
@@ -72,7 +72,7 @@ If your Home Assistant `/config` folder is mounted via Samba, SSH, or local dire
    - **Epic Games Account ID**: Paste your Epic Account ID.
 5. Click **Submit**.
 
-Home Assistant will create the integration entry and automatically instantiate all sensors and the binary sensor for Player One.
+Home Assistant will create the integration entry and automatically instantiate all sensors and the binary sensor for that player.
 
 ### Configuring Polling Options (Optional)
 On the **Fortnite Activity Tracker** card in Devices & Services, click **Configure**:

@@ -110,3 +110,13 @@ export interface LevelData {
   xp: number;
   account_level: number;
 }
+
+/** Player ids the integration is tracking, read from its entities' attributes (sorted). */
+export function trackedPlayers(hass: any): string[] {
+  const ids = new Set<string>();
+  for (const st of Object.values<any>(hass?.states || {})) {
+    const id = st?.attributes?.fortnite_player_id;
+    if (typeof id === "string" && id) ids.add(id.toLowerCase());
+  }
+  return [...ids].sort();
+}

@@ -15,6 +15,7 @@ from custom_components.fortnite_activity.epic_auth import (
     EpicIdentityMismatch,
     EpicReauthRequired,
     EpicTokenManager,
+    extract_account_id,
     identity_matches,
     parse_device_credential,
     parse_flow_start,
@@ -44,6 +45,14 @@ class TestIdentityAndParsing(unittest.TestCase):
         # Two different ids anywhere in the payload is ambiguous, so it is rejected
         self.assertFalse(identity_matches({"accountId": ACCOUNT, "x": {"account_id": "b" * 32}}, ACCOUNT))
         self.assertFalse(identity_matches({}, ACCOUNT))
+
+    def test_account_id_from_sign_in_must_be_single_and_well_formed(self) -> None:
+        """Adding a player by sign-in has no expected id to compare with, so ambiguity is refused."""
+        self.assertEqual(extract_account_id({"data": {"accountId": ACCOUNT, "deviceAuth": {"accountId": ACCOUNT}}}), ACCOUNT)
+        self.assertIsNone(extract_account_id({"accountId": ACCOUNT, "x": {"account_id": "b" * 32}}))
+        self.assertIsNone(extract_account_id({"data": {"access_token": "t"}}))
+        self.assertIsNone(extract_account_id({"accountId": "not-an-epic-id"}))
+        self.assertIsNone(extract_account_id({"accountId": "A" * 32}))
 
     def test_flow_start_requires_epic_or_provider_https_url(self) -> None:
         good = {"success": True, "data": {"flowId": "f1", "url": "https://www.epicgames.com/id/activate?userCode=X", "expiresIn": 600}}
