@@ -1031,3 +1031,4 @@ Following the user's `/plan` request and interactive alignment interview, design
 - Unverified until a second account is added live: that `oauth/complete` for another account carries the account id in the same single-id shape observed for the first account.
 - Tests: `extract_account_id` shapes run locally. The two options-flow tests need the Home Assistant package and were run only against minimal local stubs.
 - Card: the hard-coded default player was removed; with no `player` set the card uses the first tracked player and the panel shows all tracked players. Example names in code, strings, services, tests, README and the installation guide are now generic.
+- v1.17.1: observed live on HA 2026.9.4 that v1.17.0 failed with `UnknownStep ... add_player_method` after the name form, because a menu's step id must have its own step method. Added `async_step_add_player_method`. The local stubs did not model this check.

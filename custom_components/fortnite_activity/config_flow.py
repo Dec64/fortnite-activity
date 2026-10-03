@@ -201,9 +201,7 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
                 self._new_player = {CONF_PLAYER_ID: player_id, CONF_PLAYER_NAME: player_name or player_id.capitalize()}
                 self._link_flow = None
                 self._pending = None
-                return self.async_show_menu(
-                    step_id="add_player_method", menu_options=["add_player_epic", "add_player_manual"]
-                )
+                return await self.async_step_add_player_method()
 
         schema = vol.Schema(
             {
@@ -212,6 +210,10 @@ class FortniteFamilyOptionsFlowHandler(config_entries.OptionsFlow if config_entr
             }
         )
         return self.async_show_form(step_id="add_player", data_schema=schema, errors=errors)
+
+    async def async_step_add_player_method(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Choose between signing in with Epic and typing the account ID."""
+        return self.async_show_menu(step_id="add_player_method", menu_options=["add_player_epic", "add_player_manual"])
 
     def _save_new_player(self, account_id: str, epic_device: dict[str, str] | None = None) -> FlowResult:
         # Copy each player dict: mutating the stored dicts makes HA see "no change" and skip saving
