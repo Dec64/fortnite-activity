@@ -1042,3 +1042,4 @@ Following the user's `/plan` request and interactive alignment interview, design
   - `/v2/quests/{id}`: HTTP 500.
   - common_core: current MTX platform `PSN`, no V-Bucks on that platform or `Shared`, 1,600 on another platform. The sensor state stays the current-platform balance (as the game displays there); a `by_platform` attribute now names where the rest is held and the card shows it beside the balance.
 - Docs: the second player's first name was replaced with a neutral description throughout `docs/`.
+- v1.17.3: user observation: the second account shows 1,600 V-Bucks in the game while its current MTX platform is `PSN` and the 1,600 are held under platform `Epic`. `Epic` balances are now counted with the current platform and `Shared`. Balances on other named platforms stay separate (the first account's 1,800 excludes 100 held under `PSN` while its platform is `EpicPC`).

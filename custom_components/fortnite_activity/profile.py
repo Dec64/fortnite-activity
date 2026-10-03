@@ -801,7 +801,8 @@ def parse_common_core(raw: Any, expected_account_id: str) -> dict[str, Any] | No
     """V-Bucks and Crew state from a common_core QueryProfile response.
 
     Returns None unless the profile belongs to the expected account (identity gate).
-    V-Bucks: Currency:Mtx* items for the current MTX platform plus "Shared" (as the game displays).
+    V-Bucks: Currency:Mtx* items for the current MTX platform plus "Shared" and "Epic" (as the game
+    displays; observed: an "Epic" balance is spendable while the current platform is PSN).
     """
     if not isinstance(raw, dict):
         return None
@@ -827,7 +828,7 @@ def parse_common_core(raw: Any, expected_account_id: str) -> dict[str, Any] | No
         item_platform = (item.get("attributes") or {}).get("platform")
         label = item_platform if isinstance(item_platform, str) and item_platform else "unknown"
         by_platform[label] = by_platform.get(label, 0) + int(qty)
-        if platform and item_platform not in (platform, "Shared"):
+        if platform and item_platform not in (platform, "Shared", "Epic"):
             other_platforms += int(qty)
             continue
         kind = _MTX_KINDS.get(template, "other")

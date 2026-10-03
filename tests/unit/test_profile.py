@@ -252,16 +252,17 @@ class TestCommonCore(unittest.TestCase):
                 "i2": {"templateId": "Currency:MtxComplimentary", "quantity": 350, "attributes": {"platform": "Shared"}},
                 "i3": {"templateId": "Currency:MtxPurchased", "quantity": 500, "attributes": {"platform": "PSN"}},
                 "i4": {"templateId": "AthenaCharacter:cid_x", "quantity": 1, "attributes": {}},
+                "i5": {"templateId": "Currency:MtxPurchased", "quantity": 200, "attributes": {"platform": "Epic"}},
             }}}]}
 
     def test_vbucks_current_platform_plus_shared_and_crew(self) -> None:
         from custom_components.fortnite_activity.profile import parse_common_core
 
         w = parse_common_core(self._profile(self.ACC), self.ACC)
-        self.assertEqual(w["vbucks"], 1350)
-        self.assertEqual(w["by_kind"], {"purchased": 1000, "earned": 350})
+        self.assertEqual(w["vbucks"], 1550)  # current platform + Shared + Epic; PSN stays separate
+        self.assertEqual(w["by_kind"], {"purchased": 1200, "earned": 350})
         self.assertEqual(w["other_platform_vbucks"], 500)
-        self.assertEqual(w["by_platform"], {"EpicPC": 1000, "Shared": 350, "PSN": 500})
+        self.assertEqual(w["by_platform"], {"EpicPC": 1000, "Shared": 350, "PSN": 500, "Epic": 200})
         self.assertEqual(w["other_platform_vbucks"], 500)
         self.assertEqual(w["crew"]["auto_renew"], "AutoRenewEnabled")
 
