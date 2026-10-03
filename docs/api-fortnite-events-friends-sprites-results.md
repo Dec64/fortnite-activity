@@ -38,11 +38,11 @@ The paginated global leaderboard for a completed Solo Victory Cup window returne
 
 ## Friends and current session
 
-Both Friends summary and full-list routes returned 403 using the same exact-identity token that succeeded on player events. A second summary call returned 403 with an error classified as permission-related. The OpenAPI advertises both routes for Pro, so the observed failure is an access/scope discrepancy, not evidence of zero friends. No friend identity or presence data was obtained. Do not infer Player Two's identity or activity.
+Both Friends summary and full-list routes returned 403 using the same exact-identity token that succeeded on player events. A second summary call returned 403 with an error classified as permission-related. The OpenAPI advertises both routes for Pro, so the observed failure is an access/scope discrepancy, not evidence of zero friends. No friend identity or presence data was obtained. Do not infer the second player's identity or activity.
 
 `GET /api/v1/events/player/{accountId}/session` returned 403 twice. The second sanitized response explicitly had `required=[custom]` and `current=[pro]`; the current paid Pro tier cannot use this route. Its documented description concerns a current match/party signal with backend lag, but it is not a usable Pro presence source here. [Friends diagnosis](../evidence/sanitized/api-fortnite/20260916T080206Z/friends_summary_diagnosis.json) and [session tier diagnosis](../evidence/sanitized/api-fortnite/20260916T080206Z/events_player_session_diagnosis.json) preserve the endpoint-specific outcomes without credential or error-text leakage.
 
-The provider now clearly covers sprite ownership and much of the tournament schedule/rule data. It still does not supply a working Pro presence route, official English broadcasts, complete participation/age eligibility, or Player Two's separately authorized private data.
+The provider now clearly covers sprite ownership and much of the tournament schedule/rule data. It still does not supply a working Pro presence route, official English broadcasts, complete participation/age eligibility, or the second player's separately authorized private data.
 
 ## Current free-offer check
 

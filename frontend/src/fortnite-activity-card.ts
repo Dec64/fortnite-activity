@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord, trackedPlayers } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.17.1";
+const CARD_VERSION = "1.17.2";
 
 declare global {
   interface Window {
@@ -326,6 +326,12 @@ export class FortniteActivityCard extends LitElement {
     document.removeEventListener("fullscreenchange", this._onFullscreenChange);
     document.removeEventListener("keydown", this._onKeyDown);
     window.clearInterval(this._tick);
+  }
+
+  /** V-Bucks held on a platform other than the one Epic currently reports for the account. */
+  private _otherVbucks(vbucks: any): string {
+    const other = Number(vbucks?.attributes?.other_platform_vbucks) || 0;
+    return other > 0 ? ` · ${this._num(other)} on another platform` : "";
   }
 
   private get _player(): string {
@@ -849,7 +855,7 @@ export class FortniteActivityCard extends LitElement {
             ${!this._config.hide_season_level && seasonLevel > 0 ? html`<span class="level-badge">Lvl ${seasonLevel}</span>` : nothing}
             ${!this._config.hide_account_level && accountLevel > 0 ? html`<span>Acct ${accountLevel.toLocaleString()}</span>` : nothing}
             ${showVbucks
-              ? html`<span class="vbucks-chip" title=${Object.entries(vbucks.attributes?.by_kind || {}).map(([k, v]) => `${k}: ${this._num(v)}`).join(" · ") || "V-Bucks"}>Ⓥ ${this._num(vbucks.state)}</span>`
+              ? html`<span class="vbucks-chip" title=${Object.entries(vbucks.attributes?.by_kind || {}).map(([k, v]) => `${k}: ${this._num(v)}`).join(" · ") || "V-Bucks"}>Ⓥ ${this._num(vbucks.state)}${this._otherVbucks(vbucks)}</span>`
               : nothing}
             ${crew?.active && !this._config.hide_vbucks
               ? html`<span class="crew-chip" title="Fortnite Crew${crew.end_date ? ` · renews ${this._formatWhen(crew.end_date)}` : ""}">Crew</span>`
@@ -935,7 +941,7 @@ export class FortniteActivityCard extends LitElement {
         <div class="player-info">
           <div class="name-row">
             <h2>${displayName}</h2>
-            ${showVbucks ? html`<span class="vbucks-chip">Ⓥ ${this._num(vbucks.state)}</span>` : nothing}
+            ${showVbucks ? html`<span class="vbucks-chip">Ⓥ ${this._num(vbucks.state)}${this._otherVbucks(vbucks)}</span>` : nothing}
           </div>
         </div>
         <div class="header-right">

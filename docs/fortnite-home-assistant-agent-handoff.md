@@ -4,7 +4,7 @@ Prepared for the project owner and a local coding agent. Evidence snapshot: 14 S
 
 ## 1. Read this first
 
-Build an automatic Fortnite tracker for Player One and his son Player Two, running continuously at home and displayed in Home Assistant. First resolve the remaining data-access questions with small, reproducible probes; then implement the verified features. This is an engineering handoff, not a claim that every proposed feature already works.
+Build an automatic Fortnite tracker for Player One and his son the second player, running continuously at home and displayed in Home Assistant. First resolve the remaining data-access questions with small, reproducible probes; then implement the verified features. This is an engineering handoff, not a claim that every proposed feature already works.
 
 The project has successfully obtained personal Epic profile data, public statistics, ranked tracks, and sprite collection data. The largest gaps are readable quest definitions, a complete current Battle Pass reward catalogue, reliable cross-platform presence, and automatic tournament broadcast discovery. These gaps must remain visible in the capability model and must not block the usable core indefinitely.
 
@@ -15,7 +15,7 @@ Use the following evidence vocabulary in code notes and research reports:
 - **Proposed:** a design choice to implement or refine.
 - **Unverified:** a hypothesis requiring a live test.
 
-Do not ask Player One to repeat setup already completed. Inspect the local repository, supplied fixtures, and locally configured credentials first. Perform authorized research and local development autonomously. Ask only for genuinely unavailable inputs, such as Player Two's Epic identity or an interactive Epic sign-in. Never invent credentials, platform mappings, eligibility, quest targets, or reward totals.
+Do not ask Player One to repeat setup already completed. Inspect the local repository, supplied fixtures, and locally configured credentials first. Perform authorized research and local development autonomously. Ask only for genuinely unavailable inputs, such as the second player's Epic identity or an interactive Epic sign-in. Never invent credentials, platform mappings, eligibility, quest targets, or reward totals.
 
 Do not purchase another subscription, publish data, send support messages, change Epic account settings, or deploy into the household's live HA installation without corresponding authorization. Local development, read-only probes, synthetic tests, and preparing installation artifacts are part of this task.
 
@@ -26,9 +26,9 @@ Do not purchase another subscription, publish data, send support messages, chang
 | Person | Epic identity | Platforms | Notes |
 | --- | --- | --- | --- |
 | Player One | `ExamplePlayer`; Epic ID `{expected_player1_account_id}` | PC only for Fortnite | Mostly ranked now; display name may change, so key storage by Epic ID |
-| Player Two | Not yet supplied | Mostly Nintendo Switch; PS5 intended as secondary/next platform | His PS5 account and Epic link have not yet been set up |
+| the second player | Not yet supplied | Mostly Nintendo Switch; PS5 intended as secondary/next platform | His PS5 account and Epic link have not yet been set up |
 
-Player One says Player Two is on his Epic friends list. Resolve the correct friend, but do not guess which friend is Player Two from an arbitrary display name. Track each player's private data through that player's own authorization. Player Two's console migration must not create a duplicate player when his Epic ID stays the same.
+Player One says the second player is on his Epic friends list. Resolve the correct friend, but do not guess which friend is the second player from an arbitrary display name. Track each player's private data through that player's own authorization. the second player's console migration must not create a duplicate player when his Epic ID stays the same.
 
 ### Desired coverage
 
@@ -48,7 +48,7 @@ Player One says Player Two is on his Epic friends list. Resolve the correct frie
 - Use English. Store timestamps in UTC and display in `Europe/London`, including BST/GMT changes.
 - No manual completion checkboxes or routine progress entry. One-time account linking/configuration is acceptable.
 - Minimize maintenance and reauthentication. No routine PC interaction.
-- Avoid requiring a gaming-PC agent. User is wary of anti-cheat interference and a PC-only solution excludes Player Two.
+- Avoid requiring a gaming-PC agent. User is wary of anti-cheat interference and a PC-only solution excludes the second player.
 - No game memory access, injection, input automation, or packet interception. Ordinary authenticated web requests and documented client protocols are the intended approach.
 - An initial free-API preference has evolved: Player One has now paid for **api-fortnite.com Pro**. Do not assume he wants more subscriptions.
 - The user is a designer and wants a polished visual tracker, but reliable data is more important than presenting unsupported detail.
@@ -90,7 +90,7 @@ sensor.examplepsn_online_id
 image.examplepsn_now_playing
 ```
 
-`ExamplePSN_` is **Player One's PSN account**, not Player Two's. The listed PS5 MQTT running/CPU/memory entities describe the service, not Fortnite activity or console power. The observed PSN snapshot was offline with now-playing unknown. No Nintendo integration or Player Two presence mapping is verified. Do not attach Player One's PSN entities to Player Two or infer that Player One is playing on PC because his PSN account is online.
+`ExamplePSN_` is **Player One's PSN account**, not the second player's. The listed PS5 MQTT running/CPU/memory entities describe the service, not Fortnite activity or console power. The observed PSN snapshot was offline with now-playing unknown. No Nintendo integration or the second player presence mapping is verified. Do not attach Player One's PSN entities to the second player or infer that Player One is playing on PC because his PSN account is online.
 
 ## 4. Evidence register and limitations
 
@@ -228,7 +228,7 @@ The response does not supply reward pages, a complete reward list or unlock requ
 The local agent must not inherit these as promises:
 
 1. **Friends access does not establish working presence.** The documented provider REST Friends routes lack a specified presence response schema. Epic client libraries expose friend presence concepts, but no live presence connection was successfully tested here.
-2. **Observing friends does not automatically observe yourself.** A connection authenticated as Player One may receive Player Two's presence but cannot be assumed to see Player One's concurrent PC Fortnite activity. It could also make Player One appear online simply because the observer is connected. Test identity, resource and product semantics.
+2. **Observing friends does not automatically observe yourself.** A connection authenticated as Player One may receive the second player's presence but cannot be assumed to see Player One's concurrent PC Fortnite activity. It could also make Player One appear online simply because the observer is connected. Test identity, resource and product semantics.
 3. **A game-file exporter has not solved quests or rewards.** `api.fortniteapi.com` is an untested candidate. Current asset coverage, version, availability, authentication, usage terms and response structure need verification. The plugin root from shop metadata is only a lead.
 4. **FortniteAPI.io Challenges v3 is not an established fallback.** Its website was found advertising closure on 31 March 2026. Do not use old packages/tutorials as proof of current service. Reverify if evaluating a successor.
 5. **Raw profile availability is not guaranteed in-match telemetry.** Quest/state updates may arrive only after certain game events or match completion. Measure latency.
@@ -245,7 +245,7 @@ Keep `docs/capability-matrix.md` and `docs/investigation-log.md` in the implemen
 2. Retrieve fresh `athena` and `common_core` through the established read operation and compare to historical fixtures.
 3. Test refresh-token and documented device refresh separately. Verify returned account ID every time; do not overwrite one player's credentials with another's.
 4. Demonstrate continued reads beyond the access-token expiry and after a process restart. Record rotation behavior. Serialize refresh per player and avoid concurrent token refresh races.
-5. Add Player Two with separate authorization when identity/sign-in is available. Verify refresh for both accounts does not invalidate the other. Check any provider per-key/account constraints.
+5. Add the second player with separate authorization when identity/sign-in is available. Verify refresh for both accounts does not invalidate the other. Check any provider per-key/account constraints.
 6. On 401, distinguish provider-key failure, expired Epic token, revoked auth and endpoint-specific upstream rejection. One bounded refresh-and-retry is appropriate; a permanent failed wrapper must not trigger endless sign-in prompts.
 
 Success: repeatable reads, valid account isolation, restart recovery and a documented route to repair authentication. If long-term renewal cannot yet be tested, report that gate pending while implementing fixture-backed parsing.
@@ -283,10 +283,10 @@ Retain unresolved IDs for future enrichment. Show a neutral placeholder rather t
 ### E. Epic friends and cross-platform presence
 
 1. Fetch the documented provider Friends list and specific-friend response. Inspect actual fields before deciding whether live presence is included. Relationship `ACCEPTED` is not online status.
-2. Resolve Player Two's Epic ID, confirming the display identity with Player One if not independently available.
+2. Resolve the second player's Epic ID, confirming the display identity with Player One if not independently available.
 3. Review currently maintained Epic/Fortnite client implementations for presence; `fortnitepy` is a research lead, not a required dependency. Check protocol and Python 3.14 compatibility before installing it in HA.
 4. Prototype the smallest read-only presence listener. Some general-purpose Fortnite clients create parties or publish their own presence at login; audit and prevent unintended game/social actions. Do not automatically accept friends, join parties, send messages or overwrite cosmetic loadouts.
-5. Test observed changes when Player Two opens Fortnite on Switch, sits in a lobby, starts/ends a match, closes the game and, later, uses PS5. Record which values are actually emitted.
+5. Test observed changes when the second player opens Fortnite on Switch, sits in a lobby, starts/ends a match, closes the game and, later, uses PS5. Record which values are actually emitted.
 6. Test when Player One's PC client is online concurrently with the observer, including whether the observer affects in-game status or authentication. Separate observer login from gameplay presence. If own presence is unavailable, test a second independently authorized observer or a verified fallback, but do not promise it from one login.
 7. Test disconnect/reconnect, stale data, privacy settings and multiple resources/platforms. An absent presence notification is not authoritative offline.
 
@@ -306,7 +306,7 @@ Discover exact schemas for current event listings, windows, prizes, scoring and 
 
 Separate **Play** and **Watch** views. Watch coverage is worldwide English broadcasts. Default Play region to Europe as a configurable assumption, not a confirmed instruction about competition region. One event can have several regional/stage windows and broadcasts; use stable IDs rather than title matching alone.
 
-Player Two is a young child; do not label him eligible based solely on rank or API tournament tokens. Read current event rules for age and all other requirements before representing eligibility. Avoid collecting date of birth just to build a dashboard; show “eligibility unverified” or an applicable documented restriction until needed. Token/history checks can be incomplete and may return null; preserve that uncertainty. A provider's positive subset check is not final permission to enter.
+the second player is a young child; do not label him eligible based solely on rank or API tournament tokens. Read current event rules for age and all other requirements before representing eligibility. Avoid collecting date of birth just to build a dashboard; show “eligibility unverified” or an applicable documented restriction until needed. Token/history checks can be incomplete and may return null; preserve that uncertainty. A provider's positive subset check is not final permission to enter.
 
 For broadcasts, inspect official Fortnite Competitive announcements and verified organizer/channel sources. Test available YouTube scheduled/live metadata mechanisms and quotas; do not assume event APIs contain a stream URL or run costly full search every minute. Allow one-time configuration of official channel IDs, cache upcoming videos, deduplicate and associate verified broadcasts to events. Only attach prize totals to the stage/region they describe.
 
@@ -477,7 +477,7 @@ Candidate entities (names illustrative):
 | `calendar.fortnite_watch` | Verified watch events/windows with official links |
 | `calendar.fortnite_play` | Candidate playable events; description states eligibility confidence |
 
-Mirror verified player entities for Player Two after configuration. Do not instantiate hundreds of per-quest or per-cosmetic entities by default. Expose detailed lists through authenticated, paginated HA WebSocket/HTTP endpoints and small change notifications; authenticate every request and prevent arbitrary account/token selection. Treat data visible to household HA users according to the deployment's actual HA access model, not an assumed per-player ACL.
+Mirror verified player entities for the second player after configuration. Do not instantiate hundreds of per-quest or per-cosmetic entities by default. Expose detailed lists through authenticated, paginated HA WebSocket/HTTP endpoints and small change notifications; authenticate every request and prevent arbitrary account/token selection. Treat data visible to household HA users according to the deployment's actual HA access model, not an assumed per-player ACL.
 
 Provide bounded actions such as refresh player, refresh catalogue and clear derived cache. Reauthorization belongs in HA setup/repair flow. No automatic account-changing Epic actions. A component unload must cancel refreshes, presence listeners, subscriptions and database resources cleanly.
 
@@ -527,7 +527,7 @@ Acceptance: another local developer can run one documented command to produce a 
 
 ### Stage 1 — useful HA foundation
 
-Implement setup, per-player auth, raw profile parsers, level/Crew/locker/claimed reward state, verified ranks/stats and sprite collection. Add cache, availability/freshness and a minimal custom card. Support Player One now and the data model for Player Two.
+Implement setup, per-player auth, raw profile parsers, level/Crew/locker/claimed reward state, verified ranks/stats and sprite collection. Add cache, availability/freshness and a minimal custom card. Support Player One now and the data model for the second player.
 
 Acceptance: HA restarts/reloads cleanly; observer failures do not break profile data; card shows truthful partial functionality; credentials never reach frontend or logs. Test on compatible HA/Python, not only standalone scripts.
 
@@ -539,7 +539,7 @@ Acceptance: representative quests match real objectives and rewards; current/unr
 
 ### Stage 3 — presence and sessions
 
-Prototype listener separately, test Switch and concurrent PC behavior, choose native integration versus isolated add-on if warranted, then add confidence/TTL/session logic and optional PSN mapping. Player Two private data can be linked independently of this work.
+Prototype listener separately, test Switch and concurrent PC behavior, choose native integration versus isolated add-on if warranted, then add confidence/TTL/session logic and optional PSN mapping. the second player private data can be linked independently of this work.
 
 Acceptance: observer login does not count as gameplay, source loss becomes unknown, account mapping is correct and session deltas have honest timing labels. No unwanted party/social/account changes.
 
@@ -670,5 +670,5 @@ Do not return only another plan. Complete the bounded investigation, implement t
 
 ## 17. Copy-and-paste kickoff instruction
 
-> Read this handoff in full and inspect the local repository and supplied private fixtures. Build the Fortnite Family Tracker for Home Assistant OS, starting with read-only probes for the unresolved data sources and then implementing the verified functionality. Maintain a capability matrix separating observed, documented and unverified behavior. Use the established Epic athena/common_core profile route for private progress and isolate api-fortnite.com Pro behind adapters. Investigate quest definitions, complete Battle Pass rewards, Epic friend presence, mode-specific stats and official English tournament streams. Do not repeat earlier account setup unnecessarily or ask me to manually track progress. Keep credentials local and out of logs/frontend/source control. Prefer a custom HA integration and dedicated custom card; add a Supervisor add-on only if a concrete dependency or isolation need warrants it. Work through the staged acceptance gates, test against the supplied HA version, and deliver installable code, setup instructions and honest remaining limitations. Ask only for inputs that truly require me, such as Player Two's identity or browser authorization; continue all independent work while those are pending.
+> Read this handoff in full and inspect the local repository and supplied private fixtures. Build the Fortnite Family Tracker for Home Assistant OS, starting with read-only probes for the unresolved data sources and then implementing the verified functionality. Maintain a capability matrix separating observed, documented and unverified behavior. Use the established Epic athena/common_core profile route for private progress and isolate api-fortnite.com Pro behind adapters. Investigate quest definitions, complete Battle Pass rewards, Epic friend presence, mode-specific stats and official English tournament streams. Do not repeat earlier account setup unnecessarily or ask me to manually track progress. Keep credentials local and out of logs/frontend/source control. Prefer a custom HA integration and dedicated custom card; add a Supervisor add-on only if a concrete dependency or isolation need warrants it. Work through the staged acceptance gates, test against the supplied HA version, and deliver installable code, setup instructions and honest remaining limitations. Ask only for inputs that truly require me, such as the second player's identity or browser authorization; continue all independent work while those are pending.
 

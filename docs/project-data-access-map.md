@@ -16,7 +16,7 @@ Evidence labels:
 | Project capability | Access we have | What is still missing | Current conclusion |
 | --- | --- | --- | --- |
 | Player One identity and unattended authentication | **Observed now:** api-fortnite.com interactive OAuth and newly rotated device auth both returned the exact expected Epic identity. A device-auth refresh then succeeded. | Token renewal across process restarts, credential longevity, failure recovery and concurrent multi-account behavior have not been measured. | Sufficient for further bounded Player One research. Production reliability remains unverified. |
-| Player Two identity and authentication | No verified Epic account ID or separate authorization is present. Existing PSN entities belong to Player One; no Nintendo-to-Epic mapping is established. | Player Two's confirmed Epic identity and a separate, consented authentication path. Later PS5/Nintendo association must be verified rather than inferred from friends or display names. | **Missing project input and private-data access.** Private Player Two features cannot be populated yet. |
+| the second player identity and authentication | No verified Epic account ID or separate authorization is present. Existing PSN entities belong to Player One; no Nintendo-to-Epic mapping is established. | the second player's confirmed Epic identity and a separate, consented authentication path. Later PS5/Nintendo association must be verified rather than inferred from friends or display names. | **Missing project input and private-data access.** Private the second player features cannot be populated yet. |
 | Season and account progress | **Observed now:** current season, account level, season level/tier and XP returned successfully for Player One. | The provider's `purchased` flag conflicts with historical personal profile evidence, so pass ownership cannot come from this response. | Numeric progress is usable with timestamp and source. Pass ownership is not. |
 | Public cosmetic metadata | **Observed now:** the provider returned cosmetic metadata and a global catalogue total. | A complete crawl has not been performed. Global catalogue membership does not mean the cosmetic is obtainable or owned. | Suitable as an enrichment catalogue after bounded pagination validation. |
 | Owned cosmetics and styles | **Observed now:** fresh read-only Epic `athena` returned 4,024 items and 475 Athena item records with 639 variant-channel entries; `active` and `owned` are distinct fields and 296 active values were outside the corresponding owned arrays. The provider BR inventory route still returned only `stash.globalcash`. | Validate item and owned-style semantics; join personal instances to public cosmetic metadata. | **Personal ledger access works through direct Epic.** Active style and owned options must not be conflated; the aggregate variant counts are not unique owned-style counts. |
@@ -82,7 +82,7 @@ A truthful first useful dataset for Player One can now include verified identity
 
 The full requested family tracker remains blocked by five material gaps:
 
-1. Player Two's verified Epic identity and separate authorization.
+1. the second player's verified Epic identity and separate authorization.
 2. Validated joins/semantics for the now-accessible personal cosmetic styles, quest counters and pass claims, plus complete English quest definitions and reward rules.
 3. A complete current Battle Pass catalogue and availability rules.
 4. Reliable Switch/PC/PS5 Fortnite presence with freshness semantics.

@@ -814,6 +814,7 @@ def parse_common_core(raw: Any, expected_account_id: str) -> dict[str, Any] | No
     by_kind: dict[str, int] = {}
     total = 0
     other_platforms = 0
+    by_platform: dict[str, int] = {}
     for item in (profile.get("items") or {}).values():
         if not isinstance(item, dict):
             continue
@@ -824,6 +825,8 @@ def parse_common_core(raw: Any, expected_account_id: str) -> dict[str, Any] | No
         if not isinstance(qty, (int, float)):
             continue
         item_platform = (item.get("attributes") or {}).get("platform")
+        label = item_platform if isinstance(item_platform, str) and item_platform else "unknown"
+        by_platform[label] = by_platform.get(label, 0) + int(qty)
         if platform and item_platform not in (platform, "Shared"):
             other_platforms += int(qty)
             continue
@@ -847,6 +850,7 @@ def parse_common_core(raw: Any, expected_account_id: str) -> dict[str, Any] | No
         "by_kind": by_kind,
         "mtx_platform": platform,
         "other_platform_vbucks": other_platforms or None,
+        "by_platform": by_platform,
         "crew": crew,
         "profile_updated": profile.get("updated"),
     }

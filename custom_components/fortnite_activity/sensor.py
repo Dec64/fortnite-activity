@@ -519,6 +519,7 @@ class FortniteVBucksSensor(FortniteEntity, SensorEntity):
             "by_kind": self._wallet.get("by_kind"),
             "mtx_platform": self._wallet.get("mtx_platform"),
             "other_platform_vbucks": self._wallet.get("other_platform_vbucks"),
+            "by_platform": self._wallet.get("by_platform"),
             "crew": self._wallet.get("crew"),
             "profile_updated": self._wallet.get("profile_updated"),
             # Provider stash value kept for comparison only (unverified as V-Bucks)

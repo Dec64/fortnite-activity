@@ -261,6 +261,8 @@ class TestCommonCore(unittest.TestCase):
         self.assertEqual(w["vbucks"], 1350)
         self.assertEqual(w["by_kind"], {"purchased": 1000, "earned": 350})
         self.assertEqual(w["other_platform_vbucks"], 500)
+        self.assertEqual(w["by_platform"], {"EpicPC": 1000, "Shared": 350, "PSN": 500})
+        self.assertEqual(w["other_platform_vbucks"], 500)
         self.assertEqual(w["crew"]["auto_renew"], "AutoRenewEnabled")
 
     def test_identity_gate(self) -> None:

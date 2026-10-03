@@ -286,7 +286,7 @@ The resulting boundary is:
 - Stats, ranks, sprites and tournament operations are documented or historically observed but still need bounded current validation and semantic mapping.
 - The provider does not currently supply verified personal locker/styles, personal Crew state, working quest data, a working complete Battle Pass catalogue, reliable presence or official broadcast discovery.
 - Historical direct Epic `athena` and `common_core` data are the later leads for personal state. Quest definitions, pass catalogue/rules, presence and official broadcasts still need separate source investigations after the current provider-only scope changes.
-- Player Two's verified Epic identity and separate authorization are still missing; existing Player One PSN data and unverified Nintendo associations must not be used as a substitute.
+- the second player's verified Epic identity and separate authorization are still missing; existing Player One PSN data and unverified Nintendo associations must not be used as a substitute.
 
 No network request was made for this assessment.
 
@@ -1032,3 +1032,13 @@ Following the user's `/plan` request and interactive alignment interview, design
 - Tests: `extract_account_id` shapes run locally. The two options-flow tests need the Home Assistant package and were run only against minimal local stubs.
 - Card: the hard-coded default player was removed; with no `player` set the card uses the first tracked player and the panel shows all tracked players. Example names in code, strings, services, tests, README and the installation guide are now generic.
 - v1.17.1: observed live on HA 2026.9.4 that v1.17.0 failed with `UnknownStep ... add_player_method` after the name form, because a menu's step id must have its own step method. Added `async_step_add_player_method`. The local stubs did not model this check.
+
+### 2026-10-03 v1.17.2 Second account added by sign-in: what a restricted account returns
+
+- Observed: adding a second player through Epic sign-in worked. The account ID was taken from the sign-in, the display name was shown on the confirm step, and the player and Epic link were saved together.
+- Observed for that account, with a token that reads level, Power Ranking, common_core and athena successfully:
+  - `/v2/stats/{id}` (lifetime and all windows): HTTP 403, "The requested account's stats are not public." The OpenAPI documents 403 as "Public Game Stats" disabled on the account. No stats, sessions or stats-derived sensors are possible until that Epic setting is turned on. The integration now raises a repair notice (`stats_private`) and clears it when stats return.
+  - `/v2/sprites/collection` and `/v2/sprites/collection/all`: HTTP 401 with the same token that succeeded on other routes. Cause unverified; the provider documentation only says 401 means refresh the token.
+  - `/v2/quests/{id}`: HTTP 500.
+  - common_core: current MTX platform `PSN`, no V-Bucks on that platform or `Shared`, 1,600 on another platform. The sensor state stays the current-platform balance (as the game displays there); a `by_platform` attribute now names where the rest is held and the card shows it beside the balance.
+- Docs: the second player's first name was replaced with a neutral description throughout `docs/`.

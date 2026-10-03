@@ -107,6 +107,8 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 raw_stats = await self.api_client.get_raw_stats(account_id)
                 raw_ranked = await self.api_client.get_raw_ranked(account_id)
             except FortniteApiError as err:
+                # 403 = the Epic account has "Public Game Stats" switched off (provider documentation)
+                self._set_stats_private_issue(p_id, manager.player_name, err.status == 403)
                 _LOGGER.warning("Error fetching data for %s: %s", p_id, err)
                 errors.append(f"{p_id}: {err}")
                 if self.data and p_id in self.data:
@@ -115,6 +117,7 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     any_active = any_active or manager.is_active
                 continue
 
+            self._set_stats_private_issue(p_id, manager.player_name, False)
             parsed_stats = ApiFortniteClient.parse_stats(raw_stats)
             parsed_ranked = ApiFortniteClient.parse_ranked(raw_ranked)
 
@@ -166,6 +169,30 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self.update_interval = target_interval
 
         return results
+
+    def _set_stats_private_issue(self, player_id: str, player_name: str, private: bool) -> None:
+        """Raise or clear the repair that explains why a player's stats cannot be read."""
+        flagged = self.__dict__.setdefault("_stats_private", set())
+        if private == (player_id in flagged):
+            return
+        try:
+            from homeassistant.helpers import issue_registry as ir
+        except ImportError:
+            return
+        if private:
+            flagged.add(player_id)
+            ir.async_create_issue(
+                self.hass,
+                DOMAIN,
+                f"stats_private_{player_id}",
+                is_fixable=False,
+                severity=ir.IssueSeverity.WARNING,
+                translation_key="stats_private",
+                translation_placeholders={"player": player_name},
+            )
+        else:
+            flagged.discard(player_id)
+            ir.async_delete_issue(self.hass, DOMAIN, f"stats_private_{player_id}")
 
     @staticmethod
     def _session_signature(manager: FortniteSessionManager) -> tuple[Any, ...]:

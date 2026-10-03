@@ -125,6 +125,10 @@
     "epic_relink": {
       "title": "Link {player}'s Epic account again",
       "description": "Epic rejected the stored sign-in for {player}, so Sprites, level and Power Ranking are paused. Go to Settings > Devices & services > Fortnite Activity Tracker > Configure > Link Epic account."
+    },
+    "stats_private": {
+      "title": "{player}'s Fortnite stats are private",
+      "description": "Epic refused to share {player}'s match stats because **Public Game Stats** is switched off on that Epic account, so lifetime, season, today and weekly stats and sessions cannot be shown. In Fortnite open Settings > Account and Privacy > Gameplay Privacy and turn **Public Game Stats** on (a child's account may need a parent to allow it). The stats appear at the next refresh and this notice clears itself."
     }
   }
 }
