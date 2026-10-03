@@ -136,15 +136,17 @@ class ApiFortniteClient:
         if status == 200:
             return data
         where = _safe_endpoint(endpoint.split("?")[0] if sensitive else endpoint)
-        if status == 401:
-            raise FortniteAuthError(f"Unauthorized (401) on {where}.", status)
-        if status == 404:
-            raise FortniteNotFoundError(f"Not found (404) on {where}.", status)
-        if status == 429:
-            raise FortniteRateLimitError(f"Rate limited (429) on {where}.", status)
         detail = ""
         if not sensitive and isinstance(data, dict):
-            detail = f": {str(data.get('error') or data.get('message') or '')[:160]}"
+            # The provider's own explanation (ids masked); never taken from OAuth routes
+            text = _safe_endpoint(str(data.get("error") or data.get("message") or ""))[:200]
+            detail = f": {text}" if text else ""
+        if status == 401:
+            raise FortniteAuthError(f"Unauthorized (401) on {where}{detail or '.'}", status)
+        if status == 404:
+            raise FortniteNotFoundError(f"Not found (404) on {where}{detail or '.'}", status)
+        if status == 429:
+            raise FortniteRateLimitError(f"Rate limited (429) on {where}.", status)
         raise FortniteApiError(f"API request failed with HTTP {status} on {where}{detail}", status)
 
     # ---- Epic device-code OAuth (responses contain credentials: never log them) ----
@@ -243,8 +245,12 @@ class ApiFortniteClient:
     async def get_sprite_boons(self) -> Any:
         return await self._request("/v2/sprites/boons")
 
-    async def get_sprite_collection(self, token: str, version: str | None = None) -> Any:
-        query = f"?{urlencode({'version': version})}" if version else ""
+    async def get_sprite_collection(
+        self, token: str, version: str | None = None, account_id: str | None = None
+    ) -> Any:
+        """Own sprite collection; account_id is optional (the provider resolves it from the token)."""
+        params = {k: v for k, v in (("accountId", account_id), ("version", version)) if v}
+        query = f"?{urlencode(params)}" if params else ""
         return await self._request(f"/v2/sprites/collection{query}", token=token)
 
     async def get_sprite_collection_all(self, token: str) -> Any:

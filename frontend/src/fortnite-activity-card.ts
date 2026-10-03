@@ -5,7 +5,7 @@ import { FortniteCardConfig, MatchRecord, trackedPlayers } from "./types";
 import "./editor";
 import "./panel";
 
-const CARD_VERSION = "1.17.3";
+const CARD_VERSION = "1.17.4";
 
 declare global {
   interface Window {

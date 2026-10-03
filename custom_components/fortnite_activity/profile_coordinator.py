@@ -373,6 +373,13 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ok, raw = await self._guarded(
             f"sprites:{player_id}", lambda: self.api_client.get_sprite_collection(token)
         )
+        key = f"sprites_explicit:{player_id}"
+        if not ok and self._stale(key, timedelta(hours=6), now):
+            # The provider normally resolves the account from the token; try naming it once
+            ok, raw = await self._guarded(
+                key, lambda: self.api_client.get_sprite_collection(token, account_id=account_id)
+            )
+            self._fetched_at[key] = now
         if ok:
             ids = catalogue_ids(raw)
             known = set(((self.sprite_catalogue or {}).get("families") or {}).keys())
