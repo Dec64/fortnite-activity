@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from typing import Any
 
 try:
@@ -27,7 +28,7 @@ class FortniteStorage:
         self._store = Store(hass, STORAGE_VERSION, STORAGE_KEY) if Store else None
         self._data: dict[str, Any] = {
             "history": {}, "active": {}, "avatars": {}, "wishlist": {}, "favorites": {}, "first_seen": {}, "notified": [],
-            "sprite_catalogues": {}, "shop_seen": {},
+            "sprite_catalogues": {}, "shop_seen": {}, "season_catalogue": {},
         }
 
     async def async_load(self) -> dict[str, Any]:
@@ -48,6 +49,7 @@ class FortniteStorage:
             data.setdefault("notified", [])
             data.setdefault("sprite_catalogues", {})
             data.setdefault("shop_seen", {})
+            data.setdefault("season_catalogue", {})
             self._data = data
             return self._data
         except Exception as err:
@@ -129,3 +131,29 @@ class FortniteStorage:
     def shop_seen(self) -> dict[str, dict[str, str]]:
         """Item id -> first / last day the integration saw it in the Item Shop (mutable)."""
         return self._data["shop_seen"]
+
+    def get_seasons(self) -> list[dict[str, Any]]:
+        """Only seasons whose exact dates the provider has supplied."""
+        return sorted(
+            (dict(row) for row in self._data.get("season_catalogue", {}).values()),
+            key=lambda row: row["begin"], reverse=True,
+        )
+
+    def set_season(self, season: dict[str, Any] | None) -> bool:
+        """Archive public date metadata; return whether it changed."""
+        if not season or type(season.get("number")) is not int:
+            return False
+        try:
+            begin = datetime.fromisoformat(season["begin"])
+            end = datetime.fromisoformat(season["end"])
+        except (KeyError, TypeError, ValueError):
+            return False
+        if begin.tzinfo is None or end.tzinfo is None or begin >= end:
+            return False
+        row = {key: season[key] for key in ("number", "begin", "end")}
+        catalogue = self._data.setdefault("season_catalogue", {})
+        key = str(row["number"])
+        if catalogue.get(key) == row:
+            return False
+        catalogue[key] = row
+        return True

@@ -117,6 +117,18 @@ class TestApiFortniteClient(unittest.TestCase):
         self.assertEqual(ApiFortniteClient.resolve_playlist_mode("defaultsolo"), MODE_BUILD)
         self.assertEqual(ApiFortniteClient.resolve_playlist_mode("ropesmileduo"), MODE_RELOAD)
 
+    def test_reload_codename_resolution(self) -> None:
+        """Reload/Ranked codenames resolve to readable names, not 'Piperbootsolo'."""
+        name = ApiFortniteClient.resolve_playlist_name
+        self.assertEqual(name("Playlist_PiperbootSolo"), "Reload Solo")
+        self.assertEqual(name("blendheadsolo"), "Reload Solo")
+        self.assertEqual(name("punchberry_squad"), "Reload Squads")
+        self.assertEqual(name("habanerosolo"), "Ranked Battle Royale Solo")
+        self.assertEqual(name("habanero_nobuild_duo"), "Ranked Zero Build Duos")
+        self.assertEqual(name("habanero_ropesmile_duos"), "Ranked Reload Duos")
+        self.assertEqual(ApiFortniteClient.resolve_playlist_mode("piperbootsolo"), MODE_RELOAD)
+        self.assertEqual(ApiFortniteClient.resolve_playlist_mode("blendheadsolo"), MODE_RELOAD)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -225,6 +225,8 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ok, raw = await self._guarded("season", self.api_client.get_season)
             if ok:
                 self.season = parse_season(raw, now)
+                if self.storage and self.storage.set_season(self.season):
+                    await self.storage.async_save()
                 self._fetched_at["season"] = now
         elif self.season:
             # Keep countdown fresh between catalogue refreshes

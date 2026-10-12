@@ -70,6 +70,11 @@ class FortniteRateLimitError(FortniteApiError):
     """Raised when API rate limits are hit (HTTP 429)."""
 
 
+# Epic's internal codenames for Reload playlists (e.g. Playlist_PiperbootSolo, Playlist_BlendheadSolo)
+RELOAD_CODENAMES = ("blastberry", "blendhead", "piperboot", "ropesmile", "punchberry")
+TEAM_SIZES = (("solo", "Solo"), ("duo", "Duos"), ("trio", "Trios"), ("squad", "Squads"), ("octet", "Team of 8"))
+
+
 class ApiFortniteClient:
     """Client for interacting with the api-fortnite.com Pro service."""
 
@@ -367,7 +372,7 @@ class ApiFortniteClient:
         lower = playlist_id.lower()
         if "nobuild" in lower:
             return MODE_ZERO_BUILD
-        elif "ropesmile" in lower:
+        elif any(code in lower for code in RELOAD_CODENAMES):
             return MODE_RELOAD
         elif any(k in lower for k in ["defaultsolo", "defaultduo", "trios", "defaultsquad", "habanero_solo", "habanero_duo", "habanero_trio", "habanero_squad"]):
             return MODE_BUILD
@@ -379,6 +384,14 @@ class ApiFortniteClient:
         clean = playlist_id.lower().replace("playlist_", "")
         if clean in PLAYLIST_NAMES:
             return PLAYLIST_NAMES[clean]
+        team = next((label for key, label in TEAM_SIZES if key in clean), "")
+        reload = any(code in clean for code in RELOAD_CODENAMES)
+        ranked = "habanero" in clean
+        if reload or ranked:
+            zero_build = "nobuild" in clean
+            parts = ["Ranked" if ranked else "", "Reload" if reload else "" if zero_build else "Battle Royale",
+                     "Zero Build" if zero_build else "", team]
+            return " ".join(part for part in parts if part)
         # Auto-prettify common patterns
         clean = clean.replace("nobuildbr_", "Zero Build ").replace("default", "BR ")
         return clean.replace("_", " ").title()

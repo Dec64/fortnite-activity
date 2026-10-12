@@ -57,6 +57,7 @@ except ImportError:
 
 from .api.api_fortnite import FortniteApiError
 from .const import CONF_ACCOUNT_ID, CONF_PLAYER_ID, DOMAIN
+from .season_calendar import season_catalogue
 from .profile import REGION_GROUPS, cosmetic_items, parse_leaderboard
 from .coordinator import FortniteDataUpdateCoordinator
 
@@ -219,6 +220,7 @@ async def ws_get_catalog(
         msg["id"],
         {
             "season": profile.season if profile else None,
+            "seasons": season_catalogue(profile.storage.get_seasons() if profile and profile.storage else [], profile.season if profile else None),
             "playlists": profile.playlists if profile else {},
         },
     )

@@ -215,7 +215,7 @@ export class FortniteActivityCard extends LitElement {
   @state() private _window: StatWindow = "lifetime";
   @state() private _selectedMode: Mode = "all";
   @state() private _loadingAction: string | null = null;
-  @state() private _catalog: { season?: any; playlists: Record<string, any> } = { playlists: {} };
+  @state() private _catalog: { season?: any; seasons?: any[]; playlists: Record<string, any> } = { playlists: {} };
   @state() private _avatar: any = null;
   @state() private _events: { list?: any[] | null; defaultRegion?: string; loading?: boolean; error?: string } = {};
   @state() private _filters: EventFilters | null = null;
@@ -425,7 +425,7 @@ export class FortniteActivityCard extends LitElement {
         .catch(() => ({ playlists: {} }));
     }
     const result = await catalogCache.promise;
-    this._catalog = { season: result?.season, playlists: result?.playlists || {} };
+    this._catalog = { season: result?.season, seasons: result?.seasons || [], playlists: result?.playlists || {} };
   }
 
   private async _loadEvents(force = false): Promise<void> {

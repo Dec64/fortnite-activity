@@ -305,12 +305,12 @@ def _window_label(window_id: str) -> str | None:
 
 
 def parse_tournaments(
-    raw: Any, now: datetime, horizon_days: int = 14, recent_hours: int = 12, per_region_limit: int = 40
+    raw: Any, now: datetime, horizon_days: int = 14, recent_hours: int = 336, per_region_limit: int = 80
 ) -> list[dict[str, Any]]:
     """Tournaments across all regions from /v1/events/global (GlobalEventDto).
 
     Each regional event lists its session windows that are live, upcoming within
-    horizon_days, or finished within recent_hours (so recent leaderboards stay reachable).
+    horizon_days, or finished within recent_hours (two weeks by default, so past results stay reachable).
     """
     horizon = now.timestamp() + horizon_days * 86400
     recent = now.timestamp() - recent_hours * 3600

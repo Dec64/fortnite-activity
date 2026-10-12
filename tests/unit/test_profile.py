@@ -148,6 +148,19 @@ class TestParsers(unittest.TestCase):
         self.assertEqual(reload["platform_groups"], ["Console"])  # name restriction wins over platform codes
         self.assertEqual(parse_tournaments({"bad": 1}, NOW), [])
 
+    def test_parse_tournaments_keeps_two_weeks_of_results(self) -> None:
+        """Finished windows stay listed for 14 days so past results can be browsed."""
+        def window(wid, begin, end):
+            return {"eventWindowId": wid, "beginTime": begin, "endTime": end}
+        raw = [{"id": "e1", "name": "Solo Cash Cup", "regions": {"EU": [{"eventId": "S42_Solo_EU", "platforms": ["PS5"], "eventWindows": [
+            window("old", "2026-09-10T18:00:00Z", "2026-09-10T21:00:00Z"),
+            window("week", "2026-09-24T18:00:00Z", "2026-09-24T21:00:00Z"),
+            window("day", "2026-09-29T18:00:00Z", "2026-09-29T21:00:00Z"),
+        ]}]}}]
+        events = parse_tournaments(raw, NOW)
+        self.assertEqual([w["window_id"] for w in events[0]["windows"]], ["week", "day"])
+        self.assertFalse(events[0]["is_live"])
+
     def test_leaderboard(self) -> None:
         raw = {"page": 0, "totalPages": 40, "updatedTime": "2026-09-16T08:08:52Z", "entries": [
             {"rank": 1, "pointsEarned": 200, "percentile": 0, "teamId": "aaa:bbb",
