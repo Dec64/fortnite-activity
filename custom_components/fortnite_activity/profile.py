@@ -384,6 +384,66 @@ def parse_tournaments(
     return capped
 
 
+def merge_tournament_archive(
+    current: list[dict[str, Any]], archive: dict[str, Any], now: datetime, keep_days: int = 30, limit: int = 400
+) -> tuple[list[dict[str, Any]], dict[str, Any], bool]:
+    """Keep finished tournaments after Epic drops them from the events feed.
+
+    `archive` maps event_id -> event (as built by parse_tournaments). Returns the merged list
+    (current events with their earlier rounds restored, then archived events newest first),
+    the updated archive and whether it changed.
+    """
+    cutoff = now.timestamp() - keep_days * 86400
+
+    def ended(window: dict[str, Any]) -> float:
+        parsed = _parse_iso(window.get("end"))
+        return parsed.timestamp() if parsed else 0.0
+
+    def refresh(event: dict[str, Any], windows: list[dict[str, Any]]) -> dict[str, Any]:
+        rows = []
+        for window in sorted(windows, key=lambda w: w.get("begin") or ""):
+            begin, end = _parse_iso(window.get("begin")), _parse_iso(window.get("end"))
+            if not begin or not end:
+                continue
+            rows.append({**window, "is_live": begin <= now < end, "finished": end <= now})
+        upcoming = [w for w in rows if not w["finished"]]
+        return {**event, "windows": rows, "is_live": any(w["is_live"] for w in rows), "finished": not upcoming,
+                "next": upcoming[0] if upcoming else (rows[-1] if rows else event.get("next"))}
+
+    updated = dict(archive) if isinstance(archive, dict) else {}
+    changed = False
+    merged: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for event in current:
+        key = event.get("event_id")
+        if not key:
+            merged.append(event)
+            continue
+        seen.add(key)
+        old = updated.get(key) or {}
+        by_id = {w["window_id"]: w for w in old.get("windows") or [] if w.get("window_id")}
+        by_id.update({w["window_id"]: w for w in event.get("windows") or [] if w.get("window_id")})
+        full = refresh(event, list(by_id.values()))
+        merged.append(full)
+        if any(w["finished"] for w in full["windows"]):
+            if old != full:
+                updated[key] = full
+                changed = True
+    for key, event in list(updated.items()):
+        last = max((ended(w) for w in event.get("windows") or []), default=0.0)
+        if last < cutoff:
+            del updated[key]
+            changed = True
+        elif key not in seen:
+            merged.append(refresh(event, event.get("windows") or []))
+    if len(updated) > limit:
+        newest = sorted(updated, key=lambda k: max((ended(w) for w in updated[k].get("windows") or []), default=0.0), reverse=True)
+        for key in newest[limit:]:
+            del updated[key]
+        changed = True
+    return merged, updated, changed
+
+
 def parse_leaderboard(raw: Any, account_id: str | None = None, limit: int = 10) -> dict[str, Any] | None:
     """Parse an event-window leaderboard page (entries with sessionHistory.trackedStats)."""
     if not isinstance(raw, dict):

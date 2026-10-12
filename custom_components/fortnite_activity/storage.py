@@ -28,7 +28,7 @@ class FortniteStorage:
         self._store = Store(hass, STORAGE_VERSION, STORAGE_KEY) if Store else None
         self._data: dict[str, Any] = {
             "history": {}, "active": {}, "avatars": {}, "wishlist": {}, "favorites": {}, "first_seen": {}, "notified": [],
-            "sprite_catalogues": {}, "shop_seen": {}, "season_catalogue": {},
+            "sprite_catalogues": {}, "shop_seen": {}, "season_catalogue": {}, "tournament_archive": {},
         }
 
     async def async_load(self) -> dict[str, Any]:
@@ -50,6 +50,7 @@ class FortniteStorage:
             data.setdefault("sprite_catalogues", {})
             data.setdefault("shop_seen", {})
             data.setdefault("season_catalogue", {})
+            data.setdefault("tournament_archive", {})
             self._data = data
             return self._data
         except Exception as err:
@@ -157,3 +158,10 @@ class FortniteStorage:
             return False
         catalogue[key] = row
         return True
+
+    def get_tournament_archive(self) -> dict[str, Any]:
+        """Finished tournaments (event_id -> event) kept after Epic drops them from the feed."""
+        return dict(self._data.get("tournament_archive", {}))
+
+    def set_tournament_archive(self, archive: dict[str, Any]) -> None:
+        self._data["tournament_archive"] = archive

@@ -23,6 +23,7 @@ from custom_components.fortnite_activity.profile import (
     parse_playlists,
     parse_season,
     parse_tournaments,
+    merge_tournament_archive,
     team_size,
     window_is_valid,
 )
@@ -160,6 +161,30 @@ class TestParsers(unittest.TestCase):
         events = parse_tournaments(raw, NOW)
         self.assertEqual([w["window_id"] for w in events[0]["windows"]], ["week", "day"])
         self.assertFalse(events[0]["is_live"])
+
+    def test_tournament_archive_keeps_dropped_events(self) -> None:
+        """Events Epic has dropped from the feed come back from the archive, earlier rounds included."""
+        def event(eid, windows):
+            return {"event_id": eid, "key": eid, "region_group": "EU", "name": eid, "windows": windows}
+        def win(wid, begin, end):
+            return {"window_id": wid, "begin": begin, "end": end, "is_live": False, "finished": False}
+        first = [event("cup", [win("r1", "2026-09-28T18:00:00+00:00", "2026-09-28T21:00:00+00:00")]),
+                 event("league", [win("l1", "2026-09-29T18:00:00+00:00", "2026-09-29T21:00:00+00:00"),
+                                  win("l2", "2026-10-02T18:00:00+00:00", "2026-10-02T21:00:00+00:00")])]
+        merged, archive, changed = merge_tournament_archive(first, {}, NOW)
+        self.assertTrue(changed)
+        self.assertEqual(set(archive), {"cup", "league"})
+        # Next fetch: the cup is gone and the league only lists its future round
+        later = [event("league", [win("l2", "2026-10-02T18:00:00+00:00", "2026-10-02T21:00:00+00:00")])]
+        merged, archive2, _ = merge_tournament_archive(later, archive, NOW)
+        self.assertEqual([e["event_id"] for e in merged], ["league", "cup"])
+        self.assertEqual([w["window_id"] for w in merged[0]["windows"]], ["l1", "l2"])
+        self.assertTrue(merged[1]["finished"])
+        self.assertTrue(merged[1]["windows"][0]["finished"])
+        # A month later everything has expired
+        from datetime import timedelta
+        merged, archive3, changed = merge_tournament_archive([], archive2, NOW + timedelta(days=40))
+        self.assertEqual((merged, archive3, changed), ([], {}, True))
 
     def test_leaderboard(self) -> None:
         raw = {"page": 0, "totalPages": 40, "updatedTime": "2026-09-16T08:08:52Z", "entries": [

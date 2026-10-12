@@ -66,6 +66,7 @@ from .profile import (
     annotate_new_sprites,
     version_key,
     parse_tournaments,
+    merge_tournament_archive,
     sample_items,
     summarise_quests,
     window_is_valid,
@@ -253,6 +254,13 @@ class FortniteProfileCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._fetched_at["tournaments"] = now
         if self._raw_events is not None:
             self.tournaments = parse_tournaments(self._raw_events, now)
+            if self.storage:
+                self.tournaments, archive, changed = merge_tournament_archive(
+                    self.tournaments, self.storage.get_tournament_archive(), now
+                )
+                if changed:
+                    self.storage.set_tournament_archive(archive)
+                    await self.storage.async_save()
 
         if self.token_managers:
             await self._async_update_sprite_catalogue(now)
