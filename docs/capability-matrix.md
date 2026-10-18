@@ -39,8 +39,8 @@ Primary sources: [saved OpenAPI](../evidence/sanitized/specifications/api-fortni
 
 | Capability | In HA | Auth | Notes |
 | --- | --- | --- | --- |
-| Lifetime / Today / 7-day / Season stats, derived metrics | Yes | Key | `startTime` windows observed honoured live |
-| Ranks incl. Unreal placement | Yes | Key | Field is `rankProgress` |
+| Lifetime / Today / 7-day / Season stats, derived metrics | Yes | Key | `startTime` windows observed honoured live; since v1.19.0 windows carry team sizes, controllers and minutes like lifetime |
+| Ranks incl. Unreal placement | Yes | Key | Field is `rankProgress`. Ranked playlists (`habanero`) never get Sprite events attached: owner-reported that Sprites do not drop in ranked, unverified upstream |
 | Tournaments (all regions), leaderboards | Yes | Key | Account highlight returns 403; plain page used |
 | Playlist artwork, season, display name | Yes | Key | Catalogue lacks Reload/ranked playlists |
 | Linked platforms | No | Key | `externalAuths` returns 403 upstream |

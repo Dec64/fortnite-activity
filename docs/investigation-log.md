@@ -1068,3 +1068,11 @@ Following the user's `/plan` request and interactive alignment interview, design
 - `custom:household-fortnite-page-card` (the household's whole-dashboard page) is now part of the integration: `frontend/fortnite-family-page.js`, served from `/fortnite_activity_static/` and auto-loaded like the Activity Card. Before this release it was loaded from `/config/www` with seven rounds of fixes applied at load time. The fixed file is now the source, and it passes the same checks as a strict-mode module.
 - Player names are no longer in the code; they come from the card's `players` config or the tracked players. See `family-page.md`.
 - README, setup guide and agent instructions rewritten to describe the current project. The API investigation documents are kept as evidence, with status notes.
+
+### 2026-10-18 v1.19.0 Family page design pass
+
+- Week, today and season stats now carry team sizes, controllers and minutes (they were empty outside lifetime). Overall stats also expose team sizes per mode.
+- Sprites, quests and level found after a game are attached to the newest game after the session start; Sprites skip ranked games (owner-reported: no Sprites in ranked; proposed, not verified upstream). The page merges these late results into open game tiles and pop-ups by timestamp.
+- Observed from code: the locker avatar did not show after a refresh because outfit ids keep their original case while the stored avatar id is lower case. Matching is now case-insensitive.
+- Page redesign: session summary, ranked and non-ranked game tiles, game pop-up with mode map, rank emblems with ladder, readable ranked track names, round close and arrow buttons, rarity filter chips. Screenshots come from `tools/ui-preview/` with synthetic data only.
+

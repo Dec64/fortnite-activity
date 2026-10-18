@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fortnite Family preview</title>
+<style>body{margin:0;padding:12px;background:#0d1016;font-family:sans-serif}</style>
+</head>
+<body>
+<!-- Local preview of the Fortnite Family page with synthetic data (no Home Assistant needed).
+     Serve the repository root (python3 -m http.server) and open /tools/ui-preview/. -->
+<household-fortnite-page-card id="page"></household-fortnite-page-card>
+<script src="fixtures.js"></script>
+<script type="module">
+  await import('/custom_components/fortnite_activity/frontend/fortnite-activity-card.js');
+  window.loadCardHelpers = async () => ({
+    createCardElement(config) {
+      const el = document.createElement(config.type.replace('custom:', ''));
+      el.setConfig(config);
+      return el;
+    },
+  });
+  const s = document.createElement('script');
+  s.src = '/custom_components/fortnite_activity/frontend/fortnite-family-page.js';
+  s.onload = () => {
+    const page = document.getElementById('page');
+    const states = window.PREVIEW.states;
+    const hass = {
+      states, language: 'en', locale: { language: 'en' }, config: { time_zone: 'Europe/London' }, themes: { darkMode: true },
+      callWS: async msg => window.PREVIEW.ws(msg),
+      callService: async () => {},
+      callApi: async () => ({}),
+    };
+    page.setConfig({ type: 'custom:household-fortnite-page-card', player: new URLSearchParams(location.search).get('player') || 'player1', players: window.PREVIEW.players, artwork: {}, native: { sections: ['session', 'stats', 'sprites', 'locker'] } });
+    page.hass = hass;
+    window.previewHass = hass;
+    window.setPreviewState = (id, patch) => { hass.states = { ...hass.states, [id]: { ...hass.states[id], ...patch } }; window.previewHass = { ...hass, states: hass.states }; page.hass = window.previewHass; };
+  };
+  document.body.append(s);
+</script>
+</body>
+</html>

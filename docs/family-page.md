@@ -31,13 +31,13 @@ native:                       # options passed to the embedded Fortnite Activity
 
 | Tab | Content |
 |-----|---------|
-| Last session | Every game of the latest session as a coloured tile (Victory Royale, Top 5/10/25 or players outlived), kills, quests and level gained. Tap a tile for the full game. |
-| Stats | Lifetime, today, last-7-days and season figures by mode and team size, plus ranks and Power Ranking. |
+| Last session | A summary of the session (games, Victory Royales, eliminations, time played, plus Sprites, quests and rank change only when there are any), then every game as a coloured tile. Ranked games show the rank after the game and its change; other games show Sprites, quests and level gained when there are any. Sprites and quests found a poll or two after a game appear on its tile and in its pop-up without a reload. Tap a tile for the full game: mode, map name and picture, time played, eliminations, players outlived, score, rank after a ranked game, and what was found. Collected tonight appears only once a Sprite has been found. |
+| Stats | All time, season, this week and today, by mode: an overview, team sizes and controllers (for every period), then ranked cards with the rank emblem, progress ring and tier ladder, other ranked tracks by readable name, Power Ranking and the games list. Empty figures are hidden. |
 | Sprites | Collection progress, families and variants, season history, and new Sprites from the latest update. |
 | Events | Coming up, Live and Results views, with filters (region, type, mode, team, platform, minimum level), posters, entry requirements and leaderboards. Results cover the last 30 days. |
 | Trends | Charts per period and season, with coloured up/down changes. |
 | Pass | Reward sets with high-resolution art (looked up by name when the item ID is unknown), progress and costs; continuous paging with jump links per section. |
-| Locker | Owned outfits, favourites and avatar choice. |
+| Locker | Owned outfits, favourites and avatar choice. Rarity chips filter the outfits; Remove avatar appears only when one is set. |
 | Shop | Today's shop with jump links per section, wishlist hearts and "back after N days" history. |
 | News | The latest update, the next tournament and the news feed. |
 | Map | The map filling the space, with Explore (search places and grid squares), Land (pick or randomise a drop spot) and Draw (plan a route) modes, plus full screen. |
@@ -47,6 +47,9 @@ Tournament, shop and map data load in the background shortly after the page open
 
 ## Limitations
 
+- The map shown for a game is the map of its mode (the playlist's own map, else the current Battle Royale island for Build and Zero Build). Fortnite does not report which map a finished game was played on.
+- Ranked games never show Sprites, because they cannot drop there (reported by the owner, not verified upstream).
+- `tools/ui-preview/` renders the page with synthetic data for screenshots; it is not part of the integration.
 - Times are shown in UK time (Europe/London) and numbers in en-GB format, whatever Home Assistant's settings are.
 - The design uses the Outfit and Figtree fonts when they are installed as dashboard resources; otherwise the browser's sans-serif font is used.
 - Together compares only the first two players.
