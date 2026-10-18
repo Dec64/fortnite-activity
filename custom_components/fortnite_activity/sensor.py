@@ -75,7 +75,7 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
     _attr_icon = "mdi:trophy-outline"
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     # Nested breakdowns change every poll; keep them out of the recorder database
-    _unrecorded_attributes = frozenset({"modes", "team_sizes", "inputs", "metrics"})
+    _unrecorded_attributes = frozenset({"modes", "team_sizes", "team_sizes_by_mode", "inputs", "metrics"})
 
     def __init__(self, coordinator: FortniteDataUpdateCoordinator, player_id: str, player_name: str) -> None:
         """Initialize the sensor."""
@@ -106,8 +106,9 @@ class FortniteOverallStatsSensor(FortniteEntity, SensorEntity):
             # Raw sNN_social_bp_level value; its encoding is unverified (observed 32179 while level was 322)
             "season_level_raw": stats.get("season_level"),
             "modes": stats.get("modes", {}),
-            "metrics": {k: v for k, v in metrics.items() if k not in ("team_sizes", "inputs")},
+            "metrics": {k: v for k, v in metrics.items() if k not in ("team_sizes", "team_sizes_by_mode", "inputs")},
             "team_sizes": metrics.get("team_sizes", {}),
+            "team_sizes_by_mode": metrics.get("team_sizes_by_mode", {}),
             "inputs": metrics.get("inputs", {}),
         }
 

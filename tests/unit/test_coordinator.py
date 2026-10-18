@@ -158,3 +158,45 @@ if __name__ == "__main__":
         self.assertIsNotNone(coordinator.data["player1"]["last_session"])
         self.assertEqual(coordinator.update_interval, timedelta(seconds=1800))
         self.mock_storage.async_save.assert_awaited()
+
+
+class TestMatchProgress(unittest.IsolatedAsyncioTestCase):
+    """Progress read after a game is attached to the right game."""
+
+    def _coordinator(self, matches: list[dict]) -> FortniteDataUpdateCoordinator:
+        storage = MagicMock(spec=FortniteStorage)
+        storage.get_player_history.return_value = []
+        storage.get_active_session.return_value = None
+        storage.async_save = MagicMock()
+        coordinator = FortniteDataUpdateCoordinator(
+            hass=MagicMock(),
+            api_client=MagicMock(spec=ApiFortniteClient),
+            entry_data={CONF_PLAYERS: [{CONF_PLAYER_ID: "player1", CONF_PLAYER_NAME: "Player One", CONF_ACCOUNT_ID: "acc"}]},
+            entry_options={},
+            storage=storage,
+        )
+        coordinator.data = {"player1": {}}
+        coordinator.async_set_updated_data = MagicMock()
+        coordinator.session_managers["player1"].active_session = {"session_id": "s1", "matches": matches}
+        return coordinator
+
+    async def test_sprites_skip_a_ranked_game(self) -> None:
+        from datetime import datetime, timezone
+
+        ranked = {"timestamp": "2026-10-18T10:20:00+00:00", "mode_category": "zero_build", "playlist_id": "nobuildbr_habanero_solo"}
+        normal = {"timestamp": "2026-10-18T10:00:00+00:00", "mode_category": "zero_build", "playlist_id": "nobuildbr_solo"}
+        coordinator = self._coordinator([ranked, normal])
+        events = [{"type": "quests", "count": 2}, {"type": "sprite_new", "name": "Synth", "icon": None}]
+        coordinator.attach_match_progress("player1", events, datetime(2026, 10, 18, 10, 10, tzinfo=timezone.utc))
+        self.assertEqual([e["type"] for e in ranked["progress"]], ["quests"])
+        self.assertEqual([e["type"] for e in normal["progress"]], ["sprite_new"])
+        coordinator.async_set_updated_data.assert_called_once()
+
+    async def test_nothing_attached_to_an_older_game(self) -> None:
+        from datetime import datetime, timezone
+
+        game = {"timestamp": "2026-10-18T10:00:00+00:00", "mode_category": "build", "playlist_id": "defaultsolo"}
+        coordinator = self._coordinator([game])
+        coordinator.attach_match_progress("player1", [{"type": "quests", "count": 1}], datetime(2026, 10, 18, 10, 30, tzinfo=timezone.utc))
+        self.assertNotIn("progress", game)
+
