@@ -170,6 +170,8 @@
   const isRanked = m => /habanero/i.test(m?.playlist_id || '') || /\branked\b/i.test(m?.mode_name || '');
   const deltaChip = (d, suffix = '') => { const v = number(d); return v === null || v === 0 ? '' : '<span class="delta-chip ' + (v > 0 ? 'up' : 'down') + '">' + (v > 0 ? '▲ ' : '▼ ') + fmt(Math.abs(v), 1) + '%' + suffix + '</span>'; };
   const gameLabel = m => { const n = number(m.match_number), c = number(m.match_count) || 1; return n === null ? 'Game' : c > 1 ? 'Games ' + n + '–' + (n + c - 1) : 'Game ' + n; };
+  // Fits a summary tile: 1h 36m
+  const shortTime = v => { const n = Math.round(number(v) || 0), h = Math.floor(n / 60); return h ? h + 'h ' + (n % 60) + 'm' : n + 'm'; };
   const big = v => { const n = number(v); if (n === null) return '–'; const a = Math.abs(n); return a >= 1e6 ? fmt(n / 1e6, 1) + 'M' : a >= 1e4 ? fmt(n / 1e3, 1) + 'K' : fmt(n); };
   const minutesText = v => { const n = Math.round(number(v) || 0), h = Math.floor(n / 60); return h ? h + ' h ' + (n % 60) + ' min' : n + ' min'; };
   const CHEVRON = d => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + (d < 0 ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7') + '" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -263,7 +265,7 @@
  /* Session story */
  .story{position:relative;overflow:hidden;border-radius:var(--r-lg);padding:18px;background:linear-gradient(135deg,color-mix(in srgb,#7c3aed 55%,var(--s1)),color-mix(in srgb,#2563eb 45%,var(--s1)));color:#fff;margin-bottom:6px}.story.won{background:linear-gradient(135deg,#b45309,#f59e0b 55%,#fb923c)}
  .story-head{display:flex;flex-direction:column;gap:4px}.story-head h2{margin:0;font:800 30px/1.1 Outfit,sans-serif}.story-head .lab{color:rgba(255,255,255,.85)}.pill.live{background:#ef4444;color:#fff;align-self:flex-start}.pill.live::before{content:"";width:8px;height:8px;border-radius:50%;background:#fff;animation:hh-blink 1.2s infinite}@keyframes hh-blink{50%{opacity:.25}}
- .story-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:14px}.story-chip{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:var(--r-md);background:rgba(13,16,22,.28)}.story-chip .ic{font-size:20px;line-height:1;height:22px;display:flex;align-items:center}.story-chip .ic svg{width:22px;height:22px}.story-chip b{font:800 24px/1.05 Outfit,sans-serif;white-space:nowrap}.story-chip span:last-child{font-size:13px;opacity:.9}.story-chip.gold b{color:#fde68a}.story-chip.up b{color:#bbf7d0}.story-chip.down b{color:#fecaca}
+ .story-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:14px}.story-chip{display:flex;flex-direction:column;gap:2px;min-width:0;color:#fff;padding:10px 12px;border-radius:var(--r-md);background:rgba(13,16,22,.28)}.story-chip .ic{font-size:20px;line-height:1;height:22px;display:flex;align-items:center}.story-chip .ic svg{width:22px;height:22px}.story-chip b{font:800 24px/1.05 Outfit,sans-serif;overflow-wrap:anywhere}.story-chip span:last-child{font-size:13px;opacity:.9}.story-chip.is-gold b{color:#fde68a}.story-chip.is-up b{color:#bbf7d0}.story-chip.is-down b{color:#fecaca}
  .session-cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}.session-cols>div>.rank-card{margin-top:18px}
  @container(max-width:860px){.session-cols{grid-template-columns:1fr;gap:0}}
  .hello{text-align:center;padding:28px 18px}.hello b{font:700 22px Outfit,sans-serif}
@@ -528,12 +530,12 @@
     const chip = (icon, value, label, cls = '') => '<div class="story-chip ' + cls + '">' + icon + '<b>' + value + '</b><span>' + label + '</span></div>';
     const story = '<section class="story' + (wins ? ' won' : '') + '"><div class="story-head">' + (live ? '<span class="pill live">Playing now</span>' : '<span class="lab">' + esc(this.when(s.start_time)) + '</span>') + '<h2>' + (wins ? (wins > 1 ? wins + ' Victory Royales!' : 'Victory Royale!') : live ? 'Game on!' : 'How it went') + '</h2></div><div class="story-chips">'
       + chip('<span class="ic">🎮</span>', fmt(games), games === 1 ? 'game' : 'games')
-      + chip('<span class="ic">🏆</span>', fmt(wins), wins === 1 ? 'Victory Royale' : 'Victory Royales', wins ? 'gold' : '')
+      + chip('<span class="ic">🏆</span>', fmt(wins), wins === 1 ? 'Victory Royale' : 'Victory Royales', wins ? 'is-gold' : '')
       + chip('<span class="ic">' + ICON.target + '</span>', fmt(kills), kills === 1 ? 'elimination' : 'eliminations')
-      + (number(s.duration_minutes) ? chip('<span class="ic">⏱</span>', minutesText(s.duration_minutes), 'played') : '')
+      + (number(s.duration_minutes) ? chip('<span class="ic">⏱</span>', shortTime(s.duration_minutes), 'played') : '')
       + (sprites.length ? chip('<span class="ic">✨</span>', fmt(sprites.length), sprites.length === 1 ? 'Sprite' : 'Sprites') : '')
       + (quests ? chip('<span class="ic">✅</span>', fmt(quests), quests === 1 ? 'quest' : 'quests') : '')
-      + (ranked && number(s.net_rank_delta_pct) ? chip('<span class="ic">' + (s.net_rank_delta_pct > 0 ? '▲' : '▼') + '</span>', fmt(Math.abs(s.net_rank_delta_pct), 1) + '%', s.net_rank_delta_pct > 0 ? 'ranked up' : 'rank down', s.net_rank_delta_pct > 0 ? 'up' : 'down') : '')
+      + (ranked && number(s.net_rank_delta_pct) ? chip('<span class="ic">' + (s.net_rank_delta_pct > 0 ? '▲' : '▼') + '</span>', fmt(Math.abs(s.net_rank_delta_pct), 1) + '%', s.net_rank_delta_pct > 0 ? 'ranked up' : 'rank down', s.net_rank_delta_pct > 0 ? 'is-up' : 'is-down') : '')
       + '</div></section>';
     const list = this.config.native?.show_match_feed === false ? '' : matches.length ? '<div class="game-grid">' + matches.map((m) => this.matchTile(m)).join('') + '</div>' : empty(this.native?._matchLists?.[key]?.error || 'Loading games…');
     const seen = new Set(), found = sprites.filter((e) => !seen.has(e.name + e.type) && seen.add(e.name + e.type));
