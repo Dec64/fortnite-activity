@@ -40,7 +40,7 @@ from .const import (
     DEFAULT_INACTIVITY_TIMEOUT,
     DOMAIN,
 )
-from .profile import compute_metrics, events_for_mode
+from .profile import SPRITE_EVENT_TYPES, compute_metrics, sprites_possible
 from .session_manager import FortniteSessionManager
 from .storage import FortniteStorage
 
@@ -249,7 +249,10 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def attach_match_progress(self, player_id: str, events: list[dict[str, Any]], since: datetime) -> None:
         """Attach quest/level/sprite progress to the latest match played after `since`.
 
-        Sprite events are only kept for Battle Royale (build / zero build) matches.
+        Quests and levels go to that match. Sprite events go to the newest match in the session
+        that can award Sprites (Battle Royale build / zero build, not ranked): progress is read a
+        poll or two after a game ends, so a ranked game that follows a normal one must not take
+        its Sprites.
         """
         manager = self.session_managers.get(player_id)
         if manager is None:
@@ -257,17 +260,28 @@ class FortniteDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         session = manager.active_session or (manager.history[0] if manager.history else None)
         if not session or not session.get("matches"):
             return
-        match = session["matches"][0]
+        latest = session["matches"][0]
         try:
-            played = datetime.fromisoformat(match["timestamp"])
+            played = datetime.fromisoformat(latest["timestamp"])
         except (KeyError, ValueError):
             return
         if played < since:
             return
-        kept = events_for_mode(events, match.get("mode_category"))
-        if not kept:
+        others = [e for e in events if e.get("type") not in SPRITE_EVENT_TYPES]
+        sprites = [e for e in events if e.get("type") in SPRITE_EVENT_TYPES]
+        changed = False
+        if others:
+            latest["progress"] = (latest.get("progress") or []) + others
+            changed = True
+        target = next(
+            (m for m in session["matches"] if sprites_possible(m.get("mode_category"), m.get("playlist_id"))),
+            None,
+        ) if sprites else None
+        if target is not None:
+            target["progress"] = (target.get("progress") or []) + sprites
+            changed = True
+        if not changed:
             return
-        match["progress"] = (match.get("progress") or []) + kept
         self._store_player_state(player_id)
         self.hass.async_create_task(self.storage.async_save())
         self._sync_session_data(player_id)

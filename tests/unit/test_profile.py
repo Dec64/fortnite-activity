@@ -17,6 +17,7 @@ from unittest.mock import AsyncMock, MagicMock
 from custom_components.fortnite_activity.api.api_fortnite import ApiFortniteClient, FortniteApiError
 from custom_components.fortnite_activity.profile import (
     compute_metrics,
+    compute_window,
     parse_display_name,
     parse_leaderboard,
     parse_external_auths,
@@ -61,6 +62,22 @@ class TestMetrics(unittest.TestCase):
         self.assertTrue(m["last_played"]["time"].startswith("2026-09-21"))
         self.assertIsNotNone(m["favourite_mode"])
         self.assertIn("solo", m["team_sizes"])
+
+    def test_window_has_the_same_breakdowns_as_lifetime(self) -> None:
+        raw = _stats()
+        raw["stats"]["br_matchesplayed_gamepad_m0_playlist_defaultsolo"] = 10
+        raw["stats"]["br_placetop1_gamepad_m0_playlist_defaultsolo"] = 2
+        raw["stats"]["br_minutesplayed_gamepad_m0_playlist_defaultsolo"] = 150
+        window = compute_window(ApiFortniteClient.parse_stats(raw))
+        self.assertIn("solo", window["team_sizes"])
+        self.assertIn("gamepad", window["inputs"])
+        self.assertGreaterEqual(window["minutes"], 150)
+        by_mode = window["team_sizes_by_mode"]
+        self.assertTrue(any("solo" in sizes for sizes in by_mode.values()))
+        self.assertEqual(
+            sum(sizes.get("solo", {}).get("matches", 0) for sizes in by_mode.values()),
+            window["team_sizes"]["solo"]["matches"],
+        )
 
     def test_empty_stats_do_not_divide_by_zero(self) -> None:
         m = compute_metrics(ApiFortniteClient.parse_stats({"stats": {}}))
@@ -444,6 +461,8 @@ def test_progress_events_and_mode_relevance():
     assert progress_events(None, after) == []
     assert [e["type"] for e in events_for_mode(events, "reload")] == ["quests", "level_up"]
     assert events_for_mode(events, "zero_build") == events
+    # Ranked games don't award Sprites
+    assert [e["type"] for e in events_for_mode(events, "zero_build", "nobuildbr_habanero_duo")] == ["quests", "level_up"]
 
 
 def test_sprite_release_tracking():

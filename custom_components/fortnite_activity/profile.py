@@ -75,6 +75,8 @@ def compute_metrics(parsed_stats: dict[str, Any]) -> dict[str, Any]:
 
     # Team-size breakdown across Battle Royale-style playlists (excludes creative/other)
     sizes = {size: {"matches": 0, "wins": 0, "kills": 0} for size in TEAM_SIZES}
+    # The same split per mode category, so a mode filter can show its own breakdown
+    mode_sizes: dict[str, dict[str, dict[str, int]]] = {}
     solo_matches = solo_top10 = solo_top25 = 0
     favourite: dict[str, Any] | None = None
     last_played: tuple[datetime, dict[str, Any]] | None = None
@@ -87,8 +89,12 @@ def compute_metrics(parsed_stats: dict[str, Any]) -> dict[str, Any]:
             continue
         size = team_size(pid)
         if size:
+            per_mode = mode_sizes.setdefault(p.get("mode") or "", {}).setdefault(
+                size, {"matches": 0, "wins": 0, "kills": 0}
+            )
             for key in ("matches", "wins", "kills"):
                 sizes[size][key] += p.get(key, 0)
+                per_mode[key] += p.get(key, 0)
         if size == "solo":
             # Only solo playlists report Top 10 / Top 25 placements
             solo_matches += p.get("matches", 0)
@@ -125,6 +131,11 @@ def compute_metrics(parsed_stats: dict[str, Any]) -> dict[str, Any]:
             else None
         ),
         "team_sizes": {size: _summary(**v) for size, v in sizes.items() if v["matches"]},
+        "team_sizes_by_mode": {
+            mode: {size: _summary(**v) for size, v in by_size.items() if v["matches"]}
+            for mode, by_size in mode_sizes.items()
+            if mode and any(v["matches"] for v in by_size.values())
+        },
         "inputs": inputs,
     }
 
@@ -136,11 +147,16 @@ def compute_window(parsed_stats: dict[str, Any]) -> dict[str, Any]:
     return {
         **_summary(overall.get("matches", 0), overall.get("wins", 0), overall.get("kills", 0)),
         "players_outlived": overall.get("players_outlived", 0),
+        "minutes": overall.get("minutes", 0),
         "hours_played": metrics["hours_played"],
         "kills_per_match": metrics["kills_per_match"],
         "avg_match_minutes": metrics["avg_match_minutes"],
         "favourite_mode": metrics["favourite_mode"],
         "modes": parsed_stats.get("modes", {}),
+        # Same breakdowns as lifetime, so the Week/Today/Season views are as detailed
+        "team_sizes": metrics["team_sizes"],
+        "team_sizes_by_mode": metrics["team_sizes_by_mode"],
+        "inputs": metrics["inputs"],
     }
 
 
@@ -1306,12 +1322,24 @@ def progress_events(before: dict[str, Any] | None, after: dict[str, Any]) -> lis
     return events
 
 
-# Sprites belong to the main Battle Royale island; Reload and other modes have none
+# Sprites belong to the main Battle Royale island; Reload and other modes have none,
+# and ranked games don't award them (owner-reported, October 2026)
 SPRITE_EVENT_TYPES = {"sprite_new", "sprite_mastered", "sprite_level"}
 
 
-def events_for_mode(events: list[dict[str, Any]], mode_category: str | None) -> list[dict[str, Any]]:
-    if mode_category in ("build", "zero_build"):
+def is_ranked_playlist(playlist_id: str | None) -> bool:
+    """Ranked stats playlists carry the 'habanero' codename (e.g. nobuildbr_habanero_duo)."""
+    return "habanero" in str(playlist_id or "").lower()
+
+
+def sprites_possible(mode_category: str | None, playlist_id: str | None = None) -> bool:
+    return mode_category in ("build", "zero_build") and not is_ranked_playlist(playlist_id)
+
+
+def events_for_mode(
+    events: list[dict[str, Any]], mode_category: str | None, playlist_id: str | None = None
+) -> list[dict[str, Any]]:
+    if sprites_possible(mode_category, playlist_id):
         return events
     return [e for e in events if e.get("type") not in SPRITE_EVENT_TYPES]
 
