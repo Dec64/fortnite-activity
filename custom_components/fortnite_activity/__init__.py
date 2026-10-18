@@ -49,6 +49,9 @@ PLATFORMS = ["sensor", "binary_sensor"]
 
 CARD_URL = "/fortnite_activity_static/fortnite-activity-card.js"
 CARD_PATH = Path(__file__).parent / "frontend" / "fortnite-activity-card.js"
+# Family page (custom:household-fortnite-page-card): a whole-dashboard page that embeds the card above
+FAMILY_CARD_URL = "/fortnite_activity_static/fortnite-family-page.js"
+FAMILY_CARD_PATH = Path(__file__).parent / "frontend" / "fortnite-family-page.js"
 
 # Read manifest version for cache busting
 try:
@@ -66,14 +69,16 @@ async def _async_register_frontend_card(hass: HomeAssistant) -> None:
         return
     flags["registered"] = True
 
+    cards = [(url, path) for url, path in ((CARD_URL, CARD_PATH), (FAMILY_CARD_URL, FAMILY_CARD_PATH)) if path.exists()]
     if hasattr(hass, "http"):
         try:
             if hasattr(hass.http, "async_register_static_paths") and StaticPathConfig:
                 await hass.http.async_register_static_paths([
-                    StaticPathConfig(CARD_URL, str(CARD_PATH), cache_headers=False)
+                    StaticPathConfig(url, str(path), cache_headers=False) for url, path in cards
                 ])
             elif hasattr(hass.http, "register_static_path"):
-                hass.http.register_static_path(CARD_URL, str(CARD_PATH), cache_headers=False)
+                for url, path in cards:
+                    hass.http.register_static_path(url, str(path), cache_headers=False)
         except Exception as err:
             _LOGGER.debug("Card static path registration: %s", err)
 
@@ -86,10 +91,11 @@ async def _async_register_frontend_card(hass: HomeAssistant) -> None:
             _LOGGER.debug("Thumbnail view registration: %s", err)
 
     if add_extra_js_url:
-        try:
-            add_extra_js_url(hass, f"{CARD_URL}?v={_VERSION}")
-        except Exception as err:
-            _LOGGER.debug("Card extra JS URL registration: %s", err)
+        for url, _path in cards:
+            try:
+                add_extra_js_url(hass, f"{url}?v={_VERSION}")
+            except Exception as err:
+                _LOGGER.debug("Card extra JS URL registration (%s): %s", url, err)
 
 
 def _async_raise_relink_issue(hass: HomeAssistant, player_id: str, player_name: str) -> None:

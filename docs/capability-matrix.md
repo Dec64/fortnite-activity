@@ -1,4 +1,6 @@
-# Capability matrix — API investigation only
+# Capability matrix: API investigation record
+
+> **Status (October 2026):** this table records what the September 2026 API investigation established, and it is kept as evidence. Most capabilities marked as next steps are now implemented in the integration; see the [README](../README.md). The limits still in force are listed under **Known limitations** there.
 
 Updated 2026-09-16 after the Pro-only API and Python SDK audit and bounded direct Epic profile checks. The earlier Pro ledger has eighty-one dispatched requests: fifteen authentication POSTs and sixty-six GETs. Four later fixed-scope runs made four more api-fortnite.com authentication POSTs and six read-only Epic `QueryProfile` POSTs; see the separate [profile results](epic-profile-readonly-results.md). One earlier cashprizes GET's local capture was interrupted, leaving its status unknown; a later captured repeat succeeded. No HA, card, database, broker or service implementation. See the [project data/API map](project-data-access-map.md), [Python SDK audit](api-fortnite-python-sdk-audit.md), [events/Friends/sprites results](api-fortnite-events-friends-sprites-results.md), [coverage results](api-fortnite-stats-ranks-sprites-results.md), [initial live results](api-fortnite-probe-results.md), [missing-data recovery map](api-fortnite-missing-data-recovery.md), [operation inventory](api-fortnite-operation-inventory.md) and [approved amended plan](api-fortnite-probe-plan.md).
 

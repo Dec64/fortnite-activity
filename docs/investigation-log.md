@@ -1051,3 +1051,20 @@ Following the user's `/plan` request and interactive alignment interview, design
 - Conclusion: the provider reads sprites through an Epic/EOS token exchange, and Epic refuses that exchange for this account. Naming the account explicitly makes no difference, so the explicit-account retry added in v1.17.4 is not useful and can be removed.
 - Unverified: why Epic refuses it. Candidates are an account restriction (for example a child account awaiting parental consent or a pending terms acceptance) or a token-type difference between `oauth/complete` and `oauth/refresh-device` that only matters for this account. The first account's `refresh-device` token works for sprites, which argues against the second.
 - `/v2/quests/{id}` returns HTTP 500 "An unexpected error occurred" for this account; cause unknown.
+
+### 2026-10-12 v1.17.5 Season calendar, longer tournament history, Reload names
+
+- Brought into the repository the season-calendar changes that had been running on Home Assistant but were never pushed: `season_calendar.py` (42 sourced seasons, see `season-calendar.md`), the season archive in storage and `seasons` in the catalog websocket result. The card now keeps that list.
+- Tournaments: finished windows are now kept for 14 days instead of 12 hours, and the per-region cap is raised to 80.
+- Observed in recent sessions: Reload playlists use the codenames `piperboot`, `blendhead`, `blastberry`, `punchberry` and `ropesmile`, and Ranked uses `habanero`. These now resolve to readable names and modes (for example `Reload Solo`, `Ranked Battle Royale Solo`).
+
+### 2026-10-12 v1.17.6 Tournament results kept for 30 days
+
+- Observed: the events feed drops tournaments soon after they finish, so on quiet days no results remained to show. Every event with a finished round is now archived in storage (30 days, up to 400 events) and merged back into the tournament list. Earlier rounds of events still running are restored too.
+- After the update: 158 tournaments were loaded.
+
+### 2026-10-18 v1.18.0 Fortnite Family page ships with the integration
+
+- `custom:household-fortnite-page-card` (the household's whole-dashboard page) is now part of the integration: `frontend/fortnite-family-page.js`, served from `/fortnite_activity_static/` and auto-loaded like the Activity Card. Before this release it was loaded from `/config/www` with seven rounds of fixes applied at load time. The fixed file is now the source, and it passes the same checks as a strict-mode module.
+- Player names are no longer in the code; they come from the card's `players` config or the tracked players. See `family-page.md`.
+- README, setup guide and agent instructions rewritten to describe the current project. The API investigation documents are kept as evidence, with status notes.

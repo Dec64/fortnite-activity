@@ -2,6 +2,8 @@
 
 Prepared for the project owner and a local coding agent. Evidence snapshot: 14 September 2026. Version 1.0.
 
+> **Status (October 2026):** this is the original brief from September 2026, kept for background. The integration and its cards have since been built and released; see the [README](../README.md) for what exists today and the [investigation log](investigation-log.md) for release history.
+
 ## 1. Read this first
 
 Build an automatic Fortnite tracker for Player One and his son the second player, running continuously at home and displayed in Home Assistant. First resolve the remaining data-access questions with small, reproducible probes; then implement the verified features. This is an engineering handoff, not a claim that every proposed feature already works.

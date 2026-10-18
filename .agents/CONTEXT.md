@@ -1,12 +1,9 @@
-﻿# Project context
+# Project context
 
-The authoritative specification is:
+What the project does today: `README.md`.
 
-`docs/fortnite-home-assistant-agent-handoff.md`
+Repository operating rules: `AGENTS.md`.
 
-The repository-level operating instructions are:
+Release history and observed provider/Epic behaviour: `docs/investigation-log.md`.
 
-`AGENTS.md`
-
-Read both before planning or implementation. Treat `evidence/raw` as private input.
-Use the Fortnite Secret Broker for every live authenticated operation.
+The original brief, `docs/fortnite-home-assistant-agent-handoff.md` (September 2026), is background only. Treat `evidence/raw` as private input that is never committed. No credential broker is used.
